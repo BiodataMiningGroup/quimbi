@@ -1,0 +1,7 @@
+<form class="pure-form pure-form-stacked" name="form" data-ng-submit="submitForm(form)" novalidate="true">
+	<fieldset>
+		<legend>Please select a file to load</legend>
+		<input type="text" placeholder="URL" required="required" data-ng-model="form.file" typeahead="file for file in data.files | filter:$viewValue | limitTo:8" autofocus="autofocus"/>
+	</fieldset>
+	<button class="pure-button pure-button-primary" type="submit"><i class="icon-ok"></i> Load</button>
+</form>

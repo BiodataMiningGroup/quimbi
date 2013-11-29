@@ -1,0 +1,103 @@
+// === Display view ===
+
+.canvas-tools {
+	width: @canvas-tools-width;
+	position: relative;
+	float: left;
+	margin-right: @pad;
+
+	.pure-button {
+		width: 100%;
+		transition: all 250ms;
+		box-sizing: border-box;
+	}
+}
+
+.tool-button {
+	transition: all 250ms;
+	border-left: @small-pad solid transparent;
+	border-radius: @radius;
+	margin-bottom: @pad;
+	overflow: hidden;
+	color: rgba(0, 0, 0, 0.8);
+	box-sizing: border-box;
+
+	.pure-button {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+
+		&.clear {
+			width: 0%;
+			padding: 0.5em 0;
+		}
+	}
+
+	&.passive {
+		border-left-width: @pad;
+		//margin-bottom: @small-pad;
+		
+		.clear {
+			width: 30%;
+		}
+
+		.draw {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+			width: 70%;
+		}
+	}
+}
+
+.icon-button {
+	opacity: 0.5;
+	transition: opacity @duration;
+	border: none;
+	display: inline-block;
+	margin-top: @pad;
+
+	&:hover {
+		opacity: 1;
+	}
+}
+
+.canvas-wrapper {
+	@margin-left: @canvas-tools-width + 12px;
+	@width: @view-min-width - @margin-left;
+	min-width: @width;
+	position: relative;
+	line-height: 0px;
+	margin-left: @margin-left;
+
+	.resizer {
+		width: 100%;
+		min-width: @width;
+		max-width: 100%;
+		height: 10px;
+		resize: horizontal;
+		overflow: hidden;
+		margin-top: -5px;
+	}
+
+	canvas {
+		.image-crisp-edges;
+		height: auto;
+		width: 100%;
+	}
+}
+
+.tool-point {
+	@dim: 10px;
+	@border: 1px;
+	position: absolute;
+	cursor: pointer;
+	// 2*border because of border+shadow
+	width: @dim - 2 * @border;
+	height: @dim - 2 * @border;
+	// tool-points are positioned using %-values. the transformation sets the
+	// center of the point to the %-coordinates.
+	transform: translate(-@dim / 2,-@dim / 2);
+
+	border: @border solid white;
+	box-shadow: 0 0 0 @border black;
+	border-radius: 50%;
+}

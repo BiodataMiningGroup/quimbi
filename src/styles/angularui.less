@@ -1,0 +1,46 @@
+// === Angular-UI ===
+
+.tooltip {
+	user-select: none;
+	position: absolute;
+	z-index: 8;
+	display: block;
+	padding: @pad;
+	opacity: 0;
+	transition: opacity @duration;
+
+	&.in {
+		opacity: 1;
+	}
+}
+
+.tooltip-inner{
+	border-radius: @radius;
+	word-wrap: break-word;
+	background-color: @trans-black;
+	padding: @pad;
+	max-width: 250px;
+}
+
+.typeahead.dropdown-menu {
+	border-radius: @radius;
+	background-color: @light-gray;
+	position: absolute;
+	list-style: none;
+	padding: 0;
+
+	a {
+		border: none;
+	}
+
+	li {
+		border-radius: @radius;
+		padding: @pad;
+		display: block;
+		cursor: pointer;
+
+		&.active {
+			background-color: @trans-white;
+		}
+	}
+}

@@ -1,0 +1,35 @@
+<h1>Settings</h1>
+<form class="pure-form">
+	<fieldset>
+		<legend>Distance computing method</legend>
+		<label for="dist-angle" class="pure-radio">
+			<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-checked="distanceFunc == 'angle'" data-ng-click="newDistanceFunc('angle')"/>
+			<b>Angle distance</b>
+		</label>
+		<label for="dist-mink" class="pure-radio">
+			<input id="dist-mink" type="radio" name="distRadios" value="mink" data-ng-checked="distanceFunc == 'mink'" data-ng-click="newDistanceFunc('mink')"/>
+			<b>Euclidean distance</b>
+		</label>
+		<label for="dist-mink-ignore-zero" class="pure-radio">
+			<input id="dist-mink-ignore-zero" type="radio" name="distRadios" value="mink-ignore-zero" data-ng-checked="distanceFunc == 'mink-ignore-zero'" data-ng-click="newDistanceFunc('mink-ignore-zero')"/>
+			<b>Euclidean distance (ignore 0 vectors)</b>
+		</label>
+		Normalized with {{normMethod}} {{norm | number:2}}.
+	</fieldset>
+	<fieldset>
+		<legend>Interface</legend>
+		<label for="points-checkbox" class="pure-checkbox">
+			<input id="points-checkbox" type="checkbox" value="points" data-ng-checked="showPoints" data-ng-click="toggleShowPoints()"/>
+			Show selection points.
+		</label>
+		<label for="overlay-checkbox" class="pure-checkbox" data-ng-show="overlay.src != ''">
+			<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-checked="showOverlay" data-ng-click="toggleShowOverlay()"/>
+			Show overlay image.
+		</label>
+		<label for="scale-checkbox" class="pure-checkbox">
+			<input id="scale-checkbox" type="checkbox" value="scale" data-ng-checked="showScale" data-ng-click="toggleShowScale()"/>
+			Show color scales.
+		</label>
+	</fieldset>
+</form>
+<a href="#/display" class="pure-button" >back</a>
