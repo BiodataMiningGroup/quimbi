@@ -1,7 +1,7 @@
-<div class="canvas-wrapper" data-ng-mousemove="mousemove($event)" data-ng-click="click($event)">
-	<div tool-point="$gray" tooltip="Drag to select."></div>
-	<div tool-point="red" tooltip="Drag to select."></div>
-	<div tool-point="lime" tooltip="Drag to select."></div>
-	<div tool-point="blue" tooltip="Drag to select."></div>
+<div class="canvas-wrapper" data-ng-mousemove="mousemove($event)" data-ng-click="drawn()">
+	<div data-tool-point="$gray" data-tooltip="Click to select with gray shades."></div>
+	<div data-tool-point="red" data-tooltip="Click to select with red shades."></div>
+	<div data-tool-point="lime" data-tooltip="Click to select with green shades."></div>
+	<div data-tool-point="blue" data-tooltip="Click to select with blue shades."></div>
 	<div class="resizer"></div>
 </div>

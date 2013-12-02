@@ -67,6 +67,7 @@
 	position: relative;
 	line-height: 0px;
 	margin-left: @margin-left;
+	overflow: hidden;
 
 	.resizer {
 		width: 100%;
@@ -74,8 +75,9 @@
 		max-width: 100%;
 		height: 10px;
 		resize: horizontal;
-		overflow: hidden;
-		margin-top: -5px;
+		overflow: auto;
+		margin-top: -10px;
+		position: relative;
 	}
 
 	canvas {

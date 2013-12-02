@@ -1,3 +1,6 @@
+# directive for a tool button displayed in the display route. registers a new
+# tool in the toolset (if not already present) and manages the "draw" and
+# "clear" events
 angular.module('quimbi').directive 'toolButton', (toolset) ->
 	
 	restrict: 'A'

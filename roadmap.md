@@ -3,16 +3,16 @@
 
 ## Issues
 
-- Canvas cannot be scaled down (changing width and height attributes) so the image can be rendered more efficiently.
+- Canvas cannot be scaled down (changing width and height attributes) so the image can be rendered more efficiently. The native canvas size prevents the canvasWrapper to become smaller. If the canvas is position: absolute; the wrapper has no more reference for its size.
 
-- Initial scale of the canvas is for testing only. Has to correspond to original image and to viewport size.
+- Make canvasWrapper resizing without additional resizer element?
 
-- canvasWrapper resizer mustn't affect the canvasWrapper size. Otherwise the mouseposition on the canvas isn't accurate any more
+- displayCtrl not needed?
+
+- Make "reset" broadcast for all services on any error?
 
 
 ## Pending features
-
-- Changing selection by dragging of the toolPoints.
 
 - Resizing of the canvas.
 

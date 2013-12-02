@@ -1,19 +1,23 @@
+# declaration of this app/module
 angular.module 'quimbi', [
 	'ngRoute'
 	'ui.bootstrap'
 	'angularmsg'
 	]
 
+# configure angularmsg module
 angular.module('angularmsg').value 'displayDuration', 5000
 angular.module('angularmsg').value 'fadingDuration', 250
 
 angular.module('quimbi').config ($tooltipProvider, $routeProvider) ->
+	# configure ui.bootstrap tooltips
 	$tooltipProvider.options
 		placement: 'right'
 		animation: no
 		popupDelay: 1000
 		appendToBody: yes
 
+	# declare routes
 	$routeProvider
 	.when('/init',
 		controller: 'initCtrl'
@@ -34,8 +38,8 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider) ->
 		controller: 'settingsCtrl'
 		templateUrl: 'views/settings.html'
 	)
-	.otherwise
-		redirectTo: '/init'
+	# default route
+	.otherwise redirectTo: '/init'
 
 	return
 

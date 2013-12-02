@@ -1,3 +1,5 @@
+# main application controller. parent of all route controllers. manages messaging
+# system and stores reference to dataset informations (input) since its needed globally
 angular.module('quimbi').controller 'mainCtrl', ($scope, inputParser, msg) ->
 	$scope.input = null
 
