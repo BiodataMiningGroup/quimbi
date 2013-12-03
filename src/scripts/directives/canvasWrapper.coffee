@@ -3,7 +3,7 @@
 # the DOM so an "element" is needed.
 # manages the mouse position on the canvas and therefore defines the
 # mvi prerenderCallback. manages other mouse events on the canvas, too.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, $window, toolset) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) ->
 	
 	restrict: 'A'
 
@@ -13,9 +13,11 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, $window, toolset) -
 
 	scope: yes
 
-	link: (scope, element, attrs) ->
+	link: (scope, element) ->
 		# important! because of this the canvasWrapper is a directive and not just a controller
 		element.prepend canvas.element
+		# set saved element width if one was saved
+		if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
 		# information about the canvasWrapper element
 		scope.properties = 
 			left: 0
@@ -32,23 +34,22 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, $window, toolset) -
 			properties.top = rect.top
 			properties.width = element[0].clientWidth
 			properties.height = element[0].clientHeight
-			# TODO make downscaling of canvas dimensions possible
-			#canvas.checkScale properties.width
 
 		# observe element+children
 		observer = new MutationObserver updateProperties
-		observer.observe element[0],
-			attributes: yes
-			subtree: yes
+		observer.observe element[0], attributes: yes
 		# update once on linking
 		updateProperties()
+
+		updateWidth = (newWidth) ->
+			settings.canvasWidth = newWidth
+			canvas.checkScale newWidth
+		scope.$watch 'properties.width', updateWidth
 		return
 
 	controller: ($scope) ->
 		# mouse coordinates in % of the canvasWrapper dimensions
-		mouse =
-			x: 0
-			y: 0
+		mouse = x: 0, y: 0
 		
 		gl = mvi.getContext()
 		glMousePosition = gl.getUniformLocation mvi.getProgram(), "u_currpos"
@@ -72,5 +73,5 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, $window, toolset) -
 			y: mouse.y
 
 		# is default tool active by default?
-		# mvi.startRendering()
+		mvi.renderOnce()
 		return

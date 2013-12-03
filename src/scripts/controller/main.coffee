@@ -1,8 +1,6 @@
 # main application controller. parent of all route controllers. manages messaging
-# system and stores reference to dataset informations (input) since its needed globally
-angular.module('quimbi').controller 'mainCtrl', ($scope, inputParser, msg) ->
-	$scope.input = null
-
+# system
+angular.module('quimbi').controller 'mainCtrl', ($scope, msg) ->
 	# global messaging system
 	messageInfo = (event, text) -> 
 		event.stopPropagation()
@@ -27,7 +25,5 @@ angular.module('quimbi').controller 'mainCtrl', ($scope, inputParser, msg) ->
 		$scope.$emit "message::#{type}", text
 		$scope.$apply()
 	mvi.setMessageCallback mviMessage
-
-	$scope.setInput = (rawInput) -> $scope.input = inputParser.parse rawInput
 
 	return

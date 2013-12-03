@@ -1,11 +1,9 @@
 # controller for the loading route. manages downloading of the dataset images and
 # setting up of mvi.
-angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas) ->
+angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input) ->
 	# number of files loaded in parallel
 	PARALLEL = 10
 
-	# information about the dataset
-	input = $scope.input
 	# set original size of the canvas (needed for scaling it)
 	canvas.setOrigSize input.width, input.height
 

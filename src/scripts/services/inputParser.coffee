@@ -1,41 +1,11 @@
 # service for reading the dataset file format.
-angular.module('quimbi').service 'inputParser', ->
-	Input = ->
-		# base url to the image files
-		base: ''
-		# dataset name
-		id: ''
-		# image file format/extension
-		format: ''
-		# image height
-		height: 0
-		# image width
-		width: 0
-		# number of overall channels of the image
-		channels: 0
-		# information about the preprocessing process
-		preprocessing: null
-		# filenames of the image files
-		files: null
-		# html image objects
-		images: null
-		# maximal occurring euclidean distance in this dataset
-		maxEuclDist: 0
-		# applied euclidean distance normalization method
-		euclDistNormMethod: 'maximal possible distance'
-		# maximal occurring angle distance in this dataset
-		maxAngleDist: Math.PI / 2
-		# applied angle distance normalization method
-		angleDistNormMethod: 'maximal possible distance'
-		# returns whether the dataset appears to be valid
-		valid: -> @files instanceof Array && typeof @format is 'string' && @format.length > 0 && @height > 0 && @width > 0 && @channels > 0
+angular.module('quimbi').service 'inputParser', (input) ->
 
 	# filters out invalid filenames (e.g. empty line at the end of the file)
 	filesFilter = (item) -> item && typeof item is 'string' && item.trim() isnt ''
 
-	# parses the given input file and returns a new input object
+	# parses the given input file and fills the input service
 	@parse = (rawInput) ->
-		input = new Input()
 		firstLine = rawInput.indexOf '\n'
 		secondLine = rawInput.indexOf '\n', firstLine + 1
 
@@ -63,8 +33,6 @@ angular.module('quimbi').service 'inputParser', ->
 			throw
 				name: 'InvalidFormatException'
 				message: 'Invalid input format.'
-			return null
-
-		input
+		return
 
 	return

@@ -3,31 +3,31 @@
 	<fieldset>
 		<legend>Distance computing method</legend>
 		<label for="dist-angle" class="pure-radio">
-			<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-checked="distanceFunc == 'angle'" data-ng-click="newDistanceFunc('angle')"/>
+			<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-model="settings.distMethod"/>
 			<b>Angle distance</b>
 		</label>
 		<label for="dist-mink" class="pure-radio">
-			<input id="dist-mink" type="radio" name="distRadios" value="mink" data-ng-checked="distanceFunc == 'mink'" data-ng-click="newDistanceFunc('mink')"/>
+			<input id="dist-mink" type="radio" name="distRadios" value="mink" data-ng-model="settings.distMethod"/>
 			<b>Euclidean distance</b>
 		</label>
 		<label for="dist-mink-ignore-zero" class="pure-radio">
-			<input id="dist-mink-ignore-zero" type="radio" name="distRadios" value="mink-ignore-zero" data-ng-checked="distanceFunc == 'mink-ignore-zero'" data-ng-click="newDistanceFunc('mink-ignore-zero')"/>
+			<input id="dist-mink-ignore-zero" type="radio" name="distRadios" value="mink-ignore-zero" data-ng-model="settings.distMethod"/>
 			<b>Euclidean distance (ignore 0 vectors)</b>
 		</label>
-		Normalized with {{normMethod}} {{norm | number:2}}.
+		Normalized with {{info.normMethod}} {{info.norm | number:2}}.
 	</fieldset>
 	<fieldset>
 		<legend>Interface</legend>
 		<label for="points-checkbox" class="pure-checkbox">
-			<input id="points-checkbox" type="checkbox" value="points" data-ng-checked="showPoints" data-ng-click="toggleShowPoints()"/>
+			<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
 			Show selection points.
 		</label>
 		<label for="overlay-checkbox" class="pure-checkbox" data-ng-show="overlay.src != ''">
-			<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-checked="showOverlay" data-ng-click="toggleShowOverlay()"/>
+			<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay" />
 			Show overlay image.
 		</label>
 		<label for="scale-checkbox" class="pure-checkbox">
-			<input id="scale-checkbox" type="checkbox" value="scale" data-ng-checked="showScale" data-ng-click="toggleShowScale()"/>
+			<input id="scale-checkbox" type="checkbox" value="scale" data-ng-model="settings.showScale" />
 			Show color scales.
 		</label>
 	</fieldset>

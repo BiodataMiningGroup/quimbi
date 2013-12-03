@@ -1,5 +1,5 @@
 # controller for the init route. manages the submit form and loads the dataset file.
-angular.module('quimbi').controller 'initCtrl', ($scope, $http, state) ->
+angular.module('quimbi').controller 'initCtrl', ($scope, $http, state, inputParser) ->
 	# array of predefined dataset files for the typeahead directive
 	$scope.data =
 		files: [
@@ -11,7 +11,7 @@ angular.module('quimbi').controller 'initCtrl', ($scope, $http, state) ->
 		# return code for successful download
 		if 200 <= status < 300
 			try
-				$scope.setInput data
+				inputParser.parse data
 				state.to 'loading'
 			# catches error from inputParser
 			catch e

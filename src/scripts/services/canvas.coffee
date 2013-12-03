@@ -14,11 +14,13 @@ angular.module('quimbi').service 'canvas', ($document) ->
 	# this makes webgl rendering more efficiently
 	@checkScale = (w) =>
 		if w >= width
-			@element.width = width
-			@element.height = height
+			@element[0].width = width
+			@element[0].height = height
 		else
 			scale = w / width
-			@element.width *= scale
-			@element.height *= scale
+			@element[0].width = width * scale
+			@element[0].height = height * scale
+		# render once because changing the size clears the canvas
+		mvi.renderOnce()
 
 	return

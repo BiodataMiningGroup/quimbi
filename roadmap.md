@@ -3,22 +3,14 @@
 
 ## Issues
 
-- Canvas cannot be scaled down (changing width and height attributes) so the image can be rendered more efficiently. The native canvas size prevents the canvasWrapper to become smaller. If the canvas is position: absolute; the wrapper has no more reference for its size.
-
-- Make canvasWrapper resizing without additional resizer element?
-
-- displayCtrl not needed?
-
 - Make "reset" broadcast for all services on any error?
+
+- Canvas is scalable >100% and elements break if window is too small.
 
 
 ## Pending features
 
-- Resizing of the canvas.
-
-- Settings.
-
-- Permanent error messages that can be hidden via mouseclick. For this tha angularmsg module has to be extended.
+- Permanent error messages that can be hidden via mouseclick. For this the angularmsg module has to be extended.
 
 - Overlay image.
 
