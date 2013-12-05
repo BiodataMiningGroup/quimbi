@@ -7,12 +7,14 @@
 
 - Canvas is scalable >100% and elements break if window is too small.
 
+- Is the default tool active on startup?
+
 
 ## Pending features
 
 - Permanent error messages that can be hidden via mouseclick. For this the angularmsg module has to be extended.
 
-- Overlay image.
+- Overlay image. Implemented but no sources exist!!
 
 
 ## Features
@@ -21,7 +23,4 @@
 
 - View with further information about the dataset.
 
-- Display of the color ratios in the hovered pixel.
-		  --------------------------------------------
-  idea: |rrrrrrrrr|ggg|bbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-		  --------------------------------------------
+- Add feature to export the current image.

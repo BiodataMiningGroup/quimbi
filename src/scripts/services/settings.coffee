@@ -9,9 +9,12 @@ angular.module('quimbi').service 'settings', ->
 	
 	# show the overlay image
 	@showOverlay = yes
+
+	# the current overlay opacity
+	@overlayOpacity = 0
 	
-	# show the color scales
-	@showScale = yes
+	# show the color ratios
+	@showColorRatio = yes
 	
 	# width of the main canvas
 	@canvasWidth = 0

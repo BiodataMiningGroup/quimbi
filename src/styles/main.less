@@ -21,8 +21,15 @@ li + li {
 	margin-top: @pad;
 }
 
+input {
+	&[type="range"], &[type="checkbox"], &[type="radio"] {
+		cursor: pointer;
+	}
+}
+
 html, body {
 	height: 100%;
+	overflow: hidden;
 }
 
 body {
@@ -42,6 +49,19 @@ body {
 	max-height: 100%;
 	box-sizing: border-box;
 	position: relative;
+}
+
+.about {
+	position: absolute;
+	left: @pad;
+	bottom: @pad;
+	opacity: 0.5;
+	transition: opacity @duration;
+	border: none;
+
+	&:hover {
+		opacity: 1;
+	}
 }
 
 // === Views ===

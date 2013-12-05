@@ -78,7 +78,7 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		tool.position.x = position.x
 		tool.position.y = position.y
 		# save image in rttTexture for combining tools
-		unless tool.isDefault then do mvi.snapshot
+		unless tool.isDefault then mvi.snapshot()
 		# update renderState AFTER snapshot
 		updateRenderState()
 		mvi.stopRendering()
@@ -90,10 +90,13 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		# the cleared tool is not passive
 		tools[id].passive = no
 		removePassive id
-		# update rendered image with ner renderState
+		# update rendered image with new renderState
 		mvi.renderOnce updateRenderState()
 
 	# returns current render state
 	@getRenderState = -> renderState
+
+	# returns whether any tool is drawing
+	@drawing = -> drawing isnt ''
 
 	return

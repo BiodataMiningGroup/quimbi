@@ -61,10 +61,16 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) 
 			toolset.getRenderState()
 		mvi.setPrerenderCallback prerenderCallabck
 
-		# updates mouse coordinates
+		# updates mouse coordinates and reads current pixel data
 		$scope.mousemove = (e) ->
 			mouse.x = (e.pageX - $scope.properties.left) / $scope.properties.width
 			mouse.y = (e.pageY - $scope.properties.top) / $scope.properties.height
+			unless settings.showColorRatio then return
+			# x-position, y-position, x-dimension, y-dimension, color format, 
+			# number format, destination variable
+			pos = canvas.getPixelPosition mouse.x, 1 - mouse.y
+			# colorRatio is from parent scope
+			gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
 
 		# finishes drawing/selecting of the currently active tool at the current
 		# mouse position
@@ -72,6 +78,5 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) 
 			x: mouse.x
 			y: mouse.y
 
-		# is default tool active by default?
-		mvi.renderOnce()
+		# TODO is default tool active by default?
 		return

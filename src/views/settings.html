@@ -14,7 +14,7 @@
 			<input id="dist-mink-ignore-zero" type="radio" name="distRadios" value="mink-ignore-zero" data-ng-model="settings.distMethod"/>
 			<b>Euclidean distance (ignore 0 vectors)</b>
 		</label>
-		Normalized with {{info.normMethod}} {{info.norm | number:2}}.
+		Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
 	</fieldset>
 	<fieldset>
 		<legend>Interface</legend>
@@ -22,13 +22,13 @@
 			<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
 			Show selection points.
 		</label>
-		<label for="overlay-checkbox" class="pure-checkbox" data-ng-show="overlay.src != ''">
+		<label for="overlay-checkbox" class="pure-checkbox" data-ng-if="info.hasOverlay">
 			<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay" />
 			Show overlay image.
 		</label>
-		<label for="scale-checkbox" class="pure-checkbox">
-			<input id="scale-checkbox" type="checkbox" value="scale" data-ng-model="settings.showScale" />
-			Show color scales.
+		<label for="color-ratio-checkbox" class="pure-checkbox">
+			<input id="color-ratio-checkbox" type="checkbox" value="color-ratio" data-ng-model="settings.showColorRatio" />
+			Show color ratios.
 		</label>
 	</fieldset>
 </form>

@@ -1,11 +1,17 @@
 // === Display view ===
 
+.display-view {
+	white-space: nowrap;
+	line-height: 0;
+}
+
 .canvas-tools {
 	width: @canvas-tools-width;
 	position: relative;
 	display: inline-block;
 	vertical-align: top;
 	margin-right: @pad;
+	white-space: normal;
 
 	.pure-button {
 		width: 100%;
@@ -49,34 +55,36 @@
 	}
 }
 
-.icon-button {
-	opacity: 0.5;
-	transition: opacity @duration;
-	border: none;
-	display: inline-block;
-	margin-top: @pad;
-
-	&:hover {
-		opacity: 1;
-	}
-}
-
 .canvas-wrapper {
 	max-width: 100%;
 	position: relative;
 	display: inline-block;
 	overflow: hidden;
 	resize: horizontal;
-	padding-right: 3px;
-	padding-bottom: 3px;
+
+	&:after {
+		height: 0;
+		width: 0;
+		border-top: 10px solid transparent;
+		border-left: 10px solid transparent;
+		border-right: 10px solid #999;
+		border-bottom: 10px solid #999;
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		content: '';
+	}
 
 	canvas {
 		.image-crisp-edges;
 		height: auto;
 		width: 100%;
 		display: block;
+		pointer-events: none;
 	}
 }
+
 
 .tool-point {
 	@dim: 10px;
@@ -93,4 +101,49 @@
 	border: @border solid white;
 	box-shadow: 0 0 0 @border black;
 	border-radius: 50%;
+}
+
+.canvas-overlay {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+
+	img {
+		width: 100%;
+		height: 100%;
+	}
+
+	input[type="range"] {
+		position: absolute;
+		left: @pad;
+		bottom: @pad;
+		pointer-events: all;
+		opacity: 0.25;
+		transition: opacity @duration;
+
+		&:hover {
+			opacity: 1;
+		}
+	}
+}
+
+.color-ratios {
+	margin-top: @pad;
+	position: relative;
+	height: 3 * @pad;
+	border-radius: @radius;
+	background-color: @text-color;
+	padding: @small-pad;
+	box-sizing: border-box;
+	line-height: 0;
+	overflow: hidden;
+}
+
+.color-ratios_bar {
+	height: 100%;
+	display: inline-block;
+	transition: width 100ms;
 }

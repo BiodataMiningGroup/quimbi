@@ -27,6 +27,9 @@ angular.module('quimbi').service 'input', ->
 	# html image objects
 	@images = null
 
+	# url to overlay image
+	@overlayImage = ''
+
 	# maximal occurring euclidean distance in this dataset
 	@maxEuclDist = 0
 

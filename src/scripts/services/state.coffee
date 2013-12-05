@@ -31,4 +31,6 @@ angular.module('quimbi').service 'state', ($rootScope, $location) ->
 		if states[newState]?
 			state = newState
 			updateLocation()
+
+	@current = -> state
 	return

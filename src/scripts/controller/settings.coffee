@@ -1,10 +1,11 @@
 # controller for the settings route
 angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input) ->
 	$scope.settings = settings
-	# additional information that depends on the current settings and can't be set directly
+	# additional information that can't be set directly
 	$scope.info =
 		normMethod: ''
 		norm: 0
+		hasOverlay: input.overlayImage isnt ''
 
 	updateDistMethod = (newDistMethod) ->
 		switch newDistMethod

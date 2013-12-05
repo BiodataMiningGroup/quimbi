@@ -32,6 +32,7 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider) ->
 		templateUrl: 'views/display.html'
 	)
 	.when('/about',
+		controller: 'aboutCtrl'
 		templateUrl: 'views/about.html'
 	)
 	.when('/settings',
