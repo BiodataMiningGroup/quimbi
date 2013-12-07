@@ -5,11 +5,7 @@ angular.module 'quimbi', [
 	'angularmsg'
 	]
 
-# configure angularmsg module
-angular.module('angularmsg').value 'displayDuration', 5000
-angular.module('angularmsg').value 'fadingDuration', 250
-
-angular.module('quimbi').config ($tooltipProvider, $routeProvider) ->
+angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) ->
 	# configure ui.bootstrap tooltips
 	$tooltipProvider.options
 		placement: 'right'
@@ -41,6 +37,10 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider) ->
 	)
 	# default route
 	.otherwise redirectTo: '/init'
+
+	msgProvider.options
+		displayDuration: 5000
+		fadingDuration: 250
 
 	return
 

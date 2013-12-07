@@ -12,8 +12,6 @@
 
 ## Pending features
 
-- Permanent error messages that can be hidden via mouseclick. For this the angularmsg module has to be extended.
-
 - Overlay image. Implemented but no sources exist!!
 
 
