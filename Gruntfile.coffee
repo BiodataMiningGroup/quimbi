@@ -4,19 +4,22 @@ module.exports = (grunt) ->
 	require('matchdep').filterDev('grunt-*').forEach grunt.loadNpmTasks
 
 	grunt.initConfig
+		# declare directories
 		buildDir: './build'
 		srcDir: './src'
 		tmpDir: '.tmp'
 		pkg: grunt.file.readJSON 'package.json'
+		# declare source files
 		src:
 			coffee: 'scripts/**/*.coffee'
 			less: 'styles/main.less'
 			html: '**/*.html'
 			shader: 'shader/**/*.glsl'
 			fonts: 'fonts/**/*'
+		# Clean the temporary directory
 		clean:
 			tmp: [ '.tmp' ]
-
+		# Compile and uglify LESS
 		recess:
 			build:
 				src: [ '<%= srcDir %>/<%= src.less %>' ],
@@ -24,14 +27,14 @@ module.exports = (grunt) ->
 				options:
 					compile: true
 					compress: true
-
+		# Add browser-prefixes to special CSS attributes
 		autoprefixer:
 			multiple_files:
 				flatten: true
 				expand: true					
 				src:  '<%= tmpDir %>/css/*.css'
 				dest: '<%= buildDir %>/css/'
-
+		# Compile the CoffeeScript files
 		coffee:
 			build:
 				options:
@@ -43,7 +46,7 @@ module.exports = (grunt) ->
 					dest: '.tmp/js/',
 					ext: '.js'
 				]
-
+		# Concatenate the JavaScript files
 		concat:
 			build:
 				src: [
@@ -54,13 +57,13 @@ module.exports = (grunt) ->
 				]
 				dest: '<%= tmpDir %>/js/<%= pkg.name %>.js'
 
-		# Annotate angular sources
+		# Annotate angular sources to be able to uglify them
 		ngmin:
 			build:
 				src: [ '<%= tmpDir %>/js/<%= pkg.name %>.js' ]
 				dest: '<%= buildDir %>/js/<%= pkg.name %>.annotated.js'
 
-		# Minify the sources!
+		# Minify the sources
 		uglify:
 			build:
 				files:
@@ -84,16 +87,24 @@ module.exports = (grunt) ->
 			main:
 				files: [
 					cwd: '<%= srcDir %>'
-					src: [ '<%= src.html %>', '<%= src.shader %>', '<%= src.fonts %>']
+					src: [
+						'<%= src.html %>'
+						'<%= src.shader %>'
+						'<%= src.fonts %>'
+					]
 					dest: '<%= buildDir %>'
 					expand: true
 				]
-
+		# Declate files to watch for live reload
 		delta:
 			options:
 				livereload: true
 			main:
-				files: [ '<%= srcDir %>/<%= src.html %>', '<%= srcDir %>/<%= src.shader %>', '<%= srcDir %>/<%= src.fonts %>' ]
+				files: [
+					'<%= srcDir %>/<%= src.html %>'
+					'<%= srcDir %>/<%= src.shader %>'
+					'<%= srcDir %>/<%= src.fonts %>'
+				]
 				tasks: [ 'copy:main' ]
 			css:
 				files: [ '<%= srcDir %>/styles/vendor/*.css' ]

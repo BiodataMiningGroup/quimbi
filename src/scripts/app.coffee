@@ -38,6 +38,7 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) 
 	# default route
 	.otherwise redirectTo: '/init'
 
+	# configure angularmsg module
 	msgProvider.options
 		displayDuration: 5000
 		fadingDuration: 250

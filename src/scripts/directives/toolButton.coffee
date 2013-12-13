@@ -12,6 +12,7 @@ angular.module('quimbi').directive 'toolButton', (toolset) ->
 	replace: yes
 
 	link: (scope, element, attrs) ->
+		# add this tool to the toolset
 		scope.tool = toolset.add attrs['toolButton']
 		return
 

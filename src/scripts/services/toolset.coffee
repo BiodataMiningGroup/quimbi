@@ -83,7 +83,7 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		updateRenderState()
 		mvi.stopRendering()
 
-	# finish drawing/selecting
+	# clear the selection of a tool
 	@clear = (id) => 
 		# end drawing if this tool is drawing
 		if id is drawing then @drawn x: 0, y: 0

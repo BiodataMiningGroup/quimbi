@@ -10,7 +10,6 @@
     "grunt-contrib-less": "~0.5.1",
     "grunt-contrib-clean": "~0.4.1",
     "grunt-contrib-copy": "~0.4.1",
-    "grunt-contrib-jade": "*",
     "grunt-recess": "~0.3.3",
     "grunt-contrib-watch": "~0.4.3",
     "grunt-contrib-uglify": "~0.2.0",

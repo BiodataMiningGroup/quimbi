@@ -12,6 +12,7 @@ angular.module('quimbi').directive 'toolPoint', (toolset, settings) ->
 	replace: yes
 
 	link: (scope, element, attrs) ->
+		# add this tool to the toolset
 		scope.tool = toolset.add attrs['toolPoint']
 		return
 
@@ -19,6 +20,6 @@ angular.module('quimbi').directive 'toolPoint', (toolset, settings) ->
 		$scope.draw = -> toolset.draw $scope.tool.id
 		$scope.element = show: no
 
-		updateShow = (newShow) -> if settings.showPoints then $scope.element.show = newShow
-		$scope.$watch 'tool.passive', updateShow
+		updateShow = (newShow) -> $scope.element.show = newShow
+		if settings.showPoints then $scope.$watch 'tool.passive', updateShow
 		return
