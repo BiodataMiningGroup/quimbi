@@ -9,6 +9,13 @@
 
 - Is the default tool active on startup?
 
+- Chrome: MutationObserver doesn't fire on resize. Confirmed bug:
+  http://code.google.com/p/chromium/issues/detail?id=293948
+
+- Chrome: Cursor doesn't change on hover over resize handle.
+
+- Chrome: image-rendering is not supported on all systems.
+
 
 ## Pending features
 
