@@ -34,6 +34,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) 
 			properties.top = rect.top
 			properties.width = element[0].clientWidth
 			properties.height = element[0].clientHeight
+			console.log properties
 
 		# observe element+children
 		observer = new MutationObserver updateProperties
@@ -74,9 +75,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) 
 
 		# finishes drawing/selecting of the currently active tool at the current
 		# mouse position
-		$scope.drawn = -> toolset.drawn
-			x: mouse.x
-			y: mouse.y
+		$scope.drawn = -> toolset.drawn x: mouse.x, y: mouse.y
 
 		# TODO is default tool active by default?
 		return
