@@ -9,6 +9,16 @@
 
 - Is the default tool active on startup?
 
+- Chrome: Mouse position in canvasWrapper isn't detected correctly.
+
+- Chrome: canvasWrapper size is not saved. (related to above?)
+
+- Chrome: Cursor style doesn't change on resize handle.
+
+- Chrome: Settings view is broken.
+
+- Rounding for readPixel isn't accurate. Use Math.floor()?
+
 
 ## Pending features
 
