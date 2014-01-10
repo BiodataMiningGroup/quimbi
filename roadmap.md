@@ -9,14 +9,14 @@
 
 - Is the default tool active on startup?
 
-- Rounding for readPixel isn't accurate. Use Math.floor()?
-
 - Chrome: MutationObserver doesn't fire on resize. Confirmed bug:
   http://code.google.com/p/chromium/issues/detail?id=293948
 
 - Chrome: Cursor doesn't change on hover over resize handle.
 
 - Chrome: 'image-rendering' is not supported on all systems.
+  Workaround: Added renderUpscale option (doesn't work in Chrome until
+  MutationObserver issue is solved).
 
 
 ## Pending features
@@ -31,3 +31,8 @@
 - View with further information about the dataset.
 
 - Add feature to export the current image.
+
+
+## Solved
+
+- Rounding for readPixel isn't accurate. Use Math.floor()?

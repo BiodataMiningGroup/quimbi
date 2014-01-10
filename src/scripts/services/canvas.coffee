@@ -1,6 +1,6 @@
 # service for the main canvas. it creates the canvas element (since it is shared
 # between different routes) and manages the downscaling (upscaling is done by css).
-angular.module('quimbi').service 'canvas', ($document, toolset) ->
+angular.module('quimbi').service 'canvas', ($document, toolset, settings) ->
 	# the canvas element
 	@element = angular.element $document[0].createElement 'canvas'
 	element = @element[0]
@@ -14,7 +14,7 @@ angular.module('quimbi').service 'canvas', ($document, toolset) ->
 	# reduces canvas dimension if user scaling goes below original size
 	# this makes webgl rendering more efficiently
 	@checkScale = (w) =>
-		if w > width
+		if not settings.renderUpscale and w > width
 			# make sure the canvas is at its original size again
 			# if it is, do nothing
 			if element.width isnt width or element.height isnt height
@@ -30,7 +30,7 @@ angular.module('quimbi').service 'canvas', ($document, toolset) ->
 
 	# returns the pixel position of relative coordinates (in [0, 1])
 	@getPixelPosition = (x, y) ->
-		x: Math.round x * width
-		y: Math.round y * height
+		x: Math.floor x * width
+		y: Math.floor y * height
 
 	return
