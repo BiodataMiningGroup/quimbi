@@ -26,22 +26,15 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
 		# updates the information about the canvasWrapper element
 		# needed for calculating the relative mouse position
-		# TODO: doesn't get called in Chrome
-		updateProperties = ->
+		scope.updateProperties = ->
 			rect = element[0].getBoundingClientRect()
 			properties = scope.properties
 			properties.left = rect.left
 			properties.top = rect.top
 			properties.width = element[0].clientWidth
 			properties.height = element[0].clientHeight
-			# console.log properties
-
-		# observe element+children
-		# TODO: doesn't work in Chrome
-		observer = new MutationObserver updateProperties
-		observer.observe element[0], attributes: yes
 		# update once on linking
-		updateProperties()
+		scope.updateProperties()
 
 		updateWidth = (newWidth) ->
 			settings.canvasWidth = newWidth
@@ -52,6 +45,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 	controller: ($scope) ->		
 		# updates mouse coordinates and reads current pixel data
 		$scope.mousemove = (e) ->
+			this.updateProperties()
 			mouse.position.x = (e.pageX - $scope.properties.left) / $scope.properties.width
 			mouse.position.y = (e.pageY - $scope.properties.top) / $scope.properties.height
 			unless settings.showColorRatio then return
