@@ -1,12 +1,14 @@
-# Shader program object to render a single tile
-angular.module('quimbi').factory 'TileProgram', ->
-	# constructor function
-	->
-		@id = 'tile'
+# Factory for creating shader program objects
+angular.module('quimbi').factory 'Program', (input, mouse) ->
+	# euclidean distance
+	EuclDist: ->
+		mousePosition = null;
 
-		@vertexShader = 'shader/display-rectangle.vs'
+		@id = 'eucl-dist'
 
-		@fragmentShader = 'shader/tile.fs'
+		@vertexShader = 'shader/display-rectangle.vs.glsl'
+
+		@fragmentShader = 'shader/eucl-dist.fs.glsl'
 
 		@constructor = (gl, program, assets, helpers) ->
 			vertexCoordinates = gl.getAttribLocation program, 'a_vertex_position'
@@ -21,7 +23,15 @@ angular.module('quimbi').factory 'TileProgram', ->
 
 			helpers.useInternalTextures program
 
+			normalization = gl.getUniformLocation program, 'u_normalization'
+			gl.uniform1f normalization, 255 / input.maxEuclDist
+
+			mousePosition = gl.getUniformLocation program, 'u_mouse_position'
+			return
+
 		@callback = (gl, program, assets, helpers) ->
+			gl.uniform2f mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
 		return

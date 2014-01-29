@@ -6,13 +6,9 @@
 			<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-model="settings.distMethod"/>
 			<b>Angle distance</b>
 		</label>
-		<label for="dist-mink" class="pure-radio">
-			<input id="dist-mink" type="radio" name="distRadios" value="mink" data-ng-model="settings.distMethod"/>
+		<label for="dist-eucl" class="pure-radio">
+			<input id="dist-eucl" type="radio" name="distRadios" value="eucl" data-ng-model="settings.distMethod"/>
 			<b>Euclidean distance</b>
-		</label>
-		<label for="dist-mink-ignore-zero" class="pure-radio">
-			<input id="dist-mink-ignore-zero" type="radio" name="distRadios" value="mink-ignore-zero" data-ng-model="settings.distMethod"/>
-			<b>Euclidean distance (ignore 0 vectors)</b>
 		</label>
 		Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
 	</fieldset>

@@ -1,9 +1,8 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the canvas has to be appended to
 # the DOM so an "element" is needed.
-# manages the mouse position on the canvas and therefore defines the
-# mvi prerenderCallback. manages other mouse events on the canvas, too.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) ->
+# updates the mouse position on the canvas
+angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, mouse) ->
 	
 	restrict: 'A'
 
@@ -50,34 +49,21 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) 
 		scope.$watch 'properties.width', updateWidth
 		return
 
-	controller: ($scope) ->
-		# mouse coordinates in % of the canvasWrapper dimensions
-		mouse = x: 0, y: 0
-		
-		#gl = mvi.getContext()
-		#glMousePosition = gl.getUniformLocation mvi.getProgram(), "u_currpos"
-
-		# updates shader variable of the mouse position and returns render state
-		# obtained from the toolset
-		prerenderCallabck = -> 
-			gl.uniform2f glMousePosition, mouse.x, 1 - mouse.y
-			toolset.getRenderState()
-		#mvi.setPrerenderCallback prerenderCallabck
-
+	controller: ($scope) ->		
 		# updates mouse coordinates and reads current pixel data
 		$scope.mousemove = (e) ->
-			mouse.x = (e.pageX - $scope.properties.left) / $scope.properties.width
-			mouse.y = (e.pageY - $scope.properties.top) / $scope.properties.height
+			mouse.position.x = (e.pageX - $scope.properties.left) / $scope.properties.width
+			mouse.position.y = (e.pageY - $scope.properties.top) / $scope.properties.height
 			unless settings.showColorRatio then return
 
-			pos = canvas.getPixelPosition mouse.x, 1 - mouse.y
+			pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
 			# x-position, y-position, x-dimension, y-dimension, color format, 
 			# number format, destination variable. colorRatio is from parent scope
 			#gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
 
 		# finishes drawing/selecting of the currently active tool at the current
 		# mouse position
-		$scope.drawn = -> toolset.drawn x: mouse.x, y: mouse.y
+		$scope.drawn = -> toolset.drawn x: mouse.position.x, y: mouse.position.y
 
 		# TODO is default tool active by default?
 		return

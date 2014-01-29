@@ -12,7 +12,7 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input) ->
 			when 'angle'
 				$scope.info.normMethod = input.angleDistNormMethod
 				$scope.info.norm = input.maxAngleDist
-			when 'mink', 'mink-ignore-zero'
+			when 'eucl'
 				$scope.info.normMethod = input.euclDistNormMethod
 				$scope.info.norm = input.maxEuclDist
 

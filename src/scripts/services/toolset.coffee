@@ -1,15 +1,14 @@
 # service for managing all tools of the display route. keeps track on which
-# tool is allowed in combination whith which other and calculates the mvi
-# renderState.
-angular.module('quimbi').service 'toolset', (Tool) ->
+# tool is allowed in combination whith which other
+angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	# collection of all tools
 	tools = {}
 	# id/color of the currently drawing/selecting tool
 	drawing = ''
 	# array of ids/colors of the currently passive tools
 	passive = []
-	# current mvi render state
-	#renderState = mvi.RENDER_NORMAL
+	# promise to cancel the render loop
+	renderPromise = null
 
 	# removes a tool form the list of passive tools
 	removePassive = (id) -> passive = passive.filter (pid) -> pid isnt id
@@ -59,8 +58,8 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		# the drawing tool can't be passive
 		tool.passive = no
 		removePassive id
-		updateRenderState()
-		#mvi.startRendering()
+		#updateRenderState()
+		renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 
 	# finish drawing/selecting
 	@drawn = (position) ->
@@ -80,8 +79,8 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		# save image in rttTexture for combining tools
 		#unless tool.isDefault then mvi.snapshot()
 		# update renderState AFTER snapshot
-		updateRenderState()
-		#mvi.stopRendering()
+		#updateRenderState()
+		renderPromise.stop()
 
 	# clear the selection of a tool
 	@clear = (id) => 
@@ -92,9 +91,10 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		removePassive id
 		# update rendered image with new renderState
 		#mvi.renderOnce updateRenderState()
+		glmvilib.render.apply glmvilib, shader.getActive()
 
 	# returns current render state
-	@getRenderState = -> renderState
+	#@getRenderState = -> renderState
 
 	# returns whether any tool is drawing
 	@drawing = -> drawing isnt ''
