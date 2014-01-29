@@ -12,6 +12,7 @@ const vec4 ONES = vec4(1);
 <%=TEXTURE_3D=%>
 
 void main() {
+	// Euclidean distance/L2-norm
 	float color = 0.0;
 
 	vec4 test_for_zero = vec4(0);

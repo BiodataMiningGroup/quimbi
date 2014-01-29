@@ -13,19 +13,23 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	# removes a tool form the list of passive tools
 	removePassive = (id) -> passive = passive.filter (pid) -> pid isnt id
 
-	# updates and returns the current render state
-	# updateRenderState = ->
-	# 	state = mvi.RENDER_NORMAL
-	# 	switch drawing
-	# 		when 'red' then state = mvi.RTT_ACTIVE_R
-	# 		when 'lime' then state = mvi.RTT_ACTIVE_G
-	# 		when 'blue' then state = mvi.RTT_ACTIVE_B
-	# 	for tool in passive
-	# 		switch tool
-	# 			when 'red' then state += mvi.RTT_PASSIVE_R
-	# 			when 'lime' then state += mvi.RTT_PASSIVE_G
-	# 			when 'blue' then state += mvi.RTT_PASSIVE_B
-	# 	renderState = state
+	updateColorMasks = ->
+		activeMask = [0, 0, 0]
+		switch drawing
+			when 'gray' then activeMask = [1, 1, 1]
+			when 'red' then activeMask[0] = 1
+			when 'lime' then activeMask[1] = 1
+			when 'blue' then activeMask[2] = 1
+		shader.setActiveColorMask activeMask
+
+		passiveMask = activeMask.slice()
+		for tool in passive
+			switch tool
+				when 'gray' then passiveMask = [1, 1, 1]
+				when 'red' then passiveMask[0] = 1
+				when 'lime' then passiveMask[1] = 1
+				when 'blue' then passiveMask[2] = 1
+		shader.setPassiveColorMask passiveMask
 
 	# adds and returns new tool. returns existing tool if the id is already existing.
 	@add = (id) ->
@@ -58,7 +62,7 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		# the drawing tool can't be passive
 		tool.passive = no
 		removePassive id
-		#updateRenderState()
+		updateColorMasks()
 		renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 
 	# finish drawing/selecting
@@ -76,10 +80,6 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		# set the position of the selection
 		tool.position.x = position.x
 		tool.position.y = position.y
-		# save image in rttTexture for combining tools
-		#unless tool.isDefault then mvi.snapshot()
-		# update renderState AFTER snapshot
-		#updateRenderState()
 		renderPromise.stop()
 
 	# clear the selection of a tool
@@ -89,12 +89,8 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		# the cleared tool is not passive
 		tools[id].passive = no
 		removePassive id
-		# update rendered image with new renderState
-		#mvi.renderOnce updateRenderState()
-		glmvilib.render.apply glmvilib, shader.getActive()
-
-	# returns current render state
-	#@getRenderState = -> renderState
+		updateColorMasks()
+		glmvilib.render 'pseudocolor-display'
 
 	# returns whether any tool is drawing
 	@drawing = -> drawing isnt ''

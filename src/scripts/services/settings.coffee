@@ -2,7 +2,7 @@
 # by the user
 angular.module('quimbi').service 'settings', ->
 	# current distance method
-	@distMethod = 'eucl'
+	@distMethod = 'angle'
 	
 	# show the selection points
 	@showPoints = yes
