@@ -9,4 +9,4 @@ To run the project you need `node`, `npm` and `grunt` installed. Clone this repo
 
 For developement you can use `grunt watch` to build changed files on the fly.
 
-To start the tool, run `build/index.html`. To actually use it, you need a dataset in `build/data/` but this isn't included in this repository.
+To start the tool, run `build/index.html`.
