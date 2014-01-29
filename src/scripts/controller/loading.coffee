@@ -1,6 +1,6 @@
 # controller for the loading route. manages downloading of the dataset images and
 # setting up of glmvilib.
-angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input, TileProgram) ->
+angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input, shader) ->
 	# number of files loaded in parallel
 	PARALLEL = 10
 
@@ -23,12 +23,8 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 
 	# initialize glmvilib
 	glmvilib.init canvas.element[0], input
-	program = new TileProgram()
-	glmvilib.addProgram program.id, program.vertexShader, program.fragmentShader, program.constructor
-	glmvilib.addProgramCallback program.id, program.callback
-
-	# TODO initialize all shader programs
-
+	shader.createPrograms()
+	
 	# callback for image onload event
 	load = ->
 		loading.finished++

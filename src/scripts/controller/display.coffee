@@ -1,16 +1,7 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, settings, input) ->
-	# # set the mvi computingMethod according to the settings
-	# distMethod = mvi.METHOD_DEFAULT
+angular.module('quimbi').controller 'displayCtrl', ($scope, settings, input, shader) ->
 
-	# switch settings.distMethod
-	# 	when 'angle' then distMethod = mvi.METHOD_ANGLE
-	# 	when 'mink' then distMethod = mvi.METHOD_MINK
-	# 	when 'mink-ignore-zero' then distMethod = mvi.METHOD_MINK_IGNORE_0
-
-	# mvi.setComputingMethod distMethod
-	# mvi.renderOnce()
-	glmvilib.render 'tile'
+	glmvilib.render shader.getActive()
 
 	# manage image overlay inside the canvasWrapper
 	$scope.overlay =

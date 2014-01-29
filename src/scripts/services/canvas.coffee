@@ -1,6 +1,6 @@
 # service for the main canvas. it creates the canvas element (since it is shared
 # between different routes) and manages the downscaling (upscaling is done by css).
-angular.module('quimbi').service 'canvas', ($document, toolset, settings) ->
+angular.module('quimbi').service 'canvas', ($document, shader, settings) ->
 	# the canvas element
 	@element = angular.element $document[0].createElement 'canvas'
 	element = @element[0]
@@ -21,12 +21,12 @@ angular.module('quimbi').service 'canvas', ($document, toolset, settings) ->
 				element.width = width
 				element.height = height
 				# render once because changing the size clears the canvas
-				#mvi.renderOnce toolset.getRenderState()
+				glmvilib.render.apply glmvilib, shader.getActive()
 		else
 			scale = w / width
 			element.width = width * scale
 			element.height = height * scale
-			#mvi.renderOnce toolset.getRenderState()
+			glmvilib.render.apply glmvilib, shader.getActive()
 
 	# returns the pixel position of relative coordinates (in [0, 1])
 	@getPixelPosition = (x, y) ->
