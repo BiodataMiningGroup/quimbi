@@ -54,15 +54,15 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) 
 		# mouse coordinates in % of the canvasWrapper dimensions
 		mouse = x: 0, y: 0
 		
-		gl = mvi.getContext()
-		glMousePosition = gl.getUniformLocation mvi.getProgram(), "u_currpos"
+		#gl = mvi.getContext()
+		#glMousePosition = gl.getUniformLocation mvi.getProgram(), "u_currpos"
 
 		# updates shader variable of the mouse position and returns render state
 		# obtained from the toolset
 		prerenderCallabck = -> 
 			gl.uniform2f glMousePosition, mouse.x, 1 - mouse.y
 			toolset.getRenderState()
-		mvi.setPrerenderCallback prerenderCallabck
+		#mvi.setPrerenderCallback prerenderCallabck
 
 		# updates mouse coordinates and reads current pixel data
 		$scope.mousemove = (e) ->
@@ -73,7 +73,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings) 
 			pos = canvas.getPixelPosition mouse.x, 1 - mouse.y
 			# x-position, y-position, x-dimension, y-dimension, color format, 
 			# number format, destination variable. colorRatio is from parent scope
-			gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
+			#gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
 
 		# finishes drawing/selecting of the currently active tool at the current
 		# mouse position

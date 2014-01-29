@@ -9,24 +9,24 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 	# array of ids/colors of the currently passive tools
 	passive = []
 	# current mvi render state
-	renderState = mvi.RENDER_NORMAL
+	#renderState = mvi.RENDER_NORMAL
 
 	# removes a tool form the list of passive tools
 	removePassive = (id) -> passive = passive.filter (pid) -> pid isnt id
 
 	# updates and returns the current render state
-	updateRenderState = ->
-		state = mvi.RENDER_NORMAL
-		switch drawing
-			when 'red' then state = mvi.RTT_ACTIVE_R
-			when 'lime' then state = mvi.RTT_ACTIVE_G
-			when 'blue' then state = mvi.RTT_ACTIVE_B
-		for tool in passive
-			switch tool
-				when 'red' then state += mvi.RTT_PASSIVE_R
-				when 'lime' then state += mvi.RTT_PASSIVE_G
-				when 'blue' then state += mvi.RTT_PASSIVE_B
-		renderState = state
+	# updateRenderState = ->
+	# 	state = mvi.RENDER_NORMAL
+	# 	switch drawing
+	# 		when 'red' then state = mvi.RTT_ACTIVE_R
+	# 		when 'lime' then state = mvi.RTT_ACTIVE_G
+	# 		when 'blue' then state = mvi.RTT_ACTIVE_B
+	# 	for tool in passive
+	# 		switch tool
+	# 			when 'red' then state += mvi.RTT_PASSIVE_R
+	# 			when 'lime' then state += mvi.RTT_PASSIVE_G
+	# 			when 'blue' then state += mvi.RTT_PASSIVE_B
+	# 	renderState = state
 
 	# adds and returns new tool. returns existing tool if the id is already existing.
 	@add = (id) ->
@@ -60,7 +60,7 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		tool.passive = no
 		removePassive id
 		updateRenderState()
-		mvi.startRendering()
+		#mvi.startRendering()
 
 	# finish drawing/selecting
 	@drawn = (position) ->
@@ -78,10 +78,10 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		tool.position.x = position.x
 		tool.position.y = position.y
 		# save image in rttTexture for combining tools
-		unless tool.isDefault then mvi.snapshot()
+		#unless tool.isDefault then mvi.snapshot()
 		# update renderState AFTER snapshot
 		updateRenderState()
-		mvi.stopRendering()
+		#mvi.stopRendering()
 
 	# clear the selection of a tool
 	@clear = (id) => 
@@ -91,7 +91,7 @@ angular.module('quimbi').service 'toolset', (Tool) ->
 		tools[id].passive = no
 		removePassive id
 		# update rendered image with new renderState
-		mvi.renderOnce updateRenderState()
+		#mvi.renderOnce updateRenderState()
 
 	# returns current render state
 	@getRenderState = -> renderState

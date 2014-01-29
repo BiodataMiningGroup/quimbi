@@ -25,9 +25,7 @@ angular.module('quimbi').service 'inputParser', (input) ->
 
 		input.preprocessing = rawInput.substring(firstLine + 1, secondLine).split ','
 		input.files = rawInput.substring(secondLine + 1).split('\n').filter filesFilter
-		# SIMULATE MULTIPLE IMAGES
-		input.files = [input.files]
-		input.images = [new Array(input.files.length)]
+		input.images = new Array(input.files.length)
 
 		unless input.valid()
 			throw

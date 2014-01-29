@@ -20,10 +20,4 @@ angular.module('quimbi').controller 'mainCtrl', ($scope, msg) ->
 	$scope.$on 'message::error', messageError
 	$scope.$on 'message::success', messageSuccess
 
-	# hook up mvi messaging system
-	mviMessage = (text, type) -> 
-		$scope.$emit "message::#{type}", text
-		$scope.$apply()
-	mvi.setMessageCallback mviMessage
-
 	return

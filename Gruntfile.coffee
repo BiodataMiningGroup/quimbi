@@ -14,7 +14,7 @@ module.exports = (grunt) ->
 			coffee: 'scripts/**/*.coffee'
 			less: 'styles/main.less'
 			html: '**/*.html'
-			shader: 'shader/**/*.glsl'
+			shader: 'shader/**/*'
 			fonts: 'fonts/**/*'
 		# Clean the temporary directory
 		clean:
