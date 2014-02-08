@@ -811,7 +811,7 @@ angular.module("leaflet-directive").directive('controls', function ($log, leafle
                     var drawControl = new L.Control.Draw(controls.draw.options);
                     map.addControl(drawControl);
                 }
-                
+
                 if(isDefined(controls.custom)) {
 					for(var i = 0; i < controls.custom.length; i++) {
 						map.addControl(controls.custom[i]);
@@ -1717,6 +1717,13 @@ angular.module("leaflet-directive").factory('leafletLayerHelpers', function ($ro
                     console.log("geoJSON", new L.TileLayer.GeoJSON(params.url, params.pluginOptions, params.options))
                     return new L.TileLayer.GeoJSON(params.url, params.pluginOptions, params.options);
                 }
+        },
+        canvasOverlay: {
+            mustHaveUrl: true,
+            mustHaveBounds : true,
+            createLayer: function(params) {
+                return L.canvasOverlay(params.url, params.bounds, params.options);
+            }
         },
     };
 

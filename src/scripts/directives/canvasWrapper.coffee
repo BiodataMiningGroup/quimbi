@@ -4,60 +4,74 @@
 # updates the mouse position on the canvas
 angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, mouse) ->
 
-	restrict: 'A'
+    restrict: 'A'
 
-	templateUrl: 'templates/canvasWrapper.html'
+    templateUrl: 'templates/canvasWrapper.html'
 
-	replace: yes
+    replace: yes
 
-	scope: yes
+    scope: yes
 
-	link: (scope, element) ->
-		# important! because of this the canvasWrapper is a directive and not just a controller
-		element.prepend canvas.element
-		# set saved element width if one was saved
-		if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
-		# information about the canvasWrapper element
-		scope.properties =
-			left: 0
-			top: 0
-			width: 0
-			height: 0
+    link: (scope, element) ->
+        # important! because of this the canvasWrapper is a directive and not just a controller
+        element.prepend canvas.element
+        # set saved element width if one was saved
+        if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
+        # information about the canvasWrapper element
+        scope.properties =
+            left: 0
+            top: 0
+            width: 0
+            height: 0
 
-		# updates the information about the canvasWrapper element
-		# needed for calculating the relative mouse position
-		scope.updateProperties = ->
-			rect = element[0].getBoundingClientRect()
-			properties = scope.properties
-			properties.left = rect.left
-			properties.top = rect.top
-			properties.width = element[0].clientWidth
-			properties.height = element[0].clientHeight
-		# update once on linking
-		scope.updateProperties()
+        # updates the information about the canvasWrapper element
+        # needed for calculating the relative mouse position
+        scope.updateProperties = ->
+            rect = element[0].getBoundingClientRect()
+            properties = scope.properties
+            properties.left = rect.left
+            properties.top = rect.top
+            properties.width = element[0].clientWidth
+            properties.height = element[0].clientHeight
+        # update once on linking
+        scope.updateProperties()
 
-		updateWidth = (newWidth) ->
-			settings.canvasWidth = newWidth
-			canvas.checkScale newWidth
-		scope.$watch 'properties.width', updateWidth
-		return
+        updateWidth = (newWidth) ->
+            settings.canvasWidth = newWidth
+            canvas.checkScale newWidth
+        scope.$watch 'properties.width', updateWidth
 
-	controller: ($scope) ->
-		# updates mouse coordinates and reads current pixel data
-		$scope.mousemove = (e) ->
-			this.updateProperties()
-			mouse.position.x = (e.pageX - $scope.properties.left) / $scope.properties.width
-			mouse.position.y = (e.pageY - $scope.properties.top) / $scope.properties.height
-			unless settings.showColorRatio then return
+        return
 
-			pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
-			# x-position, y-position, x-dimension, y-dimension, color format,
-			# number format, destination variable. colorRatio is from parent scope
-			#gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
+    controller: ($scope) ->
+        # updates mouse coordinates and reads current pixel data
+        $scope.mousemove = (e) ->
+            this.updateProperties()
+            mouse.position.x = (e.pageX - $scope.properties.left) / $scope.properties.width
+            mouse.position.y = (e.pageY - $scope.properties.top) / $scope.properties.height
+            unless settings.showColorRatio then return
 
-		# finishes drawing/selecting of the currently active tool at the current
-		# mouse position
-		$scope.drawn = -> toolset.drawn x: mouse.position.x, y: mouse.position.y
+            pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
+            # x-position, y-position, x-dimension, y-dimension, color format,
+            # number format, destination variable. colorRatio is from parent scope
+            #gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
 
-		# TODO is default tool active by default?
-		return
+        # finishes drawing/selecting of the currently active tool at the current
+        # mouse position
+        $scope.drawn = -> toolset.drawn x: mouse.position.x, y: mouse.position.y
+
+        $scope.layers =
+            baselayers:
+                sanfrancisco:
+                    name: 'OF_VF1_1CD133'
+                    type: 'imageOverlay'
+                    url: 'data/OF_VF1_1CD133.png'
+                    bounds: [[-0, -0], [106, 103]]
+                    layerParams:
+                        noWrap: true
+                        attribution: 'Creative Commons image found <a href="http://www.flickr.com/photos/c32/8025422440/">here</a>'
+
+        console.log $scope
+
+        # TODO is default tool active by default?
+        return
