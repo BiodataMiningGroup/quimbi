@@ -3,7 +3,7 @@
 # the DOM so an "element" is needed.
 # updates the mouse position on the canvas
 angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, mouse) ->
-	
+
 	restrict: 'A'
 
 	templateUrl: 'templates/canvasWrapper.html'
@@ -18,7 +18,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 		# set saved element width if one was saved
 		if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
 		# information about the canvasWrapper element
-		scope.properties = 
+		scope.properties =
 			left: 0
 			top: 0
 			width: 0
@@ -42,7 +42,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 		scope.$watch 'properties.width', updateWidth
 		return
 
-	controller: ($scope) ->		
+	controller: ($scope) ->
 		# updates mouse coordinates and reads current pixel data
 		$scope.mousemove = (e) ->
 			this.updateProperties()
@@ -51,7 +51,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 			unless settings.showColorRatio then return
 
 			pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
-			# x-position, y-position, x-dimension, y-dimension, color format, 
+			# x-position, y-position, x-dimension, y-dimension, color format,
 			# number format, destination variable. colorRatio is from parent scope
 			#gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
 
