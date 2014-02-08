@@ -3,6 +3,7 @@ angular.module 'quimbi', [
 	'ngRoute'
 	'ui.bootstrap'
 	'angularmsg'
+	'leaflet-directive'
 	]
 
 angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) ->
