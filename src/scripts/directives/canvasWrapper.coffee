@@ -13,8 +13,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
     scope: yes
 
     link: (scope, element) ->
-        # important! because of this the canvasWrapper is a directive and not just a controller
-        element.prepend canvas.element
+
         # set saved element width if one was saved
         if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
         # information about the canvasWrapper element
@@ -44,6 +43,28 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         return
 
     controller: ($scope) ->
+
+        console.log "controller: ", canvas.element[0]
+
+        $scope.layers =
+            baselayers:
+                simpleimage:
+                    name: 'bla'
+                    type: 'imageOverlay'
+                    url: 'data/OF_VF1_1CD133.png'
+                    bounds: [[-0, -0], [106, 103]]
+                    layerParams:
+                        noWrap: true
+                similaritycanvas:
+                    name: 'OF_VF1_1CD133'
+                    type: 'canvasOverlay'
+                    # important! because of this the canvasWrapper is a directive and not just a controller
+                    canvas: canvas.element[0]
+                    url: 'data/OF_VF1_1CD133.png'
+                    bounds: [[-0, -0], [106, 103]]
+                    layerParams:
+                        noWrap: true
+
         # updates mouse coordinates and reads current pixel data
         $scope.mousemove = (e) ->
             this.updateProperties()
@@ -59,19 +80,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         # finishes drawing/selecting of the currently active tool at the current
         # mouse position
         $scope.drawn = -> toolset.drawn x: mouse.position.x, y: mouse.position.y
-
-        $scope.layers =
-            baselayers:
-                sanfrancisco:
-                    name: 'OF_VF1_1CD133'
-                    type: 'imageOverlay'
-                    url: 'data/OF_VF1_1CD133.png'
-                    bounds: [[-0, -0], [106, 103]]
-                    layerParams:
-                        noWrap: true
-                        attribution: 'Creative Commons image found <a href="http://www.flickr.com/photos/c32/8025422440/">here</a>'
-
-        console.log $scope
 
         # TODO is default tool active by default?
         return

@@ -31,7 +31,7 @@ module.exports = (grunt) ->
 		autoprefixer:
 			multiple_files:
 				flatten: true
-				expand: true					
+				expand: true
 				src:  '<%= tmpDir %>/css/*.css'
 				dest: '<%= buildDir %>/css/'
 		# Compile the CoffeeScript files
@@ -95,7 +95,7 @@ module.exports = (grunt) ->
 					dest: '<%= buildDir %>'
 					expand: true
 				]
-		# Declate files to watch for live reload
+		# Declare files to watch for live reload
 		delta:
 			options:
 				livereload: true
@@ -107,10 +107,10 @@ module.exports = (grunt) ->
 				]
 				tasks: [ 'copy:main' ]
 			css:
-				files: [ '<%= srcDir %>/styles/vendor/*.css' ]
+				files: [ '<%= srcDir %>/styles/lib/*.css' ]
 				tasks: [ 'copy:css' ]
 			js:
-				files: [ '<%= srcDir %>/scripts/vendor/*.js' ]
+				files: [ '<%= srcDir %>/scripts/lib/*.js' ]
 				tasks: [ 'copy:js' ]
 			coffee:
 				files: [ '<%= srcDir %>/<%= src.coffee %>' ]

@@ -1,6 +1,9 @@
 # service for the main canvas. it creates the canvas element (since it is shared
 # between different routes) and manages the downscaling (upscaling is done by css).
 angular.module('quimbi').service 'canvas', ($document, shader, settings) ->
+
+	console.log "canvas.coffee", "canvas created"
+
 	# the canvas element
 	@element = angular.element $document[0].createElement 'canvas'
 	element = @element[0]

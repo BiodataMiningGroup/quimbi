@@ -1722,7 +1722,7 @@ angular.module("leaflet-directive").factory('leafletLayerHelpers', function ($ro
             mustHaveUrl: true,
             mustHaveBounds : true,
             createLayer: function(params) {
-                return L.canvasOverlay(params.url, params.bounds, params.options);
+                return L.canvasOverlay(params.canvas, params.url, params.bounds, params.options);
             }
         },
     };

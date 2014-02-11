@@ -11,7 +11,11 @@ L.CanvasOverlay = L.Class.extend({
         opacity: 1
     },
 
-    initialize: function (url, bounds, options) { // (String, LatLngBounds, Object)
+    initialize: function (canvas, url, bounds, options) { // (String, LatLngBounds, Object)
+
+    	console.log("CanvasOverlay.js", "overlay initialized", "canvas?", canvas);
+
+        this._canvas = canvas;
         this._url = url;
         this._bounds = L.latLngBounds(bounds);
 
@@ -19,6 +23,7 @@ L.CanvasOverlay = L.Class.extend({
     },
 
     onAdd: function (map) {
+
         this._map = map;
 
         if (!this._canvas) {
@@ -91,8 +96,10 @@ L.CanvasOverlay = L.Class.extend({
     },
 
     _initCanvas: function () {
-        this._canvas = L.DomUtil.create('canvas', 'leaflet-image-layer');
 
+
+    	//this._canvas = L.DomUtil.create('canvas', 'leaflet-image-layer');
+        L.DomUtil.addClass(this._canvas, 'leaflet-image-layer');
 
 
         if (this._map.options.zoomAnimation && L.Browser.any3d) {
@@ -158,6 +165,7 @@ L.CanvasOverlay = L.Class.extend({
     }
 });
 
-L.canvasOverlay = function (url, bounds, options) {
-    return new L.CanvasOverlay(url, bounds, options);
+L.canvasOverlay = function (canvas, url, bounds, options) {
+	console.log("canvasOverlay contructor", canvas);
+    return new L.CanvasOverlay(canvas, url, bounds, options);
 };
