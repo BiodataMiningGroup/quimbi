@@ -13,6 +13,14 @@
 		Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
 	</fieldset>
 	<fieldset>
+		<legend>Color map</legend>
+		<label for="color-map-url">
+			Choose a new color map CSV file:
+		</label>
+		<input id="color-map-url" filereader="data.colorMapFile"/>
+		<!-- color map preview here -->
+	</fieldset>
+	<fieldset>
 		<legend>Interface</legend>
 		<label for="points-checkbox" class="pure-checkbox">
 			<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
