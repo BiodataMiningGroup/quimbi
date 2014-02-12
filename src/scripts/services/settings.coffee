@@ -19,8 +19,4 @@ angular.module('quimbi').service 'settings', ->
 	# width of the main canvas
 	@canvasWidth = 0
 
-	# don't upscale the canvas via css but render it larger (needed for pixelated
-	# image in Chrome)
-	@renderUpscale = no
-
 	return
