@@ -63,6 +63,8 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		# the drawing tool can't be passive
 		tool.passive = no
 		removePassive id
+		if tool.isDefault then shader.setFinal 'color-map-display'
+		else shader.setFinal 'pseudocolor-display'
 		updateColorMasks()
 		renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 
@@ -91,7 +93,7 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		tools[id].passive = no
 		removePassive id
 		updateColorMasks()
-		glmvilib.render 'pseudocolor-display'
+		glmvilib.render shader.getFinal()
 
 	# returns whether any tool is drawing
 	@drawing = -> drawing isnt ''
