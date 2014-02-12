@@ -13,11 +13,9 @@ L.CanvasOverlay = L.Class.extend({
 
     initialize: function (canvas, url, bounds, options) { // (String, LatLngBounds, Object)
 
-    	console.log("CanvasOverlay.js", "overlay initialized", "canvas?", canvas);
-
-        this._canvas = canvas;
         this._url = url;
         this._bounds = L.latLngBounds(bounds);
+        this.__canvas = canvas;
 
         L.setOptions(this, options);
     },
@@ -97,7 +95,7 @@ L.CanvasOverlay = L.Class.extend({
 
     _initCanvas: function () {
 
-
+    	this._canvas = this.__canvas;
     	//this._canvas = L.DomUtil.create('canvas', 'leaflet-image-layer');
         L.DomUtil.addClass(this._canvas, 'leaflet-image-layer');
 
