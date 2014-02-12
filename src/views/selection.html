@@ -1,0 +1,23 @@
+<h3>Histogram</h3>
+<div data-histogram="histogram.data" data-maximum="histogram.maximum" data-lower-bound="histogram.lowerBound" data-upper-bound="histogram.upperBound"></div>
+<input type="range" name="histgram-upper-bound" min="0" max="256" step="1" value="256" data-ng-model="histogram.upperBound">
+<h3>Fingerprint</h3>
+<div class="fingerprint" data-fingerprint="fingerprint"></div>
+<h3>Values</h3>
+<div class="scroll-box">
+	<table class="pure-table">
+		<thead>
+			<tr>
+				<td>Intensity</td>
+				<td>Number of Channels</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr data-ng-repeat="value in intensities track by $index">
+				<td><code>{{$index}}</code></td>
+				<td><code>{{value.length}}</code></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<a data-ng-href="{{data.backRoute}}" class="pure-button" >back</a>

@@ -1,6 +1,11 @@
 # main application controller. parent of all route controllers. manages messaging
 # system
 angular.module('quimbi').controller 'mainCtrl', ($scope, msg) ->
+	# some global properties that need to be shared between controllers
+	$scope.properties =
+		# disable the about link that could destroy the loading process
+		disableAbout: no
+
 	# global messaging system
 	messageInfo = (event, text) -> 
 		event.stopPropagation()

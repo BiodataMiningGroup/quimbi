@@ -13,6 +13,7 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	# removes a tool form the list of passive tools
 	removePassive = (id) -> passive = passive.filter (pid) -> pid isnt id
 
+	# updates the active and passive color masks for the pseudocolor shaders
 	updateColorMasks = ->
 		activeMask = [0, 0, 0]
 		switch drawing
@@ -21,7 +22,7 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 			when 'lime' then activeMask[1] = 1
 			when 'blue' then activeMask[2] = 1
 		shader.setActiveColorMask activeMask
-
+		# any active tool has to be in the passive mask as well
 		passiveMask = activeMask.slice()
 		for tool in passive
 			switch tool

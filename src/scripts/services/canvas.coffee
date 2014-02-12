@@ -21,12 +21,12 @@ angular.module('quimbi').service 'canvas', ($document, shader, settings) ->
 				element.width = width
 				element.height = height
 				# render once because changing the size clears the canvas
-				glmvilib.render.apply glmvilib, shader.getActive()
+				glmvilib.render 'pseudocolor-display'
 		else
 			scale = w / width
 			element.width = width * scale
 			element.height = height * scale
-			glmvilib.render.apply glmvilib, shader.getActive()
+			glmvilib.render 'pseudocolor-display'
 
 	# returns the pixel position of relative coordinates (in [0, 1])
 	@getPixelPosition = (x, y) ->

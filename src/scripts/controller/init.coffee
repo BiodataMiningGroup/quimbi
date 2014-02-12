@@ -4,6 +4,8 @@ angular.module('quimbi').controller 'initCtrl', ($scope, $http, state, inputPars
 	$scope.data =
 		files: [
 			'data/small-stacked-max.txt'
+			'data/large-stacked-max.txt'
+			'data/large-stacked.txt'
 		]
 
 	# http request finished

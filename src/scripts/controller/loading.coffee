@@ -1,6 +1,8 @@
 # controller for the loading route. manages downloading of the dataset images and
 # setting up of glmvilib.
 angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input, shader) ->
+	$scope.properties.disableAbout = yes
+
 	# number of files loaded in parallel
 	PARALLEL = 10
 
@@ -22,8 +24,13 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 		parallel: -> if @goal < PARALLEL then @goal else PARALLEL
 
 	# initialize glmvilib
-	glmvilib.init canvas.element[0], input
-	shader.createPrograms()
+	try
+		glmvilib.init canvas.element[0], input
+		shader.createPrograms()
+	catch e
+		$scope.$emit 'message::error', "Failed to set up WebGL: #{e.message}"
+		glmvilib.finish()
+		$scope.$apply -> state.to 'init'
 	
 	# callback for image onload event
 	load = ->
@@ -38,14 +45,22 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 	# callback for image error event
 	error = ->
 		$scope.$emit 'message::error', "Failed to load image: #{@src}."
+		glmvilib.finish()
 		# reset to init route
 		$scope.$apply -> state.to 'init'
 
 	loadImage = ->
 		# loading is finished
 		if loading.finished is loading.goal
-			glmvilib.storeTiles input.images
-			$scope.$apply -> state.to 'display'
+			try
+				$scope.data.message = "Initializing textures."
+				glmvilib.storeTiles input.images
+				$scope.$apply -> state.to 'display'
+			catch e
+				$scope.$emit 'message::error', "Failed to initialize textures: #{e.message}"
+				glmvilib.finish()
+				$scope.$apply -> state.to 'init'
+			
 		# load the next image
 		else if loading.topIndex < loading.goal
 			src = input.files[loading.topIndex]

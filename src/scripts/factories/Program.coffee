@@ -1,26 +1,18 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', (input, mouse) ->
+angular.module('quimbi').factory 'Program', (input, mouse, selection) ->
 	# euclidean distance
 	EuclDist: ->
 		mousePosition = null;
 
 		@id = 'eucl-dist'
 
-		@vertexShader = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
 
-		@fragmentShader = 'shader/eucl-dist.fs.glsl'
+		@fragmentShaderUrl = 'shader/eucl-dist.fs.glsl'
 
 		@constructor = (gl, program, assets, helpers) ->
-			vertexCoordinates = gl.getAttribLocation program, 'a_vertex_position'
-			gl.enableVertexAttribArray vertexCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.vertexCoordinateBuffer
-			gl.vertexAttribPointer vertexCoordinates, 2, gl.FLOAT, false, 0, 0
-
-			textureCoordinates = gl.getAttribLocation program, 'a_texture_position'
-			gl.enableVertexAttribArray textureCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.textureCoordinateBuffer
-			gl.vertexAttribPointer textureCoordinates, 2, gl.FLOAT, false, 0, 0
-
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
 			helpers.useInternalTextures program
 
 			normalization = gl.getUniformLocation program, 'u_normalization'
@@ -50,21 +42,13 @@ angular.module('quimbi').factory 'Program', (input, mouse) ->
 
 		@id = 'angle-dist'
 
-		@vertexShader = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
 
-		@fragmentShader = 'shader/angle-dist.fs.glsl'
+		@fragmentShaderUrl = 'shader/angle-dist.fs.glsl'
 
 		@constructor = (gl, program, assets, helpers) ->
-			vertexCoordinates = gl.getAttribLocation program, 'a_vertex_position'
-			gl.enableVertexAttribArray vertexCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.vertexCoordinateBuffer
-			gl.vertexAttribPointer vertexCoordinates, 2, gl.FLOAT, false, 0, 0
-
-			textureCoordinates = gl.getAttribLocation program, 'a_texture_position'
-			gl.enableVertexAttribArray textureCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.textureCoordinateBuffer
-			gl.vertexAttribPointer textureCoordinates, 2, gl.FLOAT, false, 0, 0
-
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
 			helpers.useInternalTextures program
 
 			normalization = gl.getUniformLocation program, 'u_normalization'
@@ -96,20 +80,13 @@ angular.module('quimbi').factory 'Program', (input, mouse) ->
 
 		@id = 'rgb-selection'
 
-		@vertexShader = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
 
-		@fragmentShader = 'shader/rgb-selection.fs.glsl'
+		@fragmentShaderUrl = 'shader/rgb-selection.fs.glsl'
 
 		@constructor = (gl, program, assets, helpers) ->
-			vertexCoordinates = gl.getAttribLocation program, 'a_vertex_position'
-			gl.enableVertexAttribArray vertexCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.vertexCoordinateBuffer
-			gl.vertexAttribPointer vertexCoordinates, 2, gl.FLOAT, false, 0, 0
-
-			textureCoordinates = gl.getAttribLocation program, 'a_texture_position'
-			gl.enableVertexAttribArray textureCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.textureCoordinateBuffer
-			gl.vertexAttribPointer textureCoordinates, 2, gl.FLOAT, false, 0, 0
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
 
 			distances = gl.getUniformLocation program, 'u_distances'
 			gl.uniform1i distances, 0
@@ -147,20 +124,14 @@ angular.module('quimbi').factory 'Program', (input, mouse) ->
 
 		@id = 'pseudocolor-display'
 
-		@vertexShader = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
 
-		@fragmentShader = 'shader/pseudocolor-display.fs.glsl'
+		@fragmentShaderUrl = 'shader/pseudocolor-display.fs.glsl'
 
 		@constructor = (gl, program, assets, helpers) ->
-			vertexCoordinates = gl.getAttribLocation program, 'a_vertex_position'
-			gl.enableVertexAttribArray vertexCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.vertexCoordinateBuffer
-			gl.vertexAttribPointer vertexCoordinates, 2, gl.FLOAT, false, 0, 0
+			helpers.useInternalVertexPositions program
 
-			textureCoordinates = gl.getAttribLocation program, 'a_texture_position'
-			gl.enableVertexAttribArray textureCoordinates
-			gl.bindBuffer gl.ARRAY_BUFFER, assets.buffers.textureCoordinateBuffer
-			gl.vertexAttribPointer textureCoordinates, 2, gl.FLOAT, false, 0, 0
+			helpers.useInternalTexturePositions program
 
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 0
@@ -175,5 +146,40 @@ angular.module('quimbi').factory 'Program', (input, mouse) ->
 			gl.uniform3f colorMask, @colorMask[0], @colorMask[1], @colorMask[2]
 			
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
+		return
+
+	# retrieves information about the selected position
+	SelectionInfo: ->
+		mousePosition = null;
+
+		@id = 'selection-info'
+
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+
+		@fragmentShaderUrl = 'shader/selection-info.fs.glsl'
+
+		@constructor = (gl, program, assets, helpers) ->
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+			helpers.useInternalTextures program
+
+			mousePosition = gl.getUniformLocation program, 'u_mouse_position'
+
+			dim = gl.getUniformLocation program, 'u_texture_dimension'
+			gl.uniform1f dim, selection.textureDimension
+
+			assets.framebuffers.selection = gl.createFramebuffer()
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.selection
+			texture = helpers.newTexture 'selectionTexture'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, selection.textureDimension, selection.textureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
+			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
+
+		@callback = (gl, program, assets, helpers) ->
+			gl.uniform2f mousePosition, mouse.position.x, 1 - mouse.position.y
+			helpers.bindInternalTextures()
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.selection
 			return
 		return

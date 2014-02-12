@@ -107,10 +107,10 @@ module.exports = (grunt) ->
 				]
 				tasks: [ 'copy:main' ]
 			css:
-				files: [ '<%= srcDir %>/styles/vendor/*.css' ]
+				files: [ '<%= srcDir %>/styles/lib/*.css' ]
 				tasks: [ 'copy:css' ]
 			js:
-				files: [ '<%= srcDir %>/scripts/vendor/*.js' ]
+				files: [ '<%= srcDir %>/scripts/lib/*.js' ]
 				tasks: [ 'copy:js' ]
 			coffee:
 				files: [ '<%= srcDir %>/<%= src.coffee %>' ]

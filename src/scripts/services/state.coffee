@@ -16,6 +16,7 @@ angular.module('quimbi').service 'state', ($rootScope, $location) ->
 			'/display'
 			'/about'
 			'/settings'
+			'/selection'
 		]
 
 	# sets the route to the current application state

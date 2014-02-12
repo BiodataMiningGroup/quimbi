@@ -53,7 +53,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 			pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
 			# x-position, y-position, x-dimension, y-dimension, color format, 
 			# number format, destination variable. colorRatio is from parent scope
-			#gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
+			glmvilib.getPixels pos.x, pos.y, 1, 1, $scope.colorRatio.pixel
 
 		# finishes drawing/selecting of the currently active tool at the current
 		# mouse position

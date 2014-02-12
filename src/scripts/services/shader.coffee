@@ -1,24 +1,26 @@
 # service for managing the shader programs
 angular.module('quimbi').service 'shader', (Program, settings) ->
+	# shader to compute the euclidean distance
 	euclDist = new Program.EuclDist()
+	# shader to compute the angle distance
 	angleDist = new Program.AngleDist()
+	# shader to update the rgb texture for multiple selections
 	rgbSelection = new Program.RGBSelection()
+	# shader to produce the final image from the rgb texture
 	pseudocolorDisplay = new Program.PseudocolorDisplay()
+	# shader to retrieve the mass intensities of a selected position
+	selectionInfo = new Program.SelectionInfo()
 	
+	# creates all shader programs and adds them to glmvilib
 	@createPrograms = ->
-		glmvilib.addProgram euclDist.id, euclDist.vertexShader, euclDist.fragmentShader, euclDist.constructor
-		glmvilib.addProgramCallback euclDist.id, euclDist.callback
-
-		glmvilib.addProgram angleDist.id, angleDist.vertexShader, angleDist.fragmentShader, angleDist.constructor
-		glmvilib.addProgramCallback angleDist.id, angleDist.callback
-
-		glmvilib.addProgram rgbSelection.id, rgbSelection.vertexShader, rgbSelection.fragmentShader, rgbSelection.constructor
-		glmvilib.addProgramCallback rgbSelection.id, rgbSelection.callback
-
-		glmvilib.addProgram pseudocolorDisplay.id, pseudocolorDisplay.vertexShader, pseudocolorDisplay.fragmentShader, pseudocolorDisplay.constructor
-		glmvilib.addProgramCallback pseudocolorDisplay.id, pseudocolorDisplay.callback
+		glmvilib.addProgram euclDist
+		glmvilib.addProgram angleDist
+		glmvilib.addProgram rgbSelection
+		glmvilib.addProgram pseudocolorDisplay
+		glmvilib.addProgram selectionInfo
 		return
 
+	# returns all currently active shaders for a render() or renderLoop() call
 	@getActive = ->
 		active = []
 		switch settings.distMethod
@@ -28,10 +30,12 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		active.push pseudocolorDisplay.id
 		active
 
+	# sets the color mask for updating the rgb color
 	@setActiveColorMask = (mask) ->
 		if mask instanceof Array and mask.length is 3
 			rgbSelection.colorMask = mask
 
+	# sets the color mask for reading out the rgb texture
 	@setPassiveColorMask = (mask) ->
 		if mask instanceof Array and mask.length is 3
 			pseudocolorDisplay.colorMask = mask

@@ -1,7 +1,7 @@
 # directive for a tool point displayed on the canvas in the display route.
 # registers a new tool in the toolset (if not already present) and manages the
 # "draw" event
-angular.module('quimbi').directive 'toolPoint', (toolset, settings) ->
+angular.module('quimbi').directive 'toolPoint', (toolset, settings, selection) ->
 	
 	restrict: 'A'
 
@@ -17,7 +17,9 @@ angular.module('quimbi').directive 'toolPoint', (toolset, settings) ->
 		return
 
 	controller: ($scope, $element, $attrs) ->
-		$scope.draw = -> toolset.draw $scope.tool.id
+		$scope.click = ->
+			position = $scope.tool.position
+			selection.make position._x, position._y
 		$scope.element = show: no
 
 		updateShow = (newShow) -> $scope.element.show = newShow

@@ -1,7 +1,6 @@
 # controller for the display route
 angular.module('quimbi').controller 'displayCtrl', ($scope, settings, input, shader) ->
-
-	glmvilib.render shader.getActive()
+	$scope.properties.disableAbout = no
 
 	# manage image overlay inside the canvasWrapper
 	$scope.overlay =
