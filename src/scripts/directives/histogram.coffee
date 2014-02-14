@@ -10,14 +10,6 @@ angular.module('quimbi').directive 'histogram', ->
 	scope: 
 		data: '=histogram'
 		maximum: '=maximum'
-		lowerBound: '=lowerBound'
-		upperBound: '=upperBound'
 
 	link: (scope) ->
 		scope.values = scope.data
-
-	controller: ($scope) ->
-		updateValues = (value) ->
-			$scope.values = $scope.data.slice $scope.lowerBound, $scope.upperBound
-		$scope.$watch 'upperBound', updateValues
-		$scope.$watch 'lowerBound', updateValues

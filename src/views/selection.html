@@ -1,10 +1,11 @@
-<h3>Histogram</h3>
-<div data-histogram="histogram.data" data-maximum="histogram.maximum" data-lower-bound="histogram.lowerBound" data-upper-bound="histogram.upperBound"></div>
-<input type="range" name="histgram-upper-bound" min="0" max="256" step="1" value="256" data-ng-model="histogram.upperBound">
-<h3>Fingerprint</h3>
-<div class="fingerprint" data-fingerprint="fingerprint"></div>
-<h3>Values</h3>
-<div class="scroll-box">
+<h3 data-ng-click="show.spectrum=!show.spectrum">Spectrum</h3>
+<div data-ng-show="show.spectrum" data-spectrum-viewer="spectrum"></div>
+<h3 data-ng-click="show.histogram=!show.histogram">Histogram</h3>
+<div data-ng-show="show.histogram" data-histogram="histogram.data" data-maximum="histogram.maximum"></div>
+<h3 data-ng-click="show.fingerprint=!show.fingerprint">Fingerprint</h3>
+<div data-ng-show="show.fingerprint" class="fingerprint" data-fingerprint="fingerprint"></div>
+<h3 data-ng-click="show.values=!show.values">Values</h3>
+<div data-ng-show="show.values" class="scroll-box">
 	<table class="pure-table">
 		<thead>
 			<tr>

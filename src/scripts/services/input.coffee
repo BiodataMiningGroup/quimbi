@@ -24,6 +24,9 @@ angular.module('quimbi').service 'input', ->
 	# filenames of the image files
 	@files = null
 
+	# name of each channel in correct ordering fetched from the file names
+	@channelNames = null
+
 	# html image objects
 	@images = null
 

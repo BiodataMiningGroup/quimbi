@@ -29,3 +29,37 @@
 	height: auto;
 	.image-crisp-edges;
 }
+
+h3[data-ng-click] {
+	cursor: pointer;
+}
+
+.spectrum-viewer {
+	width: 512px;
+	height: 200px;
+	position: relative;
+	overflow-x: auto;
+}
+
+.spectrum-viewer__scroll {
+	min-width: 100%;
+	height: 1px;
+}
+
+.spectrum-viewer__inner {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	border-bottom: 2px solid white;
+	box-sizing: border-box;
+	// align content bars at bottom
+	display: flex;
+	align-items: flex-end;
+}
+
+.spectrum-viewer__bar {
+	background-color: white;
+	display: inline-block;
+	width: 1px;
+}

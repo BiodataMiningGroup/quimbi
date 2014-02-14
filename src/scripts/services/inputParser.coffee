@@ -25,7 +25,12 @@ angular.module('quimbi').service 'inputParser', (input) ->
 
 		input.preprocessing = rawInput.substring(firstLine + 1, secondLine).split ','
 		input.files = rawInput.substring(secondLine + 1).split('\n').filter filesFilter
-		input.images = new Array(input.files.length)
+		input.channelNames = []
+		input.files.forEach (file) ->
+			file.split('-').forEach (name) ->
+				input.channelNames.push name
+		
+		input.images = new Array input.files.length
 
 		unless input.valid()
 			throw
