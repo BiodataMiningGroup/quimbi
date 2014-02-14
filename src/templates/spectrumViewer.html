@@ -1,6 +1,12 @@
 <div class="spectrum-viewer">
 	<div class="spectrum-viewer__scroll" data-ng-style="scrollStyle"></div>
 	<div class="spectrum-viewer__inner" data-ng-style="innerStyle">
-		<span class="spectrum-viewer__bar" data-ng-repeat="value in bars track by $index" style="height:{{value/spectrum.maximum*100}}%;"></span>
+		<span class="spectrum-viewer__bar" data-ng-repeat="value in bars track by $index" data-ng-mouseover="data.current=$index">
+			<span class="spectrum-viewer__bar__fill" style="height:{{value/spectrum.maximum*100}}%;"></span>
+		</span>
+	</div>
+	<div class="spectrum-viewer__info" data-ng-style="innerStyle">
+		Channel: {{spectrum.labels[data.current + data.left]}}<br/>
+		Intensity: {{spectrum.data[data.current + data.left]}}
 	</div>
 </div>

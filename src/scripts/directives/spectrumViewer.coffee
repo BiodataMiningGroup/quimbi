@@ -14,23 +14,24 @@ angular.module('quimbi').directive 'spectrumViewer', ->
 	link: (scope, element) ->
 		scope.scrollStyle = width: "#{scope.spectrum.data.length}px"
 
-		element.on 'scroll', -> scope.$apply -> scope.updateBars element.prop 'scrollLeft'
+		element.on 'scroll', -> scope.$apply -> scope.data.left = element.prop 'scrollLeft'
 		scope.props.width = element.prop 'clientWidth'
 		scope.props.height = element.prop 'clientHeight'
-
-		# init bars
-		scope.updateBars element.prop 'scrollLeft'
 		return
 
 	controller: ($scope) ->
 		$scope.props =	width: 0
 		$scope.bars = []
 		$scope.innerStyle = left: "0px"
+		$scope.data = 
+			current: 0
+			left: 0
 
-		$scope.updateBars = (left) ->
+		updateBars = (left) ->
 			$scope.innerStyle.left = "#{left}px"
 			bar = $scope.props.width
 			$scope.bars[bar] = $scope.spectrum.data[bar + left] while bar--
+		$scope.$watch 'data.left', updateBars
 
 		return
 		
