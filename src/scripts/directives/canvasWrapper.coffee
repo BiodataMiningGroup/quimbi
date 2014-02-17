@@ -14,24 +14,24 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
     link: (scope, element) ->
 
-    	scope.layers =
-            baselayers:
-                simpleimage:
-                    name: 'bla'
-                    type: 'imageOverlay'
-                    url: 'data/OF_VF1_1CD133.png'
-                    bounds: [[-0, -0], [106, 103]]
-                    layerParams:
-                        noWrap: true
-                similaritycanvas:
-                    name: 'OF_VF1_1CD133'
-                    type: 'canvasOverlay'
-                    # important! because of this the canvasWrapper is a directive and not just a controller
-                    canvas: canvas.element[0]
-                    url: 'data/OF_VF1_1CD133.png'
-                    bounds: [[-0, -0], [106, 103]]
-                    layerParams:
-                        noWrap: true
+    	# scope.layers =
+     #        baselayers:
+     #            simpleimage:
+     #                name: 'bla'
+     #                type: 'imageOverlay'
+     #                url: 'data/OF_VF1_1CD133.png'
+     #                bounds: [[-0, -0], [106, 103]]
+     #                layerParams:
+     #                    noWrap: true
+     #            similaritycanvas:
+     #                name: 'OF_VF1_1CD133'
+     #                type: 'canvasOverlay'
+     #                # important! because of this the canvasWrapper is a directive and not just a controller
+     #                canvas: canvas.element[0]
+     #                url: 'data/OF_VF1_1CD133.png'
+     #                bounds: [[-0, -0], [106, 103]]
+     #                layerParams:
+     #                    noWrap: true
 
         # set saved element width if one was saved
         if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
@@ -62,8 +62,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         return
 
     controller: ($scope) ->
-
-        console.log "controller: ", canvas.element[0]
 
         # updates mouse coordinates and reads current pixel data
         $scope.mousemove = (e) ->
