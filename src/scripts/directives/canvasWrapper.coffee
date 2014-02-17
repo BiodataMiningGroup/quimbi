@@ -14,7 +14,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
     link: (scope, element) ->
 
-    	# scope.layers =
+        # scope.layers =
      #        baselayers:
      #            simpleimage:
      #                name: 'bla'
@@ -32,6 +32,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
      #                bounds: [[-0, -0], [106, 103]]
      #                layerParams:
      #                    noWrap: true
+
+        # important! because of this the canvasWrapper is a directive and not just a controller
+        element.prepend canvas.element
 
         # set saved element width if one was saved
         if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
