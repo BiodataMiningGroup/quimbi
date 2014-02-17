@@ -11,9 +11,8 @@ L.CanvasOverlay = L.Class.extend({
         opacity: 1
     },
 
-    initialize: function (canvas, url, bounds, options) { // (String, LatLngBounds, Object)
+    initialize: function (canvas, bounds, options) { // (String, LatLngBounds, Object)
 
-        this._url = url;
         this._bounds = L.latLngBounds(bounds);
         this.__canvas = canvas;
 
@@ -76,19 +75,6 @@ L.CanvasOverlay = L.Class.extend({
         return this;
     },
 
-    setUrl: function (url) {
-        this._url = url;
-
-        var ctx = this._canvas.getContext('2d');
-        var img = new Image();
-        img.src = this._url;
-
-
-        img.onload = function () {
-           ctx.drawImage(img,0,0);
-        }
-    },
-
     getAttribution: function () {
         return this.options.attribution;
     },
@@ -114,18 +100,17 @@ L.CanvasOverlay = L.Class.extend({
             onselectstart: L.Util.falseFn,
             onmousemove: L.Util.falseFn,
             onload: L.bind(this._onImageLoad, this),
-            src: this._url
         });
 
-        //TODO createImage util method to remove duplication
-        var ctx = this._canvas.getContext('2d');
-        var img = new Image();
-        img.src = this._url;
+        ////TODO createImage util method to remove duplication
+        // var ctx = this._canvas.getContext('2d');
+        // var img = new Image();
+        // img.src = this._url;
 
 
-        img.onload = function () {
-           ctx.drawImage(img,0,0);
-        }
+        // img.onload = function () {
+        //    ctx.drawImage(img,0,0);
+        // }
     },
 
     _animateZoom: function (e) {
@@ -163,7 +148,7 @@ L.CanvasOverlay = L.Class.extend({
     }
 });
 
-L.canvasOverlay = function (canvas, url, bounds, options) {
+L.canvasOverlay = function (canvas, bounds, options) {
 	console.log("canvasOverlay contructor", canvas);
-    return new L.CanvasOverlay(canvas, url, bounds, options);
+    return new L.CanvasOverlay(canvas, bounds, options);
 };
