@@ -14,27 +14,44 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
     link: (scope, element) ->
 
-        # scope.layers =
-     #        baselayers:
-     #            simpleimage:
-     #                name: 'bla'
-     #                type: 'imageOverlay'
-     #                url: 'data/OF_VF1_1CD133.png'
-     #                bounds: [[-0, -0], [106, 103]]
-     #                layerParams:
-     #                    noWrap: true
-     #            similaritycanvas:
-     #                name: 'OF_VF1_1CD133'
-     #                type: 'canvasOverlay'
-     #                # important! because of this the canvasWrapper is a directive and not just a controller
-     #                canvas: canvas.element[0]
-     #                url: 'data/OF_VF1_1CD133.png'
-     #                bounds: [[-0, -0], [106, 103]]
-     #                layerParams:
-     #                    noWrap: true
+        imageUrl = 'data/OF_VF1_1CD133.png'
 
         # important! because of this the canvasWrapper is a directive and not just a controller
-        element.prepend canvas.element
+        #element.prepend canvas.element
+
+        ####
+
+        map = L.map(element[0], {
+            maxZoom: 10,
+            minZoom:0,
+            crs: L.CRS.Simple
+        }).setView([0, 0], 0)
+
+        # not sure how else to set this, getProjectionBounds and getPixelWorldBounds don't work without it
+        map.options.crs.infinite = false
+
+        southWest = map.unproject([120, 0], 5) #map.getMaxZoom())
+        northEast = map.unproject([0, 50], 5) #map.getMaxZoom())
+         # alternatively: set maxBounds on map options
+        maxBounds = new L.LatLngBounds(southWest, northEast)
+        map.setMaxBounds(maxBounds)
+
+        L.canvasOverlay(canvas.element[0], maxBounds).addTo(map)
+
+        map.on 'click', (e) ->
+            console.log "map.bounds:", map.getBounds()
+            console.log "map.projected:", map.options.crs.getProjectedBounds()
+            console.log "map.world:", map.getPixelWorldBounds()
+            console.log "--------------------------"
+
+
+        # fit bounds and setting max bounds should happen in the initialization of map to avoid initial animation
+        # padding makes sure that there is additional space around the image that can be covered by controls
+        map.fitBounds(maxBounds, {
+            padding: [10,10]
+        })
+
+        ####
 
         # set saved element width if one was saved
         if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
