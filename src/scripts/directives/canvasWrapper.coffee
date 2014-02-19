@@ -14,10 +14,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
     link: (scope, element) ->
 
-        imageUrl = 'data/OF_VF1_1CD133.png'
-
-        # important! because of this the canvasWrapper is a directive and not just a controller
-        #element.prepend canvas.element
+        # ? legacy comment ? important! because of this the canvasWrapper is a directive and not just a controller
 
         ####
 
