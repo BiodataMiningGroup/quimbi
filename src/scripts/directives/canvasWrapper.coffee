@@ -38,18 +38,14 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
         L.canvasOverlay(canvas.element[0], maxBounds).addTo(map)
 
-        map.on 'click', (e) ->
-            console.log "map.bounds:", map.getBounds()
-            console.log "map.projected:", map.options.crs.getProjectedBounds()
-            console.log "map.world:", map.getPixelWorldBounds()
-            console.log "--------------------------"
-
-
         # fit bounds and setting max bounds should happen in the initialization of map to avoid initial animation
         # padding makes sure that there is additional space around the image that can be covered by controls
         map.fitBounds(maxBounds, {
             padding: [10,10]
         })
+
+        map.on 'click', (e) ->
+            if maxBounds.contains(e.latlng) then console.log map.project(e.latlng)
 
         ####
 
