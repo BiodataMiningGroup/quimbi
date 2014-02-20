@@ -59,6 +59,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
                     y: posY
                 }
 
+        map.on 'click', (e) ->
+            if maxBounds.contains e.latlng
+                scope.$emit 'canvasclick'
 
         ####
 
@@ -109,7 +112,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
         # finishes drawing/selecting of the currently active tool at the current
         # mouse position
-        $scope.drawn = -> toolset.drawn x: mouse.position.x, y: mouse.position.y
+        $scope.$on "canvasclick", (e) ->
+            toolset.drawn x: mouse.position.x, y: mouse.position.y
 
         # TODO is default tool active by default?
         return
