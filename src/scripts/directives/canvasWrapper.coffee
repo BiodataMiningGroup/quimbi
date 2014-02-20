@@ -18,18 +18,26 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
         ####
 
+
+        inputWidth = canvas.element[0].width
+        inputHeight = canvas.element[0].height
+
+        # TODO: max zoom should depend on ratio between input and screen size
         map = L.map(element[0], {
             maxZoom: 10,
             minZoom:0,
             crs: L.CRS.Simple
         }).setView([0, 0], 0)
 
-        # not sure how else to set this, getProjectionBounds and getPixelWorldBounds don't work without it
+        # projection should not repeat itself (also getProjectionBounds and getPixelWorldBounds don't work without it)
         map.options.crs.infinite = false
 
-        southWest = map.unproject([120, 0], 5) #map.getMaxZoom())
-        northEast = map.unproject([0, 50], 5) #map.getMaxZoom())
-         # alternatively: set maxBounds on map options
+        console.log inputWidth, inputHeight
+
+        # setup matching LatLng bounds for the input dimensions
+        southWest = map.unproject([inputWidth, 0], 5) #map.getMaxZoom())
+        northEast = map.unproject([0, inputHeight], 5) #map.getMaxZoom())
+        # alternatively: set maxBounds on map options
         maxBounds = new L.LatLngBounds(southWest, northEast)
         map.setMaxBounds(maxBounds)
 
@@ -41,8 +49,18 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
             padding: [10,10]
         })
 
-        map.on 'click', (e) ->
-            if maxBounds.contains(e.latlng) then console.log map.project(e.latlng)
+        map.on 'mousemove', (e) ->
+            mouseLatLng = e.latlng
+            if maxBounds.contains mouseLatLng
+                posX = (mouseLatLng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
+                posY = (mouseLatLng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
+                scope.$emit 'canvasmousemove', {
+                    leafletEvent: e
+                    xy: map.project e.latlng
+                    x: posX
+                    y: posY
+                }
+
 
         ####
 
@@ -68,6 +86,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         scope.updateProperties()
 
         updateWidth = (newWidth) ->
+            # ? probably there to trigger canvas scaling on wrapper resize
             settings.canvasWidth = newWidth
             canvas.checkScale newWidth
         scope.$watch 'properties.width', updateWidth
@@ -75,18 +94,20 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         return
 
     controller: ($scope) ->
-
         # updates mouse coordinates and reads current pixel data
-        $scope.mousemove = (e) ->
-            this.updateProperties()
-            mouse.position.x = (e.pageX - $scope.properties.left) / $scope.properties.width
-            mouse.position.y = (e.pageY - $scope.properties.top) / $scope.properties.height
+        $scope.$on "canvasmousemove", (e, props) ->
+            $scope.updateProperties()
+            mouse.position.x = props.x
+            mouse.position.y = props.y
+
             unless settings.showColorRatio then return
 
-            pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
+            # pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
             # x-position, y-position, x-dimension, y-dimension, color format,
             # number format, destination variable. colorRatio is from parent scope
             #gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
+
+
 
         # finishes drawing/selecting of the currently active tool at the current
         # mouse position
