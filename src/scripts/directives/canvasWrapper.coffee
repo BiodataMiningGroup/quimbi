@@ -55,8 +55,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
                 posX = (mouseLatLng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
                 posY = (mouseLatLng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
                 scope.$emit 'canvasmousemove', {
-                    leafletEvent: e
-                    xy: map.project e.latlng
                     x: posX
                     y: posY
                 }
