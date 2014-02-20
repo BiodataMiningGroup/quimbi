@@ -95,6 +95,13 @@ module.exports = (grunt) ->
 					dest: '<%= buildDir %>'
 					expand: true
 				]
+			leafletimages:
+				files: [
+					cwd: '<%= srcDir %>/styles/lib/images'
+					src: '*.png'
+					dest: '<%= buildDir %>/js/images'
+					expand: true
+				]
 		# Declare files to watch for live reload
 		delta:
 			options:
