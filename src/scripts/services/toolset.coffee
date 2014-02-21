@@ -3,19 +3,23 @@
 angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	# collection of all tools
 	tools = {}
-	# id/color of the currently drawing/selecting tool
-	drawing = ''
+	# id/color of the currently active tool
+	active = ''
 	# array of ids/colors of the currently passive tools
 	passive = []
 	# promise to cancel the render loop
 	renderPromise = null
 
+	@map = undefined
+
 	# removes a tool form the list of passive tools
-	removePassive = (id) -> passive = passive.filter (pid) -> pid isnt id
+	removePassive = (id) ->
+		passive = passive.filter (pid) -> pid isnt id
+		map.removeLayer tools[id].toolpoint
 
 	updateColorMasks = ->
 		activeMask = [0, 0, 0]
-		switch drawing
+		switch active
 			when 'gray' then activeMask = [1, 1, 1]
 			when 'red' then activeMask[0] = 1
 			when 'lime' then activeMask[1] = 1
@@ -58,34 +62,31 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 				removePassive v.id
 		# the given tool is now drawing
 		tool.drawing = yes
-		drawing = id
+		active = id
 		# the drawing tool can't be passive
 		tool.passive = no
 		removePassive id
 		updateColorMasks()
 		renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 
-	# finish drawing/selecting
+	# finish activity
 	@drawn = (position) ->
 		# do nothing if no tool is drawing
-		return if drawing is ''
-		tool = tools[drawing]
-		# the prevoiusly drawing tool is now passive
+		return if active is ''
+		tool = tools[active]
+		# the prevoiusly active tool is now passive
 		tool.passive = yes
 		# add tool to the passive list if it isn't already there
-		if passive.indexOf drawing is -1 then passive.push drawing
-		# the tool is drawing no longer
+		if passive.indexOf active is -1 then passive.push active
+		# the tool is active no longer
 		tool.drawing = no
-		drawing = ''
-		# set the position of the selection
-		tool.position.x = position.x
-		tool.position.y = position.y
+		active = ''
 		renderPromise.stop()
 
 	# clear the selection of a tool
-	@clear = (id) => 
-		# end drawing if this tool is drawing
-		if id is drawing then @drawn x: 0, y: 0
+	@clear = (id) =>
+		# end active if this tool is active
+		if id is active then @drawn x: 0, y: 0
 		# the cleared tool is not passive
 		tools[id].passive = no
 		removePassive id
@@ -93,6 +94,15 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		glmvilib.render 'pseudocolor-display'
 
 	# returns whether any tool is drawing
-	@drawing = -> drawing isnt ''
+	@drawing = ->
+		active isnt ''
+
+	# returns the id of the currently active tool
+	@activeTool = ->
+		tools[active]
+
+	# @getTools = ->
+	# 	tools
+
 
 	return
