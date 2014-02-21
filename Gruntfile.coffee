@@ -129,7 +129,7 @@ module.exports = (grunt) ->
 					'uglify'
 				]
 			less:
-				files: [ '<%= srcDir %>/<%= src.less %>' ]
+				files: [ '<%= srcDir %>/styles/*.less' ]
 				tasks: [ 'recess', 'autoprefixer' ]
 
 
