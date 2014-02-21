@@ -96,4 +96,8 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	@drawing = ->
 		active isnt ''
 
+	# returns the id of the currently active tool
+	@active = ->
+		active
+
 	return

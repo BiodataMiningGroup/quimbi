@@ -23,7 +23,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         inputHeight = canvas.element[0].height
 
         # TODO: max zoom should depend on ratio between input and screen size
-        map = L.map(element[0], {
+        @map = L.map(element[0], {
             maxZoom: 10,
             minZoom:0,
             crs: L.CRS.Simple
@@ -61,7 +61,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
         map.on 'click', (e) ->
             if maxBounds.contains e.latlng
-                scope.$emit 'canvasclick'
+                scope.$emit 'canvasclick', { latlng: e.latlng }
 
         ####
 
@@ -112,7 +112,10 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
         # finishes drawing/selecting of the currently active tool at the current
         # mouse position
-        $scope.$on "canvasclick", (e) ->
+        $scope.$on "canvasclick", (e, props) ->
+            L.marker(props.latlng, {
+                    icon: L.divIcon { className: 'tool-point-' + toolset.active() }
+            }).addTo(@map)
             toolset.drawn x: mouse.position.x, y: mouse.position.y
 
         # TODO is default tool active by default?
