@@ -113,9 +113,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         # finishes drawing/selecting of the currently active tool at the current
         # mouse position
         $scope.$on "canvasclick", (e, props) ->
-            L.marker(props.latlng, {
+            toolset.toolpoint = L.marker(props.latlng, {
                     icon: L.divIcon { className: 'tool-point-' + toolset.active() }
-            }).addTo(@map)
+            })
             toolset.drawn x: mouse.position.x, y: mouse.position.y
 
         # TODO is default tool active by default?

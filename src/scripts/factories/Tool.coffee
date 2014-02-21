@@ -2,6 +2,7 @@
 angular.module('quimbi').factory 'Tool', ->
 	# constructor function for the Tool
 	(id, isDefault) ->
+		@toolpoint = undefined
 		# tool is currently drawing/selecting
 		@drawing = no #yes if isDefault?
 		# a selection of this tool is currently visible
@@ -13,10 +14,10 @@ angular.module('quimbi').factory 'Tool', ->
 		# the current position of the selection of this tool
 		@position = _x: 0, _y: 0
 		# return the position formatted as string for css
-		Object.defineProperty @position, 'x', 
+		Object.defineProperty @position, 'x',
 			set: (val) -> @_x = val
 			get: -> "#{@_x * 100}%"
-		Object.defineProperty @position, 'y', 
+		Object.defineProperty @position, 'y',
 			set: (val) -> @_y = val
 			get: -> "#{@_y * 100}%"
 		return
