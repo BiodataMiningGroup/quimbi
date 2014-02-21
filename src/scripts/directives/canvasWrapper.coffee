@@ -63,6 +63,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
             if maxBounds.contains e.latlng
                 scope.$emit 'canvasclick', { latlng: e.latlng }
 
+        L.control.scale().addTo map
+
         toolset.map = map
 
 
