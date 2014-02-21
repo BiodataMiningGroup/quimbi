@@ -2,7 +2,7 @@
 angular.module('quimbi').factory 'Tool', ->
 	# constructor function for the Tool
 	(id, isDefault) ->
-		@toolpoint = undefined
+		@toolpoint = L.marker L.latLng(0, 0), { icon: L.divIcon { className: 'tool-point-' + id } }
 		# tool is currently drawing/selecting
 		@drawing = no #yes if isDefault?
 		# a selection of this tool is currently visible
@@ -11,13 +11,6 @@ angular.module('quimbi').factory 'Tool', ->
 		@id = id
 		# is this the default tool?
 		@isDefault = isDefault
-		# the current position of the selection of this tool
-		@position = _x: 0, _y: 0
-		# return the position formatted as string for css
-		Object.defineProperty @position, 'x',
-			set: (val) -> @_x = val
-			get: -> "#{@_x * 100}%"
-		Object.defineProperty @position, 'y',
-			set: (val) -> @_y = val
-			get: -> "#{@_y * 100}%"
+
+
 		return

@@ -77,9 +77,6 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		# the tool is active no longer
 		tool.drawing = no
 		active = ''
-		# set the position of the selection
-		tool.position.x = position.x
-		tool.position.y = position.y
 		renderPromise.stop()
 
 	# clear the selection of a tool
@@ -97,7 +94,11 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		active isnt ''
 
 	# returns the id of the currently active tool
-	@active = ->
-		active
+	@activeTool = ->
+		tools[active]
+
+	@getTools = ->
+		tools
+
 
 	return

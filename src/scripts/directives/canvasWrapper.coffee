@@ -63,6 +63,10 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
             if maxBounds.contains e.latlng
                 scope.$emit 'canvasclick', { latlng: e.latlng }
 
+        for key, tool of toolset.getTools()
+            tool.toolpoint.addTo(map)
+
+
         ####
 
         # set saved element width if one was saved
@@ -108,15 +112,13 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
             # number format, destination variable. colorRatio is from parent scope
             #gl.readPixels pos.x, pos.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, $scope.colorRatio.pixel
 
-
-
         # finishes drawing/selecting of the currently active tool at the current
         # mouse position
         $scope.$on "canvasclick", (e, props) ->
-            toolset.toolpoint = L.marker(props.latlng, {
-                    icon: L.divIcon { className: 'tool-point-' + toolset.active() }
-            })
-            toolset.drawn x: mouse.position.x, y: mouse.position.y
+            $scope.$apply ->
+                toolset.activeTool().toolpoint.setLatLng(props.latlng)
+                toolset.drawn position: props.latlng
+                return
 
         # TODO is default tool active by default?
         return
