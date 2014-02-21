@@ -10,8 +10,12 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	# promise to cancel the render loop
 	renderPromise = null
 
+	@map = undefined
+
 	# removes a tool form the list of passive tools
-	removePassive = (id) -> passive = passive.filter (pid) -> pid isnt id
+	removePassive = (id) ->
+		passive = passive.filter (pid) -> pid isnt id
+		map.removeLayer tools[id].toolpoint
 
 	updateColorMasks = ->
 		activeMask = [0, 0, 0]
@@ -97,8 +101,8 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	@activeTool = ->
 		tools[active]
 
-	@getTools = ->
-		tools
+	# @getTools = ->
+	# 	tools
 
 
 	return
