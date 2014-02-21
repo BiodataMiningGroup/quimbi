@@ -1,6 +1,6 @@
 # service for managing all tools of the display route. keeps track on which
 # tool is allowed in combination whith which other
-angular.module('quimbi').service 'toolset', (Tool, shader) ->
+angular.module('quimbi').service 'toolset', (Tool, shader, selection) ->
 	# collection of all tools
 	tools = {}
 	# id/color of the currently drawing/selecting tool
@@ -84,6 +84,7 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		tool.position.x = position.x
 		tool.position.y = position.y
 		renderPromise.stop()
+		selection.make position
 
 	# clear the selection of a tool
 	@clear = (id) => 

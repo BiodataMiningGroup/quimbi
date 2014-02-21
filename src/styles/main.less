@@ -27,33 +27,33 @@ input {
 	}
 }
 
-html, body {
+html, body, .view {
 	height: 100%;
+	width: 100%;
 }
 
 body {
 	background-color: @dark-gray;
 	color: @text-color;
+}
+
+.view {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-.view {
-	border-radius: @radius;
+.view__box {
 	padding: @pad;
-	background-color: @light-gray;
-	min-width: @view-min-width;
-	max-width: 100%;
-	max-height: 100%;
 	box-sizing: border-box;
+	background-color: @light-gray;
+	border-radius: @radius;
+	min-width: @view-min-width;
 	position: relative;
 }
 
 .about {
-	position: absolute;
-	left: @pad;
-	bottom: @pad;
+
 	opacity: 0.5;
 	transition: opacity @duration;
 	border: none;
@@ -65,6 +65,11 @@ body {
 
 // === Views ===
 
+@import url(init.less);
 @import url(loading.less);
 @import url(display.less);
 @import url(selection.less);
+
+// === Modules ===
+
+@import url(spectrum-viewer.less);

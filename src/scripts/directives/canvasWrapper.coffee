@@ -2,7 +2,7 @@
 # this could be just a controller, too, but the canvas has to be appended to
 # the DOM so an "element" is needed.
 # updates the mouse position on the canvas
-angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, mouse) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, selection) ->
 	
 	restrict: 'A'
 
@@ -16,7 +16,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 		# important! because of this the canvasWrapper is a directive and not just a controller
 		element.prepend canvas.element
 		# set saved element width if one was saved
-		if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
+		#if settings.canvasWidth > 0 then element.css 'width', "#{settings.canvasWidth}px"
 		# information about the canvasWrapper element
 		scope.properties = 
 			left: 0
@@ -36,10 +36,10 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 		# update once on linking
 		scope.updateProperties()
 
-		updateWidth = (newWidth) ->
-			settings.canvasWidth = newWidth
-			canvas.checkScale newWidth
-		scope.$watch 'properties.width', updateWidth
+		# updateWidth = (newWidth) ->
+		# 	settings.canvasWidth = newWidth
+		# 	canvas.checkScale newWidth
+		# scope.$watch 'properties.width', updateWidth
 		return
 
 	controller: ($scope) ->		
@@ -48,16 +48,19 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 			this.updateProperties()
 			mouse.position.x = (e.pageX - $scope.properties.left) / $scope.properties.width
 			mouse.position.y = (e.pageY - $scope.properties.top) / $scope.properties.height
-			unless settings.showColorRatio then return
+			# unless settings.showColorRatio then return
 
-			pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
-			# x-position, y-position, x-dimension, y-dimension, color format, 
-			# number format, destination variable. colorRatio is from parent scope
-			glmvilib.getPixels pos.x, pos.y, 1, 1, $scope.colorRatio.pixel
+			# pos = canvas.getPixelPosition mouse.position.x, 1 - mouse.position.y
+			# # x-position, y-position, x-dimension, y-dimension, color format, 
+			# # number format, destination variable. colorRatio is from parent scope
+			# glmvilib.getPixels pos.x, pos.y, 1, 1, $scope.colorRatio.pixel
 
 		# finishes drawing/selecting of the currently active tool at the current
 		# mouse position
-		$scope.drawn = -> toolset.drawn x: mouse.position.x, y: mouse.position.y
+		$scope.drawn = -> 
+			toolset.drawn x: mouse.position.x, y: mouse.position.y
+			$scope.$emit 'canvasWrapper.updateSelection'
+
 
 		# TODO is default tool active by default?
 		return

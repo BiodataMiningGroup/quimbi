@@ -4,7 +4,7 @@ angular.module('quimbi').service 'selection', (input, mouse, $document, Selectio
 	# of the dataset there should be one pixel in this texture.
 	@textureDimension = Math.ceil Math.sqrt Math.ceil input.channels / 4
 
-	@data = null
+	@data = new SelectionData []
 
 	intensities = new Uint8Array @textureDimension * @textureDimension * 4
 
@@ -15,10 +15,10 @@ angular.module('quimbi').service 'selection', (input, mouse, $document, Selectio
 	fingerprintCtx = @fingerprint.getContext '2d'
 	fingerprintData = fingerprintCtx.createImageData @textureDimension, @textureDimension
 
-	@make = (x, y) =>
+	@make = (position) =>
 		glmvilib.setViewport 0, 0, @textureDimension, @textureDimension
-		mouse.position.x = x
-		mouse.position.y = y
+		mouse.position.x = position.x
+		mouse.position.y = position.y
 		glmvilib.render 'selection-info'
 		glmvilib.getPixels 0, 0, @textureDimension, @textureDimension, intensities
 		glmvilib.setViewport 0, 0, input.width, input.height

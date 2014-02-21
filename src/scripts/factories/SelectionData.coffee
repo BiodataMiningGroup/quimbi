@@ -2,6 +2,10 @@
 angular.module('quimbi').factory 'SelectionData', (input) ->
 	# constructor function gets the Uint8Array of intensity values
 	(intensities) ->
+		# get length from input because intensities can have more entries as there
+		# are channels
+		length = Math.min intensities.length, input.channels
+		
 		@maxIntensity = -Infinity
 		@minIntensity = Infinity
 
@@ -14,14 +18,14 @@ angular.module('quimbi').factory 'SelectionData', (input) ->
 
 		# array with the channels intensity value at the respective index of the
 		# channel (of input.channelNames)
-		@byName = new Array input.channels
+		@byName = new Array length
 
 		# fill @byName and find max/min values
-		channel = input.channels
+		channel = length
 		while channel--
 			value = @byName[channel] = intensities[channel]
-			@maxIntensity = value if value > @maxIntensity
-			@minIntensity = value if value < @minIntensity
+			@maxIntensity = Math.max value, @maxIntensity
+			@minIntensity = Math.min value, @minIntensity
 
 		# fill @byValue
 		@byName.forEach (value, index) => @byValue[value].push index

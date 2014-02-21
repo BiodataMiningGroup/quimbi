@@ -1,7 +1,6 @@
 # controller for the loading route. manages downloading of the dataset images and
 # setting up of glmvilib.
 angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input, shader) ->
-	$scope.properties.disableAbout = yes
 
 	# number of files loaded in parallel
 	PARALLEL = 10

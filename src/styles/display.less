@@ -1,22 +1,40 @@
 // === Display view ===
 
 .display-view {
-	white-space: nowrap;
-	line-height: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.display-view__top {
+	height: 70%;
+	position: relative;
+	padding: @pad;
+	padding-bottom: 0;
+	box-sizing: border-box;
+}
+
+.display-view__bottom {
+	height: 30%;
+	position: relative;
+	padding-top: @pad;
+	box-sizing: border-box;
 }
 
 .canvas-tools {
-	width: @canvas-tools-width;
 	position: relative;
-	display: inline-block;
 	vertical-align: top;
-	margin-right: @pad;
-	white-space: normal;
+	width: @canvas-tools-width;
+	float: left;
 
 	.pure-button {
-		width: 100%;
 		transition: all 250ms;
 		box-sizing: border-box;
+		width: 100%;
+	}
+
+	.about {
+		display: inline-block;
+		margin-top: @pad;
 	}
 }
 
@@ -24,10 +42,10 @@
 	transition: all 250ms;
 	border-left: @small-pad solid transparent;
 	border-radius: @radius;
-	margin-bottom: @pad;
 	overflow: hidden;
 	color: rgba(0, 0, 0, 0.8);
 	box-sizing: border-box;
+	margin-bottom: @pad;
 
 	.pure-button {
 		border-top-left-radius: 0;
@@ -56,32 +74,15 @@
 }
 
 .canvas-wrapper {
-	max-width: 100%;
 	position: relative;
-	display: inline-block;
-	overflow: hidden;
-	resize: horizontal;
-
-	&:after {
-		height: 0;
-		width: 0;
-		border-top: 10px solid transparent;
-		border-left: 10px solid transparent;
-		border-right: 10px solid #999;
-		border-bottom: 10px solid #999;
-		position: absolute;
-		right: 0;
-		bottom: 0;
-		pointer-events: none;
-		content: '';
-	}
+	margin-left: @canvas-tools-width + 10px;
+	height: 100%;
 
 	canvas {
 		.image-crisp-edges;
-		height: auto;
+		height: 100%;
 		width: 100%;
 		display: block;
-		pointer-events: none;
 	}
 }
 

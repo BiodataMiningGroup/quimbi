@@ -1,12 +1,11 @@
-<div class="spectrum-viewer">
+<div class="spectrum-viewer" data-ng-mousemove="mousemove($event)" data-ng-mouseup="finishRange()">
 	<div class="spectrum-viewer__scroll" data-ng-style="scrollStyle"></div>
-	<div class="spectrum-viewer__inner" data-ng-style="innerStyle">
-		<span class="spectrum-viewer__bar" data-ng-repeat="value in bars track by $index" data-ng-mouseover="data.current=$index">
-			<span class="spectrum-viewer__bar__fill" style="height:{{value/spectrum.maximum*100}}%;"></span>
-		</span>
-	</div>
 	<div class="spectrum-viewer__info" data-ng-style="innerStyle">
-		Channel: {{spectrum.labels[data.current + data.left]}}<br/>
-		Intensity: {{spectrum.data[data.current + data.left]}}
+		Channel: {{data.label}}<br/>
+		Intensity: {{data.value}}
 	</div>
+	<div class="spectrum-viewer__inner" data-ng-style="innerStyle" data-ng-mousedown="addRange($event)">
+		<span ng-repeat="value in bars track by $index" ng-class="{hover:data.current==$index}" class="spectrum-viewer__bar" style="height:{{value/spectrum.maximum*100}}%;"></span>
+	</div>
+	<span class="spectrum-viewer__range" data-ng-repeat="range in ranges" style="left:{{range.start}}px; width:{{range.offset}}px;" ng-click="removeRange($index)"></span>
 </div>

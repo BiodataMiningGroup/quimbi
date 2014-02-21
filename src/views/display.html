@@ -1,18 +1,20 @@
 <div class="display-view">
-	<aside class="canvas-tools">
-		<div data-tool-button="$gray" data-tooltip="Select with gray shades. Clears RGB selections."></div>
-		<div data-tool-button="red" data-tooltip="Select with red shades."></div>
-		<div data-tool-button="lime" data-tooltip="Select with green shades."></div>
-		<div data-tool-button="blue" data-tooltip="Select with blue shades."></div>
-		
-		<a href="#/settings" class="pure-button" data-tooltip="Settings."><i class="icon-cog icon-large"></i></a>
-		<div class="color-ratios" data-tooltip="Color ratios of the hovered pixel." data-ng-if="colorRatio.show">
-			<span class="color-ratios_bar" data-ng-style="{'width': colorRatio.r, 'background-color': 'red'}"></span><!--
-			--><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.g, 'background-color': 'lime'}"></span><!--
-			--><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.b, 'background-color': 'blue'}"></span><!--
-			--><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.white, 'background-color': 'white'}"></span><!--
-			--><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.black, 'background-color': 'black'}"></span>
+	<div class="display-view__top">
+		<div class="canvas-tools">
+			<div data-tool-button="$gray" data-tooltip="Select with gray shades. Clears RGB selections."></div>
+			<div data-tool-button="red" data-tooltip="Select with red shades."></div>
+			<div data-tool-button="lime" data-tooltip="Select with green shades."></div>
+			<div data-tool-button="blue" data-tooltip="Select with blue shades."></div>
+			
+			<a href="#/settings" class="pure-button" data-tooltip="Settings."><i class="icon-cog icon-large"></i></a>
+			<a href="#/about" class="about" data-ng-hide="properties.disableAbout" data-tooltip="About this tool."><i class="icon-question-sign"></i></a>
+			<!--div class="color-ratios" data-tooltip="Color ratios of the hovered pixel." data-ng-if="colorRatio.show">
+				<span class="color-ratios_bar" data-ng-style="{'width': colorRatio.r, 'background-color': 'red'}"></span><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.g, 'background-color': 'lime'}"></span><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.b, 'background-color': 'blue'}"></span><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.white, 'background-color': 'white'}"></span><span class="color-ratios_bar" data-ng-style="{'width': colorRatio.black, 'background-color': 'black'}"></span>
+			</div-->
 		</div>
-	</aside>
-	<div data-canvas-wrapper=""></div>
+		<div data-canvas-wrapper=""></div>
+	</div>
+	<div class="display-view__bottom">
+		<div data-spectrum-viewer="spectrum" data-spectrum-ranges="spectrumRanges"></div>
+	</div>
 </div>
