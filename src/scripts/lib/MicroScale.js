@@ -1,13 +1,16 @@
 /*
  * L.Control.MicroScale is used for displaying metric scale on the map.
- * It's completely based on L.Control.Scale and only modified a little bit to handle smaller units.
+ * It's completely based on L.Control.Scale and only modified a little bit to handle units based on input.
  */
 
 L.Control.MicroScale = L.Control.extend({
     options: {
         position: 'bottomleft',
         maxWidth: 100,
-        updateWhenIdle: false
+        objectWidth: 150,
+        updateWhenIdle: false,
+        baseUnit: 'mm',
+        subUnit: '&micro;m'
     },
 
     onAdd: function (map) {
@@ -47,30 +50,53 @@ L.Control.MicroScale = L.Control.extend({
             maxMeters = dist * (options.maxWidth / size.x);
         }
 
-        this._updateScales(options, maxMeters);
+        this._updateScale(maxMeters, options);
     },
 
-    _updateScales: function (options, maxMeters) {
-        this._updateMetric(maxMeters);
+    _update2: function () {
+        var bounds = this._map.getBounds(),
+            maxBounds = this._map.options.maxBounds,
+            centerLat = bounds.getCenter().lat,
+            halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
+            dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180;
+
+        console.log(bounds, maxBounds);
+
+        var size = this._map.getSize(),
+            options = this.options,
+            maxMeters = 0;
+
+        if (size.x > 0) {
+            maxMeters = dist * (options.maxWidth / size.x);
+        }
+
+        console.log(size, options.maxWidth, options.maxWidth / size.x, maxMeters);
+
+
+        this._updateScale(maxMeters, options);
     },
 
-    _updateMetric: function (maxMeters) {
+
+    _updateScale: function (maxMeters, options) {
         var meters = this._getRoundNum(maxMeters);
 
         this._mScale.style.width = this._getScaleWidth(meters / maxMeters) + 'px';
-        this._mScale.innerHTML = meters < 1000 ? meters + ' m' : (meters / 1000) + ' km';
+        this._mScale.innerHTML = meters < 1000 ? meters + ' ' + options.subUnit : (meters / 1000) + ' ' + options.baseUnit;
     },
-
 
     _getScaleWidth: function (ratio) {
         return Math.round(this.options.maxWidth * ratio) - 10;
     },
 
     _getRoundNum: function (num) {
-        var pow10 = Math.pow(10, (Math.floor(num) + '').length - 1),
-            d = num / pow10;
 
-        d = d >= 10 ? 10 : d >= 5 ? 5 : d >= 3 ? 3 : d >= 2 ? 2 : 1;
+        var pow10 = Math.pow(10, (Math.floor(num) + '').length - 1),
+            d = num / pow10,
+            d2 = d >= 10 ? 10 : d >= 5 ? 5 : d >= 3 ? 3 : d >= 2 ? 2 : 1;
+
+        console.log("num:", num, "| d:", d, "| d2:", d2, "| r:", pow10 * d2);
+
+        d = d2;
 
         return pow10 * d;
     }
