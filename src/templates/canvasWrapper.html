@@ -1,11 +1,6 @@
-<div class="canvas-wrapper" data-ng-mousemove="mousemove($event)" data-ng-click="drawn()">
-	<div class="canvas-overlay" data-ng-if="overlay.show">
+<div class="canvas-wrapper">
+    <div class="canvas-overlay" data-ng-if="overlay.show">
 		<img data-ng-src="{{overlay.src}}" data-ng-style="{'opacity': overlay.opacity}"/>
 		<input type="range" name="points" min="0" max="1" step="0.01" data-ng-model="overlay.opacity" data-tooltip="Overlay image opacity." />
 	</div>
-
-	<div data-tool-point="$gray"></div>
-	<div data-tool-point="red"></div>
-	<div data-tool-point="lime"></div>
-	<div data-tool-point="blue"></div>
 </div>

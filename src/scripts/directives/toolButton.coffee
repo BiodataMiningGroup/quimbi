@@ -1,8 +1,8 @@
 # directive for a tool button displayed in the display route. registers a new
 # tool in the toolset (if not already present) and manages the "draw" and
 # "clear" events
-angular.module('quimbi').directive 'toolButton', (toolset) ->
-	
+angular.module('quimbi').directive 'toolButton', (toolset, settings) ->
+
 	restrict: 'A'
 
 	templateUrl: './templates/toolButton.html'
@@ -19,4 +19,6 @@ angular.module('quimbi').directive 'toolButton', (toolset) ->
 	controller: ($scope, $element, $attrs) ->
 		$scope.draw = -> toolset.draw $scope.tool.id
 		$scope.clear = ->	toolset.clear $scope.tool.id
+		# updateShow = (newShow) -> toolset.updateShow newShow
+		# if settings.showPoints then $scope.$watch 'tool.passive', updateShow
 		return

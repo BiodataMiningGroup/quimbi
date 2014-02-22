@@ -31,7 +31,7 @@ module.exports = (grunt) ->
 		autoprefixer:
 			multiple_files:
 				flatten: true
-				expand: true					
+				expand: true
 				src:  '<%= tmpDir %>/css/*.css'
 				dest: '<%= buildDir %>/css/'
 		# Compile the CoffeeScript files
@@ -95,7 +95,14 @@ module.exports = (grunt) ->
 					dest: '<%= buildDir %>'
 					expand: true
 				]
-		# Declate files to watch for live reload
+			leafletimages:
+				files: [
+					cwd: '<%= srcDir %>/styles/lib/images'
+					src: '*.png'
+					dest: '<%= buildDir %>/js/images'
+					expand: true
+				]
+		# Declare files to watch for live reload
 		delta:
 			options:
 				livereload: true
@@ -122,7 +129,7 @@ module.exports = (grunt) ->
 					'uglify'
 				]
 			less:
-				files: [ '<%= srcDir %>/<%= src.less %>' ]
+				files: [ '<%= srcDir %>/styles/*.less' ]
 				tasks: [ 'recess', 'autoprefixer' ]
 
 
