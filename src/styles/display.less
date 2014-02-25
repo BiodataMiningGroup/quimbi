@@ -43,9 +43,9 @@
 	border-left: @small-pad solid transparent;
 	border-radius: @radius;
 	overflow: hidden;
-	color: rgba(0, 0, 0, 0.8);
 	box-sizing: border-box;
 	margin-bottom: @pad;
+	color: rgba(0, 0, 0, 0.8);
 
 	.pure-button {
 		border-top-left-radius: 0;
@@ -59,7 +59,6 @@
 
 	&.passive {
 		border-left-width: @pad;
-		//margin-bottom: @small-pad;
 
 		.clear {
 			width: 30%;
@@ -90,14 +89,14 @@
 .tool-point {
 	@dim: 10px;
 	@border: 1px;
-	position: absolute;
-	cursor: pointer;
+	// position: absolute;
+	// cursor: pointer;
 	// 2*border because of border+shadow
-	width: @dim - 2 * @border;
-	height: @dim - 2 * @border;
+	// width: @dim - 2 * @border;
+	// height: @dim - 2 * @border;
 	// tool-points are positioned using %-values. the transformation sets the
 	// center of the point to the %-coordinates.
-	transform: translate(-@dim / 2,-@dim / 2);
+	// transform: translate(-@dim / 2,-@dim / 2);
 
 	border: @border solid white;
 	box-shadow: 0 0 0 @border black;
@@ -122,49 +121,4 @@
 .tool-point-gray {
 	.tool-point;
 	background-color: gray;
-}
-
-.canvas-overlay {
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none;
-
-	img {
-		width: 100%;
-		height: 100%;
-	}
-
-	input[type="range"] {
-		position: absolute;
-		left: @pad;
-		bottom: @pad;
-		pointer-events: all;
-		opacity: 0.25;
-		transition: opacity @duration;
-
-		&:hover {
-			opacity: 1;
-		}
-	}
-}
-
-.color-ratios {
-	margin-top: @pad;
-	position: relative;
-	height: 3 * @pad;
-	border-radius: @radius;
-	background-color: @text-color;
-	padding: @small-pad;
-	box-sizing: border-box;
-	line-height: 0;
-	overflow: hidden;
-}
-
-.color-ratios_bar {
-	height: 100%;
-	display: inline-block;
-	transition: width 100ms;
 }

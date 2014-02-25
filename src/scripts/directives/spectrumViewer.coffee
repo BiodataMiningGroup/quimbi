@@ -62,7 +62,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			index = current + scope.data.left
 			if index >= scope.data.length then return
 			scope.data.label = "#{scope.spectrum.labels[index]}"
-			scope.data.value = "#{scope.spectrum.data[index]}"
+			scope.data.value = "#{Math.round scope.spectrum.data[index] / scope.spectrum.maximum * 100}"
 
 
 	controller: ($scope) ->
@@ -92,8 +92,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		# scope data container
 		$scope.data = 
 			current: 0
-			label: ''
-			value: ''
+			label: '-'
+			value: '-'
 			length: 0
 			# the index of the leftmost displayed bar in the complete dataset
 			left: 0
