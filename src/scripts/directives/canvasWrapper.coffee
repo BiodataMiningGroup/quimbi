@@ -13,12 +13,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
     scope: yes
 
     link: (scope, element) ->
-
-        # ? legacy comment ? important! because of this the canvasWrapper is a directive and not just a controller
-
-        ####
-
-
         inputWidth = canvas.element[0].width
         inputHeight = canvas.element[0].height
 
@@ -49,58 +43,17 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
             padding: [10,10]
         })
 
-        map.on 'mousemove', (e) ->
-            mouseLatLng = e.latlng
-            if maxBounds.contains mouseLatLng
-                posX = (mouseLatLng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
-                posY = (mouseLatLng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
-                scope.$emit 'canvasmousemove', {
-                    x: posX
-                    y: posY
-                }
+        map.on 'mousemove', (e) -> if maxBounds.contains e.latlng
+            posX = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
+            posY = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
+            mouse.position.x = posX
+            mouse.position.y = posY
 
-        map.on 'click', (e) ->
-            if maxBounds.contains e.latlng
-                scope.$emit 'canvasclick', { latlng: e.latlng }
+        map.on 'click', (e) -> if maxBounds.contains e.latlng
+            scope.$apply -> if toolset.drawing()
+                toolset.activeTool().toolpoint.setLatLng(e.latlng).addTo(map)
+                toolset.drawn mouse.position #props.latlng
+                scope.$emit 'canvasWrapper.updateSelection'
 
         toolset.map = map
-
-        # information about the canvasWrapper element
-        scope.properties =
-            left: 0
-            top: 0
-            width: 0
-            height: 0
-
-        # updates the information about the canvasWrapper element
-        # needed for calculating the relative mouse position
-        scope.updateProperties = ->
-            rect = element[0].getBoundingClientRect()
-            properties = scope.properties
-            properties.left = rect.left
-            properties.top = rect.top
-            properties.width = element[0].clientWidth
-            properties.height = element[0].clientHeight
-        # update once on linking
-        scope.updateProperties()
-
-        return
-
-    controller: ($scope) ->
-        # updates mouse coordinates and reads current pixel data
-        $scope.$on "canvasmousemove", (e, props) ->
-            $scope.updateProperties()
-            mouse.position.x = props.x
-            mouse.position.y = props.y
-
-        # finishes drawing/selecting of the currently active tool at the current
-        # mouse position
-        $scope.$on "canvasclick", (e, props) ->
-            $scope.$apply ->
-                if toolset.drawing()
-                    toolset.activeTool().toolpoint.setLatLng(props.latlng).addTo(map)
-                    toolset.drawn mouse.position #props.latlng
-                    $scope.$emit 'canvasWrapper.updateSelection'
-                return
-
         return
