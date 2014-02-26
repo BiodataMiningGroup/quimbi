@@ -7,7 +7,7 @@ L.Control.MicroScale = L.Control.extend({
     options: {
         position: 'bottomleft',
         maxWidth: 100,
-        objectWidth: 150,
+        objectWidth: 100000,
         updateWhenIdle: false,
         baseUnit: 'mm',
         subUnit: '&micro;m'
@@ -39,43 +39,32 @@ L.Control.MicroScale = L.Control.extend({
     _update: function () {
         var bounds = this._map.getBounds(),
             centerLat = bounds.getCenter().lat,
-            halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
+            options = this.options,
+            objectWidth = options.objectWidth,
+            // original 6378137 * Math.PI for half of the earth's circumference
+            // we can use half of the actual width of the object instead
+            halfWorldMeters = objectWidth / 2 * Math.cos(centerLat * Math.PI / 180),
             dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180,
-
             size = this._map.getSize(),
-            options = this.options,
             maxMeters = 0;
 
         if (size.x > 0) {
             maxMeters = dist * (options.maxWidth / size.x);
         }
 
-        this._updateScale(maxMeters, options);
-    },
 
-    _update2: function () {
-        var bounds = this._map.getBounds(),
-            maxBounds = this._map.options.maxBounds,
-            centerLat = bounds.getCenter().lat,
-            halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
-            dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180;
-
-        console.log(bounds, maxBounds);
-
-        var size = this._map.getSize(),
-            options = this.options,
-            maxMeters = 0;
-
-        if (size.x > 0) {
-            maxMeters = dist * (options.maxWidth / size.x);
-        }
-
-        console.log(size, options.maxWidth, options.maxWidth / size.x, maxMeters);
-
+        console.log("-----------------");
+        console.log("centerLat:", centerLat);
+        console.log("objectWidth:", objectWidth);
+        console.log("Math.cos(centerLat * Math.PI / 180):", Math.cos(centerLat * Math.PI / 180));
+        console.log("halfWorldMeters:", halfWorldMeters);
+        console.log("bounds.getNorthEast().lng",bounds.getNorthEast().lng);
+        console.log("bounds.getSouthWest().lng",bounds.getSouthWest().lng);
+        console.log("diff/180:", (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180);
+        console.log("dist:", dist);
 
         this._updateScale(maxMeters, options);
     },
-
 
     _updateScale: function (maxMeters, options) {
         var meters = this._getRoundNum(maxMeters);
@@ -91,12 +80,9 @@ L.Control.MicroScale = L.Control.extend({
     _getRoundNum: function (num) {
 
         var pow10 = Math.pow(10, (Math.floor(num) + '').length - 1),
-            d = num / pow10,
-            d2 = d >= 10 ? 10 : d >= 5 ? 5 : d >= 3 ? 3 : d >= 2 ? 2 : 1;
+            d = num / pow10;
 
-        console.log("num:", num, "| d:", d, "| d2:", d2, "| r:", pow10 * d2);
-
-        d = d2;
+        d = d >= 10 ? 10 : d >= 5 ? 5 : d >= 3 ? 3 : d >= 2 ? 2 : 1;
 
         return pow10 * d;
     }

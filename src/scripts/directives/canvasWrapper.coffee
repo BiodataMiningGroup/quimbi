@@ -54,11 +54,15 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         maxBounds = new L.LatLngBounds(southWest, northEast)
         map.setMaxBounds maxBounds
 
-        L.control.microScale().addTo map
+        # add scale with total object width in um
+        L.control.microScale({ objectWidth: 80000 }).addTo map
 
         L.canvasOverlay(canvas.element[0], maxBounds).addTo map
 
         L.graticule({interval: inputPixelWidth, southWest: southWest, northEast: northEast, clickable: false}).addTo(map)
+
+        # image2 = L.imageOverlay 'data/image.png', maxBounds
+        # miniMap = new L.Control.MiniMap(image2).addTo(map);
 
         # fit bounds and setting max bounds should happen in the initialization of map to avoid initial animation
         # padding makes sure that there is additional space around the image that can be covered by controls
