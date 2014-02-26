@@ -52,17 +52,6 @@ L.Control.MicroScale = L.Control.extend({
             maxMeters = dist * (options.maxWidth / size.x);
         }
 
-
-        console.log("-----------------");
-        console.log("centerLat:", centerLat);
-        console.log("objectWidth:", objectWidth);
-        console.log("Math.cos(centerLat * Math.PI / 180):", Math.cos(centerLat * Math.PI / 180));
-        console.log("halfWorldMeters:", halfWorldMeters);
-        console.log("bounds.getNorthEast().lng",bounds.getNorthEast().lng);
-        console.log("bounds.getSouthWest().lng",bounds.getSouthWest().lng);
-        console.log("diff/180:", (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180);
-        console.log("dist:", dist);
-
         this._updateScale(maxMeters, options);
     },
 
