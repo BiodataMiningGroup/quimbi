@@ -28,19 +28,40 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
         console.log inputWidth, inputHeight
 
+        shapeFactor = inputWidth / inputHeight
+        if  shapeFactor >= 2
+            lngBound = 180
+            latBound = 180 / shapeFactor
+
+        inputPixelWidth = lngBound*2 / inputWidth
+        console.log "iPW", inputPixelWidth
+
+        # widthBound = inputWidth/2
+        # heightBound = inputHeight/2
+
         # setup matching LatLng bounds for the input dimensions
-        southWest = map.unproject([inputWidth, 0], 5) #map.getMaxZoom())
-        northEast = map.unproject([0, inputHeight], 5) #map.getMaxZoom())
+        # southWest = map.unproject([Math.ceil(-widthBound), Math.ceil(-heightBound)], 5) #map.getMaxZoom())
+        # northEast = map.unproject([Math.ceil(widthBound), Math.ceil(heightBound)], 5) #map.getMaxZoom())
+        southWest = L.latLng(Math.ceil(-latBound), Math.ceil(-lngBound))
+        northEast = L.latLng(Math.ceil(latBound), Math.ceil(lngBound))
         # alternatively: set maxBounds on map options
         maxBounds = new L.LatLngBounds(southWest, northEast)
         map.setMaxBounds maxBounds
 
+        # add scale with total object width in um
+        L.control.microScale({ objectWidth: 80000 }).addTo map
+
         L.canvasOverlay(canvas.element[0], maxBounds).addTo map
+
+        L.graticule({interval: inputPixelWidth, southWest: southWest, northEast: northEast, clickable: false}).addTo(map)
+
+        # image2 = L.imageOverlay 'data/image.png', maxBounds
+        # miniMap = new L.Control.MiniMap(image2).addTo(map);
 
         # fit bounds and setting max bounds should happen in the initialization of map to avoid initial animation
         # padding makes sure that there is additional space around the image that can be covered by controls
         map.fitBounds(maxBounds, {
-            padding: [10,10]
+            padding: [100,100]
         })
 
         map.on 'mousemove', (e) -> if maxBounds.contains e.latlng
@@ -54,6 +75,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
                 toolset.activeTool().toolpoint.setLatLng(e.latlng).addTo(map)
                 toolset.drawn mouse.position #props.latlng
                 scope.$emit 'canvasWrapper.updateSelection'
+
+
 
         toolset.map = map
         return
