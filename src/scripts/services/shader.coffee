@@ -38,7 +38,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	# returns the final shader for rendering to the canvas
 	@getFinal = -> finalShaderID
 
-	# sets the color mask for updating the rgb color
+	# sets the color mask for updating the rgb texture
 	@setActiveColorMask = (mask) ->
 		if mask instanceof Array and mask.length is 3
 			rgbSelection.colorMask = mask
@@ -47,6 +47,10 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	@setPassiveColorMask = (mask) ->
 		if mask instanceof Array and mask.length is 3
 			pseudocolorDisplay.colorMask = mask
+
+	# link the mask that determines which channels should be considered in calculation
+	# since it stays the same object, only the reference has to be passed once
+	@updateChannelMask = (mask) -> angleDist.updateChannelMask mask
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

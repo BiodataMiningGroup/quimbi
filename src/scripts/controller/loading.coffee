@@ -28,7 +28,8 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 			width: input.width
 			height: input.height
 			channels: input.channels
-			reservedUnits: 0
+			# one unit for the channel mask in the distance computing shaders
+			reservedUnits: 1
 		shader.createPrograms()
 	catch e
 		$scope.$emit 'message::error', "Failed to set up WebGL: #{e.message}"
