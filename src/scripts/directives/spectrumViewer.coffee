@@ -17,11 +17,11 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		ctx = canvas.getContext '2d'
 
 		updateProps = ->
+			scope.props.scrollWidth = scope.data.length
 			scope.props.width = Math.min element.prop('clientWidth'), scope.data.length
 			scope.props.height = element.prop 'clientHeight'
 			canvas.width = scope.props.width
 			canvas.height = scope.props.height
-			scope.props.scrollWidth = scope.data.length
 
 		drawBars = (left) ->
 			bar = scope.props.width
