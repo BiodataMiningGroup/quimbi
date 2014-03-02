@@ -16,47 +16,64 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		canvas = element.find('canvas')[0]
 		ctx = canvas.getContext '2d'
 
+		# update viewer properties
 		updateProps = ->
 			scope.props.scrollWidth = scope.data.length
-			scope.props.width = Math.min element.prop('clientWidth'), scope.data.length
-			scope.props.height = element.prop 'clientHeight'
+			scope.props.width =
+				Math.min element.prop('clientWidth'), scope.data.length
+			scope.props.height = element.prop('clientHeight') - 25 #25px x-axis height
 			canvas.width = scope.props.width
 			canvas.height = scope.props.height
 
-		drawBars = (left) ->
-			bar = scope.props.width
+		# draw the spectrum
+		draw = (left) ->
+			height = canvas.height
+			width = canvas.width
 			# clear canvas
-			canvas.width = canvas.width
+			ctx.clearRect 0, 0, width, height
 			ctx.beginPath()
 			# coefficient to calculate the y position
-			yPosition = canvas.height / scope.spectrum.maximum
+			yPosition = height / scope.spectrum.maximum
 			# start from bottom right
-			ctx.moveTo canvas.width, canvas.height
-			ctx.lineTo bar, canvas.height - yPosition * scope.spectrum.data[left + bar] while bar--
+			ctx.moveTo width, height
+			position = scope.props.width
+			data = scope.spectrum.data
+			while position--
+				ctx.lineTo position, height - yPosition * data[left + position]
 			ctx.strokeStyle = '#ffffff'
-			ctx.lineWidth = 1
 			ctx.stroke()
 
-		element.on 'scroll', -> scope.$apply -> scope.data.left = element.prop 'scrollLeft'
+		element.on 'scroll', -> scope.$apply ->
+			scope.data.left = element.prop 'scrollLeft'
 
+		# update element and viewer properties if the window size changes and redraw
 		$window.addEventListener 'resize', -> scope.$apply ->
 			rect = element[0].getBoundingClientRect()
 			scope.props.left = rect.left
 			scope.props.top = rect.top
 			updateProps()
-			drawBars scope.data.left
+			draw scope.data.left
 
+		# update and redraw if the input data changes
 		scope.$watchCollection 'spectrum.data', ->
 			scope.data.length = scope.spectrum.data.length 
 			updateProps()
-			drawBars scope.data.left
+			draw scope.data.left
 
-		scope.$watch 'props.scrollWidth', (width) -> scope.scrollStyle.width = "#{width}px"
+		# adjust size of the scroll container when scrollWidth changes
+		scope.$watch 'props.scrollWidth', (width) ->
+			scope.scrollStyle.width = "#{width}px"
 
+		# redraw and move inner container when the viewport changes
 		scope.$watch 'data.left', (left) ->
-			scope.innerStyle.left = "#{left}px"
-			drawBars left
+			# update scrollLeft in case of manual scrolling
+			element.prop 'scrollLeft', left
+			scope.innerStyle['transform'] =
+				scope.innerStyle['-webkit-transform'] =
+					"translate(#{left}px,0px)"
+			draw left
 
+		# update the information of the currently hovered position
 		scope.$watch 'data.current', (current) ->
 			scope.indicatorStyle.left = "#{current}px"
 			index = current + scope.data.left
@@ -81,7 +98,9 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 		# style of the inner container, that adjusts it's left attribute to
 		# be always displayed regardless the scroll position
-		$scope.innerStyle = left: "0px"
+		$scope.innerStyle =
+			transform: "translate(0px,0px)"
+			'-webkit-transform': "translate(0px,0px)"
 
 		# style of the bar that marks the mouse position
 		$scope.indicatorStyle = left: "0px"
@@ -90,44 +109,67 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		$scope.scrollStyle = width: "0px"
 
 		# scope data container
-		$scope.data = 
+		$scope.data =
+			# index of the currently hovered position
 			current: 0
+			# x-axiy value of the currently hovered position
 			label: '-'
+			# y-axis value of the currently hovered position
 			value: '-'
+			# number of channels of the dataset
 			length: 0
 			# the index of the leftmost displayed bar in the complete dataset
 			left: 0
+			# start point for manually scrolling by 'grabbing' the viewer
+			scrollStart: -1
+			# value of scrollLeft when manual scrolling has started
+			scrollStartLeft: 0
+			# currently active range (index of ranges array)
+			activeRange: -1
 
 		# all user made range selections
 		$scope.ranges = []
 
-		# currently active range (index of ranges array)
-		activeRange = -1
+		$scope.scrollStart = (e) -> if e.button is 0 and not e.shiftKey
+			posX = e.pageX - $scope.props.left
+			$scope.data.scrollStart = posX
+			$scope.data.scrollStartLeft = $scope.data.left
+
+		$scope.scroll = (e) -> unless $scope.data.scrollStart < 0
+			posX = e.pageX - $scope.props.left
+			if posX > $scope.props.width then return
+			
+			left = $scope.data.scrollStartLeft + $scope.data.scrollStart - posX
+			left = Math.max left, 0
+			left = Math.min left, $scope.props.scrollWidth - $scope.props.width
+			$scope.data.left = left
+
+		$scope.scrollEnd = -> $scope.data.scrollStart = -1
 
 		$scope.mousemove = (e) ->
-			index = e.pageX - $scope.props.left
-			unless index < $scope.props.width then return
-			$scope.data.current = index
-			if activeRange < 0 then return
-			range = $scope.ranges[activeRange]
-			# +1 because if left + index == start the start channel should be taken
-			# so range.offset channels are selected starting at range.start inclusively
-			offset = $scope.data.left + index - range.start + 1
-			if offset > 0 then range.offset = offset
-
-		$scope.finishRange = ->
-			if activeRange >= 0
-				activeRange = -1
-				$scope.$emit 'spectrumViewer.rangesUpdated'
-
-		$scope.addRange = (e) ->
-			unless e.button is 0 and activeRange < 0 then return
-			activeRange = $scope.ranges.length
 			posX = e.pageX - $scope.props.left
-			unless posX < $scope.props.width then return
-			$scope.ranges.push
-				start: $scope.data.left + posX
-				offset: 1
+			if posX > $scope.props.width then return
+
+			$scope.data.current = posX
+
+			# update active range
+			unless $scope.data.activeRange < 0
+				range = $scope.ranges[$scope.data.activeRange]
+				offset = $scope.data.left + posX - range.start
+				# minimal offset is 1 (one chanel selected)
+				range.offset = Math.max offset, 1
+
+		$scope.mouseup = -> if $scope.data.activeRange >= 0
+			$scope.data.activeRange = -1
+			$scope.$emit 'spectrumViewer.rangesUpdated'
+
+		$scope.mousedown = (e) -> if e.button is 0
+			posX = e.pageX - $scope.props.left
+			if $scope.data.activeRange < 0 and e.shiftKey
+				$scope.data.activeRange = $scope.ranges.length
+				if posX < $scope.props.width then $scope.ranges.push
+					start: $scope.data.left + posX
+					offset: 1
 
 		$scope.removeRange = (index) ->
 			$scope.ranges.splice index, 1
