@@ -21,15 +21,30 @@
 	z-index: 20;
 }
 
+@spectrum-viewer-label-height: 25px;
+
 .spectrum-viewer__x-axis {
 	position: absolute;
 	left: 0;
 	bottom: 0;
-	height: 25px;
+	height: @spectrum-viewer-label-height;
+	border-top: 1px solid white;
+	opacity: 0.3;
+}
+
+.spectrum-viewer__label {
+	position: absolute;
+	top: 0;
+	height: @spectrum-viewer-label-height;
+	line-height: @spectrum-viewer-label-height;
+	overflow: hidden;
+	border-left: 1px solid white;
+	padding-left: 0.3em;
 }
 
 .spectrum-viewer__inner {
 	position: absolute;
+	z-index: 10;
 	top: 0;
 	width: 100%;
 	cursor: pointer;
@@ -40,9 +55,9 @@
 }
 
 .spectrum-viewer__inner__canvas {
-	pointer-events: none;
 	position: relative;
-	z-index: 10;
+	pointer-events: none;
+	display: block;
 }
 
 .spectrum-viewer__inner__ratio {
@@ -84,7 +99,6 @@
 	height: 100%;
 	width: 1px;
 	background-color: @info-color;
-	z-index: 11;
 	pointer-events: none;
 }
 

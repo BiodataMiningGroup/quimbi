@@ -8,7 +8,7 @@
 		<span class="spectrum-viewer__indicator" data-ng-style="indicatorStyle"></span>
 	</div>
 	<div class="spectrum-viewer__x-axis" data-ng-style="scrollStyle">
-		labels
+		<span class="spectrum-viewer__label" data-ng-repeat="label in labels" style="left:{{$index*props.labelWidth}}px; width:{{props.labelWidth}}px;">{{label}}</span>
 	</div>
 	<span class="spectrum-viewer__range" data-ng-repeat="range in ranges" style="left:{{range.start}}px; width:{{range.offset}}px;" ng-click="removeRange($index)"></span>
 	<div class="spectrum-viewer__info" data-ng-style="innerStyle">

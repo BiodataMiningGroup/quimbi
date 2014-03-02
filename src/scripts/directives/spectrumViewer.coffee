@@ -25,6 +25,18 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			canvas.width = scope.props.width
 			canvas.height = scope.props.height
 
+		# update the displayed x-axis labels according to the scrollWidth
+		updateLabels = (width) -> if width isnt 0
+			# one label every 50px
+			number = Math.floor width / scope.props.labelWidth
+			# minimal number is 1
+			number = Math.max number, 1
+			offset = Math.floor scope.data.length / number
+			# clear trailing old labels
+			scope.labels.length = number
+			while number--
+				scope.labels[number] = scope.spectrum.labels[number * offset]
+
 		# draw the spectrum
 		draw = (left) ->
 			height = canvas.height
@@ -63,6 +75,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		# adjust size of the scroll container when scrollWidth changes
 		scope.$watch 'props.scrollWidth', (width) ->
 			scope.scrollStyle.width = "#{width}px"
+			updateLabels width
 
 		# redraw and move inner container when the viewport changes
 		scope.$watch 'data.left', (left) ->
@@ -95,6 +108,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			top: 0
 			# width of the content of the element
 			scrollWidth: 0
+			# width of the x-axis labels in px
+			labelWidth: 200
 
 		# style of the inner container, that adjusts it's left attribute to
 		# be always displayed regardless the scroll position
@@ -129,6 +144,9 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 		# all user made range selections
 		$scope.ranges = []
+
+		# all x-axis labels that are displayed
+		$scope.labels = []
 
 		$scope.scrollStart = (e) -> if e.button is 0 and not e.shiftKey
 			posX = e.pageX - $scope.props.left
