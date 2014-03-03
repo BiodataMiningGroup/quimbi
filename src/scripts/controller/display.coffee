@@ -1,5 +1,8 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, settings, input, selection) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, shader) ->
+	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
+	console.log selection.textureDimension
+
 	$scope.spectrum =
 		data: selection.data.byName
 		labels: input.channelNames
@@ -8,53 +11,25 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, settings, input, sel
 
 	$scope.spectrumRanges = []
 
-	# # manage image overlay inside the canvasWrapper
-	# $scope.overlay =
-	# 	show: settings.showOverlay and input.overlayImage isnt ''
-	# 	src: input.overlayImage
-	# 	opacity: settings.overlayOpacity
-
-	# updateOverlayOpacity = (newOpacity) -> settings.overlayOpacity = newOpacity
-	# $scope.$watch 'overlay.opacity', updateOverlayOpacity
-
-	# # information about the hovered pixel
-	# $scope.colorRatio =
-	# 	show: settings.showColorRatio
-	# 	# pixel array for webgl
-	# 	pixel: new Uint8Array 4
-	# 	# percentage of color contribution formatted for css
-	# 	r: '0%'
-	# 	g: '0%'
-	# 	b: '0%'
-	# 	white: '0%'
-	# 	black: '0%'
-
-	# updatePixel = (newPixel) ->
-	# 	ratio = $scope.colorRatio
-	# 	r = newPixel[0]
-	# 	g = newPixel[1]
-	# 	b = newPixel[2]
-	# 	rgb = r + g + b
-	# 	if r is g and r is b and g is b
-	# 		ratio.r = ratio.g = ratio.b = '0%'
-	# 		# no division by zero
-	# 		w = if rgb is 0 then 0 else r / 255
-	# 		ratio.white = "#{100 * w}%"
-	# 		ratio.black = "#{100 * (1 - w)}%"
-	# 	else
-	# 		ratio.white = ratio.black = '0%'
-	# 		ratio.r = "#{100 * r / rgb}%"
-	# 		ratio.g = "#{100 * g / rgb}%"
-	# 		ratio.b = "#{100 * b / rgb}%"
-	# $scope.$watch 'colorRatio.pixel', updatePixel, yes
-
 	$scope.$on "canvasWrapper.updateSelection", ->
 		$scope.spectrum.data = selection.data.byName
 		$scope.spectrum.maximum = selection.data.maxIntensity
 		$scope.spectrum.minimum = selection.data.minIntensity
 
-	updateRanges = (ranges) -> #console.log ranges
+	updateRanges = ->
+		# number of channels padded to be represented as vec4's
+		channel = input.files.length * 4
+		if $scope.spectrumRanges.length is 0
+			channelMask[channel] = 255 while channel--	
+		else
+			channelMask[channel] = 0 while channel--
+			for range in $scope.spectrumRanges
+				offset = range.offset
+				channelMask[range.start + offset] = 255 while offset--
+		shader.updateChannelMask channelMask
+		glmvilib.render.apply glmvilib, shader.getActive()
 
-	$scope.$watch 'spectrumRanges', updateRanges, yes
+	$scope.$on 'spectrumViewer.rangesUpdated', updateRanges
+	updateRanges()
 	
 	return

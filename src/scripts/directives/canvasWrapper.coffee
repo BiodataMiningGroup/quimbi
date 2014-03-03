@@ -65,10 +65,13 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         })
 
         map.on 'mousemove', (e) -> if maxBounds.contains e.latlng
-            posX = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
-            posY = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
-            mouse.position.x = posX
-            mouse.position.y = posY
+            # check toolset.drawing(), too, to preserve the mouse position of the
+            # last set tool (for possible redrawing of the canvas on this spot)
+            scope.$apply -> if toolset.drawing()
+                posX = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
+                posY = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
+                mouse.position.x = posX
+                mouse.position.y = posY
 
         map.on 'click', (e) -> if maxBounds.contains e.latlng
             scope.$apply -> if toolset.drawing()

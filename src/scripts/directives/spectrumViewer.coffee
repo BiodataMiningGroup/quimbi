@@ -110,19 +110,28 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			$scope.data.current = index
 			if activeRange < 0 then return
 			range = $scope.ranges[activeRange]
-			range.offset = $scope.data.left + index - range.start
+			# +1 because if left + index == start the start channel should be taken
+			# so range.offset channels are selected starting at range.start inclusively
+			offset = $scope.data.left + index - range.start + 1
+			if offset > 0 then range.offset = offset
 
-		$scope.finishRange = -> activeRange = -1
+		$scope.finishRange = ->
+			if activeRange >= 0
+				activeRange = -1
+				$scope.$emit 'spectrumViewer.rangesUpdated'
 
 		$scope.addRange = (e) ->
-			unless e.button is 0 then return
-			unless activeRange < 0 then return
+			unless e.button is 0 and activeRange < 0 then return
 			activeRange = $scope.ranges.length
+			posX = e.pageX - $scope.props.left
+			unless posX < $scope.props.width then return
 			$scope.ranges.push
-				start: $scope.data.left + e.pageX - $scope.props.left
+				start: $scope.data.left + posX
 				offset: 1
 
-		$scope.removeRange = (index) -> $scope.ranges.splice index, 1
+		$scope.removeRange = (index) ->
+			$scope.ranges.splice index, 1
+			$scope.$emit 'spectrumViewer.rangesUpdated'
 
 		return
 		
