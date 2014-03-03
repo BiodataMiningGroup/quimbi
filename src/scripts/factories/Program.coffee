@@ -1,8 +1,41 @@
 # Factory for creating shader program objects
 angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) ->
+
+	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
+		assets.framebuffers.distances = gl.createFramebuffer()
+		gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
+		texture = helpers.newTexture 'distanceTexture'
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.width, input.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+		gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
+		gl.bindFramebuffer gl.FRAMEBUFFER, null
+
+	setUpChannelMask = (gl, program, assets, helpers) ->
+		channelMaskTexture = null
+		gl.uniform1i gl.getUniformLocation(program, 'u_channel_mask'), 0
+		gl.uniform1f gl.getUniformLocation(program, 'u_channel_mask_dimension'), selection.textureDimension
+		gl.uniform1f gl.getUniformLocation(program, 'u_inv_channel_mask_dimension'), 1/selection.textureDimension
+		# check if texture already exists
+		unless channelMaskTexture = assets.textures.channelMaskTexture
+			channelMaskTexture = helpers.newTexture 'channelMaskTexture'
+			# same dimensions as fingerprint texture from selection
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, selection.textureDimension,
+				selection.textureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+		channelMaskTexture
+
+	updateChannelMask = (gl, mask, texture) ->
+		gl.activeTexture gl.TEXTURE0
+		gl.bindTexture gl.TEXTURE_2D, texture
+		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, no
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, selection.textureDimension,
+				selection.textureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, mask
+
+
 	# euclidean distance
 	EuclDist: ->
-		_mousePosition = null;
+		_gl = null
+		_mousePosition = null
+		# pointer to texture object
+		_channelMaskTexture = null
 
 		@id = 'eucl-dist'
 
@@ -11,6 +44,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 		@fragmentShaderUrl = 'shader/eucl-dist.fs.glsl'
 
 		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
 			helpers.useInternalVertexPositions program
 			helpers.useInternalTexturePositions program
 			helpers.useInternalTextures program
@@ -20,20 +54,21 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 
 			_mousePosition = gl.getUniformLocation program, 'u_mouse_position'
 
-			unless assets.framebuffers.distances
-				assets.framebuffers.distances = gl.createFramebuffer()
-				gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
-				texture = helpers.newTexture 'distanceTexture'
-				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.width, input.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null
-				gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
-				gl.bindFramebuffer gl.FRAMEBUFFER, null
+			setUpDistanceTexture gl, assets, helpers
+			
+			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
 			return
 
 		@callback = (gl, program, assets, helpers) ->
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
+			gl.activeTexture gl.TEXTURE0
+			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
+
+		@updateChannelMask = (mask) ->
+			updateChannelMask _gl, mask, _channelMaskTexture
 		return
 
 	# angle distance
@@ -59,24 +94,10 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.uniform1f normalization, 1 / input.maxAngleDist
 
 			_mousePosition = gl.getUniformLocation program, 'u_mouse_position'
-			gl.uniform1i gl.getUniformLocation(program, 'u_channel_mask'), 0
 
-			gl.uniform1f gl.getUniformLocation(program, 'u_channel_mask_dimension'), selection.textureDimension
-			gl.uniform1f gl.getUniformLocation(program, 'u_inv_channel_mask_dimension'), 1/selection.textureDimension
+			setUpDistanceTexture gl, assets, helpers
 
-			unless assets.framebuffers.distances
-				assets.framebuffers.distances = gl.createFramebuffer()
-				gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
-				texture = helpers.newTexture 'distanceTexture'
-				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.width, input.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null
-				gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
-				gl.bindFramebuffer gl.FRAMEBUFFER, null
-
-			unless assets.textures.channelMaskTexture
-				_channelMaskTexture = helpers.newTexture 'channelMaskTexture'
-				# same dimensions as fingerprint texture from selection
-				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, selection.textureDimension,
-					selection.textureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
 			return
 
 		@callback = (gl, program, assets, helpers) ->
@@ -88,12 +109,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			return
 
 		@updateChannelMask = (mask) ->
-			console.log mask
-			_gl.activeTexture _gl.TEXTURE0
-			_gl.bindTexture _gl.TEXTURE_2D, _channelMaskTexture
-			_gl.pixelStorei _gl.UNPACK_FLIP_Y_WEBGL, no
-			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGBA, selection.textureDimension,
-					selection.textureDimension, 0, _gl.RGBA, _gl.UNSIGNED_BYTE, mask
+			updateChannelMask _gl, mask, _channelMaskTexture
 
 		return
 

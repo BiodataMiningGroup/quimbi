@@ -1,6 +1,6 @@
 # controller for the loading route. manages downloading of the dataset images and
 # setting up of glmvilib.
-angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input, shader) ->
+angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, canvas, input, shader) ->
 
 	# number of files loaded in parallel
 	PARALLEL = 10
@@ -10,7 +10,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 
 	# data to display for the user
 	$scope.data = 
-		message: 'Downloading images.'
+		message: 'Downloading data.'
 		progress: 0
 
 	# information about the downloading process
@@ -20,7 +20,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 		# number of image files to load. /4 because 4 channels are merged to 1 rgba image
 		goal: Math.ceil input.channels / 4
 		# catch case of fewer images than are downloaded in parallel
-		parallel: -> if @goal < PARALLEL then @goal else PARALLEL
+		parallel: -> Math.min @goal, PARALLEL
 
 	# initialize glmvilib
 	try
@@ -42,7 +42,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 		progress = Math.round loading.finished / loading.goal * 100
 		$scope.$apply ->
 			$scope.data.progress = progress
-			$scope.data.message = "Downloading images: #{progress}%."
+			$scope.data.message = "Downloading data: #{progress}%."
 		# start loading of the next image
 		loadImage()
 
@@ -53,15 +53,20 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 		# reset to init route
 		$scope.$apply -> state.to 'init'
 
+	# called when everything is downloaded
+	finish = ->
+		glmvilib.storeTiles input.images
+		state.to 'display'
+
 	loadImage = ->
 		# loading is finished
 		if loading.finished is loading.goal
 			try
-				$scope.data.message = "Initializing textures."
-				glmvilib.storeTiles input.images
-				$scope.$apply -> state.to 'display'
+				$scope.data.message = "Unpacking data."
+				# do a timeout so the message is displayed in the UI
+				$timeout finish, 10, true
 			catch e
-				$scope.$emit 'message::error', "Failed to initialize textures: #{e.message}"
+				$scope.$emit 'message::error', "Failed to unpack the data: #{e.message}"
 				glmvilib.finish()
 				$scope.$apply -> state.to 'init'
 			
@@ -77,5 +82,5 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, state, canvas, input
 
 	# kick off loading
 	pack = loading.parallel()
-	while pack-- then loadImage()
+	loadImage() while pack--
 	return

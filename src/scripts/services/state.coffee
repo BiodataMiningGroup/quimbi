@@ -23,15 +23,16 @@ angular.module('quimbi').service 'state', ($rootScope, $location) ->
 	updateLocation = -> $location.url "/#{state}"
 
 	# allows only routes that are permitted for this state
-	check = (event, next, current) ->
-		unless next.$$route?.originalPath in states[state] then updateLocation()
-	$rootScope.$on '$routeChangeStart', check
+	check = (event, nextUrl, currentUrl) ->
+		next = nextUrl.substr nextUrl.lastIndexOf('#') + 1
+		# cancel location change if the url is not allowed in this state
+		unless next in states[state] then event.preventDefault()
+	$rootScope.$on '$locationChangeStart', check
 
 	# change the application state
-	@to = (newState) ->
-		if states[newState]?
-			state = newState
-			updateLocation()
+	@to = (newState) -> if states[newState]?
+		state = newState
+		updateLocation()
 
 	@current = -> state
 	return
