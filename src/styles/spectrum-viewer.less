@@ -5,11 +5,17 @@
 	overflow-y: hidden;
 	background-color: @light-gray;
 	user-select: none;
+	cursor: pointer;
+
+	&.scrolling {
+		cursor: grab;
+	}
 }
 
 .spectrum-viewer__scroll {
 	min-width: 100%;
-	height: 1px;
+	height: 100%;
+	transform-origin: top left;
 }
 
 .spectrum-viewer__info {
@@ -18,15 +24,13 @@
 	padding: @small-pad;
 	white-space: nowrap;
 	top: 0;
-	z-index: 20;
+	left: 0;
 }
 
 @spectrum-viewer-label-height: 25px;
 
 .spectrum-viewer__x-axis {
-	position: absolute;
-	left: 0;
-	bottom: 0;
+	position: relative;
 	height: @spectrum-viewer-label-height;
 	border-top: 1px solid white;
 	opacity: 0.3;
@@ -34,30 +38,21 @@
 
 .spectrum-viewer__label {
 	position: absolute;
-	top: 0;
+	transform-origin: top left;
 	height: @spectrum-viewer-label-height;
 	line-height: @spectrum-viewer-label-height;
-	overflow: hidden;
 	border-left: 1px solid white;
 	padding-left: 0.3em;
 }
 
 .spectrum-viewer__inner {
 	position: absolute;
+	transform-origin: top left;
 	z-index: 10;
 	top: 0;
 	width: 100%;
-	cursor: pointer;
-
-	&.scrolling {
-		cursor: grab;
-	}
-}
-
-.spectrum-viewer__inner__canvas {
-	position: relative;
+	height: 100%;
 	pointer-events: none;
-	display: block;
 }
 
 .spectrum-viewer__inner__ratio {
@@ -66,7 +61,6 @@
 	height: 1px;
 	background-color: white;
 	opacity: 0.3;
-	pointer-events: none;
 
 	&.ratio--25 {
 		top: 75%;
@@ -93,25 +87,28 @@
 	}
 }
 
+.spectrum-viewer__canvas {
+	position: relative;
+	display: block;
+}
+
 .spectrum-viewer__indicator {
 	position: absolute;
+	transform-origin: top left;
 	top: 0;
 	height: 100%;
 	width: 1px;
 	background-color: @info-color;
-	pointer-events: none;
 }
 
 .spectrum-viewer__range {
 	position: absolute;
 	top: 0;
 	height: 100%;
-	opacity: 0.8;
 	background-color: @success-color;
-	transition: opacity @duration;
-	cursor: pointer;
+	transition: background-color @duration;
 
 	&:hover {
-		opacity: 1;
+		background-color: @info-color;
 	}
 }

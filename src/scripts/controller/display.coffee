@@ -1,7 +1,6 @@
 # controller for the display route
 angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, shader) ->
 	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
-	console.log selection.textureDimension
 
 	$scope.spectrum =
 		data: selection.data.byName
