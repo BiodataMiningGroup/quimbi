@@ -13,8 +13,8 @@
 }
 
 .spectrum-viewer__scroll {
-	min-width: 100%;
 	height: 100%;
+	width: 1px;
 	transform-origin: top left;
 }
 
@@ -30,8 +30,11 @@
 @spectrum-viewer-label-height: 25px;
 
 .spectrum-viewer__x-axis {
-	position: relative;
+	position: absolute;
+	bottom: 0;
+	left: 0;
 	height: @spectrum-viewer-label-height;
+	width: 100%;
 	border-top: 1px solid white;
 	opacity: 0.3;
 }
@@ -55,7 +58,11 @@
 	pointer-events: none;
 }
 
-.spectrum-viewer__inner__ratio {
+.spectrum-viewer__canvas-wrapper {
+	position: relative;
+}
+
+.spectrum-viewer__ratio {
 	position: absolute;
 	width: 100%;
 	height: 1px;
@@ -88,9 +95,10 @@
 }
 
 .spectrum-viewer__canvas {
-	position: relative;
+	position: absolute;
+	top: 0;
+	left: 0;
 	display: block;
-	opacity: 0.9;
 }
 
 .spectrum-viewer__indicator {

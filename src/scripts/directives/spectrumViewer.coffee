@@ -8,24 +8,20 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 	replace: yes
 
 	scope: 
-		# data, labels, maximum, minimum
+		# data (arrays), labels, maximum, minimum, length
 		spectrum: '=spectrumViewer'
 		# array of {start: Number, offset: Number} objects
 		ranges: '=spectrumRanges'
 
 	link: (scope, element) ->
-		canvas = element.find('canvas')[0]
-		ctx = canvas.getContext '2d'
-
 		# update viewer properties
 		updateProps = ->
-			canvas.width = scope.props.width = element.prop('clientWidth')
-			canvas.height = scope.props.height = element.prop('clientHeight') - 25 #25px x-axis height
+			scope.props.width = element.prop('clientWidth')
+			scope.props.height = element.prop('clientHeight') - 25 #25px label height
+			if scope.spectrum.length is 0 then return
 
-			if scope.data.length is 0 then return
-
-			scope.zoom.min = scope.props.width / scope.data.length
-			# checks if current zoom.factor is smaller than the new zoom.min
+			scope.zoom.min = scope.props.width / scope.spectrum.length
+			# also checks if current zoom.factor is smaller than the new zoom.min
 			scope.zoom.factor = scope.zoom.factor
 
 			# minimal number is 1
@@ -33,7 +29,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 		# update the displayed x-axis labels
 		updateLabels = (left) ->
-			labels = scope.labels
 			spectrumLabels = scope.spectrum.labels
 			# index of leftmost visible point
 			left = Math.round left / scope.zoom.factor
@@ -43,42 +38,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			offset = Math.round scope.props.width / (scope.zoom.factor * number)
 			# pixel offset of the displayed labels
 			scope.props.labelOffset = offset * scope.zoom.factor
-			labels[number] = spectrumLabels[left + number * offset] while number--
-
-		# draw the spectrum
-		drawHeight = drawWidth = drawZoom = drawLeft = heightCoefficient = drawNumber = 0
-		drawData = null
-		drawColor = 'white'
-		draw = (left) ->
-			drawHeight = canvas.height
-			drawWidth = canvas.width
-			drawZoom = scope.zoom.factor
-			drawLeft = Math.round left / drawZoom
-			heightCoefficient = drawHeight / scope.spectrum.maximum
-			# number of datapoints to display in the current viewport
-			drawNumber = Math.round drawWidth / drawZoom
-			drawData = scope.spectrum.data
-			# clear canvas
-			ctx.clearRect 0, 0, canvas.width, drawHeight
-
-			# draw spectrum lines
-			ctx.beginPath()
-			# start from rightmost position
-			ctx.moveTo drawWidth, drawHeight - heightCoefficient * drawData[drawLeft + drawNumber]
-			while drawNumber--
-				ctx.lineTo drawNumber * drawZoom,
-					drawHeight - heightCoefficient * drawData[drawLeft + drawNumber]
-			ctx.strokeStyle = drawColor
-			ctx.stroke()
-
-			# draw measuring points if zoom is high enough
-			drawNumber = Math.round drawWidth / drawZoom
-			if drawZoom > 5 then while drawNumber--
-				ctx.beginPath()
-				ctx.arc drawNumber * drawZoom,
-					drawHeight - heightCoefficient * drawData[drawLeft + drawNumber], 2, 0, 2*Math.PI
-				ctx.fillStyle = drawColor
-				ctx.fill()
+			scope.labels[number] = spectrumLabels[left + number * offset] while number--	
 
 		element.on 'scroll', -> scope.$apply ->
 			scope.data.left = element.prop 'scrollLeft'
@@ -91,8 +51,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			# new data.left position for zooming towards data.current
 			scope.data.left = Math.round scope.data.left +
 				(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)
-			updateLabels scope.data.left
-			draw scope.data.left
 
 		# update element and viewer properties if the window size changes and redraw
 		$window.addEventListener 'resize', -> scope.$apply ->
@@ -100,17 +58,15 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			scope.props.left = rect.left
 			scope.props.top = rect.top
 			updateProps()
-			# prevent scrolling over the new border
+			# prevents scrolling over the new border
 			scope.data.left = scope.data.left
 			updateLabels scope.data.left
-			draw scope.data.left
 
 		# update and redraw if the input data changes
-		scope.$watchCollection 'spectrum.data', ->
-			scope.data.length = scope.spectrum.data.length 
+		updateData = (data) ->
 			updateProps()
 			updateLabels scope.data.left
-			draw scope.data.left
+		scope.$watch 'spectrum.length', updateData
 
 		# redraw and move inner container when the viewport changes
 		scope.$watch 'data.left', (left) ->
@@ -120,18 +76,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				scope.innerStyle['-webkit-transform'] =
 					"translateX(#{left}px)"
 			updateLabels left
-			draw left
-
-		# update the information of the currently hovered position
-		scope.$watch 'data.current', (current) -> unless scope.data.length is 0
-			scope.indicatorStyle['transform'] =
-				scope.indicatorStyle['-webkit-transform'] =
-					"translateX(#{current}px)"
-			current = Math.round (scope.data.left + current) / scope.zoom.factor
-			if current >= scope.data.length then return
-			scope.data.label = "#{scope.spectrum.labels[current]}"
-			scope.data.value = "#{Math.round scope.spectrum.data[current] / scope.spectrum.maximum * 100}"
-
 
 	controller: ($scope) ->
 		# properties of the spectrum viewer element
@@ -176,7 +120,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		Object.defineProperty $scope.data, 'left',
 			# prevent scrolling over left or right border
 			set: (x) -> @_left = 
-				Math.max 0, Math.min $scope.data.length * $scope.zoom.factor - $scope.props.width, x
+				Math.max 0, Math.min $scope.spectrum.length * $scope.zoom.factor - $scope.props.width, x
 			get: -> @_left
 
 		$scope.scroll = 
@@ -201,12 +145,27 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			set: (x) -> @_factor = Math.max @min, Math.min @max, x
 			get: -> @_factor
 
+		# properties to pass on to the layer canvas directives
+		$scope.layerProps =
+			width: 0
+			height: 0
+			zoom: 0
+			left: 0
+			maximum: 0
+		$scope.$watch 'props.width', (width) -> $scope.layerProps.width = width
+		$scope.$watch 'props.height', (height) -> $scope.layerProps.height = height
+		$scope.$watch 'zoom.factor', (zoom) -> $scope.layerProps.zoom = zoom
+		$scope.$watch 'data.left', (left) -> $scope.layerProps.left = left
+		$scope.$watch 'spectrum.maximum', (maximum) -> $scope.layerProps.maximum = maximum
 
 		# all user made range selections
 		$scope.ranges = []
 
 		# all x-axis labels that are displayed
 		$scope.labels = []
+
+		# all canvas layers that are displayed
+		$scope.layers = []
 
 		$scope.mousedown = (e) -> if e.button is 0
 			posX = e.pageX - $scope.props.left
@@ -248,6 +207,18 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		$scope.removeRange = (index) ->
 			$scope.ranges.splice index, 1
 			$scope.$emit 'spectrumViewer.rangesUpdated'
+
+		# update the information of the currently hovered position
+		$scope.$watch 'data.current', (current) -> unless $scope.spectrum.length is 0
+			$scope.indicatorStyle['transform'] =
+				$scope.indicatorStyle['-webkit-transform'] =
+					"translateX(#{current}px)"
+			current = Math.round ($scope.data.left + current) / $scope.zoom.factor
+			if current >= $scope.spectrum.length then return
+			$scope.data.label = "#{$scope.spectrum.labels[current]}"
+			$scope.data.value = ''
+			for i in [0...$scope.spectrum.data.length]			
+				$scope.data.value += "#{Math.round $scope.spectrum.data[i][current] / $scope.spectrum.maximum * 100}% "
 
 		return
 		
