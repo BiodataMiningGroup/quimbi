@@ -51,6 +51,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			zoom = scope.zoom.factor
 			left = Math.round left / zoom
 			yPosition = height / scope.spectrum.maximum
+			# number of datapoints to display in the current viewport
 			xPosition = Math.round scope.props.width / zoom
 			data = scope.spectrum.data
 			# clear canvas
@@ -68,7 +69,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 		element.on 'wheel', (e) -> scope.$apply ->
 			oldFactor = scope.zoom.factor
-			scope.zoom.factor += scope.zoom.step * -Math.sign e.deltaY
+			delta = if e.deltaY < 0 then 1 else -1
+			scope.zoom.factor += scope.zoom.step * delta
 			updateProps()
 			# new data.left position for zooming towards data.current
 			scope.data.left = Math.round scope.data.left +
