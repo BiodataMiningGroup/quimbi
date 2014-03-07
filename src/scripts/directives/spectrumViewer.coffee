@@ -46,23 +46,39 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			labels[number] = spectrumLabels[left + number * offset] while number--
 
 		# draw the spectrum
+		drawHeight = drawWidth = drawZoom = drawLeft = heightCoefficient = drawNumber = 0
+		drawData = null
+		drawColor = 'white'
 		draw = (left) ->
-			height = canvas.height
-			zoom = scope.zoom.factor
-			left = Math.round left / zoom
-			yPosition = height / scope.spectrum.maximum
+			drawHeight = canvas.height
+			drawWidth = canvas.width
+			drawZoom = scope.zoom.factor
+			drawLeft = Math.round left / drawZoom
+			heightCoefficient = drawHeight / scope.spectrum.maximum
 			# number of datapoints to display in the current viewport
-			xPosition = Math.round scope.props.width / zoom
-			data = scope.spectrum.data
+			drawNumber = Math.round drawWidth / drawZoom
+			drawData = scope.spectrum.data
 			# clear canvas
-			ctx.clearRect 0, 0, canvas.width, height
+			ctx.clearRect 0, 0, canvas.width, drawHeight
+
+			# draw spectrum lines
 			ctx.beginPath()
 			# start from rightmost position
-			ctx.moveTo xPosition * zoom, height - yPosition * data[left + xPosition]
-			while xPosition--
-				ctx.lineTo xPosition * zoom, height - yPosition * data[left + xPosition]
-			ctx.strokeStyle = 'rgba(255,255,255,0.9)'
+			ctx.moveTo drawWidth, drawHeight - heightCoefficient * drawData[drawLeft + drawNumber]
+			while drawNumber--
+				ctx.lineTo drawNumber * drawZoom,
+					drawHeight - heightCoefficient * drawData[drawLeft + drawNumber]
+			ctx.strokeStyle = drawColor
 			ctx.stroke()
+
+			# draw measuring points if zoom is high enough
+			drawNumber = Math.round drawWidth / drawZoom
+			if drawZoom > 5 then while drawNumber--
+				ctx.beginPath()
+				ctx.arc drawNumber * drawZoom,
+					drawHeight - heightCoefficient * drawData[drawLeft + drawNumber], 2, 0, 2*Math.PI
+				ctx.fillStyle = drawColor
+				ctx.fill()
 
 		element.on 'scroll', -> scope.$apply ->
 			scope.data.left = element.prop 'scrollLeft'
