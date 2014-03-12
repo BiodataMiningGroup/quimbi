@@ -7,16 +7,14 @@
 			<div class="spectrum-viewer__ratio ratio--25"></div>
 			<div class="spectrum-viewer__ratio ratio--50"></div>
 			<div class="spectrum-viewer__ratio ratio--75"></div>
-			<div data-spectrum-viewer-canvas="data" data-props="layerProps" data-ng-repeat="data in spectrum.data track by $index"></div>
+			<div data-spectrum-viewer-canvas="layer" data-props="layerProps" data-ng-repeat="layer in spectrum.layers"></div>
 			<span class="spectrum-viewer__indicator" data-ng-style="indicatorStyle"></span>
 		</div>
 		<div class="spectrum-viewer__info">
-			{{data.value}}at {{data.label}} m/z
+			<span style="color:{{layer.color}};" data-ng-repeat="(id, layer) in spectrum.layers">{{data.values[id]}}% </span>at {{data.label}} m/z
 		</div>
 		<div class="spectrum-viewer__x-axis">
-			<span class="spectrum-viewer__label" data-ng-repeat="label in labels" style="transform:translateX({{$index*props.labelOffset}}px);-webkit-transform:translateX({{$index*props.labelOffset}}px);">
-				{{label}}
-			</span>
+			<span class="spectrum-viewer__label" data-ng-repeat="label in labels" style="transform:translateX({{$index*props.labelOffset}}px);-webkit-transform:translateX({{$index*props.labelOffset}}px);" data-ng-bind="label"></span>
 		</div>
 	</div>
 </div>

@@ -1,6 +1,6 @@
 # service for managing all tools of the display route. keeps track on which
 # tool is allowed in combination whith which other
-angular.module('quimbi').service 'toolset', (Tool, shader, selection) ->
+angular.module('quimbi').service 'toolset', (Tool, shader) ->
 	# collection of all tools
 	tools = {}
 	# id/color of the currently active tool
@@ -11,6 +11,9 @@ angular.module('quimbi').service 'toolset', (Tool, shader, selection) ->
 	renderPromise = null
 
 	@map = undefined
+
+	# map of SelectionData of every passive tool
+	@selections = {}
 
 	# removes a tool form the list of passive tools
 	removePassive = (id) ->
@@ -36,10 +39,14 @@ angular.module('quimbi').service 'toolset', (Tool, shader, selection) ->
 				when 'blue' then passiveMask[2] = 1
 		shader.setPassiveColorMask passiveMask
 
+	updateSelections = =>
+		delete @selections[id] for id of @selections when id not in passive
+		@selections[id] = tools[id].selection for id in passive
+
 	# adds and returns new tool. returns existing tool if the id is already existing.
 	@add = (id) ->
 		# default tool has a $ prefix
-		isDefault = id.charAt(0) is '$'
+		isDefault = '$' is id.charAt 0
 		id = if isDefault then id.substr 1 else id
 		# buttons and points register here. the latter registering gets the exsting object
 		if tools[id]? then return tools[id]
@@ -77,6 +84,8 @@ angular.module('quimbi').service 'toolset', (Tool, shader, selection) ->
 		# do nothing if no tool is drawing
 		return if active is ''
 		tool = tools[active]
+		tool.position.x = position.x
+		tool.position.y = position.y
 		# the prevoiusly active tool is now passive
 		tool.passive = yes
 		# add tool to the passive list if it isn't already there
@@ -85,7 +94,8 @@ angular.module('quimbi').service 'toolset', (Tool, shader, selection) ->
 		tool.drawing = no
 		active = ''
 		renderPromise.stop()
-		selection.make position
+		tool.makeSelection()
+		updateSelections()
 
 	# clear the selection of a tool
 	@clear = (id) =>
@@ -96,6 +106,7 @@ angular.module('quimbi').service 'toolset', (Tool, shader, selection) ->
 		removePassive id
 		updateColorMasks()
 		glmvilib.render shader.getFinal()
+		updateSelections()
 
 	# returns whether any tool is drawing
 	@drawing = ->

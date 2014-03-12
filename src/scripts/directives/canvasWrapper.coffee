@@ -26,7 +26,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
         # projection should not repeat itself (also getProjectionBounds and getPixelWorldBounds don't work without it)
         map.options.crs.infinite = false
 
-        console.log inputWidth, inputHeight
+        #console.log inputWidth, inputHeight
 
         shapeFactor = inputWidth / inputHeight
         if  shapeFactor >= 2
@@ -34,7 +34,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
             latBound = 180 / shapeFactor
 
         inputPixelWidth = lngBound*2 / inputWidth
-        console.log "iPW", inputPixelWidth
+        #console.log "iPW", inputPixelWidth
 
         # widthBound = inputWidth/2
         # heightBound = inputHeight/2
@@ -75,11 +75,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, settings, 
 
         map.on 'click', (e) -> if maxBounds.contains e.latlng
             scope.$apply -> if toolset.drawing()
+                # do this in Tool?
                 toolset.activeTool().toolpoint.setLatLng(e.latlng).addTo(map)
-                toolset.drawn mouse.position #props.latlng
-                scope.$emit 'canvasWrapper.updateSelection'
-
-
+                toolset.drawn mouse.position
 
         toolset.map = map
         return

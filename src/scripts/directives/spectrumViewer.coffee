@@ -8,7 +8,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 	replace: yes
 
 	scope: 
-		# data (arrays), labels, maximum, minimum, length
+		# layers {data: [], color: ''}, labels, maximum, minimum, length
 		spectrum: '=spectrumViewer'
 		# array of {start: Number, offset: Number} objects
 		ranges: '=spectrumRanges'
@@ -109,8 +109,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			current: 0
 			# x-axiy value of the currently hovered position
 			label: '-'
-			# y-axis value of the currently hovered position
-			value: '-'
+			# map of y-axis values of the currently hovered position
+			values: {}
 			# number of channels of the dataset
 			length: 0
 			# the offset of the displayed data (left border of the element)
@@ -216,9 +216,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			current = Math.round ($scope.data.left + current) / $scope.zoom.factor
 			if current >= $scope.spectrum.length then return
 			$scope.data.label = "#{$scope.spectrum.labels[current]}"
-			$scope.data.value = ''
-			for i in [0...$scope.spectrum.data.length]			
-				$scope.data.value += "#{Math.round $scope.spectrum.data[i][current] / $scope.spectrum.maximum * 100}% "
+			for id, layer of $scope.spectrum.layers
+				$scope.data.values[id] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
 
 		return
 		

@@ -5,9 +5,6 @@ angular.module('quimbi').factory 'SelectionData', (input) ->
 		# get length from input because intensities can have more entries as there
 		# are channels
 		length = Math.min intensities.length, input.channels
-		
-		@maxIntensity = -Infinity
-		@minIntensity = Infinity
 
 		# array with intensity value [0..255] as first dimension and channel index
 		# (of input.channelNames) as second dimension. so the channels are grouped
@@ -22,10 +19,7 @@ angular.module('quimbi').factory 'SelectionData', (input) ->
 
 		# fill @byName and find max/min values
 		channel = length
-		while channel--
-			value = @byName[channel] = intensities[channel]
-			@maxIntensity = Math.max value, @maxIntensity
-			@minIntensity = Math.min value, @minIntensity
+		@byName[channel] = intensities[channel] while channel--
 
 		# fill @byValue
 		@byName.forEach (value, index) => @byValue[value].push index

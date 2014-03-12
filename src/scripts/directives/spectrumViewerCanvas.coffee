@@ -7,8 +7,8 @@ angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 	replace: yes
 
 	scope: 
-		# data
-		data: '=spectrumViewerCanvas'
+		# data, color
+		layer: '=spectrumViewerCanvas'
 		# height, width, zoom, left, maximum
 		props: '='
 
@@ -16,7 +16,7 @@ angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 		ctx = element[0].getContext '2d'
 		drawHeight = drawWidth = drawZoom = drawLeft = heightCoefficient = drawNumber = 0
 		drawData = null
-		drawColor = 'white'
+		drawColor = scope.layer.color
 		draw = ->
 			drawHeight = scope.props.height
 			drawWidth = scope.props.width
@@ -25,7 +25,7 @@ angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 			heightCoefficient = drawHeight / scope.props.maximum
 			# number of datapoints to display in the current viewport
 			drawNumber = Math.round drawWidth / drawZoom
-			drawData = scope.data
+			drawData = scope.layer.data
 			# clear canvas
 			ctx.clearRect 0, 0, drawWidth, drawHeight
 
@@ -51,5 +51,5 @@ angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 		scope.$watch 'props.width', (width) ->	element[0].width = width
 		scope.$watch 'props.height', (height) -> element[0].height = height
 		scope.$watch 'props', draw, yes
-		scope.$watchCollection 'data', draw
+		scope.$watchCollection 'layer.data', draw
 		return
