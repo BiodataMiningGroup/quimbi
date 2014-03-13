@@ -18,7 +18,7 @@ a {
 }
 
 li + li {
-	margin-top: @pad;
+	margin-top: @small-pad;
 }
 
 input {
@@ -54,11 +54,12 @@ body {
 
 .about {
 	opacity: 0.5;
-	transition: opacity @duration;
+	transition: all @duration;
 	border: none;
 
 	&:hover {
 		opacity: 1;
+		color: @info-color;
 	}
 }
 

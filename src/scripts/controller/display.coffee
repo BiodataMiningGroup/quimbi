@@ -11,6 +11,8 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, sh
 		minimum: 0
 		length: 0
 
+	$scope.channelNames = input.channelNames
+
 	$scope.spectrumRanges = []
 
 	updateSelections = (selections) ->
@@ -31,22 +33,28 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, sh
 
 	$scope.$watch "selections", updateSelections, yes	
 
-	updateRanges = ->
+	updateRanges = (ranges) ->
 		# number of channels padded to be represented as vec4's
 		channel = input.files.length * 4
-		if $scope.spectrumRanges.length is 0
-			channelMask[channel] = 255 while channel--	
-		else
+		hasActiveRange = no
+		for range in ranges when range.active
+			hasActiveRange = yes
+			break
+		if hasActiveRange
 			channelMask[channel] = 0 while channel--
-			for range in $scope.spectrumRanges
+			for range in ranges when range.active
 				offset = range.offset
 				channelMask[range.start + offset] = 255 while offset--
+		else
+			channelMask[channel] = 255 while channel--	
 		shader.updateChannelMask channelMask
 		# TODO for multiple passive tools make function in toolset that runs this
 		# once for all passive tools
 		glmvilib.render.apply glmvilib, shader.getActive()
 
-	$scope.$on 'spectrumViewer.rangesUpdated', updateRanges
-	updateRanges()
+	$scope.$watch 'spectrumRanges', updateRanges, yes
+
+	$scope.removeRange = (index) ->
+		$scope.spectrumRanges.splice index, 1
 	
 	return

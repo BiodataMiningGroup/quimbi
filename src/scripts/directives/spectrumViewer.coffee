@@ -38,7 +38,21 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			offset = Math.round scope.props.width / (scope.zoom.factor * number)
 			# pixel offset of the displayed labels
 			scope.props.labelOffset = offset * scope.zoom.factor
-			scope.labels[number] = spectrumLabels[left + number * offset] while number--	
+			scope.labels[number] = spectrumLabels[left + number * offset] while number--
+
+		# update element and viewer properties if the window size changes and redraw
+		updateResize = ->
+			rect = element[0].getBoundingClientRect()
+			scope.props.left = rect.left
+			scope.props.top = rect.top
+			updateProps()
+			# prevents scrolling over the new border
+			scope.data.left = scope.data.left
+			updateLabels scope.data.left
+
+		$window.addEventListener 'resize', -> scope.$apply updateResize
+		# initially update once
+		updateResize()
 
 		element.on 'scroll', -> scope.$apply ->
 			scope.data.left = element.prop 'scrollLeft'
@@ -50,17 +64,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			updateProps()
 			# new data.left position for zooming towards data.current
 			scope.data.left = Math.round scope.data.left +
-				(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)
-
-		# update element and viewer properties if the window size changes and redraw
-		$window.addEventListener 'resize', -> scope.$apply ->
-			rect = element[0].getBoundingClientRect()
-			scope.props.left = rect.left
-			scope.props.top = rect.top
-			updateProps()
-			# prevents scrolling over the new border
-			scope.data.left = scope.data.left
-			updateLabels scope.data.left
+				(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)			
 
 		# update and redraw if the input data changes
 		updateData = (data) ->
@@ -175,6 +179,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				if posX < $scope.props.width then $scope.ranges.push
 					start: Math.round ($scope.data.left + posX) / $scope.zoom.factor
 					offset: 1
+					active: yes
 			# start manual scrolling
 			else if not e.shiftKey
 				$scope.scroll.start = posX
@@ -198,15 +203,10 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				$scope.data.left = $scope.scroll.startLeft + $scope.scroll.start - posX
 
 		$scope.mouseup = ->
-			$scope.$emit 'spectrumViewer.rangesUpdated' if $scope.data.activeRange >= 0
 			# end range selecting
 			$scope.data.activeRange = -1
 			# end manual scrolling
 			$scope.scroll.start = -1
-
-		$scope.removeRange = (index) ->
-			$scope.ranges.splice index, 1
-			$scope.$emit 'spectrumViewer.rangesUpdated'
 
 		# update the information of the currently hovered position
 		$scope.$watch 'data.current', (current) -> unless $scope.spectrum.length is 0

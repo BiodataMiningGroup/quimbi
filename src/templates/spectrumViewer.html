@@ -1,6 +1,6 @@
 <div class="spectrum-viewer" data-ng-mousemove="mousemove($event)" data-ng-mousedown="mousedown($event)" data-ng-mouseup="mouseup()" data-ng-class="{'scrolling':scroll.start>=0}">
 	<div class="spectrum-viewer__scroll" style="width:{{spectrum.length}}px;transform:scaleX({{zoom.factor}});-webkit-transform:scaleX({{zoom.factor}});">
-		<span class="spectrum-viewer__range" data-ng-repeat="range in ranges" style="left:{{range.start}}px;width:{{range.offset}}px;" ng-click="removeRange($index)"></span>
+		<span class="spectrum-viewer__range" data-ng-class="{'active':range.active}" data-ng-repeat="range in ranges" style="left:{{range.start}}px;width:{{range.offset}}px;"></span>
 	</div>
 	<div class="spectrum-viewer__inner" data-ng-style="innerStyle">
 		<div class="spectrum-viewer__canvas-wrapper" style="height:{{props.height}}px;">

@@ -5,27 +5,38 @@
 	height: 100%;
 }
 
+.display-view__menu {
+	width: @canvas-tools-width;
+	height: 100%;
+	float: left;
+}
+
+.display-view__content {
+	position: relative;
+	height: 100%;
+	overflow: hidden;
+}
+
 .display-view__top {
 	height: 60%;
+	width: 100%;
 	position: relative;
-	padding: @pad;
-	padding-bottom: 0;
-	box-sizing: border-box;
 }
 
 .display-view__bottom {
 	height: 40%;
+	width: 100%;
 	position: relative;
-	padding-top: @pad;
-	box-sizing: border-box;
 }
 
 .canvas-tools {
 	position: relative;
 	vertical-align: top;
-	width: @canvas-tools-width;
-	float: left;
-	margin-right: 10px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	height: 45%;
+	padding: @pad @pad 0 @pad;
+	box-sizing: border-box;
 
 	.pure-button {
 		transition: all 250ms;
@@ -36,6 +47,49 @@
 	.about {
 		display: inline-block;
 		margin-top: @pad;
+	}
+}
+
+.range-list {
+	padding-top: @pad;
+	box-sizing: border-box;
+	overflow-y: auto;
+	overflow-x: hidden;
+	height: 55%;
+	list-style: none;
+	padding-left: 0;
+	margin: 0;
+}
+
+.range-list__item {
+	position: relative;
+	user-select: none;
+	word-wrap: break-word;
+	cursor: pointer;
+	padding: @small-pad;
+	padding-top: 15px;
+	transition: all @duration;
+	border-left: @small-pad solid @info-color;
+
+	&:hover {
+		background-color: @light-gray;
+	}
+
+	&.active {
+		border-left-color: @success-color;
+	}
+
+	.icon-remove {
+		position: absolute;
+		top: 0;
+		right: 1px;
+		opacity: 0.5;
+		transition: all @duration;
+
+		&:hover {
+			opacity: 1;
+			color: @error-color;
+		}
 	}
 }
 
