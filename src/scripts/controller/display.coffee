@@ -1,5 +1,5 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, shader, toolset, ranges) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, toolset, ranges) ->
 
 	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
 
@@ -53,10 +53,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, sh
 				channelMask[range.start + offset] = 255 while offset--
 		else
 			channelMask[channel] = 255 while channel--
-		shader.updateChannelMask channelMask
-		# TODO for multiple passive tools make function in toolset that runs this
-		# once for all passive tools
-		glmvilib.render.apply glmvilib, shader.getActive()
+		toolset.updateChannelMask channelMask
 
 	$scope.$watch 'spectrumRanges', updateRanges, yes
 

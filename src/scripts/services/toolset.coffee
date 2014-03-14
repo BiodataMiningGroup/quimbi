@@ -1,6 +1,6 @@
 # service for managing all tools of the display route. keeps track on which
 # tool is allowed in combination whith which other
-angular.module('quimbi').service 'toolset', (Tool, shader) ->
+angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 	# collection of all tools
 	tools = {}
 	# id/color of the currently active tool
@@ -109,15 +109,23 @@ angular.module('quimbi').service 'toolset', (Tool, shader) ->
 		updateSelections()
 
 	# returns whether any tool is drawing
-	@drawing = ->
-		active isnt ''
+	@drawing = -> active isnt ''
 
 	# returns the id of the currently active tool
-	@activeTool = ->
-		tools[active]
+	@activeTool = -> tools[active]
 
-	# @getTools = ->
-	# 	tools
-
-
+	# updates the channel mask filter and recomputes the distances for all
+	# currently passive tools
+	@updateChannelMask = (mask) ->
+		shader.updateChannelMask mask
+		currentActive = active
+		for id in passive
+			tool = tools[id]
+			# fake active tool to get the correct color mask and mouse position
+			active = id
+			updateColorMasks()
+			mouse.position.x = tool.position.x
+			mouse.position.y = tool.position.y
+			glmvilib.render.apply glmvilib, shader.getActive()
+		active = currentActive
 	return
