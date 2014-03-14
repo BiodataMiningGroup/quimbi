@@ -10,15 +10,11 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 	# promise to cancel the render loop
 	renderPromise = null
 
-	@map = undefined
-
 	# map of SelectionData of every passive tool
 	@selections = {}
 
 	# removes a tool form the list of passive tools
-	removePassive = (id) ->
-		passive = passive.filter (pid) -> pid isnt id
-		map.removeLayer tools[id].toolpoint
+	removePassive = (id) ->	passive = passive.filter (pid) -> pid isnt id
 
 	# updates the active and passive color masks for the pseudocolor shaders
 	updateColorMasks = ->
@@ -79,13 +75,10 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 		updateColorMasks()
 		renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 
-	# finish activity
-	@drawn = (position) ->
-		# do nothing if no tool is drawing
-		return if active is ''
+	# finish activity, do nothing if no tool is drawing
+	@drawn = (position) -> unless active is ''
 		tool = tools[active]
-		tool.position.x = position.x
-		tool.position.y = position.y
+		tool.newPosition position
 		# the prevoiusly active tool is now passive
 		tool.passive = yes
 		# add tool to the passive list if it isn't already there
@@ -111,9 +104,6 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 	# returns whether any tool is drawing
 	@drawing = -> active isnt ''
 
-	# returns the id of the currently active tool
-	@activeTool = -> tools[active]
-
 	# updates the channel mask filter and recomputes the distances for all
 	# currently passive tools
 	@updateChannelMask = (mask) ->
@@ -128,4 +118,5 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 			mouse.position.y = tool.position.y
 			glmvilib.render.apply glmvilib, shader.getActive()
 		active = currentActive
+		
 	return
