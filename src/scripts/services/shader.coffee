@@ -50,7 +50,9 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 
 	# link the mask that determines which channels should be considered in calculation
 	# since it stays the same object, only the reference has to be passed once
-	@updateChannelMask = (mask) -> angleDist.updateChannelMask mask
+	@updateChannelMask = (mask) ->
+		angleDist.updateChannelMask mask
+		euclDist.updateChannelMask mask
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

@@ -1,12 +1,10 @@
-# service for storing information about current selections
+# service for getting the spectrogram of a selection
 angular.module('quimbi').service 'selection', (input, mouse, $document, SelectionData) ->
 	# calculate the dimension of the framebuffer texture. for each tile
 	# of the dataset there should be one pixel in this texture.
 	@textureDimension = Math.ceil Math.sqrt Math.ceil input.channels / 4
 
 	intensities = new Uint8Array @textureDimension * @textureDimension * 4
-
-	count = 256
 
 	# @fingerprint = $document[0].createElement 'canvas'
 	# @fingerprint.height = @fingerprint.width = @textureDimension

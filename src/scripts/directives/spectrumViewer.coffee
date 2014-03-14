@@ -162,9 +162,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		$scope.$watch 'data.left', (left) -> $scope.layerProps.left = left
 		$scope.$watch 'spectrum.maximum', (maximum) -> $scope.layerProps.maximum = maximum
 
-		# all user made range selections
-		$scope.ranges = []
-
 		# all x-axis labels that are displayed
 		$scope.labels = []
 

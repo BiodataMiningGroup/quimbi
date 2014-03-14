@@ -1,5 +1,6 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, shader, toolset) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, shader, toolset, ranges) ->
+
 	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
 
 	$scope.selections = toolset.selections
@@ -13,13 +14,16 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, sh
 
 	$scope.channelNames = input.channelNames
 
-	$scope.spectrumRanges = []
+	$scope.spectrumRanges = ranges
 
+	# updates the spectrograms of the different selections to display in the
+	# spectrum viewer
 	updateSelections = (selections) ->
 		index = 0
 		layers = $scope.spectrum.layers
 		# fill layers to have as many entries as there are selections
 		for id of selections when not layers.hasOwnProperty id
+			# id is the color but can be something else, too!
 			layers[id] = data: [], color: id
 		# remove old layers that should no longer be shown	
 		delete layers[id] for id of layers when not selections.hasOwnProperty id
@@ -33,20 +37,22 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, sh
 
 	$scope.$watch "selections", updateSelections, yes	
 
-	updateRanges = (ranges) ->
+	# updates the channelMask filter according to the selected ranges in the
+	# spectrum viewer
+	updateRanges = (newRanges) ->
 		# number of channels padded to be represented as vec4's
 		channel = input.files.length * 4
 		hasActiveRange = no
-		for range in ranges when range.active
+		for range in newRanges when range.active
 			hasActiveRange = yes
 			break
 		if hasActiveRange
 			channelMask[channel] = 0 while channel--
-			for range in ranges when range.active
+			for range in newRanges when range.active
 				offset = range.offset
 				channelMask[range.start + offset] = 255 while offset--
 		else
-			channelMask[channel] = 255 while channel--	
+			channelMask[channel] = 255 while channel--
 		shader.updateChannelMask channelMask
 		# TODO for multiple passive tools make function in toolset that runs this
 		# once for all passive tools
@@ -54,7 +60,6 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, sh
 
 	$scope.$watch 'spectrumRanges', updateRanges, yes
 
-	$scope.removeRange = (index) ->
-		$scope.spectrumRanges.splice index, 1
+	$scope.removeRange = (index) -> $scope.spectrumRanges.splice index, 1
 	
 	return
