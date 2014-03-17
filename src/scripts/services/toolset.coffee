@@ -43,9 +43,11 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 	@add = (id) ->
 		# default tool has a $ prefix
 		isDefault = '$' is id.charAt 0
-		id = if isDefault then id.substr 1 else id
-		# buttons and points register here. the latter registering gets the exsting object
-		if tools[id]? then return tools[id]
+		id = id.substr 1 if isDefault
+		# if the tool already exists, don't make a new one
+		if tools[id]?
+			tools[id].recreate()
+			return tools[id]
 		# tool drawing if isDefault?
 		#drawing = id if isDefault
 		tools[id] = new Tool id, isDefault

@@ -2,9 +2,17 @@
 angular.module('quimbi').factory 'Tool', (selection, map) ->
 	# constructor function for the Tool
 	(id, isDefault) ->
-		# Leaflet marker object
-		marker = L.marker L.latLng(0, 0),
+		newMarker = (lat=0, lng=0) -> L.marker L.latLng(lat, lng),
 			icon: L.divIcon className: "tool-point-#{id}"
+
+		# Leaflet marker object
+		marker = newMarker()
+
+		# add marker to map and to markers array
+		setMarker = ->	marker.addTo map.self
+
+		# remove marker from map and markers array
+		removeMarker = -> map.self.removeLayer marker
 
 		# x, y: position on the canvas in [0,1]
 		# lat, lng: position on the canvas in Leaflet coordinates
@@ -28,8 +36,8 @@ angular.module('quimbi').factory 'Tool', (selection, map) ->
 		Object.defineProperty @, 'passive',
 			get: -> @_passive
 			set: (x) ->
-				if x then marker.addTo map.self
-				else map.self.removeLayer marker
+				if x then setMarker()
+				else removeMarker()
 				@_passive = x
 
 		# the id/color of this tool
@@ -42,6 +50,12 @@ angular.module('quimbi').factory 'Tool', (selection, map) ->
 		@selection = null
 
 		# make a new selection on the current position
-		@makeSelection = => @selection = selection.make @position
+		@makeSelection = -> @selection = selection.make @position
+
+		# creates a new marker to be added to a newly created map
+		# (the old marker gets destroyed along with the old map)
+		@recreate = ->
+			marker = newMarker @position.lat, @position.lng
+			setMarker() if @passive
 
 		return

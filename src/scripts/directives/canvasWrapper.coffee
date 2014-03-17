@@ -12,23 +12,27 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 		inputHeight = canvas.element[0].height
 
 		# TODO: max zoom should depend on ratio between input and screen size
-		map.self = L.map(element[0], {
-			maxZoom: 10,
-			minZoom:0,
+		map.self = L.map element[0],
+			maxZoom: 10
+			minZoom: 0
 			crs: L.CRS.Simple
-		}).setView [0, 0], 0
+			# if the map is re-created (e.g. after switching views) this initializes
+			# the map to its old viewport
+			zoom: map.zoom or 0
+			center: map.center or [0, 0]
 
-		# projection should not repeat itself (also getProjectionBounds and getPixelWorldBounds don't work without it)
+		# projection should not repeat itself (also getProjectionBounds and
+		# getPixelWorldBounds don't work without it)
 		map.self.options.crs.infinite = no
 
 		#console.log inputWidth, inputHeight
 
 		shapeFactor = inputWidth / inputHeight
-		if  shapeFactor >= 2
+		if shapeFactor >= 2
 			lngBound = 180
 			latBound = 180 / shapeFactor
 
-		inputPixelWidth = lngBound*2 / inputWidth
+		inputPixelWidth = lngBound * 2 / inputWidth
 		#console.log "iPW", inputPixelWidth
 
 		# widthBound = inputWidth/2
@@ -44,28 +48,42 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 		map.self.setMaxBounds maxBounds
 
 		# add scale with total object width in um
-		L.control.microScale(objectWidth: 80000).addTo map.self
+		map.self.addLayer L.control.microScale objectWidth: 80000
 
-		L.canvasOverlay(canvas.element[0], maxBounds).addTo map.self
+		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds
 
-		L.graticule(interval: inputPixelWidth, southWest: southWest, northEast: northEast, clickable: false).addTo map.self
-
+		map.self.addLayer L.graticule
+			interval: inputPixelWidth
+			southWest: southWest
+			northEast: northEast
+			clickable: no
+		
 		# image2 = L.imageOverlay 'data/image.png', maxBounds
-		# minimap.self = new L.Control.Minimap.self(image2).addTo(map.self);
+		# minimap = new L.Control.Minimap.self(image2).addTo(map.self);
 
-		# fit bounds and setting max bounds should happen in the initialization of map.self to avoid initial animation
-		# padding makes sure that there is additional space around the image that can be covered by controls
-		map.self.fitBounds maxBounds, padding: [100,100]
+		# fit bounds and setting max bounds should happen in the initialization of
+		# map.self to avoid initial animation. padding makes sure that there is
+		# additional space around the image that can be covered by controls
 
-		map.self.on 'mousemove', (e) -> if maxBounds.contains e.latlng then scope.$apply ->
-			mouse.position.lat = e.latlng.lat
-			mouse.position.lng = e.latlng.lng
-			mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
-			mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
+		# don't fit bounds if map state/viewport is already manually changed
+		map.self.fitBounds maxBounds, padding: [100, 100] unless map.dirty()
+
+		map.self.on 'mousemove', (e) ->
+			if maxBounds.contains e.latlng then scope.$apply ->
+				mouse.position.lat = e.latlng.lat
+				mouse.position.lng = e.latlng.lng
+				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) /
+					(maxBounds.getEast() - maxBounds.getWest())
+				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) /
+					(maxBounds.getSouth() - maxBounds.getNorth())
 
 
 		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
 			scope.$apply -> if toolset.drawing()
 				toolset.drawn mouse.position
+
+		map.self.on 'moveend', (e) ->	map.center = e.target.getCenter()
+
+		map.self.on 'zoomend', (e) -> map.zoom = e.target.getZoom()
 
 		return
