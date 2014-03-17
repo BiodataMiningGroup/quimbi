@@ -48,7 +48,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 		map.self.setMaxBounds maxBounds
 
 		# add scale with total object width in um
-		map.self.addLayer L.control.microScale objectWidth: 80000
+		L.control.microScale(objectWidth: 80000).addTo map.self
 
 		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds
 
