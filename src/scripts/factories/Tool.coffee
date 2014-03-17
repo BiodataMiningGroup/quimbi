@@ -1,5 +1,5 @@
 # tool object with information about the current state of a tool.
-angular.module('quimbi').factory 'Tool', (selection, map) ->
+angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 	# constructor function for the Tool
 	(id, isDefault) ->
 		newMarker = (lat=0, lng=0) -> L.marker L.latLng(lat, lng),
@@ -8,8 +8,9 @@ angular.module('quimbi').factory 'Tool', (selection, map) ->
 		# Leaflet marker object
 		marker = newMarker()
 
-		# add marker to map and to markers array
-		setMarker = ->	marker.addTo map.self
+		# add marker to map if markers are to be shown
+		setMarker = ->	if settings.showPoints
+			marker.addTo map.self
 
 		# remove marker from map and markers array
 		removeMarker = -> map.self.removeLayer marker
