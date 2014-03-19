@@ -70,13 +70,14 @@
 	padding-top: 15px;
 	transition: all @duration;
 	border-left: @small-pad solid @info-color;
+	opacity: 0.5;
 
 	&:hover {
 		background-color: @light-gray;
 	}
 
 	&.active {
-		border-left-color: @success-color;
+		opacity: 1;
 	}
 
 	.icon-remove {

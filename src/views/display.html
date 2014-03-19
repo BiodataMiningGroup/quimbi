@@ -10,7 +10,7 @@
 			<a href="#/about" class="about" data-ng-hide="properties.disableAbout" data-tooltip="About this tool."><i class="icon-question-sign"></i></a>
 		</div>
 		<ul class="range-list">
-			<li class="range-list__item" data-ng-class="{'active':range.active}" data-ng-repeat="range in spectrumRanges" data-ng-click="range.active=!range.active">
+			<li class="range-list__item" data-ng-class="{'active':range.active}" data-ng-repeat="range in spectrumRanges" data-ng-click="toggleRange($index, range)">
 				<i class="icon-remove" data-ng-click="removeRange($index)" data-tooltip="Remove this range."></i>
 				{{channelNames[range.start]}} - {{channelNames[range.start+range.offset]}}
 			</li>

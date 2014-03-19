@@ -58,5 +58,9 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 	$scope.$watch 'spectrumRanges', updateRanges, yes
 
 	$scope.removeRange = (index) -> $scope.spectrumRanges.splice index, 1
+
+	$scope.toggleRange = (index, range) ->
+		range.active = not range.active
+		$scope.$broadcast 'spectrumViewer.focusRange', index
 	
 	return

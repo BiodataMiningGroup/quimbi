@@ -16,7 +16,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 	link: (scope, element) ->
 		# update viewer properties
 		updateProps = ->
-			scope.props.width = element.prop('clientWidth')
+			scope.props.width = element.prop 'clientWidth'
 			scope.props.height = element.prop('clientHeight') - 25 #25px label height
 			if scope.spectrum.length is 0 then return
 
@@ -57,7 +57,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		element.on 'scroll', -> scope.$apply ->
 			scope.data.left = element.prop 'scrollLeft'
 
-		element.on 'wheel', (e) -> scope.$apply ->
+		element.on 'wheel', (e) -> unless e.deltaY is 0 then scope.$apply ->
 			oldFactor = scope.zoom.factor
 			delta = if e.deltaY < 0 then 1 else -1
 			scope.zoom.factor += scope.zoom.step * delta
@@ -215,6 +215,11 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			$scope.data.label = "#{$scope.spectrum.labels[current]}"
 			for id, layer of $scope.spectrum.layers
 				$scope.data.values[id] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
+
+		$scope.$on 'spectrumViewer.focusRange', (e, index) ->
+			range = $scope.ranges[index]
+			# center position of the range minus half of the viewer-width
+			$scope.data.left = Math.round ((2 * range.start + range.offset) * $scope.zoom.factor - $scope.props.width) / 2
 
 		return
 		
