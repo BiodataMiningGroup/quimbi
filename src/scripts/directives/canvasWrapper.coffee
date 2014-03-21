@@ -80,7 +80,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 
 		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
 			scope.$apply -> if toolset.drawing()
-				toolset.drawn mouse.position
+				toolset.drawn()
 
 		map.self.on 'moveend', (e) ->	map.center = e.target.getCenter()
 
