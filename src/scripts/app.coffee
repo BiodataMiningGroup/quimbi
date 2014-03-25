@@ -3,6 +3,7 @@ angular.module 'quimbi', [
 	'ngRoute'
 	'ui.bootstrap'
 	'angularmsg'
+	'angular-tour'
 	]
 
 angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) ->
@@ -49,8 +50,10 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) 
 
 	return
 
-angular.module('quimbi').run (state) ->
+angular.module('quimbi').run (state, tourConfig) ->
 	# make sure the state service is always present and has the locations under
 	# control. prevents such things as immediately loading this application
 	# at #/display
 	state.to 'init'
+
+	tourConfig.animation = no

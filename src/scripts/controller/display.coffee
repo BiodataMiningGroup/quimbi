@@ -1,6 +1,8 @@
 # controller for the display route
 angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, toolset, ranges) ->
 
+	$scope.tourStep = 2
+
 	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
 
 	$scope.selections = toolset.selections

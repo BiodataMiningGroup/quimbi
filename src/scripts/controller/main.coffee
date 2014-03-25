@@ -20,4 +20,7 @@ angular.module('quimbi').controller 'mainCtrl', ($scope, msg) ->
 	$scope.$on 'message::error', messageError
 	$scope.$on 'message::success', messageSuccess
 
+	# current step of the angular-tour
+	$scope.tourStep = 0
+
 	return

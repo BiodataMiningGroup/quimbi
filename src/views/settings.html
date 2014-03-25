@@ -1,38 +1,40 @@
 <div class="view__box">
 	<h1>Settings</h1>
-	<form class="pure-form">
-		<fieldset>
-			<legend>Distance computing method</legend>
-			<label for="dist-angle" class="pure-radio">
-				<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-model="settings.distMethod"/>
-				<b>Angle distance</b>
-			</label>
-			<label for="dist-eucl" class="pure-radio">
-				<input id="dist-eucl" type="radio" name="distRadios" value="eucl" data-ng-model="settings.distMethod"/>
-				<b>Euclidean distance</b>
-			</label>
-			Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
-		</fieldset>
-		<fieldset>
-			<legend>Color map</legend>
-			<label for="color-map-url">
-				Choose a new color map CSV file:
-			</label>
-			<input id="color-map-url" filereader="data.colorMapFile"/>
-			<p>Current color map:</p>
-			<div colormap-preview="settings.colorMap"></div>
-		</fieldset>
-		<fieldset>
-			<legend>Interface</legend>
-			<label for="points-checkbox" class="pure-checkbox">
-				<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
-				Show selection points.
-			</label>
-			<label for="overlay-checkbox" class="pure-checkbox" data-ng-if="info.hasOverlay">
-				<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay" />
-				Show overlay image.
-			</label>
-		</fieldset>
-	</form>
+	<tour step="tourStep">
+		<form class="pure-form">
+			<fieldset tourtip="You can choose from several distance computing methods. It depends on the nature of the dataset wich method produces best results." tourtip-step="9" tourtip-placement="top">
+				<legend>Distance computing method</legend>
+				<label for="dist-angle" class="pure-radio">
+					<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-model="settings.distMethod"/>
+					<b>Angle distance</b>
+				</label>
+				<label for="dist-eucl" class="pure-radio">
+					<input id="dist-eucl" type="radio" name="distRadios" value="eucl" data-ng-model="settings.distMethod"/>
+					<b>Euclidean distance</b>
+				</label>
+				Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
+			</fieldset>
+			<fieldset tourtip="You can load a custom color map to apply to the distances image. A preview of the color map is displayed below." tourtip-step="10" tourtip-placement="top">
+				<legend>Color map</legend>
+				<label for="color-map-url">
+					Choose a new color map CSV file:
+				</label>
+				<input id="color-map-url" filereader="data.colorMapFile"/>
+				<p>Current color map:</p>
+				<div colormap-preview="settings.colorMap"></div>
+			</fieldset>
+			<fieldset tourtip="Finally there are some settings to customize the user interface." tourtip-step="11" tourtip-placement="top">
+				<legend>Interface</legend>
+				<label for="points-checkbox" class="pure-checkbox">
+					<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
+					Show selection points.
+				</label>
+				<label for="overlay-checkbox" class="pure-checkbox" data-ng-if="info.hasOverlay">
+					<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay" />
+					Show overlay image.
+				</label>
+			</fieldset>
+		</form>
+	</tour>
 	<a href="#/display" class="pure-button" >back</a>
 </div>

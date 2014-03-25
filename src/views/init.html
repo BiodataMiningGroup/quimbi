@@ -1,10 +1,12 @@
 <div class="view__box init-view">
-	<form class="pure-form pure-form-stacked" name="form" data-ng-submit="submitForm(form)" novalidate="true">
-		<fieldset>
-			<legend>Please select a file to load</legend>
-			<input type="text" placeholder="URL" required="required" data-ng-model="form.file" typeahead="file for file in data.files | filter:$viewValue | limitTo:8" autofocus="autofocus"/>
-		</fieldset>
-		<button class="pure-button pure-button-primary" type="submit"><i class="icon-ok"></i> Load</button>
-	</form>
+	<tour step="tourStep">
+		<form name="form" data-ng-submit="submitForm(form)" novalidate="true" tourtip="Welcome to QUIMBI! If this is the first time you use this tool, this tour will guide you through all the features you need to know. Click 'Next' to continue or '&times;' to skip the tour." class="pure-form pure-form-stacked" tourtip-step="0">
+			<fieldset tourtip="Choose a dataset URL to load. Then click 'Load' to continue." tourtip-step="1" tourtip-placement="left">
+				<legend>Please select a file to load</legend>
+				<input type="text" placeholder="Dataset URL" required="required" data-ng-model="form.file" typeahead="file for file in data.files | filter:$viewValue | limitTo:8" autofocus="autofocus"/>
+			</fieldset>
+			<button class="pure-button pure-button-primary" type="submit"><i class="icon-ok"></i> Load</button>
+		</form>
+	</tour>
 	<a href="#/about" class="about" data-ng-hide="properties.disableAbout" data-tooltip="About this tool."><i class="icon-question-sign"></i></a>
 </div>
