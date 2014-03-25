@@ -57,14 +57,17 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 		element.on 'scroll', -> scope.$apply ->
 			scope.data.left = element.prop 'scrollLeft'
 
-		element.on 'wheel', (e) -> unless e.deltaY is 0 then scope.$apply ->
-			oldFactor = scope.zoom.factor
-			delta = if e.deltaY < 0 then 1 else -1
-			scope.zoom.factor += scope.zoom.step * delta
-			updateProps()
-			# new data.left position for zooming towards data.current
-			scope.data.left = Math.round scope.data.left +
-				(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)			
+		element.on 'wheel', (e) ->
+			# remove jquery event wrapper
+			e = e.originalEvent or e
+			unless e.deltaY is 0 then scope.$apply ->
+				oldFactor = scope.zoom.factor
+				delta = if e.deltaY < 0 then 1 else -1
+				scope.zoom.factor += scope.zoom.step * delta
+				updateProps()
+				# new data.left position for zooming towards data.current
+				scope.data.left = Math.round scope.data.left +
+					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)			
 
 		# update and redraw if the input data changes
 		updateData = (data) ->
