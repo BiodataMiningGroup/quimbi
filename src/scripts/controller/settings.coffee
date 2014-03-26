@@ -1,8 +1,5 @@
 # controller for the settings route
 angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, colorMapParser) ->
-
-	$scope.tourStep = 9
-
 	$scope.settings = settings
 
 	# additional information that can't be set directly
@@ -32,4 +29,7 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 
 	$scope.$watch 'settings.distMethod', updateDistMethod
 	$scope.$watch 'data.colorMapFile', setNewColorMap
+
+	$scope.resetTour = -> 
+		settings.tourStep[view] = 0 for view of settings.tourStep
 	return

@@ -1,6 +1,7 @@
 # declaration of this app/module
 angular.module 'quimbi', [
 	'ngRoute'
+	'ngCookies'
 	'ui.bootstrap'
 	'angularmsg'
 	'angular-tour'
