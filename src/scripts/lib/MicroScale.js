@@ -43,7 +43,7 @@ L.Control.MicroScale = L.Control.extend({
             objectWidth = options.objectWidth,
             // original 6378137 * Math.PI for half of the earth's circumference
             // we can use half of the actual width of the object instead
-            halfWorldMeters = objectWidth / 2 * Math.cos(centerLat * Math.PI / 180),
+            halfWorldMeters = objectWidth / 2,
             dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180,
             size = this._map.getSize(),
             maxMeters = 0;
