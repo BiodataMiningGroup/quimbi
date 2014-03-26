@@ -149,6 +149,6 @@ L.CanvasOverlay = L.Class.extend({
 });
 
 L.canvasOverlay = function (canvas, bounds, options) {
-	console.log("canvasOverlay contructor", canvas);
+	//console.log("canvasOverlay contructor", canvas);
     return new L.CanvasOverlay(canvas, bounds, options);
 };
