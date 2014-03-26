@@ -66,7 +66,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 		# additional space around the image that can be covered by controls
 
 		# don't fit bounds if map state/viewport is already manually changed
-		map.self.fitBounds maxBounds, padding: [100, 100], animate: false unless map.dirty()
+		map.self.fitBounds maxBounds, animate: false unless map.dirty()
 
 		map.self.on 'mousemove', (e) ->
 			if maxBounds.contains e.latlng then scope.$apply ->
