@@ -124,6 +124,9 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			_left: 0
 			# currently active range (index of ranges array)
 			activeRange: -1
+			# number of layers currently displayed
+			layers: 0
+
 		Object.defineProperty $scope.data, 'left',
 			# prevent scrolling over left or right border
 			set: (x) -> @_left = 
@@ -147,6 +150,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			min: 0.1
 			# maximal zoom factor
 			max: 10
+			
 		Object.defineProperty $scope.zoom, 'factor',
 			# set boundaries for zooming
 			set: (x) -> @_factor = Math.max @min, Math.min @max, x
@@ -167,9 +171,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 		# all x-axis labels that are displayed
 		$scope.labels = []
-
-		# all canvas layers that are displayed
-		$scope.layers = []
 
 		$scope.mousedown = (e) -> if e.button is 0
 			posX = e.pageX - $scope.props.left
@@ -218,6 +219,11 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			$scope.data.label = "#{$scope.spectrum.labels[current]}"
 			for id, layer of $scope.spectrum.layers
 				$scope.data.values[id] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
+
+		# update the number of currently displayed layers
+		$scope.$watchCollection 'spectrum.layers', (layers) ->
+			$scope.data.layers = 0
+			$scope.data.layers++ for layer of layers
 
 		$scope.$on 'spectrumViewer.focusRange', (e, index) ->
 			range = $scope.ranges[index]
