@@ -8,8 +8,11 @@ angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 			m = L.marker L.latLng(lat, lng),
 				icon: L.divIcon className: "tool-point-#{id}"
 				draggable: yes
-			m.on 'dragend', =>
+			m.on 'dragstart', =>
+				@dragging = yes
 				draw @id
+			m.on 'dragend', =>
+				@dragging = no
 				drawn()
 			m
 
@@ -42,12 +45,15 @@ angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 		# a selection of this tool is currently visible
 		@_passive = no
 
+		# tool is currently dragged
+		@dragging = no
+
 		Object.defineProperty @, 'passive',
 			get: -> @_passive
 			set: (passive) ->
 				@_passive = passive
 				if passive then setMarker()
-				else removeMarker()
+				else removeMarker() unless @dragging
 
 		# the id/color of this tool
 		@id = id

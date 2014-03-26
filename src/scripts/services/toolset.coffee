@@ -62,10 +62,12 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 		if tool.isDefault then shader.setFinal 'color-map-display'
 		else shader.setFinal 'pseudocolor-display'
 		updateColorMasks()
+		updateSelections()
 		renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 
 	# finish activity, do nothing if no tool is drawing
 	@drawn = -> unless active is ''
+		console.log "drawn"
 		tool = tools[active]
 		tool.newPosition mouse.position
 		# the prevoiusly active tool is now passive
@@ -120,5 +122,5 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 			mouse.position.y = tool.position.y
 			glmvilib.render.apply glmvilib, shader.getActive()
 		active = currentActive
-		
+
 	return
