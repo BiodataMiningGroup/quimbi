@@ -1,9 +1,17 @@
 # tool object with information about the current state of a tool.
 angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
-	# constructor function for the Tool
-	(id, isDefault) ->
-		newMarker = (lat=0, lng=0) -> L.marker L.latLng(lat, lng),
-			icon: L.divIcon className: "tool-point-#{id}"
+	# draw and drawn functions are from toolset for Leaflet events
+	# can't inject toolset because of circular dependency
+	(id, isDefault, draw, drawn) ->
+
+		newMarker = (lat=0, lng=0) =>
+			m = L.marker L.latLng(lat, lng),
+				icon: L.divIcon className: "tool-point-#{id}"
+				draggable: yes
+			m.on 'dragend', =>
+				draw @id
+				drawn()
+			m
 
 		# Leaflet marker object
 		marker = newMarker()
@@ -15,6 +23,11 @@ angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 		# remove marker from map and markers array
 		removeMarker = -> map.self.removeLayer marker
 
+		@newPosition = (position) =>
+			angular.extend @position, position
+			marker.setLatLng L.latLng position.lat, position.lng
+			marker.update()
+
 		# x, y: position on the canvas in [0,1]
 		# lat, lng: position on the canvas in Leaflet coordinates
 		@position =
@@ -22,11 +35,6 @@ angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 			y: 0
 			lat: 0
 			lng: 0
-
-		@newPosition = (position) =>
-			angular.extend @position, position
-			marker.setLatLng L.latLng position.lat, position.lng
-			marker.update()
 
 		# tool is currently drawing/selecting
 		@drawing = no #yes if isDefault?
@@ -36,10 +44,10 @@ angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 
 		Object.defineProperty @, 'passive',
 			get: -> @_passive
-			set: (x) ->
-				if x then setMarker()
+			set: (passive) ->
+				@_passive = passive
+				if passive then setMarker()
 				else removeMarker()
-				@_passive = x
 
 		# the id/color of this tool
 		@id = id

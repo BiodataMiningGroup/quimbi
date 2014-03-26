@@ -1,11 +1,13 @@
 # controller for the settings route
 angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, colorMapParser) ->
 	$scope.settings = settings
+
 	# additional information that can't be set directly
 	$scope.info =
 		normMethod: ''
 		norm: 0
 		hasOverlay: input.overlayImage isnt ''
+
 	$scope.data =
 		colorMapFile: null
 
@@ -27,4 +29,7 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 
 	$scope.$watch 'settings.distMethod', updateDistMethod
 	$scope.$watch 'data.colorMapFile', setNewColorMap
+
+	$scope.resetTour = -> 
+		settings.tourStep[view] = 0 for view of settings.tourStep
 	return

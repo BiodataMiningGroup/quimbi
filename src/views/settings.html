@@ -1,7 +1,7 @@
-<div class="view__box">
+<div class="view__box" data-tour="" data-step="tourStep.settings" data-post-step="tourNext('settings')" data-post-tour="tourClose('settings')">
 	<h1>Settings</h1>
 	<form class="pure-form">
-		<fieldset>
+		<fieldset data-tourtip="You can choose from several distance computing methods. It depends on the nature of the dataset wich method produces best results." data-tourtip-step="0" data-tourtip-placement="top">
 			<legend>Distance computing method</legend>
 			<label for="dist-angle" class="pure-radio">
 				<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-model="settings.distMethod"/>
@@ -13,7 +13,7 @@
 			</label>
 			Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
 		</fieldset>
-		<fieldset>
+		<fieldset data-tourtip="You can load a custom color map to apply to the distances image. A preview of the color map is displayed below." data-tourtip-step="1" data-tourtip-placement="top">
 			<legend>Color map</legend>
 			<label for="color-map-url">
 				Choose a new color map CSV file:
@@ -22,7 +22,7 @@
 			<p>Current color map:</p>
 			<div colormap-preview="settings.colorMap"></div>
 		</fieldset>
-		<fieldset>
+		<fieldset data-tourtip="Finally there are some settings to customize the user interface." data-tourtip-step="2" data-tourtip-placement="top">
 			<legend>Interface</legend>
 			<label for="points-checkbox" class="pure-checkbox">
 				<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
@@ -31,6 +31,9 @@
 			<label for="overlay-checkbox" class="pure-checkbox" data-ng-if="info.hasOverlay">
 				<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay" />
 				Show overlay image.
+			</label>
+			<label for="reset-tour" data-tourtip="To restart the tour, reset the tooltips." data-tourtip-step="3" data-tourtip-placement="top" data-tourtip-next-label="Close">
+				<input id="reset-tour" type="button" value="Reset" class="pure-button pure-button-inline" data-ng-click="resetTour()" /> the introduction-tour tooltips.
 			</label>
 		</fieldset>
 	</form>

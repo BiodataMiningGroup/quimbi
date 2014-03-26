@@ -39,19 +39,6 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 		delete @selections[id] for id of @selections when id not in passive
 		@selections[id] = tools[id].selection for id in passive
 
-	# adds and returns new tool. returns existing tool if the id is already existing.
-	@add = (id) ->
-		# default tool has a $ prefix
-		isDefault = '$' is id.charAt 0
-		id = id.substr 1 if isDefault
-		# if the tool already exists, don't make a new one
-		if tools[id]?
-			tools[id].recreate()
-			return tools[id]
-		# tool drawing if isDefault?
-		#drawing = id if isDefault
-		tools[id] = new Tool id, isDefault
-
 	# activate a tool for drawing/selecting
 	@draw = (id) ->
 		tool = tools[id]
@@ -78,9 +65,9 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 		renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 
 	# finish activity, do nothing if no tool is drawing
-	@drawn = (position) -> unless active is ''
+	@drawn = -> unless active is ''
 		tool = tools[active]
-		tool.newPosition position
+		tool.newPosition mouse.position
 		# the prevoiusly active tool is now passive
 		tool.passive = yes
 		# add tool to the passive list if it isn't already there
@@ -91,6 +78,19 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 		renderPromise.stop()
 		tool.makeSelection()
 		updateSelections()
+
+	# adds and returns new tool. returns existing tool if the id is already existing.
+	@add = (id) =>
+		# default tool has a $ prefix
+		isDefault = '$' is id.charAt 0
+		id = id.substr 1 if isDefault
+		# if the tool already exists, don't make a new one
+		if tools[id]?
+			tools[id].recreate()
+			return tools[id]
+		# tool drawing if isDefault?
+		#drawing = id if isDefault
+		tools[id] = new Tool id, isDefault, @draw, @drawn
 
 	# clear the selection of a tool
 	@clear = (id) =>
