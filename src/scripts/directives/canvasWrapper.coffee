@@ -31,6 +31,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 		if shapeFactor >= 2
 			lngBound = 180
 			latBound = 180 / shapeFactor
+		else
+			lngBound = 90 * shapeFactor
+			latBound = 90
 
 		inputPixelWidth = lngBound * 2 / inputWidth
 		#console.log "iPW", inputPixelWidth
