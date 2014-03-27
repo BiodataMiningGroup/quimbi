@@ -14,7 +14,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	selectionInfo = new Program.SelectionInfo()
 
 	finalShaderID = pseudocolorDisplay.id
-	
+
 	# creates all shader programs and adds them to glmvilib
 	@createPrograms = ->
 		glmvilib.addProgram euclDist
@@ -53,6 +53,11 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	@updateChannelMask = (mask) ->
 		angleDist.updateChannelMask mask
 		euclDist.updateChannelMask mask
+		console.log "updateChannelMask"
+
+	#TODO ?
+	@updateChannel = (channel) ->
+		console.log "renderChannel.updateChannel channel", channel
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

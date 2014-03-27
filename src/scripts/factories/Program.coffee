@@ -55,7 +55,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			_mousePosition = gl.getUniformLocation program, 'u_mouse_position'
 
 			setUpDistanceTexture gl, assets, helpers
-			
+
 			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
 			return
 
@@ -152,7 +152,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
 			gl.uniform3f colorMask, @colorMask[0], @colorMask[1], @colorMask[2]
-			
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
 		return
@@ -185,10 +185,45 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
 			gl.uniform3f colorMask, @colorMask[0], @colorMask[1], @colorMask[2]
-			
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 		return
+
+
+	# TODO
+	# render a single channel
+	RenderChannel: ->
+		_gl = null
+		_mousePosition = null
+
+		@id = 'render-channel'
+
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+
+		@fragmentShaderUrl = 'shader/render-channel.fs.glsl'
+
+		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+			helpers.useInternalTextures program
+
+			channelIdx = gl.getUniformLocation program, 'u_channel_idx'
+			gl.uniform1f channel_idx, input.channelidx
+
+			setUpDistanceTexture gl, assets, helpers
+
+			return
+
+		@callback = (gl, program, assets, helpers) ->
+			helpers.bindInternalTextures()
+			gl.activeTexture gl.TEXTURE0
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
+			return
+
+		return
+
 
 	# applies a color map to the R channel of the rgb texture
 	ColorMapDisplay: ->
@@ -210,7 +245,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 
 			colorMap = gl.getUniformLocation program, 'u_color_map'
 			gl.uniform1i colorMap, 1
-			
+
 			return
 
 		@callback = (gl, program, assets, helpers) =>
@@ -219,7 +254,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, settings.colorMap
-			
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 		return

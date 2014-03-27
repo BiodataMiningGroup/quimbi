@@ -1,5 +1,5 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, toolset, ranges) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, toolset, ranges, channelidx) ->
 	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
 
 	$scope.selections = toolset.selections
@@ -14,6 +14,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 	$scope.channelNames = input.channelNames
 
 	$scope.spectrumRanges = ranges
+	$scope.spectrumChannelIdx = channelidx
 
 	# updates the spectrograms of the different selections to display in the
 	# spectrum viewer
@@ -24,7 +25,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 		for id of selections when not layers.hasOwnProperty id
 			# id is the color but can be something else, too!
 			layers[id] = data: [], color: id
-		# remove old layers that should no longer be shown	
+		# remove old layers that should no longer be shown
 		delete layers[id] for id of layers when not selections.hasOwnProperty id
 
 		for id, data of selections
@@ -34,7 +35,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 			index++
 		$scope.spectrum.length = input.channels
 
-	$scope.$watch "selections", updateSelections, yes	
+	$scope.$watch "selections", updateSelections, yes
 
 	# updates the channelMask filter according to the selected ranges in the
 	# spectrum viewer
@@ -61,5 +62,14 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 	$scope.toggleRange = (index, range) ->
 		range.active = not range.active
 		$scope.$broadcast 'spectrumViewer.focusRange', index
-	
+
+
+	# updates the channel according to the selected channel in the spectrum viewer
+	updateChannel = (newChannelIdx) ->
+		#TODO add a check to see if this feature should be active?
+		console.log "display updateChannel", newChannelIdx
+		toolset.updateChannel newChannelIdx[0]
+
+	$scope.$watch 'spectrumChannelIdx', updateChannel, yes
+
 	return

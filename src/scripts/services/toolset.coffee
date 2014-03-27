@@ -67,7 +67,6 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 
 	# finish activity, do nothing if no tool is drawing
 	@drawn = -> unless active is ''
-		console.log "drawn"
 		tool = tools[active]
 		tool.newPosition mouse.position
 		# the prevoiusly active tool is now passive
@@ -122,5 +121,11 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 			mouse.position.y = tool.position.y
 			glmvilib.render.apply glmvilib, shader.getActive()
 		active = currentActive
+
+	# updates the channel #TODO I guess this is a seperate tool
+	@updateChannel = (channel) ->
+		# ?
+		console.log "toolset updateChannel", channel
+		shader.updateChannel channel
 
 	return

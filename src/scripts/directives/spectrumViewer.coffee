@@ -1,17 +1,18 @@
 # directive to show a large dataset as spectrogram
 angular.module('quimbi').directive 'spectrumViewer', ($window) ->
-	
+
 	restrict: 'A'
 
 	templateUrl: './templates/spectrumViewer.html'
 
 	replace: yes
 
-	scope: 
+	scope:
 		# layers {data: [], color: ''}, labels, maximum, minimum, length
 		spectrum: '=spectrumViewer'
 		# array of {start: Number, offset: Number} objects
 		ranges: '=spectrumRanges'
+		channel: '=spectrumChannelIdx'
 
 	link: (scope, element) ->
 		# update viewer properties
@@ -67,7 +68,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				updateProps()
 				# new data.left position for zooming towards data.current
 				scope.data.left = Math.round scope.data.left +
-					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)			
+					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)
 
 		# update and redraw if the input data changes
 		updateData = (data) ->
@@ -126,14 +127,16 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			activeRange: -1
 			# number of layers currently displayed
 			layers: 0
+			# index of the label closest to the current position
+			labelIdx: 0
 
 		Object.defineProperty $scope.data, 'left',
 			# prevent scrolling over left or right border
-			set: (x) -> @_left = 
+			set: (x) -> @_left =
 				Math.max 0, Math.min $scope.spectrum.length * $scope.zoom.factor - $scope.props.width, x
 			get: -> @_left
 
-		$scope.scroll = 
+		$scope.scroll =
 			# style of the div that makes the spectrum viewer scrollable
 			style: width: "0px"
 			# start point for manually scrolling by 'grabbing' the viewer
@@ -150,7 +153,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			min: 0.1
 			# maximal zoom factor
 			max: 10
-			
+
 		Object.defineProperty $scope.zoom, 'factor',
 			# set boundaries for zooming
 			set: (x) -> @_factor = Math.max @min, Math.min @max, x
@@ -209,6 +212,15 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			# end manual scrolling
 			$scope.scroll.start = -1
 
+		$scope.click = (e) ->
+			if not e.shiftKey
+				#TODO call channel renderer, could also be implemented on mouse over
+				console.log $scope.data.labelIdx, $scope.data.label #DEV
+				if $scope.channel.length == 0
+					$scope.channel.push $scope.data.labelIdx
+				else
+					$scope.channel[0] = $scope.data.labelIdx
+
 		# update the information of the currently hovered position
 		$scope.$watch 'data.current', (current) -> unless $scope.spectrum.length is 0
 			$scope.indicatorStyle['transform'] =
@@ -216,6 +228,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 					"translateX(#{current}px)"
 			current = Math.round ($scope.data.left + current) / $scope.zoom.factor
 			if current >= $scope.spectrum.length then return
+			$scope.data.labelIdx = current
 			$scope.data.label = "#{$scope.spectrum.labels[current]}"
 			for id, layer of $scope.spectrum.layers
 				$scope.data.values[id] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
@@ -231,4 +244,4 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			$scope.data.left = Math.round ((2 * range.start + range.offset) * $scope.zoom.factor - $scope.props.width) / 2
 
 		return
-		
+
