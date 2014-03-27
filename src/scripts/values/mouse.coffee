@@ -1,7 +1,7 @@
 # storing mouse properties
 angular.module('quimbi').value 'mouse',
-	# the mouse position on the canvas in [0, 1]
 	position:
+        # the mouse position on the canvas in [0, 1]
 		x: 0
 		y: 0
 		# leaflet coordinates
