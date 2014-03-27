@@ -66,8 +66,6 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 
 	# updates the channel according to the selected channel in the spectrum viewer
 	updateChannel = (newChannelIdx) ->
-		#TODO add a check to see if this feature should be active?
-		console.log "display updateChannel", newChannelIdx
 		toolset.updateChannel newChannelIdx[0]
 
 	$scope.$watch 'spectrumChannelIdx', updateChannel, yes

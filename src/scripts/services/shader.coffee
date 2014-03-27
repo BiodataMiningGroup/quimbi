@@ -4,6 +4,8 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	euclDist = new Program.EuclDist()
 	# shader to compute the angle distance
 	angleDist = new Program.AngleDist()
+	# shader to do direct rendering of a single channel
+	renderChannel = new Program.RenderChannel()
 	# shader to update the rgb texture for multiple selections
 	rgbSelection = new Program.RGBSelection()
 	# shader to produce the final image from the rgb texture
@@ -19,6 +21,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	@createPrograms = ->
 		glmvilib.addProgram euclDist
 		glmvilib.addProgram angleDist
+		glmvilib.addProgram renderChannel
 		glmvilib.addProgram rgbSelection
 		glmvilib.addProgram pseudocolorDisplay
 		glmvilib.addProgram colorMapDisplay
@@ -31,6 +34,14 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		switch settings.distMethod
 			when 'angle' then active.push angleDist.id
 			when 'eucl' then active.push euclDist.id
+		active.push rgbSelection.id
+		active.push finalShaderID
+		active
+
+
+	@getRenderChannel = ->
+		active = []
+		active.push renderChannel.id
 		active.push rgbSelection.id
 		active.push finalShaderID
 		active
@@ -53,11 +64,9 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	@updateChannelMask = (mask) ->
 		angleDist.updateChannelMask mask
 		euclDist.updateChannelMask mask
-		console.log "updateChannelMask"
 
-	#TODO ?
 	@updateChannel = (channel) ->
-		console.log "renderChannel.updateChannel channel", channel
+		renderChannel.updateChannel
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

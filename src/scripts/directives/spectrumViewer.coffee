@@ -214,8 +214,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 		$scope.click = (e) ->
 			if not e.shiftKey
-				#TODO call channel renderer, could also be implemented on mouse over
-				console.log $scope.data.labelIdx, $scope.data.label #DEV
 				if $scope.channel.length == 0
 					$scope.channel.push $scope.data.labelIdx
 				else

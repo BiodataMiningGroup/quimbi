@@ -122,10 +122,9 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 			glmvilib.render.apply glmvilib, shader.getActive()
 		active = currentActive
 
-	# updates the channel #TODO I guess this is a seperate tool
+	# updates the channel for direct rendering
 	@updateChannel = (channel) ->
-		# ?
-		console.log "toolset updateChannel", channel
 		shader.updateChannel channel
+		glmvilib.render.apply glmvilib, shader.getRenderChannel()
 
 	return

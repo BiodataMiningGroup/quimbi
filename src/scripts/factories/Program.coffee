@@ -1,5 +1,5 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) ->
+angular.module('quimbi').factory 'Program', (input, mouse, selection, settings, channelidx) ->
 
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
@@ -113,6 +113,44 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 
 		return
 
+	# render a single channel
+	RenderChannel: ->
+		_gl = null
+		_tileIdx = null
+		_channelIdx = null
+
+		@id = 'render-channel'
+
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+
+		@fragmentShaderUrl = 'shader/render-channel.fs.glsl'
+
+		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+			helpers.useInternalTextures program
+
+			_tileIdx = gl.getUniformLocation program, 'u_tile_idx'
+			_channelIdx = gl.getUniformLocation program, 'u_channel_idx'
+
+			setUpDistanceTexture gl, assets, helpers
+
+			return
+
+		@callback = (gl, program, assets, helpers) ->
+			channelIdx = channelidx[0]
+			gl.uniform1i _tileIdx, Math.ceil channelIdx / 4
+			gl.uniform1i _channelIdx, channelIdx % 4
+
+			helpers.bindInternalTextures()
+			gl.activeTexture gl.TEXTURE0
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
+			return
+
+		return
+
+
 	# handles multiple selections with own framebuffer texture
 	RGBSelection: ->
 		colorMask = null
@@ -189,41 +227,6 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 		return
-
-
-	# TODO
-	# render a single channel
-	RenderChannel: ->
-		_gl = null
-		_mousePosition = null
-
-		@id = 'render-channel'
-
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
-
-		@fragmentShaderUrl = 'shader/render-channel.fs.glsl'
-
-		@constructor = (gl, program, assets, helpers) ->
-			_gl = gl
-			helpers.useInternalVertexPositions program
-			helpers.useInternalTexturePositions program
-			helpers.useInternalTextures program
-
-			channelIdx = gl.getUniformLocation program, 'u_channel_idx'
-			gl.uniform1f channel_idx, input.channelidx
-
-			setUpDistanceTexture gl, assets, helpers
-
-			return
-
-		@callback = (gl, program, assets, helpers) ->
-			helpers.bindInternalTextures()
-			gl.activeTexture gl.TEXTURE0
-			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
-			return
-
-		return
-
 
 	# applies a color map to the R channel of the rgb texture
 	ColorMapDisplay: ->
