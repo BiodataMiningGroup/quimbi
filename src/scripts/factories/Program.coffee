@@ -140,7 +140,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings, 
 
 		@callback = (gl, program, assets, helpers) ->
 			channelIdx = channelidx[0]
-			gl.uniform1i _tileIdx, Math.ceil channelIdx / 4
+			gl.uniform1i _tileIdx, Math.floor channelIdx / 4
 			gl.uniform1i _channelIdx, channelIdx % 4
 
 			helpers.bindInternalTextures()

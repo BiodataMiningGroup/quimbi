@@ -29,7 +29,6 @@ void main() {
     }
 
     // if the intensity of this fragment is 0, don't draw it
-    if (color == 0.0) discard;
 
     gl_FragColor = vec4(vec3(color), 1.0);
 }
