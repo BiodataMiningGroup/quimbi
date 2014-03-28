@@ -67,7 +67,6 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 
 	# finish activity, do nothing if no tool is drawing
 	@drawn = -> unless active is ''
-		console.log "drawn"
 		tool = tools[active]
 		tool.newPosition mouse.position
 		# the prevoiusly active tool is now passive
