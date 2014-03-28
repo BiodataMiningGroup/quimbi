@@ -195,16 +195,27 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 			$scope.data.current = posX
 
+			# if not e.shiftKey and e.altKey
+			# 	if $scope.channel.length == 0
+			# 		$scope.channel.push $scope.data.labelIdx
+			# 	else
+			# 		$scope.channel[0] = $scope.data.labelIdx
+
 			# update active range
-			unless $scope.data.activeRange < 0
+			if $scope.data.activeRange >= 0
 				range = $scope.ranges[$scope.data.activeRange]
 				offset = Math.round ($scope.data.left + posX) / $scope.zoom.factor - range.start
 				# minimal offset is 1 (one chanel selected)
 				range.offset = Math.max offset, 1
-
 			# scroll
-			unless $scope.scroll.start < 0
+			else if $scope.scroll.start >= 0
 				$scope.data.left = $scope.scroll.startLeft + $scope.scroll.start - posX
+			else if e.altKey
+				if $scope.channel.length == 0
+					$scope.channel.push $scope.data.labelIdx
+				else
+					$scope.channel[0] = $scope.data.labelIdx
+					console.log $scope.data.labelIdx, "         ", $scope.data.label
 
 		$scope.mouseup = ->
 			# end range selecting
