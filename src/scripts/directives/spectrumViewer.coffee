@@ -216,13 +216,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			# end manual scrolling
 			$scope.scroll.start = -1
 
-		$scope.click = (e) ->
-			if not e.shiftKey
-				if $scope.channel.length == 0
-					$scope.channel.push $scope.data.labelIdx
-				else
-					$scope.channel[0] = $scope.data.labelIdx
-
 		# update the information of the currently hovered position
 		$scope.$watch 'data.current', (current) -> unless $scope.spectrum.length is 0
 			$scope.indicatorStyle['transform'] =
