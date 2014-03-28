@@ -195,12 +195,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 
 			$scope.data.current = posX
 
-			# if not e.shiftKey and e.altKey
-			# 	if $scope.channel.length == 0
-			# 		$scope.channel.push $scope.data.labelIdx
-			# 	else
-			# 		$scope.channel[0] = $scope.data.labelIdx
-
 			# update active range
 			if $scope.data.activeRange >= 0
 				range = $scope.ranges[$scope.data.activeRange]
@@ -215,7 +209,6 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 					$scope.channel.push $scope.data.labelIdx
 				else
 					$scope.channel[0] = $scope.data.labelIdx
-					console.log $scope.data.labelIdx, "         ", $scope.data.label
 
 		$scope.mouseup = ->
 			# end range selecting
