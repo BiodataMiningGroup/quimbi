@@ -124,7 +124,6 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 
 	# updates the channel for direct rendering
 	@updateChannel = (channel) ->
-		shader.updateChannel channel
 		glmvilib.render.apply glmvilib, shader.getRenderChannel()
 
 	return

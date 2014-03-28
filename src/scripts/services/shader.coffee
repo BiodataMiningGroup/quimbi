@@ -65,9 +65,6 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		angleDist.updateChannelMask mask
 		euclDist.updateChannelMask mask
 
-	@updateChannel = (channel) ->
-		renderChannel.updateChannel
-
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->
 		if id is pseudocolorDisplay.id or id is colorMapDisplay.id
