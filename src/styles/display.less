@@ -94,6 +94,17 @@
 	}
 }
 
+.tool-button-group {
+
+	&.hidden {
+		display: none;
+	}
+
+	.tool-button:not(:last-child) {
+		margin-bottom: @small-pad;
+	}
+}
+
 .tool-button {
 	transition: all 250ms;
 	border-left: @small-pad solid transparent;
@@ -124,6 +135,34 @@
 			border-top-right-radius: 0;
 			border-bottom-right-radius: 0;
 			width: 70%;
+		}
+	}
+}
+
+.mode-switches {
+	margin-bottom: @pad;
+	overflow: hidden;
+
+	input {
+		display: none;
+	}
+
+	input:checked + label{
+		color: red;
+	}
+
+	.pure-button {
+		width: 50%;
+		padding: 0.5em;
+
+		&:first-child {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		&:last-child {
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
 		}
 	}
 }

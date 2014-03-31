@@ -1,6 +1,8 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, toolset, ranges, channelidx) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, toolset, ranges, settings) ->
 	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
+
+	$scope.settings = settings
 
 	$scope.selections = toolset.selections
 
@@ -14,7 +16,6 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 	$scope.channelNames = input.channelNames
 
 	$scope.spectrumRanges = ranges
-	$scope.spectrumChannelIdx = channelidx
 
 	# updates the spectrograms of the different selections to display in the
 	# spectrum viewer
@@ -40,20 +41,30 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 	# updates the channelMask filter according to the selected ranges in the
 	# spectrum viewer
 	updateRanges = (newRanges) ->
-		# number of channels padded to be represented as vec4's
+		# number of overall channels padded to be represented as vec4's
 		channel = input.files.length * 4
+		# number of active channels of this channel mask
+		activeChannels = 0
+
 		hasActiveRange = no
 		for range in newRanges when range.active
 			hasActiveRange = yes
 			break
+
 		if hasActiveRange
+			# clear mask
 			channelMask[channel] = 0 while channel--
+
 			for range in newRanges when range.active
 				offset = range.offset
-				channelMask[range.start + offset] = 255 while offset--
+				while offset--
+					channelMask[range.start + offset] = 255
+					activeChannels++
 		else
+			activeChannels = input.channels
 			channelMask[channel] = 255 while channel--
-		toolset.updateChannelMask channelMask
+
+		toolset.updateChannelMask channelMask, activeChannels
 
 	$scope.$watch 'spectrumRanges', updateRanges, yes
 
@@ -63,11 +74,6 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 		range.active = not range.active
 		$scope.$broadcast 'spectrumViewer.focusRange', index
 
-
-	# updates the channel according to the selected channel in the spectrum viewer
-	updateChannel = (newChannelIdx) ->
-		toolset.updateChannel newChannelIdx[0]
-
-	$scope.$watch 'spectrumChannelIdx', updateChannel, yes
+	$scope.$watch 'settings.displayMode', -> updateRanges $scope.spectrumRanges
 
 	return

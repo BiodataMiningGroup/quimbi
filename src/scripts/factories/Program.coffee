@@ -1,5 +1,5 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', (input, mouse, selection, settings, channelidx) ->
+angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) ->
 
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
@@ -116,8 +116,12 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings, 
 	# render a single channel
 	RenderChannel: ->
 		_gl = null
-		_tileIdx = null
-		_channelIdx = null
+		# pointer to texture object
+		_channelMaskTexture = null
+		# pointer to the uniform
+		_invActiveChannels = null
+		# number of active channels of the current channel mask
+		_activeChannels = 0
 
 		@id = 'render-channel'
 
@@ -131,22 +135,25 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings, 
 			helpers.useInternalTexturePositions program
 			helpers.useInternalTextures program
 
-			_tileIdx = gl.getUniformLocation program, 'u_tile_idx'
-			_channelIdx = gl.getUniformLocation program, 'u_channel_idx'
+			_invActiveChannels = gl.getUniformLocation program, 'u_inv_active_channels'
 
 			setUpDistanceTexture gl, assets, helpers
+
+			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			channelIdx = channelidx[0]
-			gl.uniform1i _tileIdx, Math.floor channelIdx / 4
-			gl.uniform1i _channelIdx, channelIdx % 4
-
+			gl.uniform1f _invActiveChannels, 1 / (_activeChannels || -1)
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
+			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
+
+		@updateChannelMask = (mask, activeChannels) ->
+			_activeChannels = activeChannels
+			updateChannelMask _gl, mask, _channelMaskTexture
 
 		return
 

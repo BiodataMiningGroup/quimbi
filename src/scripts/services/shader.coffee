@@ -31,17 +31,11 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	# returns all currently active shaders for a full render() or renderLoop() call
 	@getActive = ->
 		active = []
-		switch settings.distMethod
-			when 'angle' then active.push angleDist.id
-			when 'eucl' then active.push euclDist.id
-		active.push rgbSelection.id
-		active.push finalShaderID
-		active
-
-
-	@getRenderChannel = ->
-		active = []
-		active.push renderChannel.id
+		switch settings.displayMode
+			when 'mean' then active.push renderChannel.id
+			else switch settings.distMethod
+				when 'angle' then active.push angleDist.id
+				when 'eucl' then active.push euclDist.id
 		active.push rgbSelection.id
 		active.push finalShaderID
 		active
@@ -61,9 +55,10 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 
 	# link the mask that determines which channels should be considered in calculation
 	# since it stays the same object, only the reference has to be passed once
-	@updateChannelMask = (mask) ->
-		angleDist.updateChannelMask mask
-		euclDist.updateChannelMask mask
+	@updateChannelMask = (mask, activeChannels) ->
+		angleDist.updateChannelMask mask, activeChannels
+		euclDist.updateChannelMask mask, activeChannels
+		renderChannel.updateChannelMask mask, activeChannels
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

@@ -2,11 +2,14 @@ precision mediump float;
 
 varying vec2 v_texture_position;
 
-uniform int u_tile_idx;
-uniform int u_channel_idx;
+uniform float u_channel_mask_dimension;
+uniform float u_inv_channel_mask_dimension;
+uniform sampler2D u_channel_mask;
+
+uniform float u_inv_active_channels;
 
 const int LAST_CHANNELS = <%=CHANNELS_LAST_TILE=%>;
-const int TILES = <%=TILES=%>;
+const int TILES_MINUS_ONE = <%=TILES=%> - 1;
 const vec4 ONES = vec4(1);
 
 <%=TEXTURE_3D=%>
@@ -16,19 +19,39 @@ void main() {
     float color = 0.0;
     vec4 current;
 
-    for (int i = 0; i < TILES; i++) {
-        if (i == u_tile_idx) {
-            current = glmvilib_texture3D(vec3(v_texture_position, i));
-        }
+    float tile;
+    vec2 mask_position = vec2(0);
+    vec4 channel_mask;
+
+    for (int i = 0; i < TILES_MINUS_ONE; i++) {
+        tile = float(i);
+        mask_position.s = mod(tile, u_channel_mask_dimension);
+        mask_position.t = floor(tile * u_inv_channel_mask_dimension);
+        mask_position *= u_inv_channel_mask_dimension;
+        channel_mask = texture2D(u_channel_mask, mask_position);
+        // check if any channels of this tile are to be computed
+        if (dot(channel_mask, ONES) == 0.0) continue;
+
+        // get rgba of the position of this pixel; filtered by the channel mask
+        current = channel_mask * glmvilib_texture3D(vec3(v_texture_position, i));
+
+        color += dot(current, ONES);
     }
 
-    for (int i = 0; i < 4; i++) {
-        if (i == u_channel_idx) {
-            color = current[i];
-        }
+    tile = float(TILES_MINUS_ONE);
+    mask_position.s = mod(tile, u_channel_mask_dimension);
+    mask_position.t = floor(tile * u_inv_channel_mask_dimension);
+    mask_position *= u_inv_channel_mask_dimension;
+    channel_mask = texture2D(u_channel_mask, mask_position);
+
+    // last tile (may use not all channels)
+    current = channel_mask * glmvilib_texture3D(vec3(v_texture_position, TILES_MINUS_ONE));
+    for (int i = 0; i < LAST_CHANNELS; i++) {
+        color += current[i];
     }
 
-    // if the intensity of this fragment is 0, don't draw it
+    // build average
+    color *= u_inv_active_channels;
 
     gl_FragColor = vec4(vec3(color), 1.0);
 }
