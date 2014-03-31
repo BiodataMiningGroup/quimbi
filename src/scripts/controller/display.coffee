@@ -13,8 +13,6 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 		minimum: 0
 		length: 0
 
-	$scope.channelNames = input.channelNames
-
 	$scope.spectrumRanges = ranges
 
 	# updates the spectrograms of the different selections to display in the
@@ -68,12 +66,10 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 
 	$scope.$watch 'spectrumRanges', updateRanges, yes
 
-	$scope.removeRange = (index) -> $scope.spectrumRanges.splice index, 1
-
-	$scope.toggleRange = (index, range) ->
-		range.active = not range.active
-		$scope.$broadcast 'spectrumViewer.focusRange', index
-
 	$scope.$watch 'settings.displayMode', -> updateRanges $scope.spectrumRanges
+
+	# reflect event from rangeListItem to spectrumViewer
+	$scope.$on 'rangeListItem.focusRange', (e, index) ->
+		$scope.$broadcast 'spectrumViewer.focusRange', index
 
 	return

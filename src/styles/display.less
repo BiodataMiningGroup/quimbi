@@ -67,7 +67,7 @@
 	word-wrap: break-word;
 	cursor: pointer;
 	padding: @small-pad;
-	padding-top: 15px;
+	padding-top: 20px;
 	transition: all @duration;
 	border-left: @small-pad solid @info-color;
 	opacity: 0.5;
@@ -80,16 +80,47 @@
 		opacity: 1;
 	}
 
-	.icon-remove {
+	.item__controls {
 		position: absolute;
-		top: 0;
+		top: 2px;
 		right: 1px;
-		opacity: 0.5;
-		transition: all @duration;
 
-		&:hover {
-			opacity: 1;
-			color: @error-color;
+		i {
+			opacity: 0.5;
+			transition: all @duration;
+
+			&:hover {
+				opacity: 1;
+			}
+		}
+	}
+
+	.icon-remove:hover {
+		color: @error-color;
+	}
+
+	.item__group-chooser {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 0;
+		height: 100%;
+		background-color: @dark-gray;
+		overflow: hidden;
+		transition: width @duration;
+
+		&.show {
+			width: 20px;
+		}
+
+		input {
+			display: none;
+		}
+
+		label {
+			display: block;
+			padding: 0;
+			border-radius: 0;
 		}
 	}
 }
@@ -145,10 +176,6 @@
 
 	input {
 		display: none;
-	}
-
-	input:checked + label{
-		color: red;
 	}
 
 	.pure-button {

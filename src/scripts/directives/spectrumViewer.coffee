@@ -1,13 +1,13 @@
 # directive to show a large dataset as spectrogram
-angular.module('quimbi').directive 'spectrumViewer', ($window) ->
-	
+angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
+
 	restrict: 'A'
 
 	templateUrl: './templates/spectrumViewer.html'
 
 	replace: yes
 
-	scope: 
+	scope:
 		# layers {data: [], color: ''}, labels, maximum, minimum, length
 		spectrum: '=spectrumViewer'
 		# array of {start: Number, offset: Number} objects
@@ -67,7 +67,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				updateProps()
 				# new data.left position for zooming towards data.current
 				scope.data.left = Math.round scope.data.left +
-					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)			
+					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)
 
 		# update and redraw if the input data changes
 		updateData = (data) ->
@@ -133,7 +133,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				Math.max 0, Math.min $scope.spectrum.length * $scope.zoom.factor - $scope.props.width, x
 			get: -> @_left
 
-		$scope.scroll = 
+		$scope.scroll =
 			# style of the div that makes the spectrum viewer scrollable
 			style: width: "0px"
 			# start point for manually scrolling by 'grabbing' the viewer
@@ -177,10 +177,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			# start selecting a range
 			if $scope.data.activeRange < 0 and e.shiftKey
 				$scope.data.activeRange = $scope.ranges.length
-				if posX < $scope.props.width then $scope.ranges.push
-					start: Math.round ($scope.data.left + posX) / $scope.zoom.factor
-					offset: 1
-					active: yes
+				if posX < $scope.props.width
+					$scope.ranges.push new Range Math.round ($scope.data.left + posX) / $scope.zoom.factor
 			# start manual scrolling
 			else if not e.shiftKey
 				$scope.scroll.start = posX
@@ -231,4 +229,3 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			$scope.data.left = Math.round ((2 * range.start + range.offset) * $scope.zoom.factor - $scope.props.width) / 2
 
 		return
-		
