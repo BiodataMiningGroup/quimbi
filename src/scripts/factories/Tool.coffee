@@ -1,5 +1,5 @@
 # tool object with information about the current state of a tool.
-angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
+angular.module('quimbi').factory 'Tool', ($rootScope, selection, map, settings) ->
 	# draw and drawn functions are from toolset for Leaflet events
 	# can't inject toolset because of circular dependency
 	(id, isDefault, draw, drawn) ->
@@ -13,7 +13,7 @@ angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 				draw @id
 			m.on 'dragend', =>
 				@dragging = no
-				drawn()
+				$rootScope.$apply drawn
 			m
 
 		# Leaflet marker object
@@ -42,18 +42,18 @@ angular.module('quimbi').factory 'Tool', (selection, map, settings) ->
 		# tool is currently drawing/selecting
 		@drawing = no #yes if isDefault?
 
-		# a selection of this tool is currently visible
-		@_passive = no
-
 		# tool is currently dragged
 		@dragging = no
+
+		# a selection of this tool is currently visible
+		@_passive = no
 
 		Object.defineProperty @, 'passive',
 			get: -> @_passive
 			set: (passive) ->
 				@_passive = passive
 				if passive then setMarker()
-				else removeMarker() unless @dragging
+				else if not @dragging then removeMarker()
 
 		# the id/color of this tool
 		@id = id
