@@ -43,6 +43,14 @@ angular.module('quimbi').factory 'Tool', ($rootScope, selection, map, settings) 
 					if passive then @setMarker()
 					else if not @_dragging then @removeMarker()
 
+			Tool.groups.push @id unless @id in Tool.groups
+			Tool.defaultGroup = @id if @isDefault
+
+		# the ids of all registered tools
+		@groups: []
+
+		@defaultGroup: ''
+
 		newMarker: (lat=0, lng=0) ->
 
 			m = L.marker L.latLng(lat, lng),

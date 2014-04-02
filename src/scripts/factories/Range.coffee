@@ -1,14 +1,12 @@
 # Range object for the spectrumViewer
-angular.module('quimbi').factory 'Range', (settings) ->
+angular.module('quimbi').factory 'Range', (settings, Tool) ->
 
 	class Range
 		
 		constructor: (@start) ->
 			@offset = 1
 			@active = yes
-			@group = 'red'
-
-		groups: ['red', 'lime', 'blue']
+			@group = Tool.defaultGroup
 
 		class: ->
 			output = ''

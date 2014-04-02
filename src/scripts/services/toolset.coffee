@@ -109,7 +109,7 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 
 	# updates the channel mask filter and recomputes the distances for all
 	# currently passive tools
-	@updateChannelMask = (mask, activeChannels) ->
+	@updateDistancesChannelMask = (mask, activeChannels) ->
 		shader.updateChannelMask mask, activeChannels
 		currentActive = active
 		for id in passive
@@ -121,5 +121,20 @@ angular.module('quimbi').service 'toolset', (Tool, shader, mouse) ->
 			mouse.position.y = tool.position.y
 			glmvilib.render.apply glmvilib, shader.getActive()
 		active = currentActive
+
+	@updateMeanChannelMask = (mask, activeChannels, group) ->
+		shader.updateChannelMask mask, activeChannels
+		colorMask = [0, 0, 0]
+		shader.setFinal 'pseudocolor-display'
+		switch group
+			when 'red' then colorMask[0] = 1
+			when 'lime' then colorMask[1] = 1
+			when 'blue' then colorMask[2] = 1
+			else
+				colorMask = [1, 1, 1]
+				shader.setFinal 'color-map-display'
+		shader.setPassiveColorMask [1, 1, 1]
+		shader.setActiveColorMask colorMask
+		glmvilib.render.apply glmvilib, shader.getActive()
 
 	return

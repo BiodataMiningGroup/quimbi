@@ -1,7 +1,5 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, toolset, ranges, settings) ->
-	channelMask = new Uint8Array selection.textureDimension * selection.textureDimension * 4
-
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, toolset, ranges, settings) ->
 	$scope.settings = settings
 
 	$scope.selections = toolset.selections
@@ -13,7 +11,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 		minimum: 0
 		length: 0
 
-	$scope.spectrumRanges = ranges
+	$scope.spectrumRanges = ranges.array
 
 	# updates the spectrograms of the different selections to display in the
 	# spectrum viewer
@@ -36,37 +34,9 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, selection, to
 
 	$scope.$watch "selections", updateSelections, yes
 
-	# updates the channelMask filter according to the selected ranges in the
-	# spectrum viewer
-	updateRanges = (newRanges) ->
-		# number of overall channels padded to be represented as vec4's
-		channel = input.files.length * 4
-		# number of active channels of this channel mask
-		activeChannels = 0
+	$scope.$watch 'spectrumRanges', ranges.update, yes
 
-		hasActiveRange = no
-		for range in newRanges when range.active
-			hasActiveRange = yes
-			break
-
-		if hasActiveRange
-			# clear mask
-			channelMask[channel] = 0 while channel--
-
-			for range in newRanges when range.active
-				offset = range.offset
-				while offset--
-					channelMask[range.start + offset] = 255
-					activeChannels++
-		else
-			activeChannels = input.channels
-			channelMask[channel] = 255 while channel--
-
-		toolset.updateChannelMask channelMask, activeChannels
-
-	$scope.$watch 'spectrumRanges', updateRanges, yes
-
-	$scope.$watch 'settings.displayMode', -> updateRanges $scope.spectrumRanges
+	$scope.$watch 'settings.displayMode', ranges.update
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->
