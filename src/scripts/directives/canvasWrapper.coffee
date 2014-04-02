@@ -36,14 +36,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 			latBound = 90
 
 		inputPixelWidth = lngBound * 2 / inputWidth
-		#console.log "iPW", inputPixelWidth
-
-		# widthBound = inputWidth/2
-		# heightBound = inputHeight/2
 
 		# setup matching LatLng bounds for the input dimensions
-		# southWest = map.self.unproject([Math.ceil(-widthBound), Math.ceil(-heightBound)], 5) #map.self.getMaxZoom())
-		# northEast = map.self.unproject([Math.ceil(widthBound), Math.ceil(heightBound)], 5) #map.self.getMaxZoom())
 		southWest = L.latLng Math.ceil(-latBound), Math.ceil(-lngBound)
 		northEast = L.latLng Math.ceil(latBound), Math.ceil(lngBound)
 		# alternatively: set maxBounds on map.self options
@@ -63,10 +57,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 
 		# image2 = L.imageOverlay 'data/image.png', maxBounds
 		# minimap = new L.Control.Minimap.self(image2).addTo(map.self);
-
-		# fit bounds and setting max bounds should happen in the initialization of
-		# map.self to avoid initial animation. padding makes sure that there is
-		# additional space around the image that can be covered by controls
 
 		# don't fit bounds if map state/viewport is already manually changed
 		map.self.fitBounds maxBounds, animate: false unless map.dirty()
