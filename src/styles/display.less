@@ -39,7 +39,6 @@
 	box-sizing: border-box;
 
 	.pure-button {
-		transition: all 250ms;
 		box-sizing: border-box;
 		width: 100%;
 	}
@@ -125,49 +124,35 @@
 	}
 }
 
-.tool-button-group {
+.marker-menu {
+	margin-bottom: @pad;
+}
 
-	&.hidden {
-		display: none;
+.marker-menu__button {
+	position: relative;
+	border-top: @small-pad solid transparent;
+	border-radius: @radius;
+	color: rgba(0, 0, 0, 0.8);
+
+	& + .marker-menu__button {
+		margin-top: @small-pad;
 	}
 
-	.tool-button:not(:last-child) {
-		margin-bottom: @small-pad;
+	.pure-button {
+		width: 50%;
 	}
 }
 
-.tool-button {
-	transition: all 250ms;
-	border-left: @small-pad solid transparent;
-	border-radius: @radius;
-	overflow: hidden;
-	box-sizing: border-box;
-	margin-bottom: @pad;
-	color: rgba(0, 0, 0, 0.8);
+.marker-menu__button--edit {
+	border-radius: 0 0 0 @radius;
+}
 
-	.pure-button {
-		border-top-left-radius: 0;
-		border-bottom-left-radius: 0;
+.marker-menu__button--remove {
+	border-radius: 0 0 @radius 0;
+}
 
-		&.clear {
-			width: 0%;
-			padding: 0.5em 0;
-		}
-	}
-
-	&.passive {
-		border-left-width: @pad;
-
-		.clear {
-			width: 30%;
-		}
-
-		.draw {
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-			width: 70%;
-		}
-	}
+.marker-menu__button--add:not(:first-child) {
+	margin-top: @small-pad;
 }
 
 .mode-switches {

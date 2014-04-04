@@ -3,7 +3,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 	class Marker
 		
-		constructor: ->
+		constructor: (@_colorMaskIndex) ->
 
 			@_textureDimension = input.getChannelTextureDimension()
 
@@ -52,3 +52,5 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 		getColor: -> @_color
 
 		getColorMap: -> angular.copy @_colorMap
+
+		getColorMaskIndex: -> @_colorMaskIndex

@@ -8,7 +8,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 	replace: yes
 
 	scope:
-		# layers {data: [], color: ''}, labels, maximum, minimum, length
+		# layers [data: [], color: ''], labels, maximum, minimum, length
 		spectrum: '=spectrumViewer'
 		# array of {start: Number, offset: Number} objects
 		ranges: '=spectrumRanges'
@@ -220,8 +220,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 
 		# update the number of currently displayed layers
 		$scope.$watchCollection 'spectrum.layers', (layers) ->
-			$scope.data.layers = 0
-			$scope.data.layers++ for layer of layers
+			$scope.data.layers = layers.length
 
 		$scope.$on 'spectrumViewer.focusRange', (e, index) ->
 			range = $scope.ranges[index]
