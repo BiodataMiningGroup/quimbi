@@ -1,8 +1,12 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, toolset, ranges, settings) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, marker) ->
 	$scope.settings = settings
 
-	$scope.selections = toolset.selections
+	# $scope.selections = marker.selectionData
+
+	marker.add()
+	marker.set x: 0.2, y: 0.4
+	console.log marker.selectionData
 
 	$scope.spectrum =
 		layers: {}
@@ -11,7 +15,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, toolset, rang
 		minimum: 0
 		length: 0
 
-	$scope.spectrumRanges = ranges.array
+	# $scope.spectrumRanges = []
 
 	# updates the spectrograms of the different selections to display in the
 	# spectrum viewer
@@ -32,11 +36,11 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, toolset, rang
 			index++
 		$scope.spectrum.length = input.channels
 
-	$scope.$watch "selections", updateSelections, yes
+	# $scope.$watch "selections", updateSelections, yes
 
-	$scope.$watch 'spectrumRanges', ranges.update, yes
+	# $scope.$watch 'spectrumRanges', ranges.update, yes
 
-	$scope.$watch 'settings.displayMode', ranges.update
+	# $scope.$watch 'settings.displayMode', ranges.update
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->

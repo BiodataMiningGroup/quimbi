@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the canvas has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map) ->
 
 	restrict: 'A'
 
@@ -71,9 +71,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 					(maxBounds.getSouth() - maxBounds.getNorth())
 
 
-		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
-			scope.$apply -> if toolset.drawing()
-				toolset.drawn()
+		# map.self.on 'click', (e) -> if maxBounds.contains e.latlng
+		# 	scope.$apply -> if toolset.drawing()
+		# 		toolset.drawn()
 
 		map.self.on 'moveend', (e) ->	map.center = e.target.getCenter()
 

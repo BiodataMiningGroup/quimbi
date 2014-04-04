@@ -24,9 +24,9 @@
 			</a>
 			<a href="#/about" class="about" data-ng-hide="properties.disableAbout" data-tooltip="About this tool."><i class="icon-question-sign"></i></a>
 		</div>
-		<ul class="range-list" data-tourtip="All regions of interest are listed here. You can enable or disable a region by clicking on the respective list item. Remove a region by clicking on '&times;'." data-tourtip-step="5" data-tourtip-placement="right">
+		<!--ul class="range-list" data-tourtip="All regions of interest are listed here. You can enable or disable a region by clicking on the respective list item. Remove a region by clicking on '&times;'." data-tourtip-step="5" data-tourtip-placement="right">
 			<li data-range-list-item="range" data-index="$index" data-ng-repeat="range in spectrumRanges"></li>
-		</ul>
+		</ul-->
 	</div>
 	<div class="display-view__content" data-tourtip="This is the main view of QUIMBI where the distances image and spectrum is displayed. But to see anything, you have to make a selection with one of the selection tools first." data-tourtip-step="0" data-tourtip-placement="left" data-tourtip-offset="-400">
 		<div class="display-view__top" data-tourtip="Now you can see the distances image where each point is highlighted according to it's distance to the current selection. You can zoom and pan the image to explore your data." data-tourtip-step="2" data-tourtip-placement="bottom" data-tourtip-offset="-50">
@@ -35,7 +35,7 @@
 		<div class="display-view__bottom">
 			<div data-tourtip="The mass spectrum of the current selection is displayed as well. You can zoom and pan similar to the distances image." data-tourtip-step="3" data-tourtip-placement="top"></div>
 			<div data-tourtip="By pressing shift, clicking and dragging the mouse over the spectrum, you can select a region of interest. The distance computation of the distances image will now be restricted to the mass channels of this region. You can combine multiple regions, too." data-tourtip-step="4" data-tourtip-placement="top"></div>
-			<div data-spectrum-viewer="spectrum" data-spectrum-ranges="spectrumRanges"></div>
+			<!--div data-spectrum-viewer="spectrum" data-spectrum-ranges="spectrumRanges"></div-->
 		</div>
 	</div>
 </div>

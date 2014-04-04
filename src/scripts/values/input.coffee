@@ -18,6 +18,9 @@ angular.module('quimbi').value 'input',
 	# number of overall channels of the image
 	channels: 0
 
+	# the dimension of a quadratic texture to contain one pixel for each 4 channels
+	getChannelTextureDimension: -> Math.ceil Math.sqrt Math.ceil @channels / 4
+
 	# information about the preprocessing process
 	preprocessing: null
 

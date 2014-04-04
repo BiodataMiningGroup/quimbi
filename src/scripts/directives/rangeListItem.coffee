@@ -1,5 +1,5 @@
 # directive for a list item in the ranges list of the menu in the display route
-angular.module('quimbi').directive 'rangeListItem', (ranges, input, settings, Tool) ->
+angular.module('quimbi').directive 'rangeListItem', (input, settings) ->
 
 	restrict: 'A'
 
@@ -15,7 +15,7 @@ angular.module('quimbi').directive 'rangeListItem', (ranges, input, settings, To
 		$scope.data =
 			label: ''
 			choosingGroup: no
-			groups: Tool.groups
+			groups: [] #todo
 
 		$scope.inMeanMode = -> settings.displayMode is 'mean'
 
