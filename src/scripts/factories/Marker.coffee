@@ -2,8 +2,20 @@
 angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 	class Marker
+
+		# contains all unassigned color mask indices
+		# a color mask index specifies the index of a [0, 0, 0] color mask array
+		# that must be set to 1
+		@colorMaskIndices: [0, 1, 2]
+
+		@colors: ['red', 'lime', 'blue']
+
+		# TODO pre-load an cache all possible color maps
+		@colorMaps: ['fire', 'unionjack', 'phase']
 		
 		constructor: (@_colorMaskIndex) ->
+
+			@_colorMaskIndex = Marker.colorMaskIndices.shift()
 
 			@_textureDimension = input.getChannelTextureDimension()
 
@@ -13,12 +25,15 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 				lat: 0
 				lng: 0
 
-			@_color = 'white'
+			@_color = Marker.colors[@_colorMaskIndex]
 		
-			@_colorMap = []
+			@_colorMap = Marker.colorMaps[@_colorMaskIndex]
 
 			# spectrogram and histogram of the position of this marker
 			@_selectionData = new SelectionData()
+
+		# releases the assigned color mask index
+		destruct: -> Marker.colorMaskIndices.unshift @_colorMaskIndex
 
 		_updateSelection: ->
 			glmvilib.setViewport 0, 0, @_textureDimension, @_textureDimension
@@ -51,6 +66,6 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 		getColor: -> @_color
 
-		getColorMap: -> angular.copy @_colorMap
+		getColorMap: -> 'todo'
 
 		getColorMaskIndex: -> @_colorMaskIndex

@@ -5,11 +5,6 @@ angular.module('quimbi').service 'marker', (Marker) ->
 
 	lastChangedMarkerIndex = -1
 
-	# contains all remaining color mask indices
-	# a color mask index specifies the index of a [0, 0, 0] color mask array
-	# that must be set to 1
-	colorMaskIndices = [0, 1, 2]
-
 	# array of all existing markers
 	@list = []
 
@@ -20,12 +15,11 @@ angular.module('quimbi').service 'marker', (Marker) ->
 
 	@add = -> if @list.length < @maxNumber
 		# assign a colorMaskIndex to the ner marker
-		@list.push new Marker colorMaskIndices.shift()
+		@list.push new Marker()
 		@activate @list.length - 1
 
 	@remove = (index) -> if 0 <= index < @list.length
-		# get bach the colorMaskIndex from the marker that is to be removed
-		colorMaskIndices.unshift @list[index].getColorMaskIndex()
+		@list[index].destruct()
 		@list.splice index, 1
 		@selectionData.splice index, 1
 		activeMarkerIndex = -1 if activeMarkerIndex is index
