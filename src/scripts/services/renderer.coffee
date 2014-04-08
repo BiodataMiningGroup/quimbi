@@ -1,5 +1,5 @@
 # manages all existing markers and provides functions to manipulate them
-angular.module('quimbi').service 'renderer', (input, marker, settings, shader) ->
+angular.module('quimbi').service 'renderer', (input, markers, settings, shader) ->
 
 	channelMask = new Uint8Array input.getChannelTextureDimension() *
 		input.getChannelTextureDimension() * 4
@@ -14,18 +14,18 @@ angular.module('quimbi').service 'renderer', (input, marker, settings, shader) -
 
 	updatePassiveColorMask = ->
 		passiveColorMask[index] = 0 for index in [0...passiveColorMask.length]
-		passiveColorMask[m.getColorMaskIndex()] = 1 for m in marker.list
+		passiveColorMask[m.getColorMaskIndex()] = 1 for m in markers.list
 		passiveColorMask
 
 	updateActiveColorMask = ->
 		activeColorMask[index] = 0 for index in [0...activeColorMask.length]
-		activeColorMask[marker.list[marker.getActiveIndex()].getColorMaskIndex()] = 1
+		activeColorMask[markers.list[markers.getActiveIndex()].getColorMaskIndex()] = 1
 		activeColorMask
 
 
 	@update = ->
 		shader.setPassiveColorMask updatePassiveColorMask()
-		if marker.hasActive()
+		if markers.hasActive()
 			shader.setActiveColorMask updateActiveColorMask()
 			renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
 		else if renderPromise?

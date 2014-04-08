@@ -1,5 +1,5 @@
 # manages all existing markers and provides functions to manipulate them
-angular.module('quimbi').service 'marker', (Marker) ->
+angular.module('quimbi').service 'markers', (Marker) ->
 
 	activeMarkerIndex = -1
 

@@ -32,6 +32,8 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 			# spectrogram and histogram of the position of this marker
 			@_selectionData = new SelectionData()
 
+			@_isSet = no
+
 		# releases the assigned color mask index
 		destruct: -> Marker.colorMaskIndices.unshift @_colorMaskIndex
 
@@ -56,6 +58,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 		# returns the updated selectionData associated with the color
 		setPosition: (position) ->
+			@_isSet = yes
 			@_position.x = position.x
 			@_position.y = position.y
 			@_position.lat = position.lat
@@ -69,3 +72,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 		getColorMap: -> 'todo'
 
 		getColorMaskIndex: -> @_colorMaskIndex
+
+		isSet: -> @_isSet
+
+		unset: -> @_isSet = no

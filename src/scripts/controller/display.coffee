@@ -1,8 +1,8 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, marker) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers) ->
 	$scope.settings = settings
 
-	$scope.selectionData = marker.selectionData
+	$scope.selectionData = markers.selectionData
 
 	$scope.spectrum =
 		layers: []
