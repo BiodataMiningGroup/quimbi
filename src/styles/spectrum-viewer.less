@@ -177,33 +177,9 @@
 	height: 100%;
 	transition: border-bottom-color @duration;
 	border-bottom: @spectrum-viewer-label-height solid transparent;
-	background-color: fadeout(@info-color, 90%);
+	background-color: fadeout(white, 95%);
 
 	&.active {
 		border-bottom-color: @info-color;
-	}
-}
-
-.spectrum-viewer__range--red {
-	background-color: fadeout(red, 90%);
-
-	&.active {
-		border-bottom-color: red;
-	}
-}
-
-.spectrum-viewer__range--lime {
-	background-color: fadeout(lime, 90%);
-
-	&.active {
-		border-bottom-color: lime;
-	}
-}
-
-.spectrum-viewer__range--blue {
-	background-color: fadeout(blue, 90%);
-
-	&.active {
-		border-bottom-color: blue;
 	}
 }

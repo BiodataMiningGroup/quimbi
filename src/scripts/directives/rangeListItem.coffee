@@ -1,5 +1,5 @@
 # directive for a list item in the ranges list of the menu in the display route
-angular.module('quimbi').directive 'rangeListItem', (input, settings) ->
+angular.module('quimbi').directive 'rangeListItem', (input, settings, Range, ranges) ->
 
 	restrict: 'A'
 
@@ -15,13 +15,19 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings) ->
 		$scope.data =
 			label: ''
 			choosingGroup: no
-			groups: [] #todo
+			groups: Range.groups
+			groupColors: Range.groupColors
 
 		$scope.inMeanMode = -> settings.displayMode is 'mean'
 
 		$scope.chooseGroup = (e) ->
 			e.stopPropagation()
 			$scope.data.choosingGroup = not $scope.data.choosingGroup
+
+		$scope.setGroup = (e, group) ->
+			e.stopPropagation()
+			$scope.data.choosingGroup = no
+			$scope.range.setGroup group
 
 		$scope.removeRange = (e) ->
 			e.stopPropagation()
@@ -35,7 +41,7 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings) ->
 			active: $scope.range.active
 
 		$scope.style = -> if $scope.inMeanMode()
-			'border-left-color': $scope.range.group
+			'border-left-color': $scope.range.groupColor()
 
 		updateLabel = ->
 			$scope.data.label = input.channelNames[$scope.range.start]
@@ -45,8 +51,5 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings) ->
 
 		$scope.$watch 'range.start', updateLabel
 		$scope.$watch 'range.offset', updateLabel
-
-		$scope.$watch 'range.group', (group) ->
-			$scope.data.choosingGroup = no
 		
 		return

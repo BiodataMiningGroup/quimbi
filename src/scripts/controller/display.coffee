@@ -1,5 +1,5 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges) ->
 	$scope.settings = settings
 
 	$scope.selectionData = markers.selectionData
@@ -11,7 +11,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 		minimum: 0
 		length: input.channels
 
-	$scope.spectrumRanges = []
+	$scope.spectrumRanges = ranges.list
 
 	# updates the spectrograms of the different selections to display in the
 	# spectrum viewer
