@@ -13,9 +13,15 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 		# TODO pre-load an cache all possible color maps
 		@colorMaps: ['fire', 'unionjack', 'phase']
 		
-		constructor: (@_colorMaskIndex) ->
+		constructor: (@_type) ->
 
-			@_colorMaskIndex = Marker.colorMaskIndices.shift()
+			if @_type is 'mean'
+				@_color = 'white'
+				@_colorMap = []
+			else
+				@_colorMaskIndex = Marker.colorMaskIndices.shift()
+				@_color = Marker.colors[@_colorMaskIndex]
+				@_colorMap = Marker.colorMaps[@_colorMaskIndex]
 
 			@_textureDimension = input.getChannelTextureDimension()
 
@@ -25,22 +31,18 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 				lat: 0
 				lng: 0
 
-			@_color = Marker.colors[@_colorMaskIndex]
-		
-			@_colorMap = Marker.colorMaps[@_colorMaskIndex]
-
 			# spectrogram and histogram of the position of this marker
 			@_selectionData = new SelectionData()
 
 			@_isSet = no
 
 		# releases the assigned color mask index
-		destruct: -> Marker.colorMaskIndices.unshift @_colorMaskIndex
+		destruct: -> if @_type is 'distances'
+			Marker.colorMaskIndices.unshift @_colorMaskIndex
 
 		_updateSelection: ->
 			glmvilib.setViewport 0, 0, @_textureDimension, @_textureDimension
-			mouse.position.x = @_position.x
-			mouse.position.y = @_position.y
+			angular.extend mouse.position, @_position
 			glmvilib.render 'selection-info'
 			# update spectrogram
 			glmvilib.getPixels 0, 0, @_textureDimension, @_textureDimension, @_selectionData.spectrogram
@@ -54,6 +56,10 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 			@_selectionData
 
+		getSelectionData: ->
+			color: @getColor()
+			data: @_selectionData
+
 		getPosition: -> angular.copy @_position
 
 		# returns the updated selectionData associated with the color
@@ -63,9 +69,9 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 			@_position.y = position.y
 			@_position.lat = position.lat
 			@_position.lng = position.lng
-
-			color: @_color
-			data: @_updateSelection()
+			# AFTER setting the new position
+			@_updateSelection()
+			position
 
 		getColor: -> @_color
 

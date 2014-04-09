@@ -140,6 +140,11 @@
 	}
 }
 
+.marker-menu__button.only .pure-button {
+	width: 100%;
+	border-radius: 0 0 @radius @radius;
+}
+
 .marker-menu__button--edit {
 	border-radius: 0 0 0 @radius;
 }
@@ -189,7 +194,7 @@
 }
 
 
-.tool-point {
+.marker-point {
 	@dim: 10px;
 	@border: 1px;
 	// position: absolute;
@@ -197,7 +202,7 @@
 	// 2*border because of border+shadow
 	// width: @dim - 2 * @border;
 	// height: @dim - 2 * @border;
-	// tool-points are positioned using %-values. the transformation sets the
+	// marker-points are positioned using %-values. the transformation sets the
 	// center of the point to the %-coordinates.
 	// transform: translate(-@dim / 2,-@dim / 2);
 
@@ -206,23 +211,19 @@
 	border-radius: 50%;
 }
 
-.tool-point-lime {
-	.tool-point;
+.marker-point--lime {
 	background-color: lime;
 }
 
-.tool-point-blue {
-	.tool-point;
+.marker-point--blue {
 	background-color: blue;
 }
 
-.tool-point-red {
-	.tool-point;
+.marker-point--red {
 	background-color: red;
 }
 
-.tool-point-gray {
-	.tool-point;
-	background-color: gray;
+.marker-point--white {
+	background-color: white;
 }
 

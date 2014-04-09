@@ -5,6 +5,11 @@ angular.module('quimbi').service 'ranges', ->
 
 	@remove = (index) => @list.splice index, 1
 
+	@hasActive = ->
+		for range in @list when range.active
+			return yes
+		no
+		
 	@byGroup = =>
 		output = {}
 

@@ -51,5 +51,5 @@ angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 		scope.$watch 'props.width', (width) ->	element[0].width = width
 		scope.$watch 'props.height', (height) -> element[0].height = height
 		scope.$watch 'props', draw, yes
-		scope.$watchCollection 'layer.data', draw
+		scope.$watch 'layer', draw, yes
 		return

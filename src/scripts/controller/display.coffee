@@ -2,8 +2,6 @@
 angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges) ->
 	$scope.settings = settings
 
-	$scope.selectionData = markers.selectionData
-
 	$scope.spectrum =
 		layers: []
 		labels: input.channelNames
@@ -24,11 +22,12 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 			layers[index].data = selection.data.spectrogram
 
 
-	$scope.$watch "selectionData", updateSelections, yes
+	$scope.$watch markers.getSelectionData, updateSelections, yes
 
 	$scope.$watch 'spectrumRanges', renderer.updateChannelMask, yes
 
-	# $scope.$watch 'settings.displayMode', ranges.update
+	$scope.$watch 'settings.displayMode', renderer.updateChannelMask
+	$scope.$watch 'settings.displayMode', renderer.update
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->

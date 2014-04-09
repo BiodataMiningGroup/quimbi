@@ -1,5 +1,5 @@
 # directive for a list item in the ranges list of the menu in the display route
-angular.module('quimbi').directive 'markerMenu', (markers, renderer) ->
+angular.module('quimbi').directive 'markerMenu', (markers, renderer, settings) ->
 
 	restrict: 'A'
 
@@ -9,7 +9,8 @@ angular.module('quimbi').directive 'markerMenu', (markers, renderer) ->
 
 	controller: ($scope) ->
 		$scope.data =
-			markers: markers.list
+			markers: null
+			inDistancesMode: yes
 
 		$scope.newMarker = ->
 			markers.add()
@@ -21,10 +22,17 @@ angular.module('quimbi').directive 'markerMenu', (markers, renderer) ->
 
 		$scope.editMarker = (index) ->
 			markers.activate index
-			markers.list[index].unset()
+			markers.getList()[index].unset()
 			renderer.update()
 
 		$scope.showAdd = ->
-			markers.getActiveIndex() is -1 and markers.list.length < markers.maxNumber
+			markers.getActiveIndex() is -1 and markers.getList().length < markers.getMaxNumber()
+
+		$scope.$watch (-> settings.displayMode), (displayMode) ->
+			$scope.data.markers = markers.getList()
+			if displayMode is 'distances'
+				$scope.data.inDistancesMode = yes
+			else
+				$scope.data.inDistancesMode = no
 		
 		return

@@ -88,13 +88,14 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 
 		newLeafletMarkerFrom = (marker) ->
 			L.marker marker.getPosition(),
-				icon: L.divIcon className: "tool-point-#{marker.getColor()}"
+				icon: L.divIcon className: "marker-point marker-point--#{marker.getColor()}"
 				draggable: yes
 
-		syncMarkers = ->
+		syncMarkers = (markerList) ->
 			for leafletMarker in leafletMarkers
 				map.self.removeLayer leafletMarker
-			for marker, i in markers.list when marker.isSet()
+				
+			for marker, i in markerList when marker.isSet()
 				m = newLeafletMarkerFrom marker
 				index = i
 				m.on 'dragstart', ->	scope.$apply ->
@@ -108,7 +109,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 				leafletMarkers.push m
 
 		if settings.showPoints
-			scope.$watch (-> markers.list), syncMarkers, yes
+			scope.$watch (-> markers.getList()), syncMarkers, yes
 
 		return
 
