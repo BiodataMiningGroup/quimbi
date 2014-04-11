@@ -34,7 +34,7 @@ angular.module('quimbi').service 'markers', (Marker, settings) ->
 	@activate = (index) => if index < @getList().length
 		activeMarkerIndex = index
 
-	@setAt = (position) => unless activeMarkerIndex is -1
+	@setAt = (position) => if @hasActive()
 		@getList()[activeMarkerIndex].setPosition position
 		activeMarkerIndex = -1
 

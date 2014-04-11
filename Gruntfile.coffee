@@ -19,6 +19,10 @@ module.exports = (grunt) ->
 		# Clean the temporary directory
 		clean:
 			tmp: [ '.tmp' ]
+			# deletes everything in build but the data directory
+			build:
+				# explicitly stating everything that should be deleted instead of excluding data from cleaning is on purpose
+				src: ['<%= buildDir %>/css/', '<%= buildDir %>/fonts/', '<%= buildDir %>/index.html', '<%= buildDir %>/js/', '<%= buildDir %>/shader/', '<%= buildDir %>/templates/', '<%= buildDir %>/views/']
 		# Compile and uglify LESS
 		recess:
 			build:
@@ -95,9 +99,16 @@ module.exports = (grunt) ->
 					dest: '<%= buildDir %>'
 					expand: true
 				]
-			leafletimages:
+			cssimages:
 				files: [
-					cwd: '<%= srcDir %>/styles/lib/images'
+					cwd: '<%= srcDir %>/styles/lib/css-images'
+					src: '*.png'
+					dest: '<%= buildDir %>/css/images'
+					expand: true
+				]
+			jsimages:
+				files: [
+					cwd: '<%= srcDir %>/styles/lib/js-images'
 					src: '*.png'
 					dest: '<%= buildDir %>/js/images'
 					expand: true
@@ -122,7 +133,7 @@ module.exports = (grunt) ->
 			coffee:
 				files: [ '<%= srcDir %>/<%= src.coffee %>' ]
 				tasks: [
-					'clean'
+					'clean:tmp'
 					'coffee'
 					'concat'
 					'ngmin'
@@ -131,7 +142,6 @@ module.exports = (grunt) ->
 			less:
 				files: [ '<%= srcDir %>/styles/*.less' ]
 				tasks: [ 'recess', 'autoprefixer' ]
-
 
 
 	grunt.renameTask 'watch', 'delta'
@@ -143,7 +153,7 @@ module.exports = (grunt) ->
 	# The default task is to build.
 	grunt.registerTask 'default', [ 'build' ]
 	grunt.registerTask 'build', [
-		'clean'
+		'clean:tmp'
 		'copy'
 		'recess'
 		'autoprefixer'
@@ -151,4 +161,8 @@ module.exports = (grunt) ->
 		'concat'
 		'ngmin'
 		'uglify'
+	]
+	grunt.registerTask 'cleanbuild', [
+		'clean:build'
+		'build'
 	]
