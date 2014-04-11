@@ -17,6 +17,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 			if @_type is 'mean'
 				@_color = 'white'
+				# TODO
 				@_colorMap = []
 			else
 				@_colorMaskIndex = Marker.colorMaskIndices.shift()
@@ -75,9 +76,11 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 		getColor: -> @_color
 
-		getColorMap: -> 'todo'
+		getColorMap: -> 'TODO'
 
 		getColorMaskIndex: -> @_colorMaskIndex
+
+		getType: -> @_type
 
 		isSet: -> @_isSet
 

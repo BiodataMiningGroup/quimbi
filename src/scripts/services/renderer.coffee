@@ -1,7 +1,6 @@
 # manages all existing markers and provides functions to manipulate them
 angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, settings, shader) ->
 
-
 	channelMask = new Uint8Array input.getChannelTextureDimension() *
 		input.getChannelTextureDimension() * 4
 
@@ -27,11 +26,10 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, set
 		activeColorMask[markers.getList()[markers.getActiveIndex()].getColorMaskIndex()] = 1
 		activeColorMask
 
-	updateDistancesChannelMask = ->
+	updateChannelMaskWith = (rangesList) ->
 		# number of overall channels padded to be represented as vec4's
 		channel = input.files.length * 4
 
-		rangesList = ranges.list
 		# number of active channels of the channel mask
 		activeChannels = 0
 
@@ -48,9 +46,12 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, set
 			channelMask[channel] = 255 while channel--
 
 		shader.updateChannelMask channelMask, activeChannels
+		channelMask
 
-		markerList = markers.getList()
-		for marker in markerList when marker.isSet()
+	updateDistancesChannelMask = ->
+		updateChannelMaskWith ranges.list
+
+		for marker in markers.getList() when marker.isSet()
 			clearArray activeColorMask
 			activeColorMask[marker.getColorMaskIndex()] = 1
 			shader.setActiveColorMask activeColorMask
@@ -67,26 +68,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, set
 		glmvilib.render shader.getFinal()
 
 		for group, rangesList of groups
-			# number of overall channels padded to be represented as vec4's
-			channel = input.files.length * 4
-			# number of active channels of this channel mask
-			activeChannels = 0
-
-			if ranges.hasActive()
-				# clear mask
-				channelMask[channel] = 0 while channel--
-
-				# if the group argument exists, take only the ranges of this group
-				# otherwise take all
-				for range in rangesList when range.active
-					offset = range.offset
-					activeChannels += offset
-					channelMask[range.start + offset] = 255 while offset--
-			else
-				activeChannels = input.channels
-				channelMask[channel] = 255 while channel--
-
-			shader.updateChannelMask channelMask, activeChannels
+			updateChannelMaskWith rangesList
 			clearArray activeColorMask
 			activeColorMask[group] = 1
 			shader.setActiveColorMask activeColorMask
@@ -107,11 +89,10 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, set
 			else
 				glmvilib.render shader.getFinal()
 
-	@updateChannelMask = ->
-		switch settings.displayMode
-			when 'mean' then updateMeanChannelMask()
-			else updateDistancesChannelMask()
+	@updateChannelMask = ->	switch settings.displayMode
+		when 'mean' then updateMeanChannelMask()
+		else updateDistancesChannelMask()
 
-	@updateRegionMask = ->
+	@updateRegionMask = -> 'TODO'
 	
 	return

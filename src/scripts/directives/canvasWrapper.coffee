@@ -79,7 +79,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 
 		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
 			scope.$apply ->
-				markers.set mouse.position
+				markers.setAt mouse.position
 				renderer.update()
 
 		map.self.on 'moveend', (e) ->	map.center = e.target.getCenter()
@@ -102,7 +102,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 					markers.activate index
 					renderer.update()
 				m.on 'dragend', -> scope.$apply ->
-					markers.set mouse.position
+					markers.setAt mouse.position
 					renderer.update()
 
 				m.addTo map.self
