@@ -150,10 +150,10 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 			for marker, i in markerList when marker.isSet()
 				m = newLeafletMarkerFrom marker
 				index = i
-				m.on 'dragstart', ->	scope.$apply ->
+				m.on 'dragstart', ->	$scope.$apply ->
 					markers.activate index
 					renderer.update()
-				m.on 'dragend', -> scope.$apply ->
+				m.on 'dragend', -> $scope.$apply ->
 					markers.setAt mouse.position
 					renderer.update()
 
