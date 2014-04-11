@@ -1,0 +1,11 @@
+<div class="marker-menu__button" data-ng-repeat="marker in data.markers" data-ng-style="{'border-top-color':marker.getColor()}" data-ng-class="{'only':marker.getType()=='mean'}">
+	<button class="marker-menu__button--edit pure-button" data-ng-click="editMarker($index)" data-tooltip="Edit this marker.">
+		<i class="icon-pencil icon-large"></i>
+	</button><!--
+	--><button class="marker-menu__button--remove pure-button" data-ng-if="marker.getType()!='mean'" data-ng-click="removeMarker($index)" data-tooltip="Remove this marker.">
+		<i class="icon-remove icon-large"></i>
+	</button>
+</div>
+<button class="marker-menu__button--add pure-button" data-ng-click="newMarker()" data-ng-if="showAdd()" data-ng-class="{'pure-button-disabled':disableAdd()}" data-tooltip="Add a marker.">
+	<b>+</b>
+</button>

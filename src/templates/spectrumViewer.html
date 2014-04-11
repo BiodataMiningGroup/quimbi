@@ -1,6 +1,6 @@
-<div class="spectrum-viewer" data-ng-mousemove="mousemove($event)" data-ng-mousedown="mousedown($event)" data-ng-mouseup="mouseup()" data-ng-class="{'scrolling':scroll.start>=0}">
+<div class="spectrum-viewer" data-ng-mousemove="mousemove($event)" data-ng-mousedown="mousedown($event)" data-ng-mouseup="mouseup()" data-ng-click="click($event)" data-ng-class="{'scrolling':scroll.start>=0}">
 	<div class="spectrum-viewer__scroll" style="width:{{spectrum.length}}px;transform:scaleX({{zoom.factor}});-webkit-transform:scaleX({{zoom.factor}});">
-		<span class="spectrum-viewer__range" data-ng-class="{'active':range.active}" data-ng-repeat="range in ranges" style="left:{{range.start-0.5}}px;width:{{range.offset}}px;"></span>
+		<span class="spectrum-viewer__range" data-ng-class="range.class()" data-ng-repeat="range in ranges" data-ng-style="range.style()"></span>
 	</div>
 	<div class="spectrum-viewer__inner" data-ng-style="innerStyle">
 		<div class="spectrum-viewer__canvas-wrapper" style="height:{{props.height}}px;" data-ng-class="{'butterfly':data.layers==2}">
@@ -15,7 +15,7 @@
 			<span class="spectrum-viewer__indicator" data-ng-style="indicatorStyle"></span>
 		</div>
 		<div class="spectrum-viewer__info">
-			<span style="color:{{layer.color}};" data-ng-repeat="(id, layer) in spectrum.layers">{{data.values[id]}}% </span>at {{data.label}} m/z
+			<span style="color:{{layer.color}};" data-ng-repeat="(index, layer) in spectrum.layers">{{data.values[index]}}% </span>at {{data.label}} m/z
 		</div>
 		<div class="spectrum-viewer__x-axis">
 			<span class="spectrum-viewer__label" data-ng-repeat="label in labels" style="transform:translateX({{$index*props.labelOffset}}px);-webkit-transform:translateX({{$index*props.labelOffset}}px);" data-ng-bind="label"></span>

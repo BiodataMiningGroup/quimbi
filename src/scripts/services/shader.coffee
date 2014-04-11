@@ -4,6 +4,8 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	euclDist = new Program.EuclDist()
 	# shader to compute the angle distance
 	angleDist = new Program.AngleDist()
+	# shader to do direct rendering of a single channel
+	renderChannel = new Program.RenderChannel()
 	# shader to update the rgb texture for multiple selections
 	rgbSelection = new Program.RGBSelection()
 	# shader to produce the final image from the rgb texture
@@ -14,11 +16,12 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	selectionInfo = new Program.SelectionInfo()
 
 	finalShaderID = pseudocolorDisplay.id
-	
+
 	# creates all shader programs and adds them to glmvilib
 	@createPrograms = ->
 		glmvilib.addProgram euclDist
 		glmvilib.addProgram angleDist
+		glmvilib.addProgram renderChannel
 		glmvilib.addProgram rgbSelection
 		glmvilib.addProgram pseudocolorDisplay
 		glmvilib.addProgram colorMapDisplay
@@ -28,9 +31,11 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	# returns all currently active shaders for a full render() or renderLoop() call
 	@getActive = ->
 		active = []
-		switch settings.distMethod
-			when 'angle' then active.push angleDist.id
-			when 'eucl' then active.push euclDist.id
+		switch settings.displayMode
+			when 'mean' then active.push renderChannel.id
+			else switch settings.distMethod
+				when 'angle' then active.push angleDist.id
+				when 'eucl' then active.push euclDist.id
 		active.push rgbSelection.id
 		active.push finalShaderID
 		active
@@ -50,9 +55,10 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 
 	# link the mask that determines which channels should be considered in calculation
 	# since it stays the same object, only the reference has to be passed once
-	@updateChannelMask = (mask) ->
-		angleDist.updateChannelMask mask
-		euclDist.updateChannelMask mask
+	@updateChannelMask = (mask, activeChannels) ->
+		angleDist.updateChannelMask mask, activeChannels
+		euclDist.updateChannelMask mask, activeChannels
+		renderChannel.updateChannelMask mask, activeChannels
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

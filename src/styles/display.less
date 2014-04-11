@@ -39,7 +39,6 @@
 	box-sizing: border-box;
 
 	.pure-button {
-		transition: all 250ms;
 		box-sizing: border-box;
 		width: 100%;
 	}
@@ -67,7 +66,7 @@
 	word-wrap: break-word;
 	cursor: pointer;
 	padding: @small-pad;
-	padding-top: 15px;
+	padding-top: 20px;
 	transition: all @duration;
 	border-left: @small-pad solid @info-color;
 	opacity: 0.5;
@@ -80,50 +79,104 @@
 		opacity: 1;
 	}
 
-	.icon-remove {
+	.item__controls {
 		position: absolute;
-		top: 0;
+		top: 2px;
 		right: 1px;
-		opacity: 0.5;
-		transition: all @duration;
 
-		&:hover {
-			opacity: 1;
-			color: @error-color;
+		i {
+			opacity: 0.5;
+			transition: all @duration;
+
+			&:hover {
+				opacity: 1;
+			}
+		}
+	}
+
+	.icon-remove:hover {
+		color: @error-color;
+	}
+
+	.item__group-chooser {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 0;
+		height: 100%;
+		background-color: @dark-gray;
+		overflow: hidden;
+		transition: width @duration;
+
+		&.show {
+			width: 20px;
+		}
+
+		.pure-button {
+			width: 100%;
+			display: block;
+			padding: 0;
+			border-radius: 0;
 		}
 	}
 }
 
-.tool-button {
-	transition: all 250ms;
-	border-left: @small-pad solid transparent;
-	border-radius: @radius;
-	overflow: hidden;
-	box-sizing: border-box;
+.marker-menu {
 	margin-bottom: @pad;
+}
+
+.marker-menu__button {
+	position: relative;
+	border-top: @small-pad solid transparent;
+	border-radius: @radius;
 	color: rgba(0, 0, 0, 0.8);
 
-	.pure-button {
-		border-top-left-radius: 0;
-		border-bottom-left-radius: 0;
-
-		&.clear {
-			width: 0%;
-			padding: 0.5em 0;
-		}
+	& + .marker-menu__button {
+		margin-top: @small-pad;
 	}
 
-	&.passive {
-		border-left-width: @pad;
+	.pure-button {
+		width: 50%;
+	}
+}
 
-		.clear {
-			width: 30%;
-		}
+.marker-menu__button.only .pure-button {
+	width: 100%;
+	border-radius: 0 0 @radius @radius;
+}
 
-		.draw {
+.marker-menu__button--edit {
+	border-radius: 0 0 0 @radius;
+}
+
+.marker-menu__button--remove {
+	border-radius: 0 0 @radius 0;
+}
+
+.marker-menu__button--add:not(:first-child) {
+	margin-top: @small-pad;
+}
+
+.mode-switches {
+	margin-bottom: @pad;
+	overflow: hidden;
+
+	input {
+		display: none;
+	}
+
+	.pure-button {
+		width: 50%;
+		padding: 0.5em;
+
+		&:first-child {
 			border-top-right-radius: 0;
 			border-bottom-right-radius: 0;
-			width: 70%;
+		}
+
+		&:last-child {
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
 		}
 	}
 }
@@ -141,7 +194,7 @@
 }
 
 
-.tool-point {
+.marker-point {
 	@dim: 10px;
 	@border: 1px;
 	// position: absolute;
@@ -149,7 +202,7 @@
 	// 2*border because of border+shadow
 	// width: @dim - 2 * @border;
 	// height: @dim - 2 * @border;
-	// tool-points are positioned using %-values. the transformation sets the
+	// marker-points are positioned using %-values. the transformation sets the
 	// center of the point to the %-coordinates.
 	// transform: translate(-@dim / 2,-@dim / 2);
 
@@ -158,23 +211,19 @@
 	border-radius: 50%;
 }
 
-.tool-point-lime {
-	.tool-point;
+.marker-point--lime {
 	background-color: lime;
 }
 
-.tool-point-blue {
-	.tool-point;
+.marker-point--blue {
 	background-color: blue;
 }
 
-.tool-point-red {
-	.tool-point;
+.marker-point--red {
 	background-color: red;
 }
 
-.tool-point-gray {
-	.tool-point;
-	background-color: gray;
+.marker-point--white {
+	background-color: white;
 }
 

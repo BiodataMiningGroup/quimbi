@@ -1,5 +1,5 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) ->
+angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
@@ -12,22 +12,21 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 	setUpChannelMask = (gl, program, assets, helpers) ->
 		channelMaskTexture = null
 		gl.uniform1i gl.getUniformLocation(program, 'u_channel_mask'), 0
-		gl.uniform1f gl.getUniformLocation(program, 'u_channel_mask_dimension'), selection.textureDimension
-		gl.uniform1f gl.getUniformLocation(program, 'u_inv_channel_mask_dimension'), 1/selection.textureDimension
+		gl.uniform1f gl.getUniformLocation(program, 'u_channel_mask_dimension'), input.getChannelTextureDimension()
+		gl.uniform1f gl.getUniformLocation(program, 'u_inv_channel_mask_dimension'), 1/input.getChannelTextureDimension()
 		# check if texture already exists
 		unless channelMaskTexture = assets.textures.channelMaskTexture
 			channelMaskTexture = helpers.newTexture 'channelMaskTexture'
-			# same dimensions as fingerprint texture from selection
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, selection.textureDimension,
-				selection.textureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.getChannelTextureDimension(),
+				input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		channelMaskTexture
 
 	updateChannelMask = (gl, mask, texture) ->
 		gl.activeTexture gl.TEXTURE0
 		gl.bindTexture gl.TEXTURE_2D, texture
 		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, no
-		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, selection.textureDimension,
-				selection.textureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, mask
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.getChannelTextureDimension(),
+				input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, mask
 
 
 	# euclidean distance
@@ -55,7 +54,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			_mousePosition = gl.getUniformLocation program, 'u_mouse_position'
 
 			setUpDistanceTexture gl, assets, helpers
-			
+
 			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
 			return
 
@@ -113,6 +112,51 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 
 		return
 
+	# render a single channel
+	RenderChannel: ->
+		_gl = null
+		# pointer to texture object
+		_channelMaskTexture = null
+		# pointer to the uniform
+		_invActiveChannels = null
+		# number of active channels of the current channel mask
+		_activeChannels = 0
+
+		@id = 'render-channel'
+
+		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+
+		@fragmentShaderUrl = 'shader/render-channel.fs.glsl'
+
+		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+			helpers.useInternalTextures program
+
+			_invActiveChannels = gl.getUniformLocation program, 'u_inv_active_channels'
+
+			setUpDistanceTexture gl, assets, helpers
+
+			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
+
+			return
+
+		@callback = (gl, program, assets, helpers) ->
+			gl.uniform1f _invActiveChannels, 1 / (_activeChannels || -1)
+			helpers.bindInternalTextures()
+			gl.activeTexture gl.TEXTURE0
+			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
+			return
+
+		@updateChannelMask = (mask, activeChannels) ->
+			_activeChannels = activeChannels
+			updateChannelMask _gl, mask, _channelMaskTexture
+
+		return
+
+
 	# handles multiple selections with own framebuffer texture
 	RGBSelection: ->
 		colorMask = null
@@ -152,7 +196,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
 			gl.uniform3f colorMask, @colorMask[0], @colorMask[1], @colorMask[2]
-			
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
 		return
@@ -185,7 +229,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
 			gl.uniform3f colorMask, @colorMask[0], @colorMask[1], @colorMask[2]
-			
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 		return
@@ -210,7 +254,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 
 			colorMap = gl.getUniformLocation program, 'u_color_map'
 			gl.uniform1i colorMap, 1
-			
+
 			return
 
 		@callback = (gl, program, assets, helpers) =>
@@ -219,7 +263,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, settings.colorMap
-			
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 		return
@@ -242,12 +286,12 @@ angular.module('quimbi').factory 'Program', (input, mouse, selection, settings) 
 			mousePosition = gl.getUniformLocation program, 'u_mouse_position'
 
 			dim = gl.getUniformLocation program, 'u_texture_dimension'
-			gl.uniform1f dim, selection.textureDimension
+			gl.uniform1f dim, input.getChannelTextureDimension()
 
 			assets.framebuffers.selection = gl.createFramebuffer()
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.selection
 			texture = helpers.newTexture 'selectionTexture'
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, selection.textureDimension, selection.textureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.getChannelTextureDimension(), input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, null
 			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return

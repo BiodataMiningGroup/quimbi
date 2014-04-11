@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the canvas has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers, renderer, settings) ->
 
 	restrict: 'A'
 
@@ -10,6 +10,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 	link: (scope, element) ->
 		inputWidth = canvas.element[0].width
 		inputHeight = canvas.element[0].height
+
+		leafletMarkers = []
 
 		# TODO: max zoom should depend on ratio between input and screen size
 		map.self = L.map element[0],
@@ -44,6 +46,15 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 		maxBounds = new L.LatLngBounds southWest, northEast
 		map.self.setMaxBounds maxBounds
 
+		applyLeafletPosition = (e, position) ->
+			position.lat = e.latlng.lat
+			position.lng = e.latlng.lng
+			position.x = (e.latlng.lng - maxBounds.getWest()) /
+				(maxBounds.getEast() - maxBounds.getWest())
+			position.y = (e.latlng.lat - maxBounds.getNorth()) /
+				(maxBounds.getSouth() - maxBounds.getNorth())
+			position
+
 		# add scale with total object width in um
 		L.control.microScale(objectWidth: 80000).addTo map.self
 
@@ -63,20 +74,43 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, toolset, mouse, map
 
 		map.self.on 'mousemove', (e) ->
 			if maxBounds.contains e.latlng then scope.$apply ->
-				mouse.position.lat = e.latlng.lat
-				mouse.position.lng = e.latlng.lng
-				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) /
-					(maxBounds.getEast() - maxBounds.getWest())
-				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) /
-					(maxBounds.getSouth() - maxBounds.getNorth())
+				applyLeafletPosition e, mouse.position
 
 
 		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
-			scope.$apply -> if toolset.drawing()
-				toolset.drawn()
+			scope.$apply ->
+				markers.setAt mouse.position
+				renderer.update()
 
 		map.self.on 'moveend', (e) ->	map.center = e.target.getCenter()
 
 		map.self.on 'zoomend', (e) -> map.zoom = e.target.getZoom()
 
+		newLeafletMarkerFrom = (marker) ->
+			L.marker marker.getPosition(),
+				icon: L.divIcon className: "marker-point marker-point--#{marker.getColor()}"
+				draggable: yes
+
+		syncMarkers = (markerList) ->
+			for leafletMarker in leafletMarkers
+				map.self.removeLayer leafletMarker
+				
+			for marker, i in markerList when marker.isSet()
+				m = newLeafletMarkerFrom marker
+				index = i
+				m.on 'dragstart', ->	scope.$apply ->
+					markers.activate index
+					renderer.update()
+				m.on 'dragend', -> scope.$apply ->
+					markers.setAt mouse.position
+					renderer.update()
+
+				m.addTo map.self
+				leafletMarkers.push m
+
+		if settings.showPoints
+			scope.$watch (-> markers.getList()), syncMarkers, yes
+
 		return
+
+		

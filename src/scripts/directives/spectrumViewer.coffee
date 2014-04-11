@@ -1,14 +1,14 @@
 # directive to show a large dataset as spectrogram
-angular.module('quimbi').directive 'spectrumViewer', ($window) ->
-	
+angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
+
 	restrict: 'A'
 
 	templateUrl: './templates/spectrumViewer.html'
 
 	replace: yes
 
-	scope: 
-		# layers {data: [], color: ''}, labels, maximum, minimum, length
+	scope:
+		# layers [data: [], color: ''], labels, maximum, minimum, length
 		spectrum: '=spectrumViewer'
 		# array of {start: Number, offset: Number} objects
 		ranges: '=spectrumRanges'
@@ -67,7 +67,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				updateProps()
 				# new data.left position for zooming towards data.current
 				scope.data.left = Math.round scope.data.left +
-					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)			
+					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)
 
 		# update and redraw if the input data changes
 		updateData = (data) ->
@@ -116,8 +116,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			current: 0
 			# x-axiy value of the currently hovered position
 			label: '-'
-			# map of y-axis values of the currently hovered position
-			values: {}
+			# array of y-axis values of the currently hovered position
+			values: []
 			# number of channels of the dataset
 			length: 0
 			# the offset of the displayed data (left border of the element)
@@ -133,7 +133,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 				Math.max 0, Math.min $scope.spectrum.length * $scope.zoom.factor - $scope.props.width, x
 			get: -> @_left
 
-		$scope.scroll = 
+		$scope.scroll =
 			# style of the div that makes the spectrum viewer scrollable
 			style: width: "0px"
 			# start point for manually scrolling by 'grabbing' the viewer
@@ -177,10 +177,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			# start selecting a range
 			if $scope.data.activeRange < 0 and e.shiftKey
 				$scope.data.activeRange = $scope.ranges.length
-				if posX < $scope.props.width then $scope.ranges.push
-					start: Math.round ($scope.data.left + posX) / $scope.zoom.factor
-					offset: 1
-					active: yes
+				if posX < $scope.props.width
+					$scope.ranges.push new Range Math.round ($scope.data.left + posX) / $scope.zoom.factor
 			# start manual scrolling
 			else if not e.shiftKey
 				$scope.scroll.start = posX
@@ -217,13 +215,12 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			current = Math.round ($scope.data.left + current) / $scope.zoom.factor
 			if current >= $scope.spectrum.length then return
 			$scope.data.label = "#{$scope.spectrum.labels[current]}"
-			for id, layer of $scope.spectrum.layers
-				$scope.data.values[id] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
+			for layer, index in $scope.spectrum.layers
+				$scope.data.values[index] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
 
 		# update the number of currently displayed layers
 		$scope.$watchCollection 'spectrum.layers', (layers) ->
-			$scope.data.layers = 0
-			$scope.data.layers++ for layer of layers
+			$scope.data.layers = layers.length
 
 		$scope.$on 'spectrumViewer.focusRange', (e, index) ->
 			range = $scope.ranges[index]
@@ -231,4 +228,3 @@ angular.module('quimbi').directive 'spectrumViewer', ($window) ->
 			$scope.data.left = Math.round ((2 * range.start + range.offset) * $scope.zoom.factor - $scope.props.width) / 2
 
 		return
-		

@@ -1,0 +1,10 @@
+<li class="range-list__item" data-ng-class="class()" data-ng-style="style()" data-ng-click="toggleRange()">
+	<span class="item__controls">
+		<i class="icon-pencil" data-ng-if="inMeanMode()" data-ng-click="chooseGroup($event)" data-tooltip="Choose a group."></i>
+		<i class="icon-remove" data-ng-click="removeRange($event)" data-tooltip="Remove this range."></i>
+	</span>
+	<form class="item__group-chooser" data-ng-class="{show: data.choosingGroup}">
+		<input type="button" class="pure-button" style="background-color:{{data.groupColors[group]}};height:{{100/data.groups.length}}%;" data-ng-repeat="group in data.groups" data-ng-click="setGroup($event, group)"/>
+	</form>
+	{{data.label}}
+</li>
