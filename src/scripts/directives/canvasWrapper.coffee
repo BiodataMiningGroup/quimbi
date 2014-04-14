@@ -87,19 +87,14 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 		# don't fit bounds if map state/viewport is already manually changed
 		map.self.fitBounds maxBounds, animate: off unless map.dirty()
 
-		applyLeafletPosition = (e, position) ->
-			position.lat = e.latlng.lat
-			position.lng = e.latlng.lng
-			position.x = (e.latlng.lng - maxBounds.getWest()) /
-				(maxBounds.getEast() - maxBounds.getWest())
-			position.y = (e.latlng.lat - maxBounds.getNorth()) /
-				(maxBounds.getSouth() - maxBounds.getNorth())
-			position
-
 		map.self.on 'mousemove', (e) ->
 			if maxBounds.contains e.latlng then scope.$apply ->
-				applyLeafletPosition e, mouse.position
-
+				mouse.position.lat = e.latlng.lat
+				mouse.position.lng = e.latlng.lng
+				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) /
+					(maxBounds.getEast() - maxBounds.getWest())
+				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) /
+					(maxBounds.getSouth() - maxBounds.getNorth())
 
 		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
 			scope.$apply ->
@@ -175,7 +170,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 			for region, i in regionList
 				layer = region.getLayer()
 				$scope.drawnItems.addLayer layer
-				leafletMarkers.push layer
+				leafletRegions.push layer
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
 
