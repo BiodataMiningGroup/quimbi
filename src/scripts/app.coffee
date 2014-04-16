@@ -8,7 +8,7 @@ angular.module 'quimbi', [
 	]
 
 angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) ->
-	# configure ui.bootstrap tooltips'
+	# configure ui.bootstrap tooltips
 	$tooltipProvider.options
 		placement: 'right'
 		animation: no

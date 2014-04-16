@@ -1,5 +1,5 @@
 # manages all existing markers and provides functions to manipulate them
-angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, settings, shader) ->
+angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, regions, settings, shader) ->
 
 	channelMask = new Uint8Array input.getChannelTextureDimension() *
 		input.getChannelTextureDimension() * 4
@@ -93,6 +93,9 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, set
 		when 'mean' then updateMeanChannelMask()
 		else updateDistancesChannelMask()
 
-	@updateRegionMask = -> 'TODO'
+	@updateRegionMask = =>
+		shader.updateRegionMask regions.getRegionMask()
+		# re-renders the image
+		@updateChannelMask()
 	
 	return
