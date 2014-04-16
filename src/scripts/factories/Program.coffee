@@ -194,9 +194,8 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 	# handles multiple selections with own framebuffer texture
 	RGBSelection: ->
-		colorMask = null
-
-		@colorMask = [0, 0, 0]
+		_colorMask = [0, 0, 0]
+		_colorMaskLocation = null
 
 		@id = 'rgb-selection'
 
@@ -221,7 +220,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 1
 
-			colorMask = gl.getUniformLocation program, 'u_color_mask'
+			_colorMaskLocation = gl.getUniformLocation program, 'u_color_mask'
 			return
 
 		@callback = (gl, program, assets, helpers) =>
@@ -230,43 +229,16 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
-			gl.uniform3f colorMask, @colorMask[0], @colorMask[1], @colorMask[2]
+			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
-		return
 
-	# determines the final display from the rgb texture
-	PseudocolorDisplay: ->
-		colorMask = null
+		@updateColorMask = (mask) ->
+			_colorMask[0] = mask[0]
+			_colorMask[1] = mask[1]
+			_colorMask[2] = mask[2]
 
-		@colorMask = [0, 0, 0]
-
-		@id = 'pseudocolor-display'
-
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
-
-		@fragmentShaderUrl = 'shader/pseudocolor-display.fs.glsl'
-
-		@constructor = (gl, program, assets, helpers) ->
-			helpers.useInternalVertexPositions program
-
-			helpers.useInternalTexturePositions program
-
-			rgb = gl.getUniformLocation program, 'u_rgb'
-			gl.uniform1i rgb, 0
-
-			colorMask = gl.getUniformLocation program, 'u_color_mask'
-			return
-
-		@callback = (gl, program, assets, helpers) =>
-			gl.activeTexture gl.TEXTURE0
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
-
-			gl.uniform3f colorMask, @colorMask[0], @colorMask[1], @colorMask[2]
-
-			gl.bindFramebuffer gl.FRAMEBUFFER, null
-			return
 		return
 
 	# applies a color map to the R channel of the rgb texture
@@ -274,12 +246,11 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		_colorMapTextureR = null
 		_colorMapTextureG = null
 		_colorMapTextureB = null
-		_colorMask = null
+		_colorMask = [0, 0, 0]
+		_colorMaskLocation = null
 		_gl = null
 
 		@id = 'color-map-display'
-
-		@colorMask = [0, 0, 0]
 
 		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
 
@@ -304,7 +275,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_g'), 2
 			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_b'), 3
 
-			_colorMask = gl.getUniformLocation program, 'u_color_mask'
+			_colorMaskLocation = gl.getUniformLocation program, 'u_color_mask'
 			return
 
 		@callback = (gl, program, assets, helpers) =>
@@ -316,13 +287,16 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureG
 			gl.activeTexture gl.TEXTURE3
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureB
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, settings.colorMap
+
+			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 
 		@updateColorMask = (mask) ->
-			_gl.uniform3f _colorMask, mask[0], mask[1], mask[2]
+			_colorMask[0] = mask[0]
+			_colorMask[1] = mask[1]
+			_colorMask[2] = mask[2]
 
 		@updateColorMaps = (maps) ->
 			_gl.activeTexture _gl.TEXTURE0

@@ -1,5 +1,5 @@
 # manages all existing markers and provides functions to manipulate them
-angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, regions, settings, shader) ->
+angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, regions, settings, shader, colorMap) ->
 
 	channelMask = new Uint8Array input.getChannelTextureDimension() *
 		input.getChannelTextureDimension() * 4
@@ -74,17 +74,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			shader.setActiveColorMask activeColorMask
 			glmvilib.render.apply glmvilib, shader.getActive()
 
-	updateColorMaps = ->
-		maps = []
-		for marker in markers.getList()
-			maps[marker.getColorMaskIndex()] = marker.getColorMap()
-		shader.updateColorMaps maps
-
-	@update = =>
-		#TODO
-		updateColorMaps()
-		if settings.displayMode is 'mean'
-			@updateChannelMask()
+	@update = => switch settings.displayMode
+		when 'mean' then @updateChannelMask()
 		else
 			shader.setPassiveColorMask updatePassiveColorMask()
 			if markers.hasActive()
@@ -104,5 +95,11 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		shader.updateRegionMask regions.getRegionMask()
 		# re-renders the image
 		@updateChannelMask()
+
+	@updateColorMaps = ->
+		maps = []
+		for map, index in settings.colorMaps
+			maps[index] = colorMap.get map
+		shader.updateColorMaps maps
 	
 	return

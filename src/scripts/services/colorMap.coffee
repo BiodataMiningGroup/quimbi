@@ -1,5 +1,5 @@
 # service loading, caching and providing color maps
-angular.module('quimbi').service 'colorMap', ($http, $q) ->
+angular.module('quimbi').service 'colorMap', ($http, $q, msg) ->
 
 	cache = {}
 
@@ -9,17 +9,13 @@ angular.module('quimbi').service 'colorMap', ($http, $q) ->
 		colors = rawInput.split "\n"
 
 		unless colors.length = 256
-			throw
-				name: 'InvalidFormatException'
-				message: "Invalid input format. CSV doesn't contain 256 color values."
+			msg.warning "Invalid input format. CSV doesn't contain 256 color values."
 
 		colors = colors.map (value) -> value.split ","
 
 		for color, i in colors
 			unless color.length is 3
-				throw
-					name: 'InvalidFormatException'
-					message: "Invalid input format. Color doesn't have 3 values at line #{i+1}."
+				msg.warning "Invalid input format. Color doesn't have 3 values at line #{i+1}."
 
 		for color in colors
 			output.push parseInt color[0]
@@ -28,19 +24,23 @@ angular.module('quimbi').service 'colorMap', ($http, $q) ->
 
 		new Uint8Array output
 
-	load = (colorMapName) -> $http.get "color-maps/#{colorMapName}.csv"
+	load = (colorMapName) ->
+		promise = $http.get "color-maps/#{colorMapName}.csv"
+		promise.success (data, status) ->
+			cache[colorMapName] = parse data
+		promise.error (data, status) ->
+			msg.error "Color map '#{colorMapName}' couldn't be loaded! Status code #{status}"
 
-	@get = (colorMapName) ->
-		deferred = $q.defer()
-		if colorMapName of cache
-			deferred.resolve cache[colorMapName]
-		else
-			deferred.resolve load(colorMapName).then (data, status) ->
-				cache[colorMapName] = parse data.data
-		deferred.promise
+	@get = (colorMapName) -> cache[colorMapName]
 
+	# adds a color map of a specific name to the cache
 	@add = (colorMapName, colorMap) ->
 		if colorMap instanceof Uint8Array and colorMap.length is 768
 			cache[colorMapName] = colorMap
+
+	# adds the color maps with the given names to the cache
+	@cache = (colorMapNames) ->
+		for colorMapName in colorMapNames when colorMapName not of cache
+			load colorMapName
 
 	return

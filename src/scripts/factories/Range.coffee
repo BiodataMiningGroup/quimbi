@@ -5,6 +5,7 @@ angular.module('quimbi').factory 'Range', (settings) ->
 
 		@groups: [0, 1, 2]
 
+		# colors in which the ranges are displayed. NOT the color maps
 		@groupColors: ['red', 'lime', 'blue']
 
 		constructor: (@start) ->

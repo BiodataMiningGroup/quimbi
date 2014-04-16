@@ -1,5 +1,8 @@
 # controller for the display route
 angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges) ->
+
+	renderer.updateColorMaps()
+
 	$scope.settings = settings
 
 	$scope.spectrum =

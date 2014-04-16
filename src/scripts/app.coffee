@@ -51,10 +51,13 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) 
 
 	return
 
-angular.module('quimbi').run (state, tourConfig) ->
+angular.module('quimbi').run (state, tourConfig, colorMap, settings) ->
 	# make sure the state service is always present and has the locations under
 	# control. prevents such things as immediately loading this application
 	# at #/display
 	state.to 'init'
 
 	tourConfig.animation = no
+
+	# load and cache the default color maps before they are needed
+	colorMap.cache settings.colorMaps

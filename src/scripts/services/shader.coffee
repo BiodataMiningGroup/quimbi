@@ -8,9 +8,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	renderChannel = new Program.RenderChannel()
 	# shader to update the rgb texture for multiple selections
 	rgbSelection = new Program.RGBSelection()
-	# shader to produce the final image from the rgb texture
-	pseudocolorDisplay = new Program.PseudocolorDisplay()
-	# shader to apply a color map to the R channel of the rgb texture
+	# shader to apply a color maps to the rgb texture
 	colorMapDisplay = new Program.ColorMapDisplay()
 	# shader to retrieve the mass intensities of a selected position
 	selectionInfo = new Program.SelectionInfo()
@@ -23,7 +21,6 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		glmvilib.addProgram angleDist
 		glmvilib.addProgram renderChannel
 		glmvilib.addProgram rgbSelection
-		glmvilib.addProgram pseudocolorDisplay
 		glmvilib.addProgram colorMapDisplay
 		glmvilib.addProgram selectionInfo
 		return
@@ -46,7 +43,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	# sets the color mask for updating the rgb texture
 	@setActiveColorMask = (mask) ->
 		if mask instanceof Array and mask.length is 3
-			rgbSelection.colorMask = mask
+			rgbSelection.updateColorMask mask
 
 	# sets the color mask for reading out the rgb texture
 	@setPassiveColorMask = (mask) ->
@@ -64,10 +61,5 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		renderChannel.updateRegionMask mask
 
 	@updateColorMaps = colorMapDisplay.updateColorMaps
-
-	# sets the final shader for rendering to the canvas
-	@setFinal = (id) ->
-		if id is pseudocolorDisplay.id or id is colorMapDisplay.id
-			finalShaderID = id
-
+	
 	return
