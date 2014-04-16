@@ -271,36 +271,68 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 	# applies a color map to the R channel of the rgb texture
 	ColorMapDisplay: ->
+		_colorMapTextureR = null
+		_colorMapTextureG = null
+		_colorMapTextureB = null
+		_colorMask = null
+		_gl = null
+
 		@id = 'color-map-display'
+
+		@colorMask = [0, 0, 0]
 
 		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
 
 		@fragmentShaderUrl = 'shader/color-map-display.fs.glsl'
 
 		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
 			helpers.useInternalVertexPositions program
 			helpers.useInternalTexturePositions program
 
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 0
 
-			texture = helpers.newTexture 'colorMapTexture'
+			_colorMapTextureR = helpers.newTexture 'colorMapTextureR'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+			_colorMapTextureG = helpers.newTexture 'colorMapTextureG'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+			_colorMapTextureB = helpers.newTexture 'colorMapTextureB'
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
 
-			colorMap = gl.getUniformLocation program, 'u_color_map'
-			gl.uniform1i colorMap, 1
+			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_r'), 1
+			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_g'), 2
+			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_b'), 3
 
+			_colorMask = gl.getUniformLocation program, 'u_color_mask'
 			return
 
 		@callback = (gl, program, assets, helpers) =>
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 			gl.activeTexture gl.TEXTURE1
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
+			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureR
+			gl.activeTexture gl.TEXTURE2
+			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureG
+			gl.activeTexture gl.TEXTURE3
+			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureB
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, settings.colorMap
 
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
+
+		@updateColorMask = (mask) ->
+			_gl.uniform3f _colorMask, mask[0], mask[1], mask[2]
+
+		@updateColorMaps = (maps) ->
+			_gl.activeTexture _gl.TEXTURE0
+			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureR
+			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[0]
+			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureG
+			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[1]
+			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureB
+			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[2]
+
 		return
 
 	# retrieves information about the selected position

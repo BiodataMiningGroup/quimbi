@@ -15,7 +15,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	# shader to retrieve the mass intensities of a selected position
 	selectionInfo = new Program.SelectionInfo()
 
-	finalShaderID = pseudocolorDisplay.id
+	finalShaderID = colorMapDisplay.id
 
 	# creates all shader programs and adds them to glmvilib
 	@createPrograms = ->
@@ -51,7 +51,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	# sets the color mask for reading out the rgb texture
 	@setPassiveColorMask = (mask) ->
 		if mask instanceof Array and mask.length is 3
-			pseudocolorDisplay.colorMask = mask
+			colorMapDisplay.updateColorMask mask
 
 	@updateChannelMask = (mask, activeChannels) ->
 		angleDist.updateChannelMask mask, activeChannels
@@ -62,6 +62,8 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		angleDist.updateRegionMask mask
 		euclDist.updateRegionMask mask
 		renderChannel.updateRegionMask mask
+
+	@updateColorMaps = colorMapDisplay.updateColorMaps
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

@@ -1,5 +1,5 @@
 # creates a new Marker object
-angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
+angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, colorMap) ->
 
 	class Marker
 
@@ -11,18 +11,20 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 		@colors: ['red', 'lime', 'blue']
 
 		# TODO pre-load an cache all possible color maps
-		@colorMaps: ['fire', 'unionjack', 'phase']
+		@colorMaps: ['red', 'green', 'blue']#['fire', 'unionjack', 'phase']
 		
 		constructor: (@_type) ->
 
 			if @_type is 'mean'
 				@_color = 'white'
 				# TODO
-				@_colorMap = []
+				colorMap.get('fire').then (map) =>
+					@_colorMap = map
 			else
 				@_colorMaskIndex = Marker.colorMaskIndices.shift()
 				@_color = Marker.colors[@_colorMaskIndex]
-				@_colorMap = Marker.colorMaps[@_colorMaskIndex]
+				colorMap.get(Marker.colorMaps[@_colorMaskIndex]).then (map) =>
+					@_colorMap = map
 
 			@_textureDimension = input.getChannelTextureDimension()
 
@@ -76,7 +78,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 		getColor: -> @_color
 
-		getColorMap: -> 'TODO'
+		getColorMap: -> @_colorMap
 
 		getColorMaskIndex: -> @_colorMaskIndex
 
