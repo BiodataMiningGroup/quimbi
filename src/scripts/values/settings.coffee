@@ -15,6 +15,10 @@ angular.module('quimbi').value 'settings',
 	# currently used color maps (for the markers and ranges)
 	colorMaps: ['red', 'green', 'blue']
 
+	# single colors representing the colorMaps above. markers and regions are
+	# displayed in this colors
+	colorMapSingleColors: ['red', 'lime', 'blue']
+
 	# current steps of the intro-tour
 	tourStep:
 		init: 0

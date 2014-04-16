@@ -34,9 +34,7 @@ angular.module('quimbi').service 'colorMap', ($http, $q, msg) ->
 	@get = (colorMapName) -> cache[colorMapName]
 
 	# adds a color map of a specific name to the cache
-	@add = (colorMapName, colorMap) ->
-		if colorMap instanceof Uint8Array and colorMap.length is 768
-			cache[colorMapName] = colorMap
+	@add = (colorMapName, colorMap) -> cache[colorMapName] = parse colorMap
 
 	# adds the color maps with the given names to the cache
 	@cache = (colorMapNames) ->

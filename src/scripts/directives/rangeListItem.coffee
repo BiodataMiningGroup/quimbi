@@ -16,7 +16,7 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings, Range, ran
 			label: ''
 			choosingGroup: no
 			groups: Range.groups
-			groupColors: Range.groupColors
+			groupColors: settings.colorMapSingleColors
 
 		$scope.inMeanMode = -> settings.displayMode is 'mean'
 

@@ -5,9 +5,6 @@ angular.module('quimbi').factory 'Range', (settings) ->
 
 		@groups: [0, 1, 2]
 
-		# colors in which the ranges are displayed. NOT the color maps
-		@groupColors: ['red', 'lime', 'blue']
-
 		constructor: (@start) ->
 
 			@offset = 0
@@ -25,11 +22,11 @@ angular.module('quimbi').factory 'Range', (settings) ->
 				left: "#{@start - 0.5}px"
 				width: "#{@offset}px"
 			if @active and settings.displayMode is 'mean'
-				output['border-bottom-color'] = Range.groupColors[@_group]
+				output['border-bottom-color'] = settings.colorMapSingleColors[@_group]
 			output
 
 		setGroup: (group) ->	@_group = group if group in Range.groups
 
 		getGroup: -> @_group
 
-		groupColor: -> Range.groupColors[@_group]
+		groupColor: -> settings.colorMapSingleColors[@_group]

@@ -1,5 +1,5 @@
 # creates a new Marker object
-angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
+angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, settings) ->
 
 	class Marker
 
@@ -8,16 +8,13 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 		# that must be set to 1
 		@colorMaskIndices: [0, 1, 2]
 
-		# colors in which the markers are displayed. NOT the color maps
-		@colors: ['red', 'lime', 'blue']
-
 		constructor: (@_type) ->
 
 			if @_type is 'mean'
 				@_color = 'white'
 			else
 				@_colorMaskIndex = Marker.colorMaskIndices.shift()
-				@_color = Marker.colors[@_colorMaskIndex]
+				@_color = settings.colorMapSingleColors[@_colorMaskIndex]
 
 			@_textureDimension = input.getChannelTextureDimension()
 
