@@ -107,17 +107,14 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 
 		map.self.on 'draw:created', (e) -> scope.$apply ->
 			regions.add e.layer, maxBounds
-			renderer.updateRegionMask()
 
 		map.self.on 'draw:deleted', (e) -> scope.$apply ->
 			regions.remove stamp for stamp, layer of e.layers._layers
-			renderer.updateRegionMask()
 
 		map.self.on 'draw:edited', (e) -> scope.$apply ->
 			for stamp, layer of e.layers._layers
 				regions.remove stamp
 				regions.add layer, maxBounds
-			renderer.updateRegionMask()
 
 		map.self.on 'draw:drawstart draw:editstart draw:deletestart', (e) ->
 			scope.$apply regions.setActive
@@ -171,6 +168,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 				layer = region.getLayer()
 				$scope.drawnItems.addLayer layer
 				leafletRegions.push layer
+			renderer.updateRegionMask()
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
 

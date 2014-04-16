@@ -58,7 +58,10 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		euclDist.updateChannelMask mask, activeChannels
 		renderChannel.updateChannelMask mask, activeChannels
 
-	@updateRegionMask = (mask) -> 'TODO'
+	@updateRegionMask = (mask) ->
+		angleDist.updateRegionMask mask
+		euclDist.updateRegionMask mask
+		renderChannel.updateRegionMask mask
 
 	# sets the final shader for rendering to the canvas
 	@setFinal = (id) ->

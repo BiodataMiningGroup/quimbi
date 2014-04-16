@@ -10,6 +10,8 @@ uniform float u_inv_channel_mask_dimension;
 
 uniform sampler2D u_channel_mask;
 
+uniform sampler2D u_region_mask;
+
 const int LAST_CHANNELS = <%=CHANNELS_LAST_TILE=%>;
 const int TILES_MINUS_ONE = <%=TILES=%> - 1;
 const vec4 ONES = vec4(1);
@@ -17,6 +19,12 @@ const vec4 ONES = vec4(1);
 <%=TEXTURE_3D=%>
 
 void main() {
+	// if masked by the region mask, din't do anything
+	if (texture2D(u_region_mask, v_texture_position).a == 0.0) {
+		gl_FragColor = vec4(0);
+		return;
+	}
+	
 	// Euclidean distance/L2-norm
 	float color = 0.0;
 

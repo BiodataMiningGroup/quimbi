@@ -93,7 +93,9 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		when 'mean' then updateMeanChannelMask()
 		else updateDistancesChannelMask()
 
-	@updateRegionMask = ->
+	@updateRegionMask = =>
 		shader.updateRegionMask regions.getRegionMask()
+		# re-renders the image
+		@updateChannelMask()
 	
 	return

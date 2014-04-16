@@ -11,9 +11,15 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 	regionMask.width = input.width
 	regionMask.height = input.height
 
+	$document[0].body.appendChild regionMask
+
 	regionMaskCtx = regionMask.getContext '2d'
 	# mask regions with rgba(0,0,0,1), the shader uses only the alpha channel to check for masking
 	regionMaskCtx.fillStyle = 'rgba(0, 0, 0, 1)'
+
+	# initialize mask as all selected
+	regionMaskCtx.rect 0, 0, regionMask.width, regionMask.height
+	regionMaskCtx.fill()
 
 	# ray-casting algorithm based on http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 	# copied from https://github.com/substack/point-in-polygon/blob/master/index.js
@@ -70,7 +76,10 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 	refreshRegionMask = ->
 		regionMaskCtx.clearRect 0, 0, regionMask.width, regionMask.height
 
-		for region in list
+		if list.length is 0
+			regionMaskCtx.rect 0, 0, regionMask.width, regionMask.height
+			regionMaskCtx.fill()
+		else for region in list
 			positions = region.getPixelCoords()
 			regionMaskCtx.beginPath()
 			regionMaskCtx.moveTo positions[0].x, positions[0].y

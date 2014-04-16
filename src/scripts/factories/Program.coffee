@@ -21,6 +21,16 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 				input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		channelMaskTexture
 
+	setUpRegionMask = (gl, program, assets, helpers) ->
+		regionMaskTexture = null
+		gl.uniform1i gl.getUniformLocation(program, 'u_region_mask'), 1
+		# check if texture already exists
+		unless regionMaskTexture = assets.textures.regionMaskTexture
+			regionMaskTexture = helpers.newTexture 'regionMaskTexture'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.width,
+				input.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+		regionMaskTexture
+
 	updateChannelMask = (gl, mask, texture) ->
 		gl.activeTexture gl.TEXTURE0
 		gl.bindTexture gl.TEXTURE_2D, texture
@@ -28,13 +38,19 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.getChannelTextureDimension(),
 				input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, mask
 
+	updateRegionMask = (gl, mask, texture) ->
+		gl.activeTexture gl.TEXTURE1
+		gl.bindTexture gl.TEXTURE_2D, texture
+		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, yes
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask
 
 	# euclidean distance
 	EuclDist: ->
 		_gl = null
 		_mousePosition = null
-		# pointer to texture object
+		# pointers to texture objects
 		_channelMaskTexture = null
+		_regionMaskTexture = null
 
 		@id = 'eucl-dist'
 
@@ -56,6 +72,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			setUpDistanceTexture gl, assets, helpers
 
 			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
+			_regionMaskTexture = setUpRegionMask gl, program, assets, helpers
 			return
 
 		@callback = (gl, program, assets, helpers) ->
@@ -63,19 +80,25 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
+			gl.activeTexture gl.TEXTURE1
+			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
 		@updateChannelMask = (mask) ->
 			updateChannelMask _gl, mask, _channelMaskTexture
+
+		@updateRegionMask = (mask) ->
+			updateRegionMask _gl, mask, _regionMaskTexture
 		return
 
 	# angle distance
 	AngleDist: ->
 		_gl = null
 		_mousePosition = null
-		# pointer to texture object
+		# pointers to texture objects
 		_channelMaskTexture = null
+		_regionMaskTexture = null
 
 		@id = 'angle-dist'
 
@@ -97,6 +120,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			setUpDistanceTexture gl, assets, helpers
 
 			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
+			_regionMaskTexture = setUpRegionMask gl, program, assets, helpers
 			return
 
 		@callback = (gl, program, assets, helpers) ->
@@ -104,19 +128,25 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
+			gl.activeTexture gl.TEXTURE1
+			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
 		@updateChannelMask = (mask) ->
 			updateChannelMask _gl, mask, _channelMaskTexture
 
+		@updateRegionMask = (mask) ->
+			updateRegionMask _gl, mask, _regionMaskTexture
+
 		return
 
 	# render a single channel
 	RenderChannel: ->
 		_gl = null
-		# pointer to texture object
+		# pointers to texture objects
 		_channelMaskTexture = null
+		_regionMaskTexture = null
 		# pointer to the uniform
 		_invActiveChannels = null
 		# number of active channels of the current channel mask
@@ -139,7 +169,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			setUpDistanceTexture gl, assets, helpers
 
 			_channelMaskTexture = setUpChannelMask gl, program, assets, helpers
-
+			_regionMaskTexture = setUpRegionMask gl, program, assets, helpers
 			return
 
 		@callback = (gl, program, assets, helpers) ->
@@ -147,12 +177,17 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
+			gl.activeTexture gl.TEXTURE1
+			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
 		@updateChannelMask = (mask, activeChannels) ->
 			_activeChannels = activeChannels
 			updateChannelMask _gl, mask, _channelMaskTexture
+
+		@updateRegionMask = (mask) ->
+			updateRegionMask _gl, mask, _regionMaskTexture
 
 		return
 
