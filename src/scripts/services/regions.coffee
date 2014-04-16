@@ -11,8 +11,6 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 	regionMask.width = input.width
 	regionMask.height = input.height
 
-	$document[0].body.appendChild regionMask
-
 	regionMaskCtx = regionMask.getContext '2d'
 	# mask regions with rgba(0,0,0,1), the shader uses only the alpha channel to check for masking
 	regionMaskCtx.fillStyle = 'rgba(0, 0, 0, 1)'
