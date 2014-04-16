@@ -38,7 +38,7 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 			settings.colorMaps[index] = name
 			updateColorMapPreview()
 		catch e
-			$scope.$emit 'message::error', e.message
+			$scope.$emit 'message::error', "Error while reading color map '#{name}'. #{e.message}"
 
 	$scope.$watch 'settings.distMethod', updateDistMethod
 	$scope.$watch 'data.colorMapFileR', (colorMapFile) ->

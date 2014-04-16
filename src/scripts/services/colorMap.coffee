@@ -9,13 +9,13 @@ angular.module('quimbi').service 'colorMap', ($http, $q, msg) ->
 		colors = rawInput.split "\n"
 
 		unless colors.length = 256
-			msg.warning "Invalid input format. CSV doesn't contain 256 color values."
+			throw new Error "Invalid input format. CSV doesn't contain 256 color values."
 
 		colors = colors.map (value) -> value.split ","
 
 		for color, i in colors
 			unless color.length is 3
-				msg.warning "Invalid input format. Color doesn't have 3 values at line #{i+1}."
+				throw new Error "Invalid input format. Color doesn't have 3 values at line #{i+1}."
 
 		for color in colors
 			output.push parseInt color[0]
@@ -27,7 +27,10 @@ angular.module('quimbi').service 'colorMap', ($http, $q, msg) ->
 	load = (colorMapName) ->
 		promise = $http.get "color-maps/#{colorMapName}.csv"
 		promise.success (data, status) ->
-			cache[colorMapName] = parse data
+			try
+				cache[colorMapName] = parse data
+			catch e
+				msg.error "Error while reading color map '#{colorMapName}'. #{e.message}"
 		promise.error (data, status) ->
 			msg.error "Color map '#{colorMapName}' couldn't be loaded! Status code #{status}"
 
