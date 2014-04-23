@@ -24,7 +24,7 @@ angular.module('quimbi').service 'ranges', ->
 
 	@currentGroups = =>
 		output = []
-		for range in @list
+		for range in @list when range.active
 			group = range.getGroup()
 			output.push group unless group in output
 		output
