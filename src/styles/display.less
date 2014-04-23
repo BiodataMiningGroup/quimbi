@@ -181,6 +181,26 @@
 	}
 }
 
+.color-scale {
+	display: none;
+	position: absolute;
+	top: @pad;
+	right: @pad;
+	background-color: @dark-gray;
+	padding: @pad;
+	width: 150px;
+	height: 150px;
+	border-radius: @radius;
+
+	&.color-scale--1d, &.color-scale--2d, &.color-scale--3d, {
+		display: block;
+	}
+
+	canvas {
+		display: block;
+	}
+}
+
 .canvas-wrapper {
 	position: relative;
 	height: 100%;
