@@ -25,7 +25,7 @@
 	<div class="display-view__content" data-tourtip="This is the main view of QUIMBI where the distances image and spectrum is displayed. But to see anything, you have to make a selection with one of the selection tools first." data-tourtip-step="0" data-tourtip-placement="left" data-tourtip-offset="-400">
 		<div class="display-view__top" data-tourtip="Now you can see the distances image where each point is highlighted according to it's distance to the current selection. You can zoom and pan the image to explore your data." data-tourtip-step="2" data-tourtip-placement="bottom" data-tourtip-offset="-50">
 			<div class="canvas-wrapper" data-canvas-wrapper=""></div>
-			<div class="color-scale" data-color-scale="" data-ng-class="colorScaleClass()"></div>
+			<div class="color-scale" data-color-scale="" data-ng-if="settings.showColorScale" data-ng-class="colorScaleClass()"></div>
 		</div>
 		<div class="display-view__bottom">
 			<div data-tourtip="The mass spectrum of the current selection is displayed as well. You can zoom and pan similar to the distances image." data-tourtip-step="3" data-tourtip-placement="top"></div>

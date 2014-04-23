@@ -109,10 +109,10 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, settings, color
 		$scope.vertexCoordinates1D =
 			$scope.vertexCoordinates2D = new Float32Array [
 				-1, -1
-				 1, -1
 				-1,  1
 				 1, -1
 				-1,  1
+				 1, -1
 				 1,  1
 			]
 

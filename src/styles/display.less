@@ -187,17 +187,24 @@
 	top: @pad;
 	right: @pad;
 	background-color: @dark-gray;
-	padding: @pad;
-	width: 150px;
-	height: 150px;
+	padding: 2px;
+	width: 256px;
+	height: 256px;
 	border-radius: @radius;
 
 	&.color-scale--1d, &.color-scale--2d, &.color-scale--3d, {
 		display: block;
 	}
 
+	&.color-scale--1d {
+		width: 30px;
+	}
+
 	canvas {
 		display: block;
+		background-color: black;
+		width: 100%;
+		height: 100%;
 	}
 }
 

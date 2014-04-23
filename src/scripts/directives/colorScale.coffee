@@ -3,7 +3,7 @@ angular.module('quimbi').directive 'colorScale', (markers) ->
 	
 	restrict: 'A'
 
-	template: '<canvas width="150" height="150" data-color-scale-canvas=""></canvas>'
+	template: '<canvas width="256" height="256" data-color-scale-canvas=""></canvas>'
 
 	controller: ($scope) ->
 
