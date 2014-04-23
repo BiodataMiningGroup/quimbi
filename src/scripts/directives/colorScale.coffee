@@ -1,5 +1,5 @@
 # directive to read a local text file
-angular.module('quimbi').directive 'colorScale', (markers) ->
+angular.module('quimbi').directive 'colorScale', (markers, ranges, settings) ->
 	
 	restrict: 'A'
 
@@ -7,8 +7,20 @@ angular.module('quimbi').directive 'colorScale', (markers) ->
 
 	controller: ($scope) ->
 
-		$scope.colorScaleClass = -> switch markers.getList().length
+		distancesColorScaleClass = -> switch markers.getList().length
 			when 1 then 'color-scale--1d': yes
 			when 2 then 'color-scale--2d': yes
 			when 3 then 'color-scale--3d': yes
 			else {}
+
+		meanColorScaleClass = -> switch ranges.currentGroups().length
+			when 1 then 'color-scale--1d': yes
+			when 2 then 'color-scale--2d': yes
+			when 3 then 'color-scale--3d': yes
+			else {}
+
+		updateClassFunction = (displayMode) -> switch displayMode
+			when 'mean' then $scope.colorScaleClass = meanColorScaleClass
+			else $scope.colorScaleClass = distancesColorScaleClass
+
+		$scope.$watch (-> settings.displayMode), updateClassFunction

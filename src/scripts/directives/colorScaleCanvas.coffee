@@ -1,5 +1,5 @@
 # directive to read a local text file
-angular.module('quimbi').directive 'colorScaleCanvas', (markers, settings, colorMap) ->
+angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, settings, colorMap) ->
 	
 	restrict: 'A'
 
@@ -40,12 +40,22 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, settings, color
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,
 				gl.UNSIGNED_BYTE, colorMap.get map
 
-		updateScale = (markerCount) -> switch markerCount
-			when 1 then scope.render1D gl, vertexCoordinateBuffer, vertexColorBuffer
-			when 2 then scope.render2D gl, vertexCoordinateBuffer, vertexColorBuffer
-			when 3 then scope.render3D gl, vertexCoordinateBuffer, vertexColorBuffer
+		updateScale = (list) -> switch list.length
+			when 1 then scope.render1D gl, vertexCoordinateBuffer, vertexColorBuffer, list
+			when 2 then scope.render2D gl, vertexCoordinateBuffer, vertexColorBuffer, list
+			when 3 then scope.render3D gl, vertexCoordinateBuffer, vertexColorBuffer, list
 
-		scope.$watch (-> markers.getList().length), updateScale
+		cancelWatch = angular.noop
+
+		updateColorMapCountWatcher = (displayMode) ->
+			cancelWatch()
+			switch displayMode
+				when 'mean'
+					cancelWatch = scope.$watchCollection (-> ranges.currentGroups()), updateScale
+				else
+					cancelWatch = scope.$watchCollection (-> markers.getList()), updateScale
+
+		scope.$watch (-> settings.displayMode), updateColorMapCountWatcher
 
 		return
 
@@ -83,40 +93,39 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, settings, color
 			gl.texParameteri gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST
 			texture
 
-		$scope.render1D = (gl, coordinateBuffer, colorBuffer) ->
+		$scope.render1D = (gl, coordinateBuffer, colorBuffer, list) ->
 			gl.bindBuffer gl.ARRAY_BUFFER, coordinateBuffer
-			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexCoordinates1D, gl.STATIC_DRAW
+			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexCoordinatesQuad, gl.STATIC_DRAW
 			gl.bindBuffer gl.ARRAY_BUFFER, colorBuffer
-			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors1D(), gl.STATIC_DRAW
+			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors1D(list), gl.STATIC_DRAW
 			gl.drawArrays gl.TRIANGLES, 0, 6
 
-		$scope.render2D = (gl, coordinateBuffer, colorBuffer) ->
+		$scope.render2D = (gl, coordinateBuffer, colorBuffer, list) ->
 			gl.bindBuffer gl.ARRAY_BUFFER, coordinateBuffer
-			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexCoordinates2D, gl.STATIC_DRAW
+			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexCoordinatesQuad, gl.STATIC_DRAW
 			gl.bindBuffer gl.ARRAY_BUFFER, colorBuffer
-			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors2D(), gl.STATIC_DRAW
+			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors2D(list), gl.STATIC_DRAW
 			gl.drawArrays gl.TRIANGLES, 0, 6
 
-		$scope.render3D = (gl, coordinateBuffer, colorBuffer) ->
+		$scope.render3D = (gl, coordinateBuffer, colorBuffer, list) ->
 			gl.bindBuffer gl.ARRAY_BUFFER, coordinateBuffer
-			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexCoordinates3D, gl.STATIC_DRAW
+			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexCoordinatesTriangle, gl.STATIC_DRAW
 			gl.bindBuffer gl.ARRAY_BUFFER, colorBuffer
-			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors3D(), gl.STATIC_DRAW
+			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors3D(list), gl.STATIC_DRAW
 			gl.drawArrays gl.TRIANGLES, 0, 3
 
 		clearArray = (array) ->	array[i] = 0 for i in [0...array.length]
 
-		$scope.vertexCoordinates1D =
-			$scope.vertexCoordinates2D = new Float32Array [
-				-1, -1
-				-1,  1
-				 1, -1
-				-1,  1
-				 1, -1
-				 1,  1
-			]
+		$scope.vertexCoordinatesQuad = new Float32Array [
+			-1, -1
+			-1,  1
+			 1, -1
+			-1,  1
+			 1, -1
+			 1,  1
+		]
 
-		vertexColors1D = new Float32Array [
+		vertexColorsQuad = new Float32Array [
 			0, 0, 0
 			0, 0, 0
 			0, 0, 0
@@ -125,53 +134,54 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, settings, color
 			0, 0, 0
 		]
 
-		$scope.vertexColors1D = ->
-			index = markers.getList()[0].getColorMaskIndex()
-			clearArray vertexColors1D
+		$scope.vertexColors1D = (list) ->
+			if settings.displayMode is 'mean'
+				index = list[0]
+			else
+				index = list[0].getColorMaskIndex()
+			clearArray vertexColorsQuad
 			for i in [1..5] by 2
-				vertexColors1D[3 * i + index] = 1
-			vertexColors1D
+				vertexColorsQuad[3 * i + index] = 1
+			vertexColorsQuad
 
-		vertexColors2D = new Float32Array [
-			0, 0, 0
-			0, 0, 0
-			0, 0, 0
-			0, 0, 0
-			0, 0, 0
-			0, 0, 0
-		]
+		$scope.vertexColors2D = (list) ->
+			if settings.displayMode is 'mean'
+				index0 = list[0]
+				index1 = list[1]
+			else
+				index0 = list[0].getColorMaskIndex()
+				index1 = list[1].getColorMaskIndex()
 
-		$scope.vertexColors2D = -> 
-			list = markers.getList()
-			index0 = list[0].getColorMaskIndex()
-			index1 = list[1].getColorMaskIndex()
+			clearArray vertexColorsQuad
 
-			clearArray vertexColors2D
+			vertexColorsQuad[index0] = 1
+			for i in [1..3] by 2
+				vertexColorsQuad[3 * i + index0] = vertexColorsQuad[3 * i + index1] = 1
+			vertexColorsQuad[vertexColorsQuad.length - 3 + index1] = 1
 
-			vertexColors2D[index0] = 1
-			for i in [2..4] by 2
-				vertexColors2D[3 * i + index0] = vertexColors2D[3 * i + index1] = 1
-			vertexColors2D[vertexColors2D.length - 3 + index1] = 1
+			vertexColorsQuad
 
-			vertexColors2D
-
-		$scope.vertexCoordinates3D = new Float32Array [
+		$scope.vertexCoordinatesTriangle = new Float32Array [
 			-1, -1
 			 1, -1
 			 0,  1
 		]
 
-		vertexColors3D = new Float32Array [
+		vertexColorsTriangle = new Float32Array [
 			1, 0, 0
 			0, 1, 0
 			0, 0, 1
 		]
 
-		$scope.vertexColors3D = ->
-			clearArray vertexColors3D
+		$scope.vertexColors3D = (list) ->
+			clearArray vertexColorsTriangle
 
-			for marker, index in markers.getList()
-				vertexColors3D[3 * index + marker.getColorMaskIndex()] = 1
-			vertexColors3D
+			if settings.displayMode is 'mean'
+				for group, index in list
+					vertexColorsTriangle[3 * index + group] = 1
+			else
+				for marker, index in list
+					vertexColorsTriangle[3 * index + marker.getColorMaskIndex()] = 1
+			vertexColorsTriangle
 
 		return
