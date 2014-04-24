@@ -56,7 +56,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			activeColorMask[marker.getColorMaskIndex()] = 1
 			shader.setActiveColorMask activeColorMask
 			angular.extend mouse.position, marker.getPosition()
-			glmvilib.render.apply glmvilib, shader.getActive()
+			glmvilib.directRender.apply glmvilib, shader.getActive()
 
 	updateMeanChannelMask = ->
 		groups = ranges.byGroup()
@@ -65,14 +65,14 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		passiveColorMask[group] = 1 for group of groups
 		shader.setPassiveColorMask passiveColorMask
 		# clears image if there are no ranges
-		glmvilib.render shader.getFinal()
+		glmvilib.directRender shader.getFinal()
 
 		for group, rangesList of groups
 			updateChannelMaskWith rangesList
 			clearArray activeColorMask
 			activeColorMask[group] = 1
 			shader.setActiveColorMask activeColorMask
-			glmvilib.render.apply glmvilib, shader.getActive()
+			glmvilib.directRender.apply glmvilib, shader.getActive()
 
 
 	@update = =>
@@ -84,7 +84,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 				shader.setActiveColorMask updateActiveColorMask()
 				glmvilib.render.apply glmvilib, shader.getActive()
 			else
-				glmvilib.render shader.getFinal()
+				glmvilib.directRender shader.getFinal()
 
 	@updateChannelMask = ->	switch settings.displayMode
 		when 'mean' then updateMeanChannelMask()

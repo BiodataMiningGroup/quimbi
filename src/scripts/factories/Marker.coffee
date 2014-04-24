@@ -12,7 +12,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 
 		# TODO pre-load an cache all possible color maps
 		@colorMaps: ['fire', 'unionjack', 'phase']
-		
+
 		constructor: (@_type) ->
 
 			if @_type is 'mean'
@@ -44,7 +44,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData) ->
 		_updateSelection: ->
 			glmvilib.setViewport 0, 0, @_textureDimension, @_textureDimension
 			angular.extend mouse.position, @_position
-			glmvilib.render 'selection-info'
+			glmvilib.directRender 'selection-info'
 			# update spectrogram
 			glmvilib.getPixels 0, 0, @_textureDimension, @_textureDimension, @_selectionData.spectrogram
 			glmvilib.setViewport 0, 0, input.width, input.height
