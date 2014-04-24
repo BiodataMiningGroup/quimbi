@@ -13,5 +13,5 @@ void main() {
 			(v_texture_position.t * u_texture_dimension + v_texture_position.s)
 			* u_texture_dimension - u_texture_dimension / 2.0
 		);
-	gl_FragColor = glmvilib_texture3D(vec3(u_mouse_position, tile_number));
+	gl_FragColor = glmvilib_texture3D(u_mouse_position, tile_number);
 }
