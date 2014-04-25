@@ -9,6 +9,8 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 		hasOverlay: input.overlayImage isnt ''
 
 	$scope.data =
+		availableColorMaps: colorMap.getAvailableColorMaps
+		colorMapNames: settings.colorMaps
 		colorMapFileR: null
 		colorMapFileG: null
 		colorMapFileB: null
@@ -35,18 +37,20 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 		name = colorMapFile.name.split('.csv')[0]
 		try
 			colorMap.add name, colorMapFile.data
-			settings.colorMaps[index] = name
-			updateColorMapPreview()
+			$scope.data.colorMapNames[index] = name
 		catch e
 			$scope.$emit 'message::error', "Error while reading color map '#{name}'. #{e.message}"
 
 	$scope.$watch 'settings.distMethod', updateDistMethod
+
 	$scope.$watch 'data.colorMapFileR', (colorMapFile) ->
 		setNewColorMap colorMapFile, 0
 	$scope.$watch 'data.colorMapFileG', (colorMapFile) ->
 		setNewColorMap colorMapFile, 1
 	$scope.$watch 'data.colorMapFileB', (colorMapFile) ->
 		setNewColorMap colorMapFile, 2
+
+	$scope.$watchCollection 'data.colorMapNames', updateColorMapPreview
 
 	$scope.resetTour = -> 
 		settings.tourStep[view] = 0 for view of settings.tourStep
