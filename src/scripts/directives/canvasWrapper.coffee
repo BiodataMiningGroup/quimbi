@@ -95,6 +95,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 					(maxBounds.getEast() - maxBounds.getWest())
 				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) /
 					(maxBounds.getSouth() - maxBounds.getNorth())
+				mouse.position.xPx = Math.floor mouse.position.x * inputWidth
+				mouse.position.yPx = Math.floor (1 - mouse.position.y) * inputHeight
 
 		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
 			scope.$apply ->

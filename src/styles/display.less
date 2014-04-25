@@ -192,20 +192,32 @@
 	height: 256px;
 	border-radius: @radius;
 
-	&.color-scale--1d, &.color-scale--2d, &.color-scale--3d, {
-		display: block;
-	}
-
-	&.color-scale--1d {
-		width: 30px;
-	}
-
 	canvas {
 		display: block;
 		background-color: black;
 		width: 100%;
 		height: 100%;
 	}
+}
+
+.color-scale--1d, .color-scale--2d, .color-scale--3d, {
+	display: block;
+}
+
+.color-scale--1d {
+	width: 30px;
+
+	.color-scale__indicator {
+		left: 50%;
+	}
+}
+
+.color-scale__indicator {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	transform: translate(-6px, -6px);
+	transition: all @duration;
 }
 
 .canvas-wrapper {
@@ -222,17 +234,7 @@
 
 
 .marker-point {
-	@dim: 10px;
 	@border: 1px;
-	// position: absolute;
-	// cursor: pointer;
-	// 2*border because of border+shadow
-	// width: @dim - 2 * @border;
-	// height: @dim - 2 * @border;
-	// marker-points are positioned using %-values. the transformation sets the
-	// center of the point to the %-coordinates.
-	// transform: translate(-@dim / 2,-@dim / 2);
-
 	border: @border solid white;
 	box-shadow: 0 0 0 @border black;
 	border-radius: 50%;
