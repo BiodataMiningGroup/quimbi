@@ -7,3 +7,6 @@ angular.module('quimbi').value 'mouse',
 		# leaflet coordinates
 		lat: 0
 		lng: 0
+
+		dataX: 0
+		dataY: 0

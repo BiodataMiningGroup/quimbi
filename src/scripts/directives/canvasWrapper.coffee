@@ -66,7 +66,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 
 		map.self.addLayer scope.drawnItems
 
-		# initialise the draw control and pass it the FeatureGroup of editable layers		
+		# initialise the draw control and pass it the FeatureGroup of editable layers
 		map.self.addControl new L.Control.Draw
 			edit:
 				featureGroup: scope.drawnItems
@@ -84,20 +84,28 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 					fill: no
 					weight: 2
 
+		scope.drawnItems.on 'mousemove', (e) -> map.self.fire 'mousemove', e
+		scope.drawnItems.on 'click', (e) -> map.self.fire 'click', e
+
 		# don't fit bounds if map state/viewport is already manually changed
 		map.self.fitBounds maxBounds, animate: off unless map.dirty()
 
 		map.self.on 'mousemove', (e) ->
-			if maxBounds.contains e.latlng then scope.$apply ->
+			if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
+				# TODO refactor, pretty sure we don't really need lat/lng, x/y and dataX/dataY
 				mouse.position.lat = e.latlng.lat
 				mouse.position.lng = e.latlng.lng
-				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) /
-					(maxBounds.getEast() - maxBounds.getWest())
-				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) /
-					(maxBounds.getSouth() - maxBounds.getNorth())
+				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
+				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
+				oldX = Math.floor mouse.position.x * canvas.element[0].width
+				oldY = Math.floor mouse.position.y * canvas.element[0].height
+				if mouse.position.dataX isnt oldX or mouse.position.dataY isnt oldY
+					mouse.position.dataX = oldX
+					mouse.position.dataY = oldY
+					renderer.update()
 
 		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
-			scope.$apply ->
+			if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
 				markers.setAt mouse.position
 				renderer.update()
 
@@ -138,7 +146,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 				map.self.removeLayer leafletMarker
 
 			leafletMarkers.length = 0
-				
+
 			for marker, i in markerList when marker.isSet()
 				m = newLeafletMarkerFrom marker
 				index = i

@@ -80,10 +80,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			shader.setPassiveColorMask updatePassiveColorMask()
 			if markers.hasActive()
 				shader.setActiveColorMask updateActiveColorMask()
-				renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
-			else if renderPromise?
-				renderPromise.stop()
-				renderPromise = null
+				glmvilib.renderUnsafe.apply glmvilib, shader.getActive()
 			else
 				glmvilib.render shader.getFinal()
 
@@ -101,5 +98,5 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		for map, index in settings.colorMaps
 			maps[index] = colorMap.get map
 		shader.updateColorMaps maps
-	
+		
 	return

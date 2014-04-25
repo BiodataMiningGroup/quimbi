@@ -9,7 +9,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 	canvas.setOrigSize input.width, input.height
 
 	# data to display for the user
-	$scope.data = 
+	$scope.data =
 		message: 'Downloading data.'
 		progress: 0
 
@@ -24,18 +24,19 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 
 	# initialize glmvilib
 	try
-		glmvilib.init canvas.element[0], 
+		glmvilib.init canvas.element[0],
 			width: input.width
 			height: input.height
 			channels: input.channels
 			# one unit for the channel mask in the distance computing shaders
+			# and one unit for the region mask in the distance computing shaders
 			reservedUnits: 2
 		shader.createPrograms()
 	catch e
 		$scope.$emit 'message::error', "Failed to set up WebGL: #{e.message}"
 		glmvilib.finish()
 		$scope.$apply -> state.to 'init'
-	
+
 	# callback for image onload event
 	load = ->
 		loading.finished++
@@ -69,7 +70,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 				$scope.$emit 'message::error', "Failed to unpack the data: #{e.message}"
 				glmvilib.finish()
 				$scope.$apply -> state.to 'init'
-			
+
 		# load the next image
 		else if loading.topIndex < loading.goal
 			src = input.files[loading.topIndex]

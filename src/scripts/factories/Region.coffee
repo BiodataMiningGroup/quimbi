@@ -18,3 +18,5 @@ angular.module('quimbi').factory 'Region', ->
 		getStamp: -> @_stamp
 
 		getPixelCoords: -> @_pixelCoords
+
+		getLatLngCoords: -> @_latLngCoords
