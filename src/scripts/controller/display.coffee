@@ -4,7 +4,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 	renderer.updateColorMaps()
 
 	# one active marker by default
-	markers.add()
+	markers.add() if markers.getList().length is 0
 
 	$scope.settings = settings
 
