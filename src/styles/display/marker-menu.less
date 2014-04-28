@@ -1,0 +1,35 @@
+.marker-menu {
+	margin-bottom: @pad;
+}
+
+.marker-menu__button {
+	position: relative;
+	border-top: @small-pad solid transparent;
+	border-radius: @radius;
+	color: rgba(0, 0, 0, 0.8);
+
+	& + .marker-menu__button {
+		margin-top: @small-pad;
+	}
+
+	.pure-button {
+		width: 50%;
+	}
+}
+
+.marker-menu__button.only .pure-button {
+	width: 100%;
+	border-radius: 0 0 @radius @radius;
+}
+
+.marker-menu__button--edit {
+	border-radius: 0 0 0 @radius;
+}
+
+.marker-menu__button--remove {
+	border-radius: 0 0 @radius 0;
+}
+
+.marker-menu__button--add:not(:first-child) {
+	margin-top: @small-pad;
+}

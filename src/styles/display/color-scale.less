@@ -1,0 +1,36 @@
+.color-scale {
+	display: none;
+	position: absolute;
+	top: @pad;
+	right: @pad;
+	background-color: @dark-gray;
+	padding: 2px;
+	width: 256px;
+	height: 256px;
+	border-radius: @radius;
+
+	canvas {
+		display: block;
+		background-color: black;
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.color-scale--visible {
+	display: block;
+}
+
+.color-scale__indicator {
+	position: absolute;
+	@border: 1px;
+	border: @border solid white;
+	box-shadow: 0 0 0 @border black;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	top: -5px;
+	left: -5px;
+	//transform: translate(-6px, -6px);
+	transition: all @duration;
+}

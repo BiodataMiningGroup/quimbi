@@ -5,7 +5,12 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 
 	templateUrl: 'templates/colorScale.html'
 
+	replace: yes
+
 	controller: ($scope) ->
+
+		fullWidth = 256
+		smallWidth = 30
 
 		intensities = [0, 0, 0, 0]
 
@@ -17,18 +22,29 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 			when 'mean' then ranges.currentGroups()
 			else marker.getColorMaskIndex() for marker in markers.getList()
 
-		$scope.colorScaleClass = -> switch dimension
-			when 1 then 'color-scale--1d': yes
-			when 2 then 'color-scale--2d': yes
-			when 3 then 'color-scale--3d': yes
-			else {}
+		translateCSS = (x, y) ->
+			x = Math.round x
+			y = Math.round y
+			'transform': "translate(#{x}px,#{y}px)"
+			'webkit-transform': "translate(#{x}px,#{y}px)"
 
-		indicatorStyle1D = ->
-			'top': "#{(1-intensities[activeIndices[0]]) * 100}%"
+		$scope.colorScaleClass = ->
+			if dimension > 0 then 'color-scale--visible'
+			else ''
 
-		indicatorStyle2D = ->
-			'top': "#{(1-intensities[activeIndices[1]]) * 100}%"
-			'left': "#{(1-intensities[activeIndices[0]]) * 100}%"
+		$scope.colorScaleStyle = -> switch dimension
+			when 1
+				width: "#{smallWidth}px"
+				height: "#{fullWidth}px"
+			else
+				width: "#{fullWidth}px"
+				height: "#{fullWidth}px"
+
+		indicatorStyle1D = -> translateCSS smallWidth * 0.5,
+			fullWidth * (1-intensities[activeIndices[0]])
+
+		indicatorStyle2D = -> translateCSS fullWidth * (1-intensities[activeIndices[0]]),
+			fullWidth * (1-intensities[activeIndices[1]])
 
 		indicatorStyle3D = ->
 
