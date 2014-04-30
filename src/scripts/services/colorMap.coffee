@@ -44,4 +44,17 @@ angular.module('quimbi').service 'colorMap', ($http, $q, msg) ->
 		for colorMapName in colorMapNames when colorMapName not of cache
 			load colorMapName
 
+	# returns the rgb color of a [0, 1] position on a color map
+	@getInterpolatedColor = (colorMapName, intensity) ->
+		color = [0, 0, 0]
+		colorMap = cache[colorMapName]
+		exactIndex = 255 * intensity
+		index = Math.floor exactIndex
+		interpolation = exactIndex - index
+		for i in [0...3]
+			color[i] = colorMap[3 * index + i] * (1 - interpolation)
+			nextColor = colorMap[3 * (index + 1) + i]
+			color[i] +=  nextColor * interpolation if nextColor isnt undefined
+		color
+
 	return
