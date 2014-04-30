@@ -16,7 +16,7 @@ angular.module('quimbi').value 'settings',
 	overlayOpacity: 0
 
 	# currently used color maps (for the markers and ranges)
-	colorMaps: ['red', 'green', 'blue']
+	colorMaps: ['fire', 'green', 'blue']
 
 	# single colors representing the colorMaps above. markers and regions are
 	# displayed in this colors

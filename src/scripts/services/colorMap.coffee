@@ -1,7 +1,20 @@
 # service loading, caching and providing color maps
-angular.module('quimbi').service 'colorMap', ($http, $q, msg) ->
+angular.module('quimbi').service 'colorMap', ($http, msg) ->
 
 	cache = {}
+
+	# names of the default color maps of Quimbi, that should be loaded and
+	# cached at startup
+	defaultColorMaps = [
+		'red'
+		'green'
+		'blue'
+		'cyan'
+		'magenta'
+		'yellow'
+		'phase'
+		'fire'
+	]
 
 	# parses the given input file and fills the input service
 	parse = (rawInput) ->
@@ -56,5 +69,10 @@ angular.module('quimbi').service 'colorMap', ($http, $q, msg) ->
 			nextColor = colorMap[3 * (index + 1) + i]
 			color[i] +=  nextColor * interpolation if nextColor isnt undefined
 		color
+
+	@cacheDefaults = => @cache defaultColorMaps
+
+	# returns the names of all currently cached color maps
+	@getAvailableColorMaps = -> colorMap for colorMap of cache
 
 	return

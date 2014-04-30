@@ -1,8 +1,12 @@
-# creates a new Range object
+# creates a new Range object. A range represents a selected region of the
+# spectrum.
 angular.module('quimbi').factory 'Range', (settings) ->
 
 	class Range
 
+		# the group determines which color map the range is assigned to and
+		# to which color channel it is rendered (similar to the colorMaskIndex)
+		# of a marker
 		@groups: [0, 1, 2]
 
 		constructor: (@start) ->

@@ -16,29 +16,28 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 	regionMaskCtx.fillStyle = 'rgba(0, 0, 0, 1)'
 
 	# initialize mask as all selected
-	regionMaskCtx.rect 0, 0, regionMask.width, regionMask.height
-	regionMaskCtx.fill()
+	regionMaskCtx.fillRect 0, 0, regionMask.width, regionMask.height
 
 	# ray-casting algorithm based on http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 	# copied from https://github.com/substack/point-in-polygon/blob/master/index.js
-	# pointInPolygon = (point, polygonPoints) ->
-	# 	pointX = point.lat
-	# 	pointY = point.lng
-	# 	inside = no
-	# 	lastPolygonPoint = polygonPoints.pop()
-	# 	xj = lastPolygonPoint.lat
-	# 	yj = lastPolygonPoint.lng
+	pointInPolygon = (point, polygonPoints) ->
+		pointX = point.lat
+		pointY = point.lng
+		inside = no
+		lastPolygonPoint = polygonPoints.slice(-1)
+		xj = lastPolygonPoint.lat
+		yj = lastPolygonPoint.lng
 
-	# 	for polygonPoint in polygonPoints
-	# 		xi = polygonPoint.lat
-	# 		yj = polygonPoint.lng
-	# 		intersect = ((yi > pointY) isnt (yj > pointY)) and
-	# 			(pointX < (xj - xi) * (pointY - yi) / (yj - yi) + xi)
-	# 		inside = not inside if intersect
-	# 		xj = xi
-	# 		yj = yi
+		for polygonPoint in polygonPoints.slice(0, -1)
+			xi = polygonPoint.lat
+			yi = polygonPoint.lng
+			intersect = ((yi > pointY) isnt (yj > pointY)) and
+				(pointX < (xj - xi) * (pointY - yi) / (yj - yi) + xi)
+			inside = not inside if intersect
+			xj = xi
+			yj = yi
 
-	# 	inside
+		inside
 
 	clipLatLngCoords = (latLngCoords, maxBounds) ->
 		# clip selection to data bounds
@@ -75,8 +74,7 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 		regionMaskCtx.clearRect 0, 0, regionMask.width, regionMask.height
 
 		if list.length is 0
-			regionMaskCtx.rect 0, 0, regionMask.width, regionMask.height
-			regionMaskCtx.fill()
+			regionMaskCtx.fillRect 0, 0, regionMask.width, regionMask.height
 		else for region in list
 			positions = region.getPixelCoords()
 			regionMaskCtx.beginPath()
@@ -87,13 +85,13 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 			regionMaskCtx.fill()
 		regionMask
 
-	# regionsContain = (latLng) ->
-	# 	return yes if Object.getOwnPropertyNames(regions).length is 0
+	@contain = (latLng) ->
+		return yes if list.length is 0
 
-	# 	for id, region of regions when pointInPolygon latLng, region.latLngCoords
-	# 		return yes
+		for region in list when pointInPolygon latLng, region.getLatLngCoords()
+			return yes
 
-	# 	no
+		no
 
 	@add = (regionLayer, maxBounds) ->
 		latLngCoords = regionLayer.getLatLngs()

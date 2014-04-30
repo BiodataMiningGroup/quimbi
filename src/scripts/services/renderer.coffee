@@ -1,31 +1,37 @@
 # manages all existing markers and provides functions to manipulate them
 angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, regions, settings, shader, colorMap) ->
 
+	# array with one entry for each channel of the dataset.
+	# channels that should be discarded are 0 and the others 1
 	channelMask = new Uint8Array input.getChannelTextureDimension() *
 		input.getChannelTextureDimension() * 4
 
-	regionMask = null
-
-	renderPromise = null
-
+	# determines, which color channels should be shown on the canvas
 	passiveColorMask = [0, 0, 0]
 
+	# determines which color channel should be updated with the distance or
+	# mean calculations
 	activeColorMask = [0, 0, 0]
 
+	# sets all entries of the given array to 0
 	clearArray = (array) ->
 		array[index] = 0 for index in [0...array.length]
 		array
 
+	# updates the passive color mask according to the marker configuration
 	updatePassiveColorMask = ->
 		clearArray passiveColorMask
 		passiveColorMask[m.getColorMaskIndex()] = 1 for m in markers.getList()
 		passiveColorMask
 
+	# updates the active color mask according to the marker configuration
 	updateActiveColorMask = ->
 		clearArray activeColorMask
 		activeColorMask[markers.getList()[markers.getActiveIndex()].getColorMaskIndex()] = 1
 		activeColorMask
 
+	# updates the channel mask array with the given list of spectrum ranges
+	# and passes it on to the shader service to update the channel mask texture
 	updateChannelMaskWith = (rangesList) ->
 		# number of overall channels padded to be represented as vec4's
 		channel = input.files.length * 4
@@ -48,6 +54,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		shader.updateChannelMask channelMask, activeChannels
 		channelMask
 
+	# updates the channel mask array with all ranges, regardless their group
+	# and re-renders the dustances for every marker
 	updateDistancesChannelMask = ->
 		updateChannelMaskWith ranges.list
 
@@ -58,6 +66,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			angular.extend mouse.position, marker.getPosition()
 			glmvilib.render.apply glmvilib, shader.getActive()
 
+	# updates the channel mask and re-renders for each ranges group
+	# separately
 	updateMeanChannelMask = ->
 		groups = ranges.byGroup()
 
@@ -80,10 +90,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			shader.setPassiveColorMask updatePassiveColorMask()
 			if markers.hasActive()
 				shader.setActiveColorMask updateActiveColorMask()
-				renderPromise = glmvilib.renderLoop.apply glmvilib, shader.getActive()
-			else if renderPromise?
-				renderPromise.stop()
-				renderPromise = null
+				glmvilib.renderUnsafe.apply glmvilib, shader.getActive()
 			else
 				glmvilib.render shader.getFinal()
 
@@ -96,10 +103,11 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		# re-renders the image
 		@updateChannelMask()
 
+	# updates the color map textures with the currently selected color maps
 	@updateColorMaps = ->
 		maps = []
 		for map, index in settings.colorMaps
 			maps[index] = colorMap.get map
 		shader.updateColorMaps maps
-	
+		
 	return
