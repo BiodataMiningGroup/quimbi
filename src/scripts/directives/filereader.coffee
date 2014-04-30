@@ -14,6 +14,7 @@ angular.module('quimbi').directive 'filereader', ->
 		change = (changeEvent) ->
 			reader = new FileReader()
 			reader.onload = (loadEvent) ->
+				# return filename and content
 				scope.$apply -> scope.filereader =
 					data: loadEvent.target.result
 					name: changeEvent.target.files[0].name

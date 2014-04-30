@@ -1,16 +1,21 @@
-# creates a new Region object
+# creates a new Region object. It is a region of interest on the map, represented
+# as a polygon.
 angular.module('quimbi').factory 'Region', ->
 
 	class Region
 
 		constructor: (params) ->
 
+			# Leaflet layer of this region
 			@_layer = params.layer
 
+			# unique identifier
 			@_stamp = "#{L.stamp @_layer}"
 
+			# vertex positions in pixel coordinates
 			@_pixelCoords = params.pixelCoords
 
+			# vertex positions in Leaflet coordinates
 			@_latLngCoords = params.latLngCoords
 
 		getLayer: -> @_layer

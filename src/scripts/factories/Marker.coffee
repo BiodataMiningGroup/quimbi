@@ -1,4 +1,4 @@
-# creates a new Marker object
+# creates a new Marker object. A marker represets a selected point on the map.
 angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, settings) ->
 
 	class Marker
