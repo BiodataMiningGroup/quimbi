@@ -148,7 +148,7 @@ module.exports = (grunt) ->
 					'uglify'
 				]
 			less:
-				files: [ '<%= srcDir %>/styles/*.less' ]
+				files: [ '<%= srcDir %>/styles/**/*.less' ]
 				tasks: [ 'recess', 'autoprefixer' ]
 			colormaps:
 				files: [ '<%= colormapsDir %>/*.csv' ]

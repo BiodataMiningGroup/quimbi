@@ -13,8 +13,6 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	# shader to retrieve the mass intensities of a selected position
 	selectionInfo = new Program.SelectionInfo()
 
-	finalShaderID = colorMapDisplay.id
-
 	# creates all shader programs and adds them to glmvilib
 	@createPrograms = ->
 		glmvilib.addProgram euclDist
@@ -34,11 +32,14 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 				when 'angle' then active.push angleDist.id
 				when 'eucl' then active.push euclDist.id
 		active.push rgbSelection.id
-		active.push finalShaderID
+		active.push colorMapDisplay.id
 		active
 
-	# returns the final shader for rendering to the canvas
-	@getFinal = -> finalShaderID
+	# returns the shader id for rendering to the rgb intensity texture
+	@getIntensity = -> rgbSelection.id
+
+	# returns the shader id for rendering to the canvas
+	@getFinal = -> colorMapDisplay.id
 
 	# sets the color mask for updating the rgb texture
 	@setActiveColorMask = (mask) ->

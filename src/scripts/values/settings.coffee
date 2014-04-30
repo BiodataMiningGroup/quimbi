@@ -9,6 +9,9 @@ angular.module('quimbi').value 'settings',
 	# show the overlay image
 	showOverlay: yes
 
+	# show the color scale
+	showColorScale: yes
+
 	# the current overlay opacity
 	overlayOpacity: 0
 

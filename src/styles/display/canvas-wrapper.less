@@ -1,0 +1,44 @@
+.leaflet-container {
+	background-color: black;
+	cursor: pointer;
+
+	&:active {
+		cursor: grab;
+	}
+}
+
+.canvas-wrapper {
+	position: relative;
+	height: 100%;
+
+	canvas {
+		.image-crisp-edges;
+		height: 100%;
+		width: 100%;
+		display: block;
+	}
+}
+
+.marker-point {
+	position: absolute;
+	@border: 1px;
+	border: @border solid white;
+	box-shadow: 0 0 0 @border black;
+	border-radius: 50%;
+}
+
+.marker-point--lime {
+	background-color: lime;
+}
+
+.marker-point--blue {
+	background-color: blue;
+}
+
+.marker-point--red {
+	background-color: red;
+}
+
+.marker-point--white {
+	background-color: white;
+}
