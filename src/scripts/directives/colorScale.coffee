@@ -1,5 +1,5 @@
 # directive to read a local text file
-angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, colorScaleIndicator, colorMap) ->
+angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, colorScaleIndicator) ->
 	
 	restrict: 'A'
 
@@ -80,20 +80,11 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 				intensityB * point3D.top.y
 			translateCSS x, y
 
-		# storage for the indicator color
-		_indicatorColor = [0, 0, 0]
-
 		# mixes a css rgb color to match the color of the currently hovered
 		# pixel according to the active color maps
 		indicatorColor = ->
-			indicatorColor[0] = indicatorColor[1] = indicatorColor[2] = 0
-			for index in activeIndices
-				color = colorMap.getInterpolatedColor settings.colorMaps[index], intensities[index]
-				indicatorColor[i] += color[i] for i in [0...3]
-			for i in [0...3]
-				indicatorColor[i] = Math.round indicatorColor[i]
-
-			"rgb(#{indicatorColor[0]}, #{indicatorColor[1]}, #{indicatorColor[2]})"
+			color = colorScaleIndicator.getColor()
+			"rgb(#{color[0]}, #{color[1]}, #{color[2]})"
 
 		# returns the position style for the indicator
 		$scope.indicatorStyle = ->
