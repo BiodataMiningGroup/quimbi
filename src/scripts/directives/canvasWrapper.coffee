@@ -84,6 +84,13 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 					fill: no
 					weight: 2
 
+		map.self.addControl new L.Control.Button
+			text: '<i class="icon-download-alt"></i>'
+			title: 'Download the image.'
+			onClick: (event, buttonElement) ->
+				buttonElement.href = canvas.element[0].toDataURL()
+				buttonElement.download = 'quimbi_image.png'
+
 		scope.drawnItems.on 'mousemove', (e) -> map.self.fire 'mousemove', e
 		scope.drawnItems.on 'click', (e) -> map.self.fire 'click', e
 
