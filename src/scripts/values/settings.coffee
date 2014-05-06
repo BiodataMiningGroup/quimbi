@@ -2,10 +2,10 @@
 angular.module('quimbi').value 'settings',
 	# current distance method
 	distMethod: 'angle'
-	
+
 	# show the selection points
 	showPoints: yes
-	
+
 	# show the overlay image
 	showOverlay: yes
 
@@ -14,6 +14,9 @@ angular.module('quimbi').value 'settings',
 
 	# the current overlay opacity
 	overlayOpacity: 0
+
+	# show the grid
+	showGrid: yes
 
 	# currently used color maps (for the markers and ranges)
 	colorMaps: ['fire', 'green', 'blue']

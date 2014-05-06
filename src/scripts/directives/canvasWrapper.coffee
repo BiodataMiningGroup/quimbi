@@ -47,7 +47,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 
 		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds
 
-		map.self.addLayer L.graticule
+		map.gridLayer = L.graticule
 			interval: inputPixelWidth
 			southWest: southWest
 			northEast: northEast
@@ -188,5 +188,13 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 			renderer.updateRegionMask()
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
+
+		toogleGrid = (showGrid) ->
+			if showGrid
+				map.self.addLayer map.gridLayer
+			else
+				map.self.removeLayer map.gridLayer
+
+		$scope.$watch "settings.showGrid", toogleGrid
 
 		return
