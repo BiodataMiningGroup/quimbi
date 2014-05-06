@@ -4,6 +4,9 @@ angular.module('quimbi').value 'map',
 	# so the reference to it is always correct
 	self: null
 
+	# regular grid on the map
+	gridLayer: null
+
 	# the following properties are for creating a new map in the same state of
 	# the old map (e.g. when the views have switched)
 

@@ -24,7 +24,7 @@
 				</label>
 				<select data-ng-model="data.colorMapNames[0]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
-			
+
 			<div class="color-map">
 				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[1]}"></span>
 				<label for="color-map-url-g">
@@ -52,6 +52,10 @@
 			<label for="color-scale-checkbox" class="pure-checkbox">
 				<input id="color-scale-checkbox" type="checkbox" value="color-scale" data-ng-model="settings.showColorScale"/>
 				Show color scale.
+			</label>
+			<label for="grid-checkbox" class="pure-checkbox">
+				<input id="grid-checkbox" type="checkbox" value="grid" data-ng-model="settings.showGrid"/>
+				Show a regular grid over the image.
 			</label>
 			<label for="overlay-checkbox" class="pure-checkbox" data-ng-if="info.hasOverlay">
 				<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay" />
