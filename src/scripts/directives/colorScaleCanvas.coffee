@@ -1,6 +1,6 @@
 # directive to read a local text file
 angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, settings, colorMap) ->
-	
+
 	restrict: 'A'
 
 	link: (scope, element) ->
@@ -8,11 +8,11 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 
 		vertexShader = scope.compileShader gl,
 			gl.createShader(gl.VERTEX_SHADER),
-			scope.fetchShader 'shader/color-scale.vs.glsl'
+			scope.fetchShader 'shader/color-scale.glsl.vert'
 
 		fragmentShader = scope.compileShader gl,
 			gl.createShader(gl.FRAGMENT_SHADER),
-			scope.fetchShader 'shader/color-scale.fs.glsl'
+			scope.fetchShader 'shader/color-scale.glsl.frag'
 
 		program = scope.createProgram gl, vertexShader, fragmentShader
 

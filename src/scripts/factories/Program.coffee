@@ -55,9 +55,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'eucl-dist'
 
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/eucl-dist.fs.glsl'
+		@fragmentShaderUrl = 'shader/eucl-dist.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			_gl = gl
@@ -103,9 +103,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'angle-dist'
 
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/angle-dist.fs.glsl'
+		@fragmentShaderUrl = 'shader/angle-dist.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			_gl = gl
@@ -155,9 +155,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'render-channel'
 
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/render-channel.fs.glsl'
+		@fragmentShaderUrl = 'shader/render-channel.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			_gl = gl
@@ -200,9 +200,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'rgb-selection'
 
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/rgb-selection.fs.glsl'
+		@fragmentShaderUrl = 'shader/rgb-selection.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			helpers.useInternalVertexPositions program
@@ -253,9 +253,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'color-map-display'
 
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/color-map-display.fs.glsl'
+		@fragmentShaderUrl = 'shader/color-map-display.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			_gl = gl
@@ -316,9 +316,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'selection-info'
 
-		@vertexShaderUrl = 'shader/display-rectangle.vs.glsl'
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/selection-info.fs.glsl'
+		@fragmentShaderUrl = 'shader/selection-info.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			helpers.useInternalVertexPositions program
