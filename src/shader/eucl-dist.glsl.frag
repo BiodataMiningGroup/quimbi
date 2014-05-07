@@ -16,7 +16,7 @@ const int TILES_MINUS_ONE = <%=TILES=%> - 1;
 const vec4 ONES = vec4(1);
 const vec4 ZEROS = vec4(0);
 
-<%=TEXTURE_3D=%>
+<%=TEXTURE_3D_2pos=%>
 
 void main() {
 	// if masked by the region mask, din't do anything
@@ -30,8 +30,10 @@ void main() {
 
 	vec4 test_for_zero = vec4(0);
 
-	vec4 sample;
 	vec4 current;
+	vec4 sample;
+
+	mat4 rgbas;
 
 	float tile;
 	vec2 mask_position = vec2(0);
@@ -51,10 +53,12 @@ void main() {
 			// check if any channels of this tile are to be computed
 			if (dot(channel_mask, ONES) == 0.0) continue;
 
+			rgbas = glmvilib_texture3D_2pos(u_mouse_position, v_texture_position, tile);
+
 			// get rgba of the pixel to compare; filtered by the channel mask
-			sample = channel_mask * glmvilib_texture3D(u_mouse_position, tile);
+			sample = channel_mask * rgbas[0];
 			// get rgba of the position of this pixel; filtered by the channel mask
-			current = channel_mask * glmvilib_texture3D(v_texture_position, tile);
+			current = channel_mask * rgbas[1];
 
 			test_for_zero += current;
 
@@ -69,9 +73,10 @@ void main() {
 		mask_position *= u_inv_channel_mask_dimension;
 		channel_mask = texture2D(u_channel_mask, mask_position);
 
+		rgbas = glmvilib_texture3D_2pos(u_mouse_position, v_texture_position, tile);
 		// last tile (may use not all channels)
-		current = channel_mask * glmvilib_texture3D(v_texture_position, tile);
-		sample = channel_mask * glmvilib_texture3D(u_mouse_position, tile);
+		sample = channel_mask * rgbas[0];
+		current = channel_mask * rgbas[1];
 
 		test_for_zero += current;
 
