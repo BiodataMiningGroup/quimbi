@@ -19,7 +19,7 @@ const vec4 ZEROS = vec4(0);
 <%=TEXTURE_3D=%>
 
 void main() {
-	// if masked by the region mask, din't do anything
+	// if masked by the region mask, don't do anything
 	if (texture2D(u_region_mask, v_texture_position).a == 0.0) {
 		gl_FragColor = ZEROS;
 		return;
@@ -80,7 +80,10 @@ void main() {
 	}
 
 	// if the intensities of this fragment are all 0, don't draw it
-	if (currentLength == 0.0) discard;
+	if (currentLength == 0.0) {
+		gl_FragColor = ZEROS;
+		return;
+	}
 
 	color *= inversesqrt(currentLength * sampleLength);
 

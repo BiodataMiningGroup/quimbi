@@ -90,7 +90,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			shader.setPassiveColorMask updatePassiveColorMask()
 			if markers.hasActive()
 				shader.setActiveColorMask updateActiveColorMask()
-				glmvilib.renderUnsafe.apply glmvilib, shader.getActive()
+				glmvilib.render.apply glmvilib, shader.getActive()
 			else
 				glmvilib.render shader.getFinal()
 
