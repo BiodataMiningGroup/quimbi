@@ -132,6 +132,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 			for stamp, layer of e.layers._layers
 				regions.remove stamp
 				regions.add layer, maxBounds
+			renderer.updateRegionMask()
 
 		map.self.on 'draw:drawstart draw:editstart draw:deletestart', (e) ->
 			scope.$apply regions.setActive
