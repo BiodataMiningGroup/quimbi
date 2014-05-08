@@ -8,30 +8,28 @@ uniform sampler2D u_color_map_g;
 uniform sampler2D u_color_map_b;
 
 uniform vec3 u_color_mask;
-const float width = 120.0;
-const float height = 50.0;
-const vec2 texture_size = vec2(120.0, 50.0);
-const float render_scale = 8.0;
-const float point_size_factor = 1.0;
-const vec2 pixel_size = vec2(1.0, 1.0) / texture_size;
+// uniform vec2 texture_size; // e.g. vec2(120.0, 50.0)
+uniform float u_render_scale; // how much bigger than the data dimensions is the canvas? >= 1.0
+uniform float u_space_fill_percent; // 0.0 .. 1.0 meaningfule are only steps in pixel size
+uniform vec2 u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
 
-vec4 tex2DBiLinear( sampler2D textureSampler_i, vec2 texCoord_i )
-{
-    vec4 p0q0 = texture2D(textureSampler_i, texCoord_i);
-    vec4 p1q0 = texture2D(textureSampler_i, texCoord_i + vec2(pixel_size.x, 0));
+// vec4 tex2DBiLinear( sampler2D textureSampler_i, vec2 texCoord_i )
+// {
+//     vec4 p0q0 = texture2D(textureSampler_i, texCoord_i);
+//     vec4 p1q0 = texture2D(textureSampler_i, texCoord_i + vec2(pixel_size.x, 0));
 
-    vec4 p0q1 = texture2D(textureSampler_i, texCoord_i + vec2(0, pixel_size.y));
-    vec4 p1q1 = texture2D(textureSampler_i, texCoord_i + vec2(pixel_size.x , pixel_size.y));
+//     vec4 p0q1 = texture2D(textureSampler_i, texCoord_i + vec2(0, pixel_size.y));
+//     vec4 p1q1 = texture2D(textureSampler_i, texCoord_i + vec2(pixel_size.x , pixel_size.y));
 
-    float a = fract( texCoord_i.x * texture_size.x ); // Get Interpolation factor for X direction.
-                    // Fraction near to valid data.
+//     float a = fract( texCoord_i.x * texture_size.x ); // Get Interpolation factor for X direction.
+//                     // Fraction near to valid data.
 
-    vec4 pInterp_q0 = mix( p0q0, p1q0, a ); // Interpolates top row in X direction.
-    vec4 pInterp_q1 = mix( p0q1, p1q1, a ); // Interpolates bottom row in X direction.
+//     vec4 pInterp_q0 = mix( p0q0, p1q0, a ); // Interpolates top row in X direction.
+//     vec4 pInterp_q1 = mix( p0q1, p1q1, a ); // Interpolates bottom row in X direction.
 
-    float b = fract( texCoord_i.y * texture_size.y );// Get Interpolation factor for Y direction.
-    return mix( pInterp_q0, pInterp_q1, b ); // Interpolate in Y direction.
-}
+//     float b = fract( texCoord_i.y * texture_size.y );// Get Interpolation factor for Y direction.
+//     return mix( pInterp_q0, pInterp_q1, b ); // Interpolate in Y direction.
+// }
 
 void main() {
 
@@ -51,7 +49,7 @@ void main() {
 
     // TODO use fraction
     vec2 grid_position = v_texture_position / pixel_size;
-    float point_size = (1.0 - 1.0 / render_scale * (point_size_factor * render_scale)) / 2.0;
+    float point_size = (1.0 - 1.0 / render_scale * (space_fill_percent * render_scale)) / 2.0;
     vec2 grid_position_min = floor(grid_position) + point_size;
     vec2 grid_position_max = ceil(grid_position) - point_size;
 

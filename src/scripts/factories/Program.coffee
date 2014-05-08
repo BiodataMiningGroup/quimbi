@@ -13,7 +13,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		channelMaskTexture = null
 		gl.uniform1i gl.getUniformLocation(program, 'u_channel_mask'), 0
 		gl.uniform1f gl.getUniformLocation(program, 'u_channel_mask_dimension'), input.getChannelTextureDimension()
-		gl.uniform1f gl.getUniformLocation(program, 'u_inv_channel_mask_dimension'), 1/input.getChannelTextureDimension()
+		gl.uniform1f gl.getUniformLocation(program, 'u_inv_channel_mask_dimension'), 1 / input.getChannelTextureDimension()
 		# check if texture already exists
 		unless channelMaskTexture = assets.textures.channelMaskTexture
 			channelMaskTexture = helpers.newTexture 'channelMaskTexture'
@@ -253,7 +253,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'color-map-display'
 
-		@vertexShaderUrl = 'shader/grid-projection.glsl.vert' #'shader/display-rectangle.glsl.vert'
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
 		@fragmentShaderUrl = 'shader/grid-projection.glsl.frag' #'shader/color-map-display.glsl.frag'
 
