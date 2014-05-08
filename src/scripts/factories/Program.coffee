@@ -253,9 +253,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 		@id = 'color-map-display'
 
-		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
+		@vertexShaderUrl = 'shader/grid-projection.glsl.vert' #'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/color-map-display.glsl.frag'
+		@fragmentShaderUrl = 'shader/grid-projection.glsl.frag' #'shader/color-map-display.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			_gl = gl
