@@ -1,15 +1,15 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the canvas has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers, regions, renderer, settings) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings) ->
 
 	restrict: 'A'
 
 	scope: yes
 
 	link: (scope, element) ->
-		inputWidth = canvas.element[0].width
-		inputHeight = canvas.element[0].height
+		inputWidth = input.dataWidth
+		inputHeight = input.dataHeight
 
 		shapeFactor = inputWidth / inputHeight
 		if shapeFactor >= 2

@@ -15,6 +15,12 @@ angular.module('quimbi').value 'input',
 	# image width
 	width: 0
 
+	# image height
+	dataHeight: 0
+
+	# image width
+	dataWidth: 0
+
 	# number of overall channels of the image
 	channels: 0
 

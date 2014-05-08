@@ -14,8 +14,10 @@ angular.module('quimbi').service 'inputParser', (input) ->
 		input.base = header[1]
 		input.format = header[2]
 		input.channels = parseInt header[3]
-		input.width = parseInt header[4]
-		input.height = parseInt header[5]
+		input.width = parseInt header[4] * 2
+		input.height = parseInt header[5] * 2
+		input.dataWidth = parseInt header[4]
+		input.dataHeight = parseInt header[5]
 		if header[6]
 			input.maxEuclDist = parseFloat header[6]
 			input.euclDistNormMethod = 'maximal occurring distance'
@@ -29,7 +31,7 @@ angular.module('quimbi').service 'inputParser', (input) ->
 		input.files.forEach (file) ->
 			file.split('-').forEach (name) ->
 				input.channelNames.push name
-		
+
 		input.images = new Array input.files.length
 
 		unless input.valid()
