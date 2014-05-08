@@ -11,6 +11,8 @@ uniform vec3 u_color_mask;
 const float width = 120.0;
 const float height = 50.0;
 const vec2 texture_size = vec2(120.0, 50.0);
+const float render_scale = 8.0;
+const float point_size_factor = 1.0;
 const vec2 pixel_size = vec2(1.0, 1.0) / texture_size;
 
 vec4 tex2DBiLinear( sampler2D textureSampler_i, vec2 texCoord_i )
@@ -47,24 +49,25 @@ void main() {
     // Wie berechne ich dessen Koordinaten?
     // check if coord between grid coord and grid coord + treshold
 
-    vec2 grid_position_min = floor(v_texture_position / pixel_size);
-    vec2 grid_position_max = grid_position_min + pixel_size;
+    // TODO use fraction
+    vec2 grid_position = v_texture_position / pixel_size;
+    float point_size = (1.0 - 1.0 / render_scale * (point_size_factor * render_scale)) / 2.0;
+    vec2 grid_position_min = floor(grid_position) + point_size;
+    vec2 grid_position_max = ceil(grid_position) - point_size;
 
-    if (all(greaterThanEqual(v_texture_position / pixel_size, grid_position_min))
-        && all(lessThan(v_texture_position / pixel_size, grid_position_max))) {
-
-        // vec2 grid_position = mod(floor(v_texture_position / pixel_size), 2.0);
-        // if (grid_position.x != 0.0 || grid_position.y != 0.0) discard;
-
-        // if (v_texture_position.x > 0.5 && v_texture_position.x < 0.505) discard;
-
-
-        vec4 color = texture2D(u_rgb, v_texture_position); //tex2DBiLinear(u_rgb, v_texture_position); //texture2D(u_rgb, v_texture_position);
-        vec3 r = u_color_mask.r * texture2D(u_color_map_r, vec2(color.r, 0.5)).rgb;
-        // vec3 g = u_color_mask.g * texture2D(u_color_map_g, vec2(color.g, 0.5)).rgb;
-        // vec3 b = u_color_mask.b * texture2D(u_color_map_b, vec2(color.b, 0.5)).rgb;
-        gl_FragColor = vec4(r /*+ g + b*/, 1.0);
-    } else {
+    if (any(lessThan(grid_position, grid_position_min)) || any(greaterThan(grid_position, grid_position_max))) {
         discard;
     }
+
+    // vec2 grid_position = mod(floor(v_texture_position / pixel_size), 2.0);
+    // if (grid_position.x != 0.0 || grid_position.y != 0.0) discard;
+
+    // if (v_texture_position.x > 0.5 && v_texture_position.x < 0.505) discard;
+
+
+    vec4 color = texture2D(u_rgb, v_texture_position); //tex2DBiLinear(u_rgb, v_texture_position); //texture2D(u_rgb, v_texture_position);
+    vec3 r = u_color_mask.r * texture2D(u_color_map_r, vec2(color.r, 0.5)).rgb;
+    // vec3 g = u_color_mask.g * texture2D(u_color_map_g, vec2(color.g, 0.5)).rgb;
+    // vec3 b = u_color_mask.b * texture2D(u_color_map_b, vec2(color.b, 0.5)).rgb;
+    gl_FragColor = vec4(r /*+ g + b*/, 1.0);
 }

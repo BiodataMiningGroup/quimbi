@@ -8,8 +8,8 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 	active = no
 
 	regionMask = $document[0].createElement 'canvas'
-	regionMask.width = input.width
-	regionMask.height = input.height
+	regionMask.width = input.dataWidth
+	regionMask.height = input.dataHeight
 
 	regionMaskCtx = regionMask.getContext '2d'
 	# mask regions with rgba(0,0,0,1), the shader uses only the alpha channel to check for masking
