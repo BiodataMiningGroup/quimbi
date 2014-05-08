@@ -8,8 +8,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 	scope: yes
 
 	link: (scope, element) ->
-		inputWidth = input.dataWidth
-		inputHeight = input.dataHeight
+		inputWidth = input.width
+		inputHeight = input.height
 
 		shapeFactor = inputWidth / inputHeight
 		if shapeFactor >= 2
@@ -18,8 +18,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		else
 			lngBound = 90 * shapeFactor
 			latBound = 90
-
-		inputPixelWidth = lngBound * 2 / inputWidth
 
 		# setup matching LatLng bounds for the input dimensions
 		southWest = L.latLng Math.ceil(-latBound), Math.ceil(-lngBound)
@@ -46,6 +44,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		L.control.microScale(objectWidth: 80000).addTo map.self
 
 		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds
+
+		inputPixelWidth = lngBound * 2 / input.dataWidth
 
 		map.gridLayer = L.graticule
 			interval: inputPixelWidth
@@ -104,11 +104,11 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 				mouse.position.lng = e.latlng.lng
 				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
 				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
-				mouse.position.xPx = Math.floor mouse.position.x * inputWidth
-				mouse.position.yPx = Math.floor (1 - mouse.position.y) * inputHeight
-				newX = Math.floor mouse.position.x * canvas.element[0].width
-				newY = Math.floor mouse.position.y * canvas.element[0].height
+				newX = Math.floor mouse.position.x * inputWidth
+				newY = Math.floor mouse.position.y * inputHeight
 				if mouse.position.dataX isnt newX or mouse.position.dataY isnt newY
+					mouse.position.xPx = Math.floor mouse.position.x * inputWidth
+					mouse.position.yPx = Math.floor (1 - mouse.position.y) * inputHeight
 					mouse.position.dataX = newX
 					mouse.position.dataY = newY
 					renderer.update()

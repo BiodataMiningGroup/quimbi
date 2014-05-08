@@ -25,8 +25,8 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 	# initialize glmvilib
 	try
 		glmvilib.init canvas.element[0],
-			width: input.width
-			height: input.height
+			width: input.dataWidth # width #
+			height: input.dataHeight # height #
 			channels: input.channels
 			# one unit for the channel mask in the distance computing shaders
 			# and one unit for the region mask in the distance computing shaders
