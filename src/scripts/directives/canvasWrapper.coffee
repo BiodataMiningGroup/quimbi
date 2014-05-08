@@ -1,5 +1,5 @@
 # directive for the canvas wrapper element in the display route.
-# this could be just a controller, too, but the canvas has to be appended to
+# this could be just a controller, too, but the map has to be appended to
 # the DOM so an "element" is needed.
 angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers, regions, renderer, settings) ->
 
@@ -8,6 +8,16 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 	scope: yes
 
 	link: (scope, element) ->
+		# if the map element already exists, just append it
+		unless map.element is null
+			element.append map.element
+			return
+
+		# otherwise initiate the Leaflet map and create the new map element
+
+		map.element = angular.element '<div></div>'
+		element.append map.element
+
 		inputWidth = canvas.element[0].width
 		inputHeight = canvas.element[0].height
 
@@ -28,14 +38,12 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 		maxBounds = new L.LatLngBounds southWest, northEast
 
 		# TODO: max zoom should depend on ratio between input and screen size
-		map.self = L.map element[0],
+		map.self = L.map map.element[0],
 			maxZoom: 10
 			minZoom: 0
 			crs: L.CRS.Simple
-			# if the map is re-created (e.g. after switching views) this initializes
-			# the map to its old viewport
-			zoom: map.zoom or 0
-			center: map.center or [0, 0]
+			zoom: 0
+			center: [0, 0]
 
 		# projection should not repeat itself (also getProjectionBounds and
 		# getPixelWorldBounds don't work without it)
@@ -43,6 +51,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 		map.self.setMaxBounds maxBounds
 
 		# add scale with total object width in um
+		# TODO dynamic size depends on the input dataset
 		L.control.microScale(objectWidth: 80000).addTo map.self
 
 		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds
@@ -64,12 +73,12 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 		# 	toggleDisplay: on
 		# minimap.addTo map.self
 
-		map.self.addLayer scope.drawnItems
+		map.self.addLayer map.drawnItems
 
 		# initialise the draw control and pass it the FeatureGroup of editable layers
 		map.self.addControl new L.Control.Draw
 			edit:
-				featureGroup: scope.drawnItems
+				featureGroup: map.drawnItems
 			draw:
 				# disable all leaflet dawing tools but rectangle and polygon
 				polyline: off
@@ -84,6 +93,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 					fill: no
 					weight: 2
 
+		# add the download canvas button
 		map.self.addControl new L.Control.Button
 			text: '<i class="icon-download-alt"></i>'
 			title: 'Download the image.'
@@ -91,11 +101,11 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 				buttonElement.href = canvas.element[0].toDataURL()
 				buttonElement.download = 'quimbi_image.png'
 
-		scope.drawnItems.on 'mousemove', (e) -> map.self.fire 'mousemove', e
-		scope.drawnItems.on 'click', (e) -> map.self.fire 'click', e
+		# pass the events through
+		map.drawnItems.on 'mousemove', (e) -> map.self.fire 'mousemove', e
+		map.drawnItems.on 'click', (e) -> map.self.fire 'click', e
 
-		# don't fit bounds if map state/viewport is already manually changed
-		map.self.fitBounds maxBounds, animate: off unless map.dirty()
+		map.self.fitBounds maxBounds, animate: off
 
 		map.self.on 'mousemove', (e) ->
 			if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
@@ -106,8 +116,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
 				mouse.position.xPx = Math.floor mouse.position.x * inputWidth
 				mouse.position.yPx = Math.floor (1 - mouse.position.y) * inputHeight
-				newX = Math.floor mouse.position.x * canvas.element[0].width
-				newY = Math.floor mouse.position.y * canvas.element[0].height
+				newX = Math.floor mouse.position.x * inputWidth
+				newY = Math.floor mouse.position.y * inputHeight
 				if mouse.position.dataX isnt newX or mouse.position.dataY isnt newY
 					mouse.position.dataX = newX
 					mouse.position.dataY = newY
@@ -144,18 +154,22 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 
 
 	controller: ($scope) ->
-		leafletMarkers = []
 
+		# creates a new Leaflet marker from a Marker object
 		newLeafletMarkerFrom = (marker) ->
 			L.marker marker.getPosition(),
 				icon: L.divIcon className: "marker-point marker-point--#{marker.getColor()}"
 				draggable: yes
 
+		# synchronizes the Leaflet markers with the list of the markers service
 		syncMarkers = (markerList) ->
-			for leafletMarker in leafletMarkers
+			for leafletMarker in map.markers
 				map.self.removeLayer leafletMarker
 
-			leafletMarkers.length = 0
+			map.markers.length = 0
+
+			# don't draw markers, if they are disabled in the settings
+			unless settings.showPoints then return
 
 			for marker, i in markerList when marker.isSet()
 				m = newLeafletMarkerFrom marker
@@ -168,28 +182,21 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 					renderer.update()
 
 				m.addTo map.self
-				leafletMarkers.push m
+				map.markers.push m
 
-		if settings.showPoints
-			$scope.$watch (-> markers.getList()), syncMarkers, yes
+		$scope.$watch (-> markers.getList()), syncMarkers, yes
 
-		# adding leaflet.draw toolbar and a layer to enable region selection
-		# initialise the FeatureGroup to store editable layers
-		$scope.drawnItems = L.featureGroup()
-
-		leafletRegions = []
-
+		# synchronize the Leaflet Draw regions with the list of the regions service
 		syncRegions = (regionList) ->
-			$scope.drawnItems.clearLayers()
-			leafletRegions.length = 0
+			map.drawnItems.clearLayers()
 			for region, i in regionList
 				layer = region.getLayer()
-				$scope.drawnItems.addLayer layer
-				leafletRegions.push layer
+				map.drawnItems.addLayer layer
 			renderer.updateRegionMask()
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
 
+		# show or hide regular grid according to the settings
 		toogleGrid = (showGrid) ->
 			if showGrid
 				map.self.addLayer map.gridLayer
