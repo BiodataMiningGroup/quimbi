@@ -7,6 +7,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		texture = helpers.newTexture 'distanceTexture'
 		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.dataWidth, input.dataHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, null
 		gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
+		# TODO gl.bindTexture gl.TEXTURE_2D, null
 		gl.bindFramebuffer gl.FRAMEBUFFER, null
 
 	setUpChannelMask = (gl, program, assets, helpers) ->
@@ -38,12 +39,14 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, no
 		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.getChannelTextureDimension(),
 				input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, mask
+		# TODO gl.bindTexture gl.TEXTURE_2D, null
 
 	updateRegionMask = (gl, mask, texture) ->
 		gl.activeTexture gl.TEXTURE1
 		gl.bindTexture gl.TEXTURE_2D, texture
 		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, yes
 		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask
+		# TODO gl.bindTexture gl.TEXTURE_2D, null
 
 	# euclidean distance
 	EuclDist: ->
@@ -83,7 +86,10 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
+			# TODO gl.bindTexture gl.TEXTURE_2D, null
+			# TODO gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 
 		@updateChannelMask = (mask) ->
@@ -131,6 +137,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
@@ -180,6 +187,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
@@ -231,7 +239,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
-
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
 
@@ -308,7 +316,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			renderScale = input.width / input.dataWidth
 			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
 			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
-
+			gl.viewport 0, 0, input.width, input.height * 3
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 
