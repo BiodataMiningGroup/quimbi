@@ -236,13 +236,14 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			return
 
 		@callback = (gl, program, assets, helpers) =>
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
+
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.distanceTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
 
@@ -303,6 +304,8 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			return
 
 		@callback = (gl, program, assets, helpers) =>
+			gl.viewport 0, 0, input.width, input.height
+
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 			gl.activeTexture gl.TEXTURE1
@@ -319,7 +322,6 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			renderScale = input.width / input.dataWidth
 			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
 			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
-			gl.viewport 0, 0, input.width, input.height
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 
@@ -373,6 +375,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			return
 
 		@callback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.getChannelTextureDimension(), input.getChannelTextureDimension()
 			gl.uniform2f mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.selection
