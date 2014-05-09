@@ -255,20 +255,19 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		return
 
 	# applies a color map to the R channel of the rgb texture
-	ColorMapDisplay: ->
+	ColorMap: ->
 		_colorMapTextureR = null
 		_colorMapTextureG = null
 		_colorMapTextureB = null
 		_colorMask = [0, 0, 0]
 		_colorMaskLocation = null
 		_gl = null
-		_spaceFillPercent = null
 
-		@id = 'color-map-display'
+		@id = 'color-map'
 
 		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/grid-projection.glsl.frag' #'shader/color-map-display.glsl.frag'
+		@fragmentShaderUrl = 'shader/color-map.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			_gl = gl
@@ -277,17 +276,6 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 0
-
-
-			# 0.0 .. 1.0, meaningfull are only steps in pixel size
-			spaceFillPercent = 1.0
-			renderScale = input.width / input.dataWidth
-			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
-			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
-
-			# u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
-			pixelSize = gl.getUniformLocation program, 'u_pixel_size'
-			gl.uniform2f pixelSize, 1.0 / input.dataWidth, 1.0 / input.dataHeight
 
 			_colorMapTextureR = helpers.newTexture 'colorMapTextureR'
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
@@ -304,7 +292,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.viewport 0, 0, input.width, input.height
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
@@ -316,13 +304,8 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureB
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
-
-			# 0.0 .. 1.0, meaningfull are only steps in pixel size
-			spaceFillPercent = settings.spaceFillPercent
-			renderScale = input.width / input.dataWidth
-			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
-			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
-			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			# use distance texture because it has the same dimensions and is not needed at the step
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
 		@updateColorMask = (mask) ->
@@ -343,6 +326,54 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			_colorMask[0] = mask[0]
 			_colorMask[1] = mask[1]
 			_colorMask[2] = mask[2]
+
+		return
+
+	# applies a color map to the R channel of the rgb texture
+	SpaceFillDisplay: ->
+		_gl = null
+		_spaceFillPercent = null
+
+		@id = 'space-fill-display'
+
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
+
+		@fragmentShaderUrl = 'shader/space-fill-display.glsl.frag'
+
+		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+
+			rgb = gl.getUniformLocation program, 'u_color_map'
+			gl.uniform1i rgb, 0
+
+			# 0.0 .. 1.0, meaningfull are only steps in pixel size
+			spaceFillPercent = 1.0
+			renderScale = input.width / input.dataWidth
+			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
+			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
+
+			# u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
+			pixelSize = gl.getUniformLocation program, 'u_pixel_size'
+			gl.uniform2f pixelSize, 1.0 / input.dataWidth, 1.0 / input.dataHeight
+
+			return
+
+		@callback = (gl, program, assets, helpers) =>
+			gl.viewport 0, 0, input.width, input.height
+			gl.activeTexture gl.TEXTURE0
+			# use distance texture because it has the same dimensions and is not needed at the step
+			gl.bindTexture gl.TEXTURE_2D, assets.textures.distanceTexture
+
+			# 0.0 .. 1.0, meaningfull are only steps in pixel size
+			spaceFillPercent = settings.spaceFillPercent
+			renderScale = input.width / input.dataWidth
+			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
+			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
+			# render to screen
+			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
 
 		return
 
