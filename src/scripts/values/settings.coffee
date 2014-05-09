@@ -18,6 +18,9 @@ angular.module('quimbi').value 'settings',
 	# show the grid
 	showGrid: yes
 
+	# show the grid
+	spaceFillPercent: 1.0
+
 	# currently used color maps (for the markers and ranges)
 	colorMaps: ['fire', 'green', 'blue']
 

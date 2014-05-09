@@ -250,6 +250,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		_colorMask = [0, 0, 0]
 		_colorMaskLocation = null
 		_gl = null
+		_spaceFillPercent = null
 
 		@id = 'color-map-display'
 
@@ -264,6 +265,17 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 0
+
+			renderScale = gl.getUniformLocation program, 'u_render_scale'
+			gl.uniform1f renderScale, input.width / input.dataWidth
+
+			# 0.0 .. 1.0, meaningfull are only steps in pixel size
+			_spaceFillPercent = gl.getUniformLocation program, 'u_space_fill_percent'
+			gl.uniform1f _spaceFillPercent, 1.0
+
+			# u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
+			pixelSize = gl.getUniformLocation program, 'u_pixel_size'
+			gl.uniform2f pixelSize, 1.0 / input.dataWidth, 1.0 / input.dataHeight
 
 			_colorMapTextureR = helpers.newTexture 'colorMapTextureR'
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
@@ -291,6 +303,8 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 
+			gl.uniform1f _spaceFillPercent, settings.spaceFillPercent
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 
@@ -307,6 +321,11 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[1]
 			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureB
 			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[2]
+
+		@updateColorMask = (mask) ->
+			_colorMask[0] = mask[0]
+			_colorMask[1] = mask[1]
+			_colorMask[2] = mask[2]
 
 		return
 

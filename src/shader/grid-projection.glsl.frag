@@ -38,7 +38,7 @@ void main() {
     //     discard;
     // }
 
-    // vec2 grid_position = mod(floor(v_texture_position / pixel_size), 2.0);
+    // vec2 grid_position = mod(floor(v_texture_position / u_pixel_size), 2.0);
     // if (grid_position.x == 0.0 || grid_position.y == 0.0) discard;
 
     // ich habe gerade 240*100 output pixel aber nur 120*50 textur pixel
@@ -48,8 +48,8 @@ void main() {
     // check if coord between grid coord and grid coord + treshold
 
     // TODO use fraction
-    vec2 grid_position = v_texture_position / pixel_size;
-    float point_size = (1.0 - 1.0 / render_scale * (space_fill_percent * render_scale)) / 2.0;
+    vec2 grid_position = v_texture_position / u_pixel_size;
+    float point_size = (1.0 - 1.0 / u_render_scale * (u_space_fill_percent * u_render_scale)) / 2.0;
     vec2 grid_position_min = floor(grid_position) + point_size;
     vec2 grid_position_max = ceil(grid_position) - point_size;
 
@@ -57,7 +57,7 @@ void main() {
         discard;
     }
 
-    // vec2 grid_position = mod(floor(v_texture_position / pixel_size), 2.0);
+    // vec2 grid_position = mod(floor(v_texture_position / u_pixel_size), 2.0);
     // if (grid_position.x != 0.0 || grid_position.y != 0.0) discard;
 
     // if (v_texture_position.x > 0.5 && v_texture_position.x < 0.505) discard;

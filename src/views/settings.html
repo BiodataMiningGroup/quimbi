@@ -42,6 +42,11 @@
 				</label>
 				<select data-ng-model="data.colorMapNames[2]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
+
+			<label for="space-fill-percent-number" class="pure-number">
+				<input id="space-fill-percent-number" type="number" value="space-fill-percent" data-ng-model="settings.spaceFillPercent"/>
+				Size of a data point in percent.
+			</label>
 		</fieldset>
 		<fieldset data-tourtip="Finally there are some settings to customize the user interface." data-tourtip-step="2" data-tourtip-placement="top">
 			<legend>Interface</legend>
