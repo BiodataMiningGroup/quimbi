@@ -1,4 +1,4 @@
-// from https://gist.github.com/emtiu/6098482
+// from https://gist.github.com/mzur/a86169f5a3e6499a2639
 
 // Usage:
 //   var someButton = new L.Control.Button(options).addTo(map);

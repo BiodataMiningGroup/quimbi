@@ -1,4 +1,4 @@
-# directive to read a local text file
+# directive to display the color scale's canvas
 angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, settings, colorMap) ->
 
 	restrict: 'A'

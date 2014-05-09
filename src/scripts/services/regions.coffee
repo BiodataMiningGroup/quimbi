@@ -24,11 +24,11 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 		pointX = point.lat
 		pointY = point.lng
 		inside = no
-		lastPolygonPoint = polygonPoints.slice(-1)
-		xj = lastPolygonPoint.lat
-		yj = lastPolygonPoint.lng
+		xj = polygonPoints[polygonPoints.length - 1].lat
+		yj = polygonPoints[polygonPoints.length - 1].lng
+		xi = yi = 0
 
-		for polygonPoint in polygonPoints.slice(0, -1)
+		for polygonPoint in polygonPoints
 			xi = polygonPoint.lat
 			yi = polygonPoint.lng
 			intersect = ((yi > pointY) isnt (yj > pointY)) and
