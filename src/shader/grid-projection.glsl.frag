@@ -9,8 +9,7 @@ uniform sampler2D u_color_map_b;
 
 uniform vec3 u_color_mask;
 // uniform vec2 texture_size; // e.g. vec2(120.0, 50.0)
-uniform float u_render_scale; // how much bigger than the data dimensions is the canvas? >= 1.0
-uniform float u_space_fill_percent; // 0.0 .. 1.0 meaningfule are only steps in pixel size
+uniform float u_half_point_size;
 uniform vec2 u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
 
 const vec4 ZEROS = vec4(0.0);
@@ -52,9 +51,8 @@ void main() {
 
     // TODO use fraction
     vec2 grid_position = v_texture_position / u_pixel_size;
-    float point_size = (1.0 - 1.0 / u_render_scale * (u_space_fill_percent * u_render_scale)) / 2.0;
-    vec2 grid_position_min = floor(grid_position) + point_size;
-    vec2 grid_position_max = ceil(grid_position) - point_size;
+    vec2 grid_position_min = floor(grid_position) + u_half_point_size;
+    vec2 grid_position_max = ceil(grid_position) - u_half_point_size;
 
     if (any(lessThan(grid_position, grid_position_min)) || any(greaterThan(grid_position, grid_position_max))) {
         gl_FragColor = ZEROS;

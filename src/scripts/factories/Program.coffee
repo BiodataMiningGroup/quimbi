@@ -266,12 +266,12 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 0
 
-			renderScale = gl.getUniformLocation program, 'u_render_scale'
-			gl.uniform1f renderScale, input.width / input.dataWidth
 
 			# 0.0 .. 1.0, meaningfull are only steps in pixel size
-			_spaceFillPercent = gl.getUniformLocation program, 'u_space_fill_percent'
-			gl.uniform1f _spaceFillPercent, 1.0
+			spaceFillPercent = 1.0
+			renderScale = input.width / input.dataWidth
+			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
+			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
 
 			# u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
 			pixelSize = gl.getUniformLocation program, 'u_pixel_size'
@@ -303,7 +303,11 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 
-			gl.uniform1f _spaceFillPercent, settings.spaceFillPercent
+			# 0.0 .. 1.0, meaningfull are only steps in pixel size
+			spaceFillPercent = settings.spaceFillPercent
+			renderScale = input.width / input.dataWidth
+			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
+			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
 
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
