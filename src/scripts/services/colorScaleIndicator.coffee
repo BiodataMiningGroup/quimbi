@@ -8,13 +8,11 @@ angular.module('quimbi').service 'colorScaleIndicator', (mouse, shader) ->
 
 	@getIntensities = ->
 		glmvilib.render shader.getIntensity()
-		# TODO glmvilib.getPixels mouse.position.dataX, 1 - mouse.position.dataY, 1, 1, intensities
 		glmvilib.getPixels mouse.position.dataX, mouse.position.dataY, 1, 1, intensities
 		intensities
 
 	@getColor = ->
 		glmvilib.render shader.getColor()
-		# TODO glmvilib.getPixels mouse.position.dataX, 1 - mouse.position.dataY, 1, 1, color
 		glmvilib.getPixels mouse.position.dataX, mouse.position.dataY, 1, 1, color
 		color
 
