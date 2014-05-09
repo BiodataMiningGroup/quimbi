@@ -13,6 +13,9 @@ uniform float u_render_scale; // how much bigger than the data dimensions is the
 uniform float u_space_fill_percent; // 0.0 .. 1.0 meaningfule are only steps in pixel size
 uniform vec2 u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
 
+const vec4 ZEROS = vec4(0.0);
+
+
 // vec4 tex2DBiLinear( sampler2D textureSampler_i, vec2 texCoord_i )
 // {
 //     vec4 p0q0 = texture2D(textureSampler_i, texCoord_i);
@@ -54,7 +57,8 @@ void main() {
     vec2 grid_position_max = ceil(grid_position) - point_size;
 
     if (any(lessThan(grid_position, grid_position_min)) || any(greaterThan(grid_position, grid_position_max))) {
-        discard;
+        gl_FragColor = ZEROS;
+        return;
     }
 
     // vec2 grid_position = mod(floor(v_texture_position / u_pixel_size), 2.0);
@@ -65,7 +69,7 @@ void main() {
 
     vec4 color = texture2D(u_rgb, v_texture_position); //tex2DBiLinear(u_rgb, v_texture_position); //texture2D(u_rgb, v_texture_position);
     vec3 r = u_color_mask.r * texture2D(u_color_map_r, vec2(color.r, 0.5)).rgb;
-    // vec3 g = u_color_mask.g * texture2D(u_color_map_g, vec2(color.g, 0.5)).rgb;
-    // vec3 b = u_color_mask.b * texture2D(u_color_map_b, vec2(color.b, 0.5)).rgb;
-    gl_FragColor = vec4(r /*+ g + b*/, 1.0);
+    vec3 g = u_color_mask.g * texture2D(u_color_map_g, vec2(color.g, 0.5)).rgb;
+    vec3 b = u_color_mask.b * texture2D(u_color_map_b, vec2(color.b, 0.5)).rgb;
+    gl_FragColor = vec4(r + g + b, 1.0);
 }
