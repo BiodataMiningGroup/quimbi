@@ -5,7 +5,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		assets.framebuffers.distances = gl.createFramebuffer()
 		gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 		texture = helpers.newTexture 'distanceTexture'
-		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.width, input.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.dataWidth, input.dataHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, null
 		gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 		gl.bindFramebuffer gl.FRAMEBUFFER, null
 
@@ -28,8 +28,8 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		unless regionMaskTexture = assets.textures.regionMaskTexture
 			regionMaskTexture = helpers.newTexture 'regionMaskTexture'
 			# same dimensions as distance texture
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.width,
-				input.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth,
+				input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		regionMaskTexture
 
 	updateChannelMask = (gl, mask, texture) ->
@@ -214,7 +214,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			assets.framebuffers.rgb = gl.createFramebuffer()
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			texture = helpers.newTexture 'rgbTexture'
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.width, input.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.dataWidth, input.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null
 			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 
