@@ -39,7 +39,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 			glmvilib.render 'selection-info'
 			# update spectrogram
 			glmvilib.getPixels 0, 0, @_textureDimension, @_textureDimension, @_selectionData.spectrogram
-			#glmvilib.setViewport 0, 0, input.width, input.height
+			glmvilib.setViewport 0, 0, input.width, input.height
 
 			# update histogram
 			for intensity in [0...@_selectionData.histogram.length]

@@ -5,7 +5,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		assets.framebuffers.distances = gl.createFramebuffer()
 		gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 		texture = helpers.newTexture 'distanceTexture'
-		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.dataWidth, input.dataHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB,
+			input.dataWidth, input.dataHeight, #input.width, input.height,
+			0, gl.RGB, gl.UNSIGNED_BYTE, null
 		gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 		# TODO gl.bindTexture gl.TEXTURE_2D, null
 		gl.bindFramebuffer gl.FRAMEBUFFER, null
@@ -29,8 +31,9 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		unless regionMaskTexture = assets.textures.regionMaskTexture
 			regionMaskTexture = helpers.newTexture 'regionMaskTexture'
 			# same dimensions as distance texture
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth,
-				input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA,
+				input.dataWidth, input.dataHeight, #input.width, input.height, #
+				0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		regionMaskTexture
 
 	updateChannelMask = (gl, mask, texture) ->
@@ -80,13 +83,13 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			return
 
 		@callback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			# TODO gl.bindTexture gl.TEXTURE_2D, null
 			# TODO gl.bindFramebuffer gl.FRAMEBUFFER, null
@@ -131,13 +134,13 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			return
 
 		@callback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
@@ -181,13 +184,13 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			return
 
 		@callback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform1f _invActiveChannels, 1 / (_activeChannels || -1)
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, _channelMaskTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
@@ -222,7 +225,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			assets.framebuffers.rgb = gl.createFramebuffer()
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			texture = helpers.newTexture 'rgbTexture'
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.dataWidth, input.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.dataWidth, input.dataHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, null
 			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 
@@ -316,7 +319,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			renderScale = input.width / input.dataWidth
 			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
 			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
-			gl.viewport 0, 0, input.width, input.height * 3
+			gl.viewport 0, 0, input.width, input.height
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 
