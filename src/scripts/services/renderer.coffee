@@ -109,5 +109,5 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		for map, index in settings.colorMaps
 			maps[index] = colorMap.get map
 		shader.updateColorMaps maps
-		
+
 	return

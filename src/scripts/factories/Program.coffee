@@ -12,6 +12,17 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		# TODO gl.bindTexture gl.TEXTURE_2D, null
 		gl.bindFramebuffer gl.FRAMEBUFFER, null
 
+	setUpColorMapTexture = (gl, assets, helpers) -> unless assets.framebuffers.colorMapTexture
+		assets.framebuffers.colorMapTexture = gl.createFramebuffer()
+		gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
+		texture = helpers.newTexture 'colorMapTexture'
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB,
+			input.dataWidth, input.dataHeight, #input.width, input.height,
+			0, gl.RGB, gl.UNSIGNED_BYTE, null
+		gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
+		gl.bindTexture gl.TEXTURE_2D, null
+		gl.bindFramebuffer gl.FRAMEBUFFER, null
+
 	setUpChannelMask = (gl, program, assets, helpers) ->
 		channelMaskTexture = null
 		gl.uniform1i gl.getUniformLocation(program, 'u_channel_mask'), 0
@@ -288,6 +299,8 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_g'), 2
 			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_b'), 3
 
+			setUpColorMapTexture gl, assets, helpers
+
 			_colorMaskLocation = gl.getUniformLocation program, 'u_color_mask'
 			return
 
@@ -305,7 +318,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 			# use distance texture because it has the same dimensions and is not needed at the step
-			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
 			return
 
 		@updateColorMask = (mask) ->
@@ -364,7 +377,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			gl.viewport 0, 0, input.width, input.height
 			gl.activeTexture gl.TEXTURE0
 			# use distance texture because it has the same dimensions and is not needed at the step
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.distanceTexture
+			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 
 			# 0.0 .. 1.0, meaningfull are only steps in pixel size
 			spaceFillPercent = settings.spaceFillPercent
