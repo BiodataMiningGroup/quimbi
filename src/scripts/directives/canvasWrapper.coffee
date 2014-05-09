@@ -104,11 +104,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 				mouse.position.lng = e.latlng.lng
 				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
 				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
-				newX = Math.floor mouse.position.x * inputWidth
-				newY = Math.floor mouse.position.y * inputHeight
+				newX = Math.floor mouse.position.x * input.dataWidth
+				newY = Math.floor (1 - mouse.position.y) * input.dataHeight
 				if mouse.position.dataX isnt newX or mouse.position.dataY isnt newY
-					mouse.position.xPx = Math.floor mouse.position.x * inputWidth
-					mouse.position.yPx = Math.floor (1 - mouse.position.y) * inputHeight
 					mouse.position.dataX = newX
 					mouse.position.dataY = newY
 					renderer.update()
