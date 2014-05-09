@@ -60,8 +60,8 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 		maxLat = maxBounds.getNorth()
 		boundsWidth = maxBounds.getEast() - maxLng
 		boundsHeight = maxBounds.getSouth() - maxLat
-		canvasWidth = input.width
-		canvasHeight = input.height
+		canvasWidth = input.dataWidth
+		canvasHeight = input.dataHeight
 
 		for latLng in latLngs
 			x = Math.round (latLng.lng - maxLng) / boundsWidth * canvasWidth
