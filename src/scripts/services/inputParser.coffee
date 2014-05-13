@@ -16,7 +16,6 @@ angular.module('quimbi').service 'inputParser', (input) ->
 		input.overlayScaleY = parseInt brightfieldConfig[2]
 		input.overlayShiftX = parseInt brightfieldConfig[3]
 		input.overlayShiftY = parseInt brightfieldConfig[4]
-		console.log input.overlayImage, input.overlayScaleX, input.overlayScaleY, input.overlayShiftX, input.overlayShiftY
 
 		header = rawInput.substring(0, firstLine).split ','
 		input.id = header[0]
