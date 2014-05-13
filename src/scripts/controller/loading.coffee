@@ -81,21 +81,21 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 			image.src = input.base + src + input.format
 			loading.topIndex++
 
-	# TODO callback for image onload event
-	# overlayLoaded = ->
-	#	console.log input.overlayImage
+	# # TODO callback for image onload event
+	# # overlayLoaded = ->
+	# #	console.log input.overlayImage
 
-	# callback for image error event
-	# don't fail if the overlay is missing
-	overlayError = ->
-		$scope.$emit 'message::error', "Failed to load overlay image: #{@src}."
+	# # callback for image error event
+	# # don't fail if the overlay is missing
+	# overlayError = ->
+	# 	$scope.$emit 'message::error', "Failed to load overlay image: #{@src}."
 
-	# load overlay image
-	overlayImage = new Image()
-	# TODO overlayImage.onload = overlayLoaded
-	overlayImage.onerror = overlayError
-	overlayImage.src = input.overlayImage
-	input.overlayImage = overlayImage
+	# # load overlay image
+	# overlayImage = new Image()
+	# # TODO overlayImage.onload = overlayLoaded
+	# overlayImage.onerror = overlayError
+	# overlayImage.src = input.overlayImage
+	# input.overlayImage = overlayImage
 
 	# kick off loading
 	pack = loading.parallel()
