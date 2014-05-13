@@ -8,6 +8,15 @@ angular.module('quimbi').service 'inputParser', (input) ->
 	@parse = (rawInput) ->
 		firstLine = rawInput.indexOf '\n'
 		secondLine = rawInput.indexOf '\n', firstLine + 1
+		# data/OpG4dVa20120918Sc4/Optic G4d Vakuum 20120918_4_small.png,1,1,0,0
+		brightfieldConfigLine = rawInput.indexOf '\n', secondLine + 1
+		brightfieldConfig = rawInput.substring(secondLine + 1, brightfieldConfigLine).split ','
+		input.overlayImage = brightfieldConfig[0]
+		input.overlayScaleX = parseInt brightfieldConfig[1]
+		input.overlayScaleY = parseInt brightfieldConfig[2]
+		input.overlayShiftX = parseInt brightfieldConfig[3]
+		input.overlayShiftY = parseInt brightfieldConfig[4]
+		console.log input.overlayImage, input.overlayScaleX, input.overlayScaleY, input.overlayShiftX, input.overlayShiftY
 
 		header = rawInput.substring(0, firstLine).split ','
 		input.id = header[0]
@@ -26,7 +35,7 @@ angular.module('quimbi').service 'inputParser', (input) ->
 			input.maxEuclDist = Math.sqrt(input.channels) * 255
 
 		input.preprocessing = rawInput.substring(firstLine + 1, secondLine).split ','
-		input.files = rawInput.substring(secondLine + 1).split('\n').filter filesFilter
+		input.files = rawInput.substring(brightfieldConfigLine + 1).split('\n').filter filesFilter
 		input.channelNames = []
 		input.files.forEach (file) ->
 			file.split('-').forEach (name) ->

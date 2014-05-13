@@ -42,6 +42,16 @@ angular.module('quimbi').value 'input',
 	# url to overlay image
 	overlayImage: ''
 
+	# scale required to align overlay and data dimensions (for x and y axis)
+	overlayScale:
+		x: 1
+		y: 1
+
+	# shift required to align overlay and data dimensions (for x and y axis)
+	overlayShift:
+		x: 0
+		y: 0
+
 	# maximal occurring euclidean distance in this dataset
 	maxEuclDist: 0
 
