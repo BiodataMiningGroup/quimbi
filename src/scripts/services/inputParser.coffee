@@ -23,8 +23,8 @@ angular.module('quimbi').service 'inputParser', (input) ->
 		input.base = header[1]
 		input.format = header[2]
 		input.channels = parseInt header[3]
-		input.width = parseInt header[4] * 3 # DEV
-		input.height = parseInt header[5] * 3 # DEV
+		input.width = parseInt header[4] * input.overlayScaleX # DEV
+		input.height = parseInt header[5] * input.overlayScaleY # DEV
 		input.dataWidth = parseInt header[4]
 		input.dataHeight = parseInt header[5]
 		if header[6]
