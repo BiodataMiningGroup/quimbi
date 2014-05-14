@@ -12,6 +12,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 
 			if @_type is 'mean'
 				@_color = 'white'
+				@_colorMaskIndex = 0
 			else
 				@_colorMaskIndex = Marker.colorMaskIndices.shift()
 				@_color = settings.colorMapSingleColors[@_colorMaskIndex]

@@ -23,7 +23,7 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 		updateHistogram = ->
 			ctx.clearRect 0, 0, width, height
 			marker = markers.getList()[0]
-			redrawHistogram marker if marker and marker.isSet()
+			redrawHistogram marker if marker and marker.isSet() or marker.getType() is 'mean'
 
 		scope.$watch (-> markers.getList()[0]), updateHistogram, yes
 
