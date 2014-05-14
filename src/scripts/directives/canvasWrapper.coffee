@@ -52,7 +52,13 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		# TODO dynamic size depends on the input dataset
 		L.control.microScale(objectWidth: 80000).addTo map.self
 
-		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds
+		overlayBounds = L.latLngBounds southWest, northEast
+		if input.overlayImage isnt ''
+			map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
+
+		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds, opacity: 0.8
+
+
 
 		inputPixelWidth = lngBound * 2 / input.dataWidth
 
