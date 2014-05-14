@@ -33,8 +33,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 	# updates the channel mask array with the given list of spectrum ranges
 	# and passes it on to the shader service to update the channel mask texture
 	updateChannelMaskWith = (rangesList) ->
-		# number of overall channels padded to be represented as vec4's
-		channel = input.files.length * 4
+		channel = input.channels
 
 		# number of active channels of the channel mask
 		activeChannels = 0
