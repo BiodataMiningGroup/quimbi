@@ -11,12 +11,10 @@ uniform float u_inv_channel_mask_dimension;
 uniform sampler2D u_channel_mask;
 uniform sampler2D u_region_mask;
 
-const int LAST_CHANNELS = <%=CHANNELS_LAST_TILE=%>;
-const int TILES_MINUS_ONE = <%=TILES=%> - 1;
 const vec4 ONES = vec4(1);
 const vec4 ZEROS = vec4(0);
 
-<%=TEXTURE_3D_2pos=%>
+<%=SAMPLER_DEFINITION=%>
 
 void main() {
 	// if masked by the region mask, din't do anything
@@ -35,16 +33,33 @@ void main() {
 	// cummulating the squared length of the sample pixels vector
 	float sampleLength = 0.0;
 
+	// temporary texture values of current position
 	vec4 current;
+	// temporary texture values of sample position
 	vec4 sample;
 
-	mat4 rgbas;
-
+	// the index of the current tile
 	float tile;
+	// the texture position on the channel mask of the current tile
 	vec2 mask_position = vec2(0);
+	// the channel mask of the current tile
 	vec4 channel_mask;
 
-	for (int i = 0; i < TILES_MINUS_ONE; i++) {
+	// the row-major index of the current tile on it's texture
+	float index_on_sampler;
+	// the column in which the current tile lies on the texture
+	float column;
+	// the row in which the current tile lies on the texture
+	float row;
+	// the index of the texture, the current tile is on
+	float sampler_index;
+
+	// the 2d coordinates of the current position on the correct texture
+	vec2 coords_2d_current;
+	// the 2d coordinates of the sample position on the correct texture
+	vec2 coords_2d_sample;
+
+	for (int i = 0; i < <%=TILES=%>; i++) {
 		tile = float(i);
 		mask_position.s = mod(tile, u_channel_mask_dimension);
 		mask_position.t = floor(tile * u_inv_channel_mask_dimension);
@@ -54,36 +69,33 @@ void main() {
 		// check if any channels of this tile are to be computed
 		if (dot(channel_mask, ONES) == 0.0) continue;
 
-		rgbas = glmvilib_texture3D_2pos(u_mouse_position, v_texture_position, tile);
+		index_on_sampler = mod(tile, <%=TILES_PER_TEXTURE=%>);
+		column = mod(index_on_sampler, <%=TILE_COLUMNS=%>);
+		row = floor(index_on_sampler / <%=TILE_COLUMNS=%>);
 
-		// get rgba of the pixel to compare; filtered by the channel mask
-		sample = channel_mask * rgbas[0];
+		coords_2d_sample = vec2(
+			<%=TILE_WIDTH=%> * (column + u_mouse_position.x),
+			<%=TILE_HEIGHT=%> * (row + u_mouse_position.y)
+		);
+
+		coords_2d_current = vec2(
+			<%=TILE_WIDTH=%> * (column + v_texture_position.x),
+			<%=TILE_HEIGHT=%> * (row + v_texture_position.y)
+		);
+
+		// needed for DYNAMIC_SAMPLER_QUERIES
+		sampler_index = floor(tile / <%=TILES_PER_TEXTURE=%>);
+
+		// get rgba of the pixel to compare; filtered by the channel mask and
 		// get rgba of the position of this pixel; filtered by the channel mask
-		current = channel_mask * rgbas[1];
+		<%=DYNAMIC_SAMPLER_QUERIES
+		sample = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_sample);
+		current = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_current);
+		=%>
 
 		currentLength += dot(current, current);
 		sampleLength += dot(sample, sample);
 		color += dot(current, sample);
-	}
-
-	tile = float(TILES_MINUS_ONE);
-	mask_position.s = mod(tile, u_channel_mask_dimension);
-	mask_position.t = floor(tile * u_inv_channel_mask_dimension);
-	mask_position *= u_inv_channel_mask_dimension;
-	channel_mask = texture2D(u_channel_mask, mask_position);
-
-	rgbas = glmvilib_texture3D_2pos(u_mouse_position, v_texture_position, tile);
-
-	// last tile (may use not all channels)
-	sample = channel_mask * rgbas[0];
-	current = channel_mask * rgbas[1];
-
-
-	for (int i = 0; i < LAST_CHANNELS; i++) {
-		// use MAD (multiply, then add) -> single cycle operation
-		currentLength = (current[i] * current[i]) + currentLength;
-		sampleLength = (sample[i] * sample[i]) + sampleLength;
-		color = (current[i] * sample[i]) + color;
 	}
 
 	// if the intensities of this fragment are all 0, don't draw it
