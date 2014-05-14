@@ -5,18 +5,11 @@
 	right: @pad;
 	background-color: black;
 	border: 2px solid @dark-gray;
-	width: 256px;
-	height: 256px;
 	border-radius: @radius;
-
-	canvas {
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
+	line-height: 0;
 }
 
-.color-scale--visible {
+.color-scale--1d, .color-scale--2d, .color-scale--3d {
 	display: block;
 }
 
@@ -25,9 +18,28 @@
 		display: block;
 	}
 
-	canvas {
+	.color-scale__canvas canvas {
 		display: none;
 	}
+}
+
+.color-scale__canvas {
+	position: relative;
+	display: inline-block;
+
+	canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.color-scale__histogram {
+	display: none;
+}
+
+.color-scale--1d .color-scale__histogram {
+	display: inline-block;
 }
 
 .point() {

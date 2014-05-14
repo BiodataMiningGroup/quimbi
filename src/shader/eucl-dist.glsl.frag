@@ -17,7 +17,7 @@ const vec4 ZEROS = vec4(0);
 <%=SAMPLER_DEFINITION=%>
 
 void main() {
-	// if masked by the region mask, din't do anything
+	// if masked by the region mask, don't do anything
 	if (texture2D(u_region_mask, v_texture_position).a == 0.0) {
 		gl_FragColor = ZEROS;
 		return;
@@ -95,7 +95,10 @@ void main() {
 	}
 
 	// if the intensities of this fragment are all 0, don't draw it
-	if (dot(test_for_zero, ONES) == 0.0) discard;
+	if (dot(test_for_zero, ONES) == 0.0) {
+		gl_FragColor = ZEROS;
+		return;
+	}
 
 	color = sqrt(color) * u_normalization;
 

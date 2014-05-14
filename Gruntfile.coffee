@@ -23,7 +23,16 @@ module.exports = (grunt) ->
 			# deletes everything in build but the data directory
 			build:
 				# explicitly stating everything that should be deleted instead of excluding data from cleaning is on purpose
-				src: ['<%= buildDir %>/css/', '<%= buildDir %>/fonts/', '<%= buildDir %>/index.html', '<%= buildDir %>/js/', '<%= buildDir %>/shader/', '<%= buildDir %>/templates/', '<%= buildDir %>/views/']
+				src: [
+					'<%= buildDir %>/css/',
+					'<%= buildDir %>/fonts/',
+					'<%= buildDir %>/index.html',
+					'<%= buildDir %>/js/',
+					'<%= buildDir %>/shader/',
+					'<%= buildDir %>/templates/',
+					'<%= buildDir %>/views/',
+					'<%= buildDir %>/color-maps/'
+				]
 		# Compile and uglify LESS
 		recess:
 			build:

@@ -1,4 +1,4 @@
-# directive to read a local text file
+# directive to display a color scale of all present markers
 angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, colorScaleIndicator) ->
 	
 	restrict: 'A'
@@ -46,12 +46,11 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 		# hides the color scale when no marker exists
 		$scope.colorScaleClass = ->
 			output = ''
-			output += 'color-scale--visible' if dimension > 0
-			output += ' color-scale--3d' if dimension is 3
+			output += "color-scale--#{dimension}d"
 			output
 
 		# determines the dimension of the color scale element
-		$scope.colorScaleStyle = -> switch dimension
+		$scope.colorScaleDimension = -> switch dimension
 			when 1
 				width: "#{smallWidth}px"
 				height: "#{fullWidth}px"
