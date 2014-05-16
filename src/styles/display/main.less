@@ -1,4 +1,5 @@
 // === Display view ===
+@canvas-tools-height: 50%;
 
 .display-view {
 	width: 100%;
@@ -34,7 +35,7 @@
 	vertical-align: top;
 	overflow-x: hidden;
 	overflow-y: auto;
-	height: 45%;
+	height: @canvas-tools-height;
 	padding: @pad @pad 0 @pad;
 	box-sizing: border-box;
 
@@ -58,17 +59,25 @@
 	}
 
 	.pure-button {
-		width: 50%;
-		padding: 0.5em;
+		padding: 0.5em 0em;
+		text-align: center;
 
 		&:first-child {
-			border-top-right-radius: 0;
+			border-bottom-left-radius: 0;
 			border-bottom-right-radius: 0;
 		}
 
 		&:last-child {
 			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
+			border-top-right-radius: 0;
+		}
+
+		&.pure-button-active {
+			font-weight: bold;
+		}
+
+		&:not(.pure-button-active) {
+			// color: rgba(0, 0, 0, 0.5);
 		}
 	}
 }

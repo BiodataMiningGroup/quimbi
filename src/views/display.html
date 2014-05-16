@@ -1,17 +1,17 @@
 <div class="display-view" data-tour="" data-step="tourStep.display" data-post-step="tourNext('display')" data-post-tour="tourClose('display')">
 	<div class="display-view__menu" data-tourtip="These are the selection tools. Choose one by clicking the button and then click anywhere on the image on the right to make a selection." data-tourtip-step="1" data-tourtip-placement="right">
 		<div class="canvas-tools" data-tourtip="Finally you can configure the application by clicking on the Settings button below the tool buttons." data-tourtip-step="6" data-tourtip-placement="right" data-tourtip-next-label="Close">
-			<div class="marker-menu" marker-menu=""></div>
 			<form class="mode-switches">
-				<label for="mode-distances" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='distances'}" data-tooltip="Distances mode.">
-					<input id="mode-distances" type="radio" name="display-modes" value="distances" data-ng-model="settings.displayMode"/>
-					<b>D</b>
-				</label><!--
-				--><label for="mode-mean" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='mean'}" data-tooltip="Mean mode.">
+				<label for="mode-similarity" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='similarity'}" data-tooltip="Display the similarity of each point to one or more selected positions on the similarity image.">
+					<input id="mode-similarity" type="radio" name="display-modes" value="similarity" data-ng-model="settings.displayMode"/>
+					similarity
+				</label>
+				<label for="mode-mean" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='mean'}" data-tooltip="Display the mean intensities of all points according to one or more selected ranges in the spectrum viewer.">
 					<input id="mode-mean" type="radio" name="display-modes" value="mean" data-ng-model="settings.displayMode"/>
-					<b>M</b>
+					mean
 				</label>
 			</form>
+			<div class="marker-menu" marker-menu=""></div>
 
 			<a href="#/settings" class="pure-button" data-tooltip="Settings.">
 				<i class="icon-cog icon-large"></i>
@@ -22,14 +22,14 @@
 			<li data-range-list-item="range" data-index="$index" data-ng-repeat="range in spectrumRanges"></li>
 		</ul>
 	</div>
-	<div class="display-view__content" data-tourtip="This is the main view of QUIMBI where the distances image and spectrum is displayed. But to see anything, you have to make a selection with one of the selection tools first." data-tourtip-step="0" data-tourtip-placement="left" data-tourtip-offset="-400">
-		<div class="display-view__top" data-tourtip="Now you can see the distances image where each point is highlighted according to it's distance to the current selection. You can zoom and pan the image to explore your data." data-tourtip-step="2" data-tourtip-placement="bottom" data-tourtip-offset="-50">
+	<div class="display-view__content" data-tourtip="This is the main view of QUIMBI where the similarity image and spectrum is displayed. But to see anything, you have to make a selection with one of the selection tools first." data-tourtip-step="0" data-tourtip-placement="left" data-tourtip-offset="-400">
+		<div class="display-view__top" data-tourtip="Now you can see the similarity image where each point is highlighted according to it's distance to the current selection. You can zoom and pan the image to explore your data." data-tourtip-step="2" data-tourtip-placement="bottom" data-tourtip-offset="-50">
 			<div class="canvas-wrapper" data-canvas-wrapper=""></div>
 			<div class="color-scale" data-color-scale="" data-ng-if="settings.showColorScale"></div>
 		</div>
 		<div class="display-view__bottom">
-			<div data-tourtip="The mass spectrum of the current selection is displayed as well. You can zoom and pan similar to the distances image." data-tourtip-step="3" data-tourtip-placement="top"></div>
-			<div data-tourtip="By pressing shift, clicking and dragging the mouse over the spectrum, you can select a region of interest. The distance computation of the distances image will now be restricted to the mass channels of this region. You can combine multiple regions, too." data-tourtip-step="4" data-tourtip-placement="top"></div>
+			<div data-tourtip="The mass spectrum of the current selection is displayed as well. You can zoom and pan similar to the similarity image." data-tourtip-step="3" data-tourtip-placement="top"></div>
+			<div data-tourtip="By pressing shift, clicking and dragging the mouse over the spectrum, you can select a region of interest. The distance computation of the similarity image will now be restricted to the mass channels of this region. You can combine multiple regions, too." data-tourtip-step="4" data-tourtip-placement="top"></div>
 			<div data-spectrum-viewer="spectrum" data-spectrum-ranges="spectrumRanges"></div>
 		</div>
 	</div>

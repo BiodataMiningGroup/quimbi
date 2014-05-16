@@ -32,4 +32,4 @@ angular.module('quimbi').value 'settings',
 		settings: 0
 
 	# the display mode of the display view
-	displayMode: 'distances'
+	displayMode: 'similarity'

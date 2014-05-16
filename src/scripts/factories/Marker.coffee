@@ -31,7 +31,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 			@_isSet = no
 
 		# releases the assigned color mask index
-		destruct: -> if @_type is 'distances'
+		destruct: -> if @_type is 'similarity'
 			Marker.colorMaskIndices.unshift @_colorMaskIndex
 
 		_updateSelection: ->

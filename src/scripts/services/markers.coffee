@@ -11,8 +11,8 @@ angular.module('quimbi').service 'markers', (Marker, settings) ->
 
 	# returns the list of all currently existing markers
 	@getList = ->
-		if settings.displayMode is 'distances' then list
-		else meanMarkerList
+		if settings.displayMode is 'mean' then meanMarkerList
+		else list
 
 	# returns the selection data of all currently existing markers
 	@getSelectionData = =>
@@ -22,12 +22,12 @@ angular.module('quimbi').service 'markers', (Marker, settings) ->
 		output
 
 	# returns the number of maximal allowed markers
-	@getMaxNumber = -> if settings.displayMode is 'distances' then 3 else 1
+	@getMaxNumber = -> if settings.displayMode is 'mean' then 1 else 3
 
 	# adds a new marker and activates it, if a new one is allowed
 	@add = -> if list.length < @getMaxNumber()
 		# assign a colorMaskIndex to the ner marker
-		list.push new Marker 'distances'
+		list.push new Marker 'similarity'
 		@activate list.length - 1
 
 	# removes a marker at a given index of the marker list
