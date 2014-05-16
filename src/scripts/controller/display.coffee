@@ -35,10 +35,14 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 	$scope.$watch 'settings.displayMode', renderer.updateChannelMask
 	$scope.$watch 'settings.displayMode', renderer.update
 
-	# activate mean marker when switching to mean mode if it isn't already set
 	$scope.$watch 'settings.displayMode', (displayMode) ->
-		if displayMode is 'mean' and not markers.getList()[0].isSet()
+		unless markers.getList()[0].isSet()
+			# activate first marker when switching display modes if it isn't already set
 			markers.activate 0
+		else
+			# else prevent the active state of the first marker to leak to the other
+			# display mode
+			markers.activate -1
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->
