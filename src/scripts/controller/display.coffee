@@ -3,9 +3,6 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 
 	renderer.updateColorMaps()
 
-	# one active marker by default
-	markers.add() if markers.getList().length is 0
-
 	$scope.settings = settings
 
 	$scope.spectrum =
@@ -36,13 +33,13 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 	$scope.$watch 'settings.displayMode', renderer.update
 
 	$scope.$watch 'settings.displayMode', (displayMode) ->
-		unless markers.getList()[0].isSet()
+		unless markers.getList()[0]?.isSet()
 			# activate first marker when switching display modes if it isn't already set
-			markers.activate 0
+			markers.switchOn 0
 		else
 			# else prevent the active state of the first marker to leak to the other
 			# display mode
-			markers.activate -1
+			markers.deactivate()
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->

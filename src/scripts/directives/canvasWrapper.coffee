@@ -161,23 +161,30 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 				icon: L.divIcon className: "marker-point marker-point--#{marker.getColor()}"
 				draggable: yes
 
+		markerDragging = no
+
 		# synchronizes the Leaflet markers with the list of the markers service
-		syncMarkers = (markerList) ->
+		# don't do it while dragging a marker, because then no 'dragend' event
+		# is fired
+		syncMarkers = (markerList) -> unless markerDragging
 			for leafletMarker in map.markers
 				map.self.removeLayer leafletMarker
 
 			map.markers.length = 0
 
 			# don't draw markers, if they are disabled in the settings
+			# but remove them in case there are some
 			unless settings.showPoints then return
 
-			for marker, i in markerList when marker.isSet()
+			for marker in markerList when marker.isSet()
 				m = newLeafletMarkerFrom marker
-				index = i
-				m.on 'dragstart', ->	$scope.$apply ->
-					markers.activate index
+				m._index = marker.getIndex()
+				m.on 'dragstart', ->	$scope.$apply =>
+					markerDragging = yes
+					markers.switchOn @_index
 					renderer.update()
 				m.on 'dragend', -> $scope.$apply ->
+					markerDragging = no
 					markers.setAt mouse.position
 					renderer.update()
 

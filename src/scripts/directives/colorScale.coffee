@@ -34,7 +34,7 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 		# returns the active color channel indices
 		getActiveIndices = -> switch settings.displayMode
 			when 'mean' then ranges.currentGroups()
-			else marker.getColorMaskIndex() for marker in markers.getList()
+			else marker.getIndex() for marker in markers.getList()
 
 		# returns a transform: translate CSS style object for ng-style
 		translateCSS = (x, y) ->

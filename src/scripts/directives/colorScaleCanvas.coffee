@@ -45,7 +45,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 				gl.UNSIGNED_BYTE, colorMap.get map
 
 		# updates the color scale (depends on the current dimension)
-		updateScale = (list) -> switch list.length
+		updateScale = (list) ->	switch list.length
 			when 1 then scope.render1D gl, vertexCoordinateBuffer, vertexColorBuffer, list
 			when 2 then scope.render2D gl, vertexCoordinateBuffer, vertexColorBuffer, list
 			#when 3 then scope.render3D gl, vertexCoordinateBuffer, vertexColorBuffer, list
@@ -155,7 +155,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			if settings.displayMode is 'mean'
 				index = list[0]
 			else
-				index = list[0].getColorMaskIndex()
+				index = list[0].getIndex()
 			clearArray vertexColorsQuad
 			for i in [1..5] by 2
 				vertexColorsQuad[3 * i + index] = 1
@@ -167,8 +167,8 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 				index0 = list[0]
 				index1 = list[1]
 			else
-				index0 = list[0].getColorMaskIndex()
-				index1 = list[1].getColorMaskIndex()
+				index0 = list[0].getIndex()
+				index1 = list[1].getIndex()
 
 			clearArray vertexColorsQuad
 
@@ -202,7 +202,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 		# 			vertexColorsTriangle[3 * index + group] = 1
 		# 	else
 		# 		for marker, index in list
-		# 			vertexColorsTriangle[3 * index + marker.getColorMaskIndex()] = 1
+		# 			vertexColorsTriangle[3 * index + marker.getIndex()] = 1
 		# 	vertexColorsTriangle
 
 		return

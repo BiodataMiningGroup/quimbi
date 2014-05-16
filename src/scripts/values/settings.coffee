@@ -18,8 +18,15 @@ angular.module('quimbi').value 'settings',
 	# show the grid
 	showGrid: yes
 
-	# currently used color maps (for the markers and ranges)
-	colorMaps: ['fire', 'green', 'blue']
+	# color map if only one selection (marker/range/...) is present
+	singleSelectionColorMap: 'fire'
+
+	# single color representing the colorMap above. marker or region is
+	# displayed in this color
+	singleSelectionSingleColor: 'white'
+
+	# color maps if multiple selections are present
+	colorMaps: ['red', 'green', 'blue']
 
 	# single colors representing the colorMaps above. markers and regions are
 	# displayed in this colors

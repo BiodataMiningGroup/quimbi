@@ -21,13 +21,13 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 	# updates the passive color mask according to the marker configuration
 	updatePassiveColorMask = ->
 		clearArray passiveColorMask
-		passiveColorMask[m.getColorMaskIndex()] = 1 for m in markers.getList()
+		passiveColorMask[m.getIndex()] = 1 for m in markers.getList()
 		passiveColorMask
 
 	# updates the active color mask according to the marker configuration
 	updateActiveColorMask = ->
 		clearArray activeColorMask
-		activeColorMask[markers.getList()[markers.getActiveIndex()].getColorMaskIndex()] = 1
+		activeColorMask[markers.getListAll()[markers.getActiveIndex()].getIndex()] = 1
 		activeColorMask
 
 	# updates the channel mask array with the given list of spectrum ranges
@@ -60,7 +60,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 
 		for marker in markers.getList() when marker.isSet()
 			clearArray activeColorMask
-			activeColorMask[marker.getColorMaskIndex()] = 1
+			activeColorMask[marker.getIndex()] = 1
 			shader.setActiveColorMask activeColorMask
 			angular.extend mouse.position, marker.getPosition()
 			glmvilib.render.apply glmvilib, shader.getActive()

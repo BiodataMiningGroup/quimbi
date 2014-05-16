@@ -11,11 +11,11 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 		constructor: (@_type) ->
 
 			if @_type is 'mean'
-				@_color = 'white'
-				@_colorMaskIndex = 0
+				@_color = settings.singleSelectionSingleColor
+				@_index = 0
 			else
-				@_colorMaskIndex = Marker.colorMaskIndices.shift()
-				@_color = settings.colorMapSingleColors[@_colorMaskIndex]
+				@_index = Marker.colorMaskIndices.shift()
+				@_color = settings.colorMapSingleColors[@_index]
 
 			@_textureDimension = input.getChannelTextureDimension()
 
@@ -30,9 +30,11 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 
 			@_isSet = no
 
+			@_isOn = no
+
 		# releases the assigned color mask index
 		destruct: -> if @_type is 'similarity'
-			Marker.colorMaskIndices.unshift @_colorMaskIndex
+			Marker.colorMaskIndices.unshift @_index
 
 		_updateSelection: ->
 			glmvilib.setViewport 0, 0, @_textureDimension, @_textureDimension
@@ -69,10 +71,16 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 
 		getColor: -> @_color
 
-		getColorMaskIndex: -> @_colorMaskIndex
+		getIndex: -> @_index
 
 		getType: -> @_type
 
-		isSet: -> @_isSet
+		isSet: -> @_isOn and @_isSet
 
 		unset: -> @_isSet = no
+
+		isOn: -> @_isOn
+
+		switchOn: -> @_isOn = yes
+
+		switchOff: -> @_isOn = no

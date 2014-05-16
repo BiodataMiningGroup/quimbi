@@ -10,7 +10,7 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 		ctx.fillStyle = 'white'
 
 		redrawHistogram = (marker) ->
-			histogram = colorScaleHistogram.get()[marker.getColorMaskIndex()]
+			histogram = colorScaleHistogram.get()[marker.getIndex()]
 			maximum = 0
 			maximum = value for value in histogram when value > maximum
 			drawNumber = histogram.length

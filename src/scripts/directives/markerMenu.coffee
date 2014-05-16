@@ -10,24 +10,20 @@ angular.module('quimbi').directive 'markerMenu', (markers, regions, renderer) ->
 	controller: ($scope) ->
 		$scope.data = markers: null
 
-		$scope.disableAdd = -> markers.hasActive() or regions.isActive()
-
-		$scope.newMarker = -> unless $scope.disableAdd()
-			markers.add()
+		$scope.switchOffMarker = (index) ->
+			markers.switchOff index
 			renderer.update()
 
-		$scope.removeMarker = (index) ->
-			markers.remove index
+		$scope.switchOnMarker = (index) ->
+			markers.switchOn index
 			renderer.update()
 
-		$scope.editMarker = (index) ->
-			markers.activate index
-			markers.getList()[index].unset()
-			renderer.update()
+		$scope.onlyMarker = ->
+			count = 0
+			count++ for marker in $scope.data.markers when marker.isOn()
+			count is 1
 
-		$scope.showAdd = -> markers.getList().length < markers.getMaxNumber()
-
-		$scope.$watch (-> markers.getList()), (markersList) ->
+		$scope.$watch (-> markers.getListAll()), (markersList) ->
 			$scope.data.markers = markersList
 		
 		return
