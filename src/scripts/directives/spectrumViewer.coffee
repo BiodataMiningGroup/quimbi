@@ -219,8 +219,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 				$scope.data.values[index] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
 
 		# update the number of currently displayed layers
-		$scope.$watchCollection 'spectrum.layers', (layers) ->
-			$scope.data.layers = layers.length
+		$scope.$watch 'spectrum.layers.length', (length) ->
+			$scope.data.layers = length
 
 		$scope.$on 'spectrumViewer.focusRange', (e, index) ->
 			range = $scope.ranges[index]

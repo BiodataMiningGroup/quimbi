@@ -16,13 +16,13 @@ angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 		ctx = element[0].getContext '2d'
 		drawHeight = drawWidth = drawZoom = drawLeft = heightCoefficient = drawNumber = 0
 		drawData = null
-		draw = ->
+		draw = (props) ->
 			drawColor = scope.layer.color
-			drawHeight = scope.props.height
-			drawWidth = scope.props.width
-			drawZoom = scope.props.zoom
-			drawLeft = Math.round scope.props.left / drawZoom
-			heightCoefficient = drawHeight / scope.props.maximum
+			drawHeight = props.height
+			drawWidth = props.width
+			drawZoom = props.zoom
+			drawLeft = Math.round props.left / drawZoom
+			heightCoefficient = drawHeight / props.maximum
 			# number of datapoints to display in the current viewport
 			drawNumber = Math.round drawWidth / drawZoom
 			drawData = scope.layer.data
@@ -51,5 +51,4 @@ angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 		scope.$watch 'props.width', (width) ->	element[0].width = width
 		scope.$watch 'props.height', (height) -> element[0].height = height
 		scope.$watch 'props', draw, yes
-		scope.$watch 'layer', draw, yes
 		return
