@@ -37,12 +37,24 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 		gl.uniform1i gl.getUniformLocation(program, 'u_color_map_g'), 1
 		gl.uniform1i gl.getUniformLocation(program, 'u_color_map_b'), 2
 
-		# fill textures with current color maps
-		for map, index in settings.colorMaps
-			gl.activeTexture gl.TEXTURE0 + index
-			texture = scope.newTexture gl
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,
-				gl.UNSIGNED_BYTE, colorMap.get map
+		# the color map textures; one for each color channel
+		colorMapTextures = [
+			scope.newTexture gl
+			scope.newTexture gl
+			scope.newTexture gl
+		]
+
+		# fill textures with currently active color maps
+		updateColorMaps = (colorMaps) ->
+			for map, index in colorMaps
+				gl.activeTexture gl.TEXTURE0 + index
+				gl.bindTexture gl.TEXTURE_2D, colorMapTextures[index]
+				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,
+					gl.UNSIGNED_BYTE, colorMap.get map
+
+		# this has to be put BEFORE updateColorMapCountWatcher! so the textures are
+		# initially updated before rendering
+		scope.$watchCollection (-> settings.activeColorMaps), updateColorMaps
 
 		# updates the color scale (depends on the current dimension)
 		updateScale = (list) ->	switch list.length
@@ -178,31 +190,5 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			vertexColorsQuad[vertexColorsQuad.length - 3 + index1] = 1
 
 			vertexColorsQuad
-
-		# vertex coordinates for a triangle (3D)
-		# $scope.vertexCoordinatesTriangle = new Float32Array [
-		# 	-1, -1
-		# 	 1, -1
-		# 	 0,  1
-		# ]
-
-		# colors assigned to the triangle vertices
-		# vertexColorsTriangle = new Float32Array [
-		# 	1, 0, 0
-		# 	0, 1, 0
-		# 	0, 0, 1
-		# ]
-
-		# assign the vertex colors according to the active markers/ranges in 3D
-		# $scope.vertexColors3D = (list) ->
-		# 	clearArray vertexColorsTriangle
-
-		# 	if settings.displayMode is 'mean'
-		# 		for group, index in list
-		# 			vertexColorsTriangle[3 * index + group] = 1
-		# 	else
-		# 		for marker, index in list
-		# 			vertexColorsTriangle[3 * index + marker.getIndex()] = 1
-		# 	vertexColorsTriangle
 
 		return

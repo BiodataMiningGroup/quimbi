@@ -1,7 +1,13 @@
 # controller for the display route
 angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges) ->
 
-	renderer.updateColorMaps()
+	# array to apply the color map for the single selection to all three color
+	# channels
+	singleSelectionColorMaps = [
+		settings.singleSelectionColorMap
+		settings.singleSelectionColorMap
+		settings.singleSelectionColorMap
+	]
 
 	$scope.settings = settings
 
@@ -40,6 +46,15 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 			# else prevent the active state of the first marker to leak to the other
 			# display mode
 			markers.deactivate()
+
+	# watch for change between single and multi selection markers
+	# if there ist a change, update the current color maps accordingly
+	$scope.$watchCollection (->markers.getList()), (markerList) ->
+		if markerList.length is 1
+			switch markerList[0].getType()
+				when 'multi' then settings.activeColorMaps = settings.colorMaps
+				else settings.activeColorMaps = singleSelectionColorMaps
+			renderer.updateColorMaps()
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->

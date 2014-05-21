@@ -32,6 +32,9 @@ angular.module('quimbi').value 'settings',
 	# displayed in this colors
 	colorMapSingleColors: ['red', 'lime', 'blue']
 
+	# the currrntly active color maps for each color channel
+	activeColorMaps: [null, null, null]
+
 	# current steps of the intro-tour
 	tourStep:
 		init: 0

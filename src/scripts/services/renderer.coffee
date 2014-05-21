@@ -105,8 +105,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 	# updates the color map textures with the currently selected color maps
 	@updateColorMaps = ->
 		maps = []
-		for map, index in settings.colorMaps
-			maps[index] = colorMap.get map
+		for name, index in settings.activeColorMaps
+			maps[index] = colorMap.get name
 		shader.updateColorMaps maps
 		
 	return
