@@ -1,5 +1,6 @@
 .marker-menu {
 	margin-bottom: @pad;
+	overflow-x: hidden;
 }
 
 .marker-menu__button {
@@ -7,6 +8,11 @@
 	border-top: @small-pad solid transparent;
 	border-radius: @radius;
 	color: rgba(0, 0, 0, 0.8);
+	white-space: nowrap;
+
+	&.off {
+		opacity: 0.5;
+	}
 
 	& + .marker-menu__button {
 		margin-top: @small-pad;
@@ -14,22 +20,22 @@
 
 	.pure-button {
 		width: 50%;
+		transition: all @duration;
 	}
 }
 
-.marker-menu__button.only .pure-button {
-	width: 100%;
-	border-radius: 0 0 @radius @radius;
+.marker-menu__button.only, .marker-menu__button.off {
+
+	.marker-menu__button--edit {
+		width: 100%;
+		border-radius: 0 0 @radius @radius;
+	}
 }
 
 .marker-menu__button--edit {
 	border-radius: 0 0 0 @radius;
 }
 
-.marker-menu__button--remove {
+.marker-menu__button--switch-off {
 	border-radius: 0 0 @radius 0;
-}
-
-.marker-menu__button--add:not(:first-child) {
-	margin-top: @small-pad;
 }

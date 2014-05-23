@@ -1,11 +1,8 @@
-<div class="marker-menu__button" data-ng-repeat="marker in data.markers" data-ng-style="{'border-top-color':marker.getColor()}" data-ng-class="{'only':marker.getType()=='mean'}">
-	<button class="marker-menu__button--edit pure-button" data-ng-click="editMarker($index)" data-tooltip="Edit this marker.">
+<div class="marker-menu__button" data-ng-repeat="marker in data.markers" data-ng-style="{'border-top-color':marker.getColor()}" data-ng-class="{'only':onlyMarker(), 'off':!marker.isOn()}">
+	<button class="marker-menu__button--edit pure-button" data-ng-click="switchOnMarker($index)" data-ng-class="{'pure-button-active':marker.isOn()&&!marker.isSet()}" data-tooltip="Edit this marker.">
 		<i class="icon-map-marker icon-large"></i>
 	</button><!--
-	--><button class="marker-menu__button--remove pure-button" data-ng-if="marker.getType()!='mean'" data-ng-click="removeMarker($index)" data-tooltip="Remove this marker.">
+	--><button class="marker-menu__button--switch-off pure-button" data-ng-click="switchOffMarker($index)" data-tooltip="Switch off this marker.">
 		<i class="icon-remove icon-large"></i>
 	</button>
 </div>
-<button class="marker-menu__button--add pure-button" data-ng-click="newMarker()" data-ng-if="showAdd()" data-ng-class="{'pure-button-disabled':disableAdd()}" data-tooltip="Add a marker.">
-	<i class="icon-plus"></i>
-</button>

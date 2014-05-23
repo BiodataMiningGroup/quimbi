@@ -1,10 +1,13 @@
 # controller for the display route
 angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges) ->
 
-	renderer.updateColorMaps()
-
-	# one active marker by default
-	markers.add() if markers.getList().length is 0
+	# array to apply the color map for the single selection to all three color
+	# channels
+	singleSelectionColorMaps = [
+		settings.singleSelectionColorMap
+		settings.singleSelectionColorMap
+		settings.singleSelectionColorMap
+	]
 
 	$scope.settings = settings
 
@@ -27,22 +30,40 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 			layers[index].color = selection.color
 			layers[index].data = selection.data.spectrogram
 
+	# returns the list of colorGroupObjects that determines the colorMaps
+	# according to the current display mode
+	getCurrentList = -> switch settings.displayMode
+		when 'mean' then ranges.getActive()
+		else markers.getList()
 
 	$scope.$watch markers.getSelectionData, updateSelections, yes
 
 	$scope.$watch 'spectrumRanges', renderer.updateChannelMask, yes
 
-	$scope.$watch 'settings.displayMode', renderer.updateChannelMask
-	$scope.$watch 'settings.displayMode', renderer.update
+	updateActiveColorMaps = (list) ->
+		# clear the array
+		for i in [0...settings.activeColorMaps.length]
+			settings.activeColorMaps[i] = null
+		# refill the array
+		for colorGroupObject in list
+			settings.activeColorMaps[colorGroupObject.getIndex()] =
+				colorGroupObject.getColorMapName()
+		renderer.updateColorMaps()
+		renderer.update()
+
+	$scope.$watch getCurrentList, updateActiveColorMaps, yes
 
 	$scope.$watch 'settings.displayMode', (displayMode) ->
-		unless markers.getList()[0].isSet()
+		renderer.updateChannelMask()
+		renderer.update()
+
+		unless markers.getList()[0]?.isSet()
 			# activate first marker when switching display modes if it isn't already set
-			markers.activate 0
+			markers.switchOn 0
 		else
 			# else prevent the active state of the first marker to leak to the other
 			# display mode
-			markers.activate -1
+			markers.deactivate()
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->

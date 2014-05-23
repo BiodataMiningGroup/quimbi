@@ -1,36 +1,51 @@
 # creates a new Range object. A range represents a selected region of the
 # spectrum.
-angular.module('quimbi').factory 'Range', (settings) ->
+angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGroup, colorGroups) ->
 
-	class Range
+	class Range extends ColorGroupObject
 
-		# the group determines which color map the range is assigned to and
-		# to which color channel it is rendered (similar to the colorMaskIndex)
-		# of a marker
-		@groups: [0, 1, 2]
+		# index of the most recently chosen color group in the colorGroup service
+		@mostRecentColorGroup: 0
+
+		# the type (single, multi) of the most recently chosen color group
+		# of an active range
+		@activeType: ColorGroup.TYPE_SINGLE
 
 		constructor: (@start) ->
 
+			# a new range is assigned the most recently used color group
+			super colorGroups.get Range.mostRecentColorGroup
+
 			@offset = 0
 
-			@active = yes
-
-			@_group = Range.groups[0]
+			@_active = yes
 
 		class: ->
 			output = ""
-			output += "active" if @active
+			# not active 
+			output += "active" if @isActive()
 
 		style: ->
 			output =
 				left: "#{@start - 0.5}px"
 				width: "#{@offset}px"
-			if @active and settings.displayMode is 'mean'
-				output['border-bottom-color'] = settings.colorMapSingleColors[@_group]
+			if @isActive() and settings.displayMode is 'mean'
+				output['border-bottom-color'] = @getColor()
 			output
 
-		setGroup: (group) ->	@_group = group if group in Range.groups
+		setActive: ->
+			@_active = yes
+			Range.activeType = @getType()
 
-		getGroup: -> @_group
+		setInactive: ->
+			@_active = no
 
-		groupColor: -> settings.colorMapSingleColors[@_group]
+		isActive: -> @_active and (Range.activeType is @getType() or settings.displayMode isnt 'mean')
+
+		setGroup: (index) ->
+			currentlyActive = @isActive()
+			@setColorGroup colorGroups.get index
+			# if range was active and now the type has changed, the new type should
+			# be the active one
+			Range.activeType = @getType() if currentlyActive
+			Range.mostRecentColorGroup = index

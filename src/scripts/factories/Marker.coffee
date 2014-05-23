@@ -1,21 +1,20 @@
 # creates a new Marker object. A marker represets a selected point on the map.
-angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, settings) ->
+angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, ColorGroupObject, colorGroups) ->
 
-	class Marker
+	class Marker extends ColorGroupObject
 
-		# contains all unassigned color mask indices
-		# a color mask index specifies the index of a [0, 0, 0] color mask array
-		# that must be set to 1
-		@colorMaskIndices: [0, 1, 2]
+		@colorGroupIndex: 0
+
+		@TYPE_MULTI: 'multi'
+		@TYPE_SINGLE: 'single'
+		@TYPE_MEAN: 'mean'
 
 		constructor: (@_type) ->
-
-			if @_type is 'mean'
-				@_color = 'white'
-				@_colorMaskIndex = 0
-			else
-				@_colorMaskIndex = Marker.colorMaskIndices.shift()
-				@_color = settings.colorMapSingleColors[@_colorMaskIndex]
+			switch @_type
+				when Marker.TYPE_MULTI
+					super colorGroups.get 1 + Marker.colorGroupIndex++
+				else
+					super colorGroups.get 0
 
 			@_textureDimension = input.getChannelTextureDimension()
 
@@ -30,9 +29,10 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 
 			@_isSet = no
 
-		# releases the assigned color mask index
-		destruct: -> if @_type is 'distances'
-			Marker.colorMaskIndices.unshift @_colorMaskIndex
+			@_isOn = no
+
+		# releases the assigned color group
+		destruct: ->if @_type is Marker.TYPE_MULTI then Marker.colorGroupIndex--
 
 		_updateSelection: ->
 			glmvilib.setViewport 0, 0, @_textureDimension, @_textureDimension
@@ -67,12 +67,14 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, setting
 			@_updateSelection()
 			position
 
-		getColor: -> @_color
-
-		getColorMaskIndex: -> @_colorMaskIndex
-
 		getType: -> @_type
 
-		isSet: -> @_isSet
+		isSet: -> @_isOn and @_isSet
 
 		unset: -> @_isSet = no
+
+		isOn: -> @_isOn
+
+		switchOn: -> @_isOn = yes
+
+		switchOff: -> @_isOn = no

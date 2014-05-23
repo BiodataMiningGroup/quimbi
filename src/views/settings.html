@@ -13,34 +13,43 @@
 			</label>
 			Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
 		</fieldset>
-		<fieldset data-tourtip="Choose one of the default color maps to apply to the distances/mean image. You can load custom color maps, too. Click on the color map preview to choose a CSV file." data-tourtip-step="1" data-tourtip-placement="top">
+		<fieldset data-tourtip="Choose one of the default color maps to apply to the similarity/mean image. You can load custom color maps, too. Click on the color map preview to choose a CSV file." data-tourtip-step="1" data-tourtip-placement="top">
 			<legend>Color maps</legend>
 
 			<div class="color-map">
-				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[0]}"></span>
+				<span class="color-map__single-color" data-ng-style="{'background-color':settings.singleSelectionSingleColor}" data-tooltip="Single selection."></span>
+				<label for="color-map-url-single">
+					<input id="color-map-url-single" filereader="data.colorMapFileSingle"/>
+					<div colormap-preview="data.colorMapSingle"></div>
+				</label>
+				<select data-ng-model="settings.singleSelectionColorMap" data-ng-options="name for name in data.availableColorMaps()"></select>
+			</div>
+
+			<div class="color-map">
+				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[0]}" data-tooltip="Multiple selections 1."></span>
 				<label for="color-map-url-r">
 					<input id="color-map-url-r" filereader="data.colorMapFileR"/>
 					<div colormap-preview="data.colorMapR"></div>
 				</label>
-				<select data-ng-model="data.colorMapNames[0]" data-ng-options="name for name in data.availableColorMaps()"></select>
+				<select data-ng-model="settings.colorMaps[0]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
 
 			<div class="color-map">
-				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[1]}"></span>
+				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[1]}" data-tooltip="Multiple selections 2."></span>
 				<label for="color-map-url-g">
 					<input id="color-map-url-g" filereader="data.colorMapFileG"/>
 					<div colormap-preview="data.colorMapG"></div>
 				</label>
-				<select data-ng-model="data.colorMapNames[1]" data-ng-options="name for name in data.availableColorMaps()"></select>
+				<select data-ng-model="settings.colorMaps[1]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
 
 			<div class="color-map">
-				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[2]}"></span>
+				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[2]}" data-tooltip="Multiple selections 3."></span>
 				<label for="color-map-url-b">
 					<input id="color-map-url-b" filereader="data.colorMapFileB"/>
 					<div colormap-preview="data.colorMapB"></div>
 				</label>
-				<select data-ng-model="data.colorMapNames[2]" data-ng-options="name for name in data.availableColorMaps()"></select>
+				<select data-ng-model="settings.colorMaps[2]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
 		</fieldset>
 		<fieldset data-tourtip="Finally there are some settings to customize the user interface." data-tourtip-step="2" data-tourtip-placement="top">

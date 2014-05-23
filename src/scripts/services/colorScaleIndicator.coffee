@@ -19,8 +19,8 @@ angular.module('quimbi').service 'colorScaleIndicator', (mouse, shader) ->
 	# normalizes the color channel intensities so r+g+b=1
 	@getNormalizedIntensities = ->
 		sum = intensities[0] + intensities[1] + intensities[2]
-		for intensity, index in intensities when intensity isnt 0
-			normalizedIntensities[index] = intensity / sum
+		for intensity, index in intensities
+			normalizedIntensities[index] = if sum is 0 then 1 / 3 else intensity / sum
 		normalizedIntensities
 	
 	return

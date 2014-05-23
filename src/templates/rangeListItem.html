@@ -4,7 +4,7 @@
 		<i class="icon-remove" data-ng-click="removeRange($event)" data-tooltip="Remove this range."></i>
 	</span>
 	<form class="item__group-chooser" data-ng-class="{show: data.choosingGroup}">
-		<input type="button" class="pure-button" style="background-color:{{data.groupColors[group]}};height:{{100/data.groups.length}}%;" data-ng-repeat="group in data.groups" data-ng-click="setGroup($event, group)"/>
+		<input type="button" class="pure-button" style="background-color:{{colorGroup.getSingleColor()}};height:{{100/data.colorGroups.length}}%;" data-ng-repeat="colorGroup in data.colorGroups" data-ng-click="setColorGroup($event, $index)"/>
 	</form>
 	{{data.label}}
 </li>

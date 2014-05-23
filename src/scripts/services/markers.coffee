@@ -4,50 +4,54 @@ angular.module('quimbi').service 'markers', (Marker, settings) ->
 	activeMarkerIndex = -1
 
 	# array of all existing markers
-	list = []
+	list = [
+		new Marker Marker.TYPE_SINGLE
+		new Marker Marker.TYPE_MULTI
+		new Marker Marker.TYPE_MULTI
+		new Marker Marker.TYPE_MULTI
+	]
 
 	# single marker for the mean display mode
-	meanMarkerList = [new Marker 'mean']
+	meanMarkerList = [
+		new Marker Marker.TYPE_MEAN
+	]
 
 	# returns the list of all currently existing markers
-	@getList = ->
-		if settings.displayMode is 'distances' then list
-		else meanMarkerList
+	@getListAll = -> switch settings.displayMode
+		when 'mean' then meanMarkerList
+		else list
+
+	@getList = => marker for marker in @getListAll() when marker.isOn()
 
 	# returns the selection data of all currently existing markers
 	@getSelectionData = =>
-		output = []
-		for marker in @getList() when marker.isSet()
-			output.push marker.getSelectionData()
-		output
+		marker.getSelectionData() for marker in @getList() when marker.isSet()
 
-	# returns the number of maximal allowed markers
-	@getMaxNumber = -> if settings.displayMode is 'distances' then 3 else 1
-
-	# adds a new marker and activates it, if a new one is allowed
-	@add = -> if list.length < @getMaxNumber()
-		# assign a colorMaskIndex to the ner marker
-		list.push new Marker 'distances'
-		@activate list.length - 1
-
-	# removes a marker at a given index of the marker list
-	@remove = (index) -> if 0 <= index < list.length
-		list[index].destruct()
-		list.splice index, 1
-		activeMarkerIndex = -1 if activeMarkerIndex is index
-		activeMarkerIndex-- if index < activeMarkerIndex
+	# switches off the marker at the given index
+	@switchOff = (index) => if marker = @getListAll()[index]
+		marker.switchOff()
+		@deactivate() if activeMarkerIndex is index
 
 	# sets the marker at the given index as active
-	@activate = (index) => if index < @getList().length
+	@switchOn = (index) => if marker = @getListAll()[index]
+		# if the single marker gets switched on, switch off all multi markers
+		# and vice versa
+		m.switchOff() for m in @getList() when m.getType() isnt marker.getType()
+		# call this first in case of activeMarkerIndex==index
+		@switchOff activeMarkerIndex
+		marker.unset()
+		marker.switchOn()
 		activeMarkerIndex = index
 
 	# pins the active marker to the given position and sets it as inactive
 	@setAt = (position) => if @hasActive()
-		@getList()[activeMarkerIndex].setPosition position
+		@getListAll()[activeMarkerIndex].setPosition position
 		activeMarkerIndex = -1
 
 	@getActiveIndex = -> activeMarkerIndex
 
 	@hasActive = -> activeMarkerIndex isnt -1
+
+	@deactivate = -> activeMarkerIndex = -1
 
 	return
