@@ -10,6 +10,13 @@ uniform vec2 u_pixel_size;
 const vec4 ZEROS = vec4(0.0);
 
 void main() {
+
+    vec4 color = texture2D(u_color_map, v_texture_position);
+    if (color.rgb == ZEROS.rgb) {
+        gl_FragColor = ZEROS;
+        return;
+    }
+
     // TODO use fraction, compare it to 'fraction boundaries', should be a lot simpler
     vec2 grid_position = v_texture_position / u_pixel_size;
     vec2 grid_position_min = floor(grid_position) + u_half_point_size;
@@ -22,5 +29,5 @@ void main() {
         gl_FragColor = ZEROS;
         return;
     }
-    gl_FragColor = texture2D(u_color_map, v_texture_position);
+    gl_FragColor = color;
 }
