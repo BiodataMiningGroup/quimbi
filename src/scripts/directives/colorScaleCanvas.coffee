@@ -63,7 +63,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 
 		# fill textures with currently active color maps
 		updateColorMaps = (colorMaps) ->
-			for map, index in colorMaps
+			for map, index in colorMaps when map
 				gl.activeTexture gl.TEXTURE0 + index
 				gl.bindTexture gl.TEXTURE_2D, colorMapTextures[index]
 				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,

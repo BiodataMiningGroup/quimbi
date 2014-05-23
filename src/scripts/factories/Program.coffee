@@ -302,11 +302,14 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		@updateColorMaps = (maps) ->
 			_gl.activeTexture _gl.TEXTURE0
 			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureR
-			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[0]
+			if maps[0] then _gl.texImage2D _gl.TEXTURE_2D,
+				0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[0]
 			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureG
-			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[1]
+			if maps[1] then _gl.texImage2D _gl.TEXTURE_2D,
+				0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[1]
 			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureB
-			_gl.texImage2D _gl.TEXTURE_2D, 0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[2]
+			if maps[2] then _gl.texImage2D _gl.TEXTURE_2D,
+				0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[2]
 
 		return
 
