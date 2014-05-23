@@ -22,13 +22,16 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 
 	# updates the spectrograms of the different selections to display in the
 	# spectrum viewer
-	updateSelections = (selections) ->
+	updateSelections = ->
+		selections = markers.getSelectionData()
 		layers = $scope.spectrum.layers
 		layers.length = selections.length
 		for selection, index in selections
 			if not layers[index]? then layers[index] = {}
 			layers[index].color = selection.color
 			layers[index].data = selection.data.spectrogram
+			# add histogram, too, to check for apectrum update efficiently
+			layers[index].histogram = selection.data.histogram
 
 	# returns the list of colorGroupObjects that determines the colorMaps
 	# according to the current display mode
@@ -36,7 +39,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 		when 'mean' then ranges.getActive()
 		else markers.getList()
 
-	$scope.$watch markers.getSelectionData, updateSelections, yes
+	$scope.$watch markers.getList, updateSelections, yes
 
 	$scope.$watch 'spectrumRanges', renderer.updateChannelMask, yes
 
