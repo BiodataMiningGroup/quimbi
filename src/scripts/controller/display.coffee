@@ -41,6 +41,10 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 	$scope.$watch 'spectrumRanges', renderer.updateChannelMask, yes
 
 	updateActiveColorMaps = (list) ->
+		# clear the array
+		for i in [0...settings.activeColorMaps.length]
+			settings.activeColorMaps[i] = null
+		# refill the array
 		for colorGroupObject in list
 			settings.activeColorMaps[colorGroupObject.getIndex()] =
 				colorGroupObject.getColorMapName()

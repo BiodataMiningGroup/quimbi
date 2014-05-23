@@ -54,9 +54,12 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 		# updates the color scale (depends on the current dimension)
 		updateScale = (list) ->	
 			switch list.length
-				when 1 then scope.render1D gl, vertexCoordinateBuffer, vertexColorBuffer, list
-				when 2 then scope.render2D gl, vertexCoordinateBuffer, vertexColorBuffer, list
-				#when 3 then scope.render3D gl, vertexCoordinateBuffer, vertexColorBuffer, list
+				when 1 then scope.render1D gl,
+					vertexCoordinateBuffer, vertexColorBuffer, list
+				when 2 then scope.render2D gl,
+					vertexCoordinateBuffer, vertexColorBuffer, list
+				#when 3 then scope.render3D gl,
+				#	vertexCoordinateBuffer, vertexColorBuffer, list
 
 		# fill textures with currently active color maps
 		updateColorMaps = (colorMaps) ->
