@@ -1,5 +1,5 @@
 # directive for a list item in the ranges list of the menu in the display route
-angular.module('quimbi').directive 'rangeListItem', (input, settings, Range, ranges) ->
+angular.module('quimbi').directive 'rangeListItem', (input, settings, colorGroups, ranges) ->
 
 	restrict: 'A'
 
@@ -15,8 +15,7 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings, Range, ran
 		$scope.data =
 			label: ''
 			choosingGroup: no
-			groups: Range.groups
-			groupColors: settings.colorMapSingleColors
+			colorGroups: colorGroups.getAll()
 
 		$scope.inMeanMode = -> settings.displayMode is 'mean'
 
@@ -24,7 +23,7 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings, Range, ran
 			e.stopPropagation()
 			$scope.data.choosingGroup = not $scope.data.choosingGroup
 
-		$scope.setGroup = (e, group) ->
+		$scope.setColorGroup = (e, group) ->
 			e.stopPropagation()
 			$scope.data.choosingGroup = no
 			$scope.range.setGroup group
@@ -34,14 +33,17 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings, Range, ran
 			ranges.remove $scope.index
 
 		$scope.toggleRange = ->
-			$scope.range.active = not $scope.range.active
+			if $scope.range.isActive()
+				$scope.range.setInactive()
+			else
+				$scope.range.setActive()
 			$scope.$emit 'rangeListItem.focusRange', $scope.index
 
 		$scope.class = ->
-			active: $scope.range.active
+			active: $scope.range.isActive()
 
 		$scope.style = -> if $scope.inMeanMode()
-			'border-left-color': $scope.range.groupColor()
+			'border-left-color': $scope.range.getColor()
 
 		updateLabel = ->
 			$scope.data.label = input.channelNames[$scope.range.start]

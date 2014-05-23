@@ -9,7 +9,7 @@ angular.module('quimbi').service 'ranges', ->
 
 	# is there an active range in the list?
 	@hasActive = ->
-		for range in @list when range.active
+		for range in @list when range.isActive()
 			return yes
 		no
 	
@@ -18,7 +18,7 @@ angular.module('quimbi').service 'ranges', ->
 		output = {}
 
 		for range in @list
-			group = range.getGroup()
+			group = range.getIndex()
 			if output[group] instanceof Array
 				output[group].push range
 			else
@@ -26,10 +26,12 @@ angular.module('quimbi').service 'ranges', ->
 				
 		output
 
+	@getActive = => range for range in @list when range.isActive()
+
 	@currentGroups = =>
 		output = []
-		for range in @list when range.active
-			group = range.getGroup()
+		for range in @getActive()
+			group = range.getIndex()
 			output.push group unless group in output
 		output
 

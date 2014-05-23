@@ -42,7 +42,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			# clear mask
 			channelMask[channel] = 0 while channel--
 
-			for range in rangesList when range.active
+			for range in rangesList when range.isActive()
 				offset = range.offset
 				activeChannels += offset
 				channelMask[range.start + offset] = 255 while offset--

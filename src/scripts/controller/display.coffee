@@ -30,15 +30,29 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 			layers[index].color = selection.color
 			layers[index].data = selection.data.spectrogram
 
+	# returns the list of colorGroupObjects that determines the colorMaps
+	# according to the current display mode
+	getCurrentList = -> switch settings.displayMode
+		when 'mean' then ranges.getActive()
+		else markers.getList()
 
 	$scope.$watch markers.getSelectionData, updateSelections, yes
 
 	$scope.$watch 'spectrumRanges', renderer.updateChannelMask, yes
 
-	$scope.$watch 'settings.displayMode', renderer.updateChannelMask
-	$scope.$watch 'settings.displayMode', renderer.update
+	updateActiveColorMaps = (list) ->
+		for colorGroupObject in list
+			settings.activeColorMaps[colorGroupObject.getIndex()] =
+				colorGroupObject.getColorMapName()
+		renderer.updateColorMaps()
+		renderer.update()
+
+	$scope.$watch getCurrentList, updateActiveColorMaps, yes
 
 	$scope.$watch 'settings.displayMode', (displayMode) ->
+		renderer.updateChannelMask()
+		renderer.update()
+
 		unless markers.getList()[0]?.isSet()
 			# activate first marker when switching display modes if it isn't already set
 			markers.switchOn 0
@@ -46,15 +60,6 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 			# else prevent the active state of the first marker to leak to the other
 			# display mode
 			markers.deactivate()
-
-	# watch for change between single and multi selection markers
-	# if there ist a change, update the current color maps accordingly
-	$scope.$watchCollection (->markers.getList()), (markerList) ->
-		if markerList.length is 1
-			switch markerList[0].getType()
-				when 'multi' then settings.activeColorMaps = settings.colorMaps
-				else settings.activeColorMaps = singleSelectionColorMaps
-			renderer.updateColorMaps()
 
 	# reflect event from rangeListItem to spectrumViewer
 	$scope.$on 'rangeListItem.focusRange', (e, index) ->

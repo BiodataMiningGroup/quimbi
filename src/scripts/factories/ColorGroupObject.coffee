@@ -9,4 +9,8 @@ angular.module('quimbi').factory 'ColorGroupObject', ->
 
 		getIndex: -> @_colorGroup.getChannelIndex()
 
+		getType: -> @_colorGroup.getType()
+
+		getColorMapName: -> @_colorGroup.getColorMapName()
+
 		setColorGroup: (colorGroup) -> @_colorGroup = colorGroup

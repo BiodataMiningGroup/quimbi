@@ -2,12 +2,14 @@
 angular.module('quimbi').service 'colorGroups', (ColorGroup, settings) ->
 
 	groups = [
-		new ColorGroup settings.singleSelectionSingleColor, 0, settings.singleSelectionColorMap
-		new ColorGroup settings.colorMapSingleColors[0], 0, settings.colorMaps[0]
-		new ColorGroup settings.colorMapSingleColors[1], 1, settings.colorMaps[1]
-		new ColorGroup settings.colorMapSingleColors[2], 2, settings.colorMaps[2]
+		new ColorGroup 0, ColorGroup.TYPE_SINGLE
+		new ColorGroup 0, ColorGroup.TYPE_MULTI
+		new ColorGroup 1, ColorGroup.TYPE_MULTI
+		new ColorGroup 2, ColorGroup.TYPE_MULTI
 	]
 
 	@get = (index) -> groups[index]
+
+	@getAll = -> groups
 
 	return

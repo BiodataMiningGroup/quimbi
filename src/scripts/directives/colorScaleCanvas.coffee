@@ -44,6 +44,20 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			scope.newTexture gl
 		]
 
+		# returns the list of markers/ranges groups
+		# not just their length because the color scale should re-render when
+		# a group changes, too
+		getCurrentList = -> switch settings.displayMode
+			when 'mean' then ranges.currentGroups()
+			else markers.getList()
+
+		# updates the color scale (depends on the current dimension)
+		updateScale = (list) ->	
+			switch list.length
+				when 1 then scope.render1D gl, vertexCoordinateBuffer, vertexColorBuffer, list
+				when 2 then scope.render2D gl, vertexCoordinateBuffer, vertexColorBuffer, list
+				#when 3 then scope.render3D gl, vertexCoordinateBuffer, vertexColorBuffer, list
+
 		# fill textures with currently active color maps
 		updateColorMaps = (colorMaps) ->
 			for map, index in colorMaps
@@ -51,29 +65,13 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 				gl.bindTexture gl.TEXTURE_2D, colorMapTextures[index]
 				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,
 					gl.UNSIGNED_BYTE, colorMap.get map
+			updateScale getCurrentList()
 
 		# this has to be put BEFORE updateColorMapCountWatcher! so the textures are
 		# initially updated before rendering
-		scope.$watchCollection (-> settings.activeColorMaps), updateColorMaps
+		scope.$watch (-> settings.activeColorMaps), updateColorMaps, yes
 
-		# updates the color scale (depends on the current dimension)
-		updateScale = (list) ->	switch list.length
-			when 1 then scope.render1D gl, vertexCoordinateBuffer, vertexColorBuffer, list
-			when 2 then scope.render2D gl, vertexCoordinateBuffer, vertexColorBuffer, list
-			#when 3 then scope.render3D gl, vertexCoordinateBuffer, vertexColorBuffer, list
-
-		cancelWatch = angular.noop
-		# switches between watching the marker list and the array list depending
-		# on the display mode
-		updateColorMapCountWatcher = (displayMode) ->
-			cancelWatch()
-			switch displayMode
-				when 'mean'
-					cancelWatch = scope.$watchCollection (-> ranges.currentGroups()), updateScale
-				else
-					cancelWatch = scope.$watchCollection (-> markers.getList()), updateScale
-
-		scope.$watch (-> settings.displayMode), updateColorMapCountWatcher
+		scope.$watch getCurrentList, updateScale, yes
 
 		return
 

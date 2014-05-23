@@ -5,9 +5,13 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, ColorGr
 
 		@colorGroupIndex: 0
 
+		@TYPE_MULTI: 'multi'
+		@TYPE_SINGLE: 'single'
+		@TYPE_MEAN: 'mean'
+
 		constructor: (@_type) ->
 			switch @_type
-				when 'multi'
+				when Marker.TYPE_MULTI
 					super colorGroups.get 1 + Marker.colorGroupIndex++
 				else
 					super colorGroups.get 0
@@ -28,7 +32,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, ColorGr
 			@_isOn = no
 
 		# releases the assigned color group
-		destruct: ->if @_type is 'multi' then Marker.colorGroupIndex--
+		destruct: ->if @_type is Marker.TYPE_MULTI then Marker.colorGroupIndex--
 
 		_updateSelection: ->
 			glmvilib.setViewport 0, 0, @_textureDimension, @_textureDimension

@@ -5,15 +5,15 @@ angular.module('quimbi').service 'markers', (Marker, settings) ->
 
 	# array of all existing markers
 	list = [
-		new Marker 'single'
-		new Marker 'multi'
-		new Marker 'multi'
-		new Marker 'multi'
+		new Marker Marker.TYPE_SINGLE
+		new Marker Marker.TYPE_MULTI
+		new Marker Marker.TYPE_MULTI
+		new Marker Marker.TYPE_MULTI
 	]
 
 	# single marker for the mean display mode
 	meanMarkerList = [
-		new Marker 'mean'
+		new Marker Marker.TYPE_MEAN
 	]
 
 	# returns the list of all currently existing markers
