@@ -80,17 +80,23 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		gl.bindTexture gl.TEXTURE_2D, null
 
 	updateImageTexture = (gl, img, texture) ->
-		console.log "image loaded", img.width, img.height
+		#console.log "image loaded", img.width, img.height
+
+		console.log "size of the background image 	= ( ", input.width * 1.032, input.height * 1.1 , " )"
+		console.log "size of the canvas 			= ( ", input.width        , input.height, "       )"
+		console.log "size of image 				    = ( ", img.width          , img.height, "         )"
 
 		clippedImage = $document[0].createElement 'canvas'
+		clippedImage.width = input.width * 1.032
+		clippedImage.height = input.height * 1.1
+		clippedImageCtx = clippedImage.getContext '2d'
+		clippedImageCtx.drawImage img, 0, 0, clippedImage.width, clippedImage.height
+		imgData = clippedImageCtx.getImageData 0, 0, input.width, input.height
 		clippedImage.width = input.width
 		clippedImage.height = input.height
-		clippedImageCtx = clippedImage.getContext '2d'
-		width = img.width - img.width * 0.032
-		height = img.height - img.height * 0.1
-		clippedImageCtx.drawImage img, 0, 0, width, height, 0, 0, input.width, input.height
+		clippedImageCtx.putImageData imgData, 0, 0
 
-		console.log "image clipped", clippedImage.width, clippedImage.height
+		#console.log "image clipped", clippedImage.width, clippedImage.height
 
 		gl.activeTexture gl.TEXTURE2
 		gl.bindTexture gl.TEXTURE_2D, texture
