@@ -374,7 +374,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		@callback = (gl, program, assets, helpers) =>
 			gl.viewport 0, 0, input.width, input.height
 			gl.activeTexture gl.TEXTURE0
-			# use distance texture because it has the same dimensions and is not needed at the step
+			# DEV try to use distance texture because it has the same dimensions and is not needed at the step (simply replacing doesn't work)
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 
 			# 0.0 .. 1.0, meaningfull are only steps in pixel size
