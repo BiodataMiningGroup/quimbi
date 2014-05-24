@@ -30,8 +30,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 			channels: input.channels
 			# 1 unit for the channel mask in the distance computing shaders
 			# 1 unit for the region mask in the distance computing shaders
-			# 1 unit for an additional image (for example a bright field microscopy image)
-			reservedUnits: 3
+			reservedUnits: 2
 		shader.createPrograms()
 	catch e
 		$scope.$emit 'message::error', "Failed to set up WebGL: #{e.message}"
