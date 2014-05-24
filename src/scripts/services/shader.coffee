@@ -10,7 +10,9 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	rgbSelection = new Program.RGBSelection()
 	# shader to apply color maps to the rgb texture
 	colorMap = new Program.ColorMap()
-	# shader to render positions as dots (from invisible to space filling)
+	# shader to render an image to the draw buffer
+	drawImage = new Program.DrawImage()
+	# shader to render positions as dots (from invisible to space filling) to the draw buffer
 	spaceFillDisplay = new Program.SpaceFillDisplay()
 	# shader to retrieve the mass intensities of a selected position
 	selectionInfo = new Program.SelectionInfo()
@@ -22,6 +24,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		glmvilib.addProgram renderChannel
 		glmvilib.addProgram rgbSelection
 		glmvilib.addProgram colorMap
+		glmvilib.addProgram drawImage
 		glmvilib.addProgram spaceFillDisplay
 		glmvilib.addProgram selectionInfo
 		return
@@ -36,6 +39,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 				when 'eucl' then active.push euclDist.id
 		active.push rgbSelection.id
 		active.push colorMap.id
+		active.push drawImage.id
 		active.push spaceFillDisplay.id
 		active
 

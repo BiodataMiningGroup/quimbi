@@ -1,5 +1,5 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
+angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) ->
 
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
@@ -47,6 +47,23 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 				0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		regionMaskTexture
 
+	setUpImageTexture = (gl, program, assets, helpers) ->
+		imageTexture = null
+		gl.uniform1i gl.getUniformLocation(program, 'u_image'), 0
+		# check if texture already exists
+		unless imageTexture = assets.textures.imageTexture
+			imageTexture = helpers.newTexture 'imageTexture'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA,
+			input.width, input.height,
+			0, gl.RGBA, gl.UNSIGNED_BYTE, null
+
+		image = new Image()
+		image.onload = ->
+			updateImageTexture gl, image, imageTexture
+		image.src = input.overlayImage
+
+		imageTexture
+
 	updateChannelMask = (gl, mask, texture) ->
 		gl.activeTexture gl.TEXTURE0
 		gl.bindTexture gl.TEXTURE_2D, texture
@@ -60,6 +77,26 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 		gl.bindTexture gl.TEXTURE_2D, texture
 		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, yes
 		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask
+		gl.bindTexture gl.TEXTURE_2D, null
+
+	updateImageTexture = (gl, img, texture) ->
+		console.log "image loaded", img.width, img.height
+
+		clippedImage = $document[0].createElement 'canvas'
+		clippedImage.width = input.width
+		clippedImage.height = input.height
+		clippedImageCtx = clippedImage.getContext '2d'
+		width = img.width - img.width * 0.032
+		height = img.height - img.height * 0.1
+		clippedImageCtx.drawImage img, 0, 0, width, height, 0, 0, input.width, input.height
+
+		console.log "image clipped", clippedImage.width, clippedImage.height
+
+		gl.activeTexture gl.TEXTURE2
+		gl.bindTexture gl.TEXTURE_2D, texture
+		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, yes #DEV ???
+		# can't explicitly specify width and height if an image is passed in
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, clippedImage
 		gl.bindTexture gl.TEXTURE_2D, null
 
 	# euclidean distance
@@ -337,6 +374,36 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			_colorMask[0] = mask[0]
 			_colorMask[1] = mask[1]
 			_colorMask[2] = mask[2]
+
+		return
+
+	DrawImage: ->
+		_gl = null
+		_imageTexture = null
+
+		@id = 'draw-image'
+
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
+
+		@fragmentShaderUrl = 'shader/draw-image.glsl.frag'
+
+		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+			_imageTexture = setUpImageTexture gl, program, assets, helpers
+
+			return
+
+		@callback = (gl, program, assets, helpers) =>
+			gl.viewport 0, 0, input.width, input.height
+
+			gl.activeTexture gl.TEXTURE0
+			gl.bindTexture gl.TEXTURE_2D, _imageTexture
+
+			# render to screen
+			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
 
 		return
 
