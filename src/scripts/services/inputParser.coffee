@@ -12,10 +12,10 @@ angular.module('quimbi').service 'inputParser', (input) ->
 		brightfieldConfigLine = rawInput.indexOf '\n', secondLine + 1
 		brightfieldConfig = rawInput.substring(secondLine + 1, brightfieldConfigLine).split ','
 		input.overlayImage = brightfieldConfig[0]
-		input.overlayScaleX = parseInt brightfieldConfig[1]
-		input.overlayScaleY = parseInt brightfieldConfig[2]
-		input.overlayShiftX = parseInt brightfieldConfig[3]
-		input.overlayShiftY = parseInt brightfieldConfig[4]
+		input.overlayScaleX = parseFloat brightfieldConfig[1]
+		input.overlayScaleY = parseFloat brightfieldConfig[2]
+		input.overlayShiftX = parseFloat brightfieldConfig[3]
+		input.overlayShiftY = parseFloat brightfieldConfig[4]
 
 		header = rawInput.substring(0, firstLine).split ','
 		input.id = header[0]
