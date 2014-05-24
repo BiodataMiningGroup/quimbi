@@ -381,7 +381,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			spaceFillPercent = settings.spaceFillPercent
 			renderScale = input.width / input.dataWidth
 			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
-			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
+			gl.uniform1f halfPointSize, (1.0 - spaceFillPercent) / 2.0
 			# render to screen
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
