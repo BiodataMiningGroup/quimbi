@@ -87,14 +87,10 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		console.log "size of image 				    = ( ", img.width          , img.height, "         )"
 
 		clippedImage = $document[0].createElement 'canvas'
-		clippedImage.width = input.width * 1.032
-		clippedImage.height = input.height * 1.1
-		clippedImageCtx = clippedImage.getContext '2d'
-		clippedImageCtx.drawImage img, 0, 0, clippedImage.width, clippedImage.height
-		imgData = clippedImageCtx.getImageData 0, 0, input.width, input.height
 		clippedImage.width = input.width
 		clippedImage.height = input.height
-		clippedImageCtx.putImageData imgData, 0, 0
+		clippedImageCtx = clippedImage.getContext '2d'
+		clippedImageCtx.drawImage img, 0, 0, input.width * 1.032, input.height * 1.1
 
 		#console.log "image clipped", clippedImage.width, clippedImage.height
 
