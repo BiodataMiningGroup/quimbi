@@ -56,10 +56,13 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		overlayBounds = L.latLngBounds southWest_2, northEast_2
 		# overlayBounds = L.latLngBounds southWest, northEast
 
-		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0 #0.8
+		# if input.overlayImage isnt ''
+		# 	map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
 
-		if input.overlayImage isnt ''
-			map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
+		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0 #0.8 #1.0 #
+
+		# if input.overlayImage isnt ''
+		# 	map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
 
 
 
