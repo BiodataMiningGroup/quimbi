@@ -449,8 +449,19 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 			# DEV DOES Something but throws errors (not really specified)
 			# DEV try to deactivate blending explicitly after this program
-			gl.blendFunc gl.SRC_COLOR, gl.ONE_MINUS_SRC_COLOR
-			gl.blendEquation gl.FUNC_SUBTRACT
+
+			# transparent areas of SM are transparent, image is opaque
+			# gl.blendFunc gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA
+			# gl.blendEquation gl.FUNC_ADD
+
+			# transparent areas of SM are transparent, image is black
+			# gl.blendFunc gl.SRC_ALPHA, gl.ONE_MINUS_DEST_ALPHA # / gl.DEST_ALPHA
+			# gl.blendEquation gl.FUNC_ADD
+
+			# works well, basically what I imagined
+			gl.blendFunc gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA # / gl.DEST_ALPHA
+			gl.blendEquation gl.FUNC_ADD
+
 			gl.enable gl.BLEND
 
 			gl.activeTexture gl.TEXTURE0
