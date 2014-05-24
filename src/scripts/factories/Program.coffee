@@ -363,7 +363,7 @@ angular.module('quimbi').factory 'Program', (input, mouse, settings) ->
 			spaceFillPercent = 1.0
 			renderScale = input.width / input.dataWidth
 			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
-			gl.uniform1f halfPointSize, (1.0 - 1.0 / renderScale * (spaceFillPercent * renderScale)) / 2.0
+			gl.uniform1f halfPointSize, (1.0 - spaceFillPercent) / 2.0
 
 			# u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
 			pixelSize = gl.getUniformLocation program, 'u_pixel_size'
