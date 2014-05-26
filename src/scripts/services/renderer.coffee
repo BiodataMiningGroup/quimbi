@@ -91,8 +91,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			if markers.hasActive()
 				shader.setActiveColorMask updateActiveColorMask()
 				glmvilib.render.apply glmvilib, shader.getActive()
-			else
-				glmvilib.render shader.getFinal()
+			# else
+			# 	glmvilib.render shader.getFinal()
 
 	@updateChannelMask = ->	switch settings.displayMode
 		when 'mean' then updateMeanChannelMask()
