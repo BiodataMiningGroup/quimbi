@@ -84,7 +84,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		clippedImage.width = input.width
 		clippedImage.height = input.height
 		clippedImageCtx = clippedImage.getContext '2d'
-		clippedImageCtx.drawImage img, 0, 0, input.width * 1.032, input.height * 1.1
+		clippedImageCtx.drawImage img, 0, 0, input.width * (1 + input.overlayShiftX), input.height * (1 + input.overlayShiftY)
 
 		gl.activeTexture gl.TEXTURE2
 		gl.bindTexture gl.TEXTURE_2D, texture

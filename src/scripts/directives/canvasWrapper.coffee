@@ -51,8 +51,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		# TODO dynamic size depends on the input dataset
 		L.control.microScale(objectWidth: 80000).addTo map.self
 
-		southWest_2 = L.latLng Math.ceil(-latBound * 1.2), Math.ceil(-lngBound)
-		northEast_2 = L.latLng Math.ceil(latBound), Math.ceil(lngBound * 1.064)
+		southWest_2 = L.latLng Math.ceil(-latBound * (1 + input.overlayShiftY * 2)), Math.ceil(-lngBound)
+		northEast_2 = L.latLng Math.ceil(latBound), Math.ceil(lngBound * (1 + input.overlayShiftX * 2))
 		overlayBounds = L.latLngBounds southWest_2, northEast_2
 		# overlayBounds = L.latLngBounds southWest, northEast
 
