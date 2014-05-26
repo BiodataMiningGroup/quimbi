@@ -92,6 +92,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 				shader.setActiveColorMask updateActiveColorMask()
 				glmvilib.render.apply glmvilib, shader.getActive()
 			else
+				# TODO this repeats the final shader even if nothing changed
+				# TODO if blending is enabled the background texture needs to be redrawn first for the correct result
 				glmvilib.render shader.getFinal()
 
 	@updateChannelMask = ->	switch settings.displayMode
