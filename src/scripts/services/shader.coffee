@@ -24,7 +24,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		glmvilib.addProgram renderChannel
 		glmvilib.addProgram rgbSelection
 		glmvilib.addProgram colorMap
-		glmvilib.addProgram drawImage
+		#glmvilib.addProgram drawImage
 		glmvilib.addProgram spaceFillDisplay
 		glmvilib.addProgram selectionInfo
 		return
@@ -39,7 +39,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 				when 'eucl' then active.push euclDist.id
 		active.push rgbSelection.id
 		active.push colorMap.id
-		active.push drawImage.id
+		#active.push drawImage.id
 		active.push spaceFillDisplay.id
 		active
 
