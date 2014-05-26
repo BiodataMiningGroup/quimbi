@@ -24,6 +24,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		glmvilib.addProgram renderChannel
 		glmvilib.addProgram rgbSelection
 		glmvilib.addProgram colorMap
+		# TODO add switch to disable blending
 		glmvilib.addProgram drawImage
 		glmvilib.addProgram spaceFillDisplay
 		glmvilib.addProgram selectionInfo
@@ -39,6 +40,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 				when 'eucl' then active.push euclDist.id
 		active.push rgbSelection.id
 		active.push colorMap.id
+		# TODO add switch to disable blending
 		active.push drawImage.id
 		active.push spaceFillDisplay.id
 		active

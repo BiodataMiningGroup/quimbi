@@ -441,21 +441,18 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			# TODO add switch to disable blending
+			# TODO find out where to disable blending in the other shaders to avoid
+			#      side effects (currently disabled in every program, which is probably overkill)
+			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.width, input.height
 
-			# DEV also deactivate depth testing!
-			gl.disable gl.DEPTH_TEST # DEV does something!? but is not solving the errors thrown
+			# deactivate depth testing
+			# TODO move this to initialization?
+			gl.disable gl.DEPTH_TEST
 
-			# DEV DOES Something but throws errors (not really specified)
-			# DEV try to deactivate blending explicitly after this program
-
-			# transparent areas of SM are transparent, image is opaque
+			# # transparent areas of SM are transparent, image is opaque
 			# gl.blendFunc gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA
-			# gl.blendEquation gl.FUNC_ADD
-
-			# transparent areas of SM are transparent, image is black
-			# gl.blendFunc gl.SRC_ALPHA, gl.ONE_MINUS_DEST_ALPHA # / gl.DEST_ALPHA
 			# gl.blendEquation gl.FUNC_ADD
 
 			# works well, basically what I imagined
