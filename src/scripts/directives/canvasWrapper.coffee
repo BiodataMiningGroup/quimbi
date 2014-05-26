@@ -56,15 +56,26 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		overlayBounds = L.latLngBounds southWest_2, northEast_2
 		# overlayBounds = L.latLngBounds southWest, northEast
 
-		# if input.overlayImage isnt ''
-		# 	map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
+		if input.overlayImage isnt ''
+			map.self.addLayer L.imageOverlay input.backgroundImage, overlayBounds
 
-		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0 #0.8 #1.0 #
+		canvasLayer = L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0 #0.8 #1.0 #
+		map.self.addLayer canvasLayer
 
-		# if input.overlayImage isnt ''
-		# 	map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
+		if input.overlayImage isnt ''
+			map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
 
+		# add control to reduce opacity
+		lowerOpacity = new L.Control.lowerOpacity()
+		map.self.addControl lowerOpacity
+		lowerOpacity.setOpacityLayer canvasLayer
+		lowerOpacity.setPosition 'bottomleft'
 
+		# add control to increase opacity
+		higherOpacity = new L.Control.higherOpacity()
+		map.self.addControl higherOpacity
+		higherOpacity.setOpacityLayer canvasLayer
+		higherOpacity.setPosition 'bottomleft'
 
 		inputPixelWidth = lngBound * 2 / input.dataWidth
 
