@@ -88,7 +88,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 		gl.activeTexture gl.TEXTURE2
 		gl.bindTexture gl.TEXTURE_2D, texture
-		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, yes #DEV ???
+		gl.pixelStorei gl.UNPACK_FLIP_Y_WEBGL, yes
 		# can't explicitly specify width and height if an image is passed in
 		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, clippedImage
 		gl.bindTexture gl.TEXTURE_2D, null
