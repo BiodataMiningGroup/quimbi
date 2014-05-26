@@ -60,7 +60,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		image = new Image()
 		image.onload = ->
 			updateImageTexture gl, image, imageTexture
-		image.src = input.overlayImage
+		image.src = input.backgroundImage
 
 		imageTexture
 

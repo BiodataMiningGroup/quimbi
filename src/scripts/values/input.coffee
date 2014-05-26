@@ -40,7 +40,7 @@ angular.module('quimbi').value 'input',
 	images: null
 
 	# url to overlay image
-	overlayImage: ''
+	backgroundImage: ''
 
 	# scale required to align overlay and data dimensions (for x and y axis)
 	overlayScale:

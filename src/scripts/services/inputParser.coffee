@@ -11,11 +11,12 @@ angular.module('quimbi').service 'inputParser', (input) ->
 		# data/OpG4dVa20120918Sc4/Optic G4d Vakuum 20120918_4_small.png,1,1,0,0
 		brightfieldConfigLine = rawInput.indexOf '\n', secondLine + 1
 		brightfieldConfig = rawInput.substring(secondLine + 1, brightfieldConfigLine).split ','
-		input.overlayImage = brightfieldConfig[0]
-		input.overlayScaleX = parseFloat brightfieldConfig[1]
-		input.overlayScaleY = parseFloat brightfieldConfig[2]
-		input.overlayShiftX = parseFloat brightfieldConfig[3]
-		input.overlayShiftY = parseFloat brightfieldConfig[4]
+		input.backgroundImage = brightfieldConfig[0]
+		input.overlayImage = brightfieldConfig[1]
+		input.overlayScaleX = parseFloat brightfieldConfig[2]
+		input.overlayScaleY = parseFloat brightfieldConfig[3]
+		input.overlayShiftX = parseFloat brightfieldConfig[4]
+		input.overlayShiftY = parseFloat brightfieldConfig[5]
 
 		header = rawInput.substring(0, firstLine).split ','
 		input.id = header[0]
