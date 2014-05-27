@@ -442,7 +442,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		@callback = (gl, program, assets, helpers) =>
 			# TODO add switch to disable blending
 			# TODO find out where to disable blending in the other shaders to avoid
-			#      side effects (currently disabled in every program, which is probably overkill)
+			#      side effects (currently disabled in every callback, which is probably overkill)
 			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.width, input.height
 
