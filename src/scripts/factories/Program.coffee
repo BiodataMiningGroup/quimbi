@@ -125,7 +125,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
@@ -175,8 +175,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			gl.disable gl.BLEND
 
 			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
@@ -228,7 +227,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform1f _invActiveChannels, 1 / (_activeChannels || -1)
 			helpers.bindInternalTextures()
@@ -281,7 +280,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 
 			gl.activeTexture gl.TEXTURE0
@@ -340,7 +339,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 
 			gl.activeTexture gl.TEXTURE0
@@ -397,7 +396,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.width, input.height
 
 			gl.activeTexture gl.TEXTURE0
@@ -505,7 +504,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND # DEV fixes the errors but no sure if blending is still used at all
+			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.getChannelTextureDimension(), input.getChannelTextureDimension()
 			gl.uniform2f mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
