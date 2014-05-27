@@ -82,7 +82,6 @@ L.CanvasOverlay = L.Class.extend({
     _initCanvas: function () {
 
     	this._canvas = this.__canvas;
-    	//this._canvas = L.DomUtil.create('canvas', 'leaflet-image-layer');
         L.DomUtil.addClass(this._canvas, 'leaflet-image-layer');
 
 
@@ -102,15 +101,6 @@ L.CanvasOverlay = L.Class.extend({
             onload: L.bind(this._onImageLoad, this),
         });
 
-        ////TODO createImage util method to remove duplication
-        // var ctx = this._canvas.getContext('2d');
-        // var img = new Image();
-        // img.src = this._url;
-
-
-        // img.onload = function () {
-        //    ctx.drawImage(img,0,0);
-        // }
     },
 
     _animateZoom: function (e) {
@@ -149,6 +139,5 @@ L.CanvasOverlay = L.Class.extend({
 });
 
 L.canvasOverlay = function (canvas, bounds, options) {
-	//console.log("canvasOverlay contructor", canvas);
     return new L.CanvasOverlay(canvas, bounds, options);
 };
