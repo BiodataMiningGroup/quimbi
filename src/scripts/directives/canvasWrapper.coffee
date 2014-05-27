@@ -230,8 +230,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		toggleOverlay = (show) ->
 			if show
 				map.self.addLayer map.overlayLayer
-				map.overlayLayer.bringToFront()
-				if settings.showGrid and map.self.hasLayer map.gridLayer then map.gridLayer.bringToFront()
+				map.overlayLayer.bringToBack()
+				map.canvasLayer.bringToBack()
+				map.backgroundLayer.bringToBack()
 			else
 				map.self.removeLayer map.overlayLayer
 		$scope.$watch "settings.showOverlay", toggleOverlay
@@ -240,7 +241,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		toggleGrid = (show) ->
 			if show
 				map.self.addLayer map.gridLayer
-				map.gridLayer.bringToFront()
 			else
 				map.self.removeLayer map.gridLayer
 		$scope.$watch "settings.showGrid", toggleGrid
