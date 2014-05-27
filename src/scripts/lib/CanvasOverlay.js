@@ -11,7 +11,7 @@ L.CanvasOverlay = L.Class.extend({
         opacity: 1
     },
 
-    initialize: function (canvas, bounds, options) { // (String, LatLngBounds, Object)
+    initialize: function (canvas, bounds, options) { // (Canvas, LatLngBounds, Object)
 
         this._bounds = L.latLngBounds(bounds);
         this.__canvas = canvas;
