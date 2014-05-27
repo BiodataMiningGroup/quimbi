@@ -15,6 +15,9 @@ angular.module('quimbi').value 'settings',
 	# show the color scale
 	showColorScale: yes
 
+	# use background-canvas blending
+	useBlending: no
+
 	# the current overlay opacity
 	overlayOpacity: 0
 

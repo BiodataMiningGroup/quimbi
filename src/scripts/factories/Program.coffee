@@ -440,25 +440,25 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			# TODO add switch to disable blending
 			# TODO find out where to disable blending in the other shaders to avoid
 			#      side effects (currently disabled in every callback, which is probably overkill)
 			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.width, input.height
 
-			# deactivate depth testing
-			# TODO move this to initialization?
-			gl.disable gl.DEPTH_TEST
+			if settings.useBlending
+				# deactivate depth testing
+				# TODO move this to initialization?
+				# TODO do I need to disable depth testing at all?
+				gl.disable gl.DEPTH_TEST
 
-			# # transparent areas of SM are transparent, image is opaque
-			# gl.blendFunc gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA
-			# gl.blendEquation gl.FUNC_ADD
+				# alternative blending, same effect as opaque canvas + background image
+				# # transparent areas of SM are transparent, image is opaque
+				# gl.blendFunc gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA
+				# gl.blendEquation gl.FUNC_ADD
 
-			# works well, basically what I imagined
-			gl.blendFunc gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA # / gl.DEST_ALPHA
-			gl.blendEquation gl.FUNC_ADD
-
-			gl.enable gl.BLEND
+				gl.blendFunc gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA
+				gl.blendEquation gl.FUNC_ADD
+				gl.enable gl.BLEND
 
 			gl.activeTexture gl.TEXTURE0
 			# DEV try to use distance texture because it has the same dimensions and is not needed at the step (simply replacing doesn't work)
