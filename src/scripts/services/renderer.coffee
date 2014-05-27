@@ -92,9 +92,9 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 				shader.setActiveColorMask updateActiveColorMask()
 				glmvilib.render.apply glmvilib, shader.getActive()
 			else
-				# TODO this repeats the final shader even if nothing changed
+				# TODO this repeats the final shader even if nothing changed (e.g. you have only passive markers but the mouse position changes)
 				# TODO if blending is enabled the background texture needs to be redrawn first for the correct result
-				glmvilib.render shader.getFinal()
+				glmvilib.render.apply shader.getFinal()
 
 	@updateChannelMask = ->	switch settings.displayMode
 		when 'mean' then updateMeanChannelMask()
