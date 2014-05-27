@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the map has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers, regions, renderer, settings) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings) ->
 
 	restrict: 'A'
 
@@ -14,12 +14,11 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 			return
 
 		# otherwise initiate the Leaflet map and create the new map element
-
 		map.element = angular.element '<div></div>'
 		element.append map.element
 
-		inputWidth = canvas.element[0].width
-		inputHeight = canvas.element[0].height
+		inputWidth = input.width
+		inputHeight = input.height
 
 		shapeFactor = inputWidth / inputHeight
 		if shapeFactor >= 2
@@ -28,8 +27,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 		else
 			lngBound = 90 * shapeFactor
 			latBound = 90
-
-		inputPixelWidth = lngBound * 2 / inputWidth
 
 		# setup matching LatLng bounds for the input dimensions
 		southWest = L.latLng Math.ceil(-latBound), Math.ceil(-lngBound)
@@ -54,7 +51,33 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 		# TODO dynamic size depends on the input dataset
 		L.control.microScale(objectWidth: 80000).addTo map.self
 
-		map.self.addLayer L.canvasOverlay canvas.element[0], maxBounds
+		southWest_2 = L.latLng Math.ceil(-latBound * (1 + input.overlayShiftY * 2)), Math.ceil(-lngBound)
+		northEast_2 = L.latLng Math.ceil(latBound), Math.ceil(lngBound * (1 + input.overlayShiftX * 2))
+		overlayBounds = L.latLngBounds southWest_2, northEast_2
+		# overlayBounds = L.latLngBounds southWest, northEast
+
+		if input.backgroundImage isnt ''
+			map.backgroundLayer = L.imageOverlay input.backgroundImage, overlayBounds
+
+		map.canvasLayer = L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0
+		map.self.addLayer map.canvasLayer
+
+		if input.overlayImage isnt ''
+			map.overlayLayer = L.imageOverlay input.overlayImage, overlayBounds
+
+		# add control to reduce opacity
+		lowerOpacity = new L.Control.lowerOpacity()
+		map.self.addControl lowerOpacity
+		lowerOpacity.setOpacityLayer map.canvasLayer
+		lowerOpacity.setPosition 'bottomleft'
+
+		# add control to increase opacity
+		higherOpacity = new L.Control.higherOpacity()
+		map.self.addControl higherOpacity
+		higherOpacity.setOpacityLayer map.canvasLayer
+		higherOpacity.setPosition 'bottomleft'
+
+		inputPixelWidth = lngBound * 2 / input.dataWidth
 
 		map.gridLayer = L.graticule
 			interval: inputPixelWidth
@@ -114,10 +137,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 				mouse.position.lng = e.latlng.lng
 				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
 				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
-				mouse.position.xPx = Math.floor mouse.position.x * inputWidth
-				mouse.position.yPx = Math.floor (1 - mouse.position.y) * inputHeight
-				newX = Math.floor mouse.position.x * inputWidth
-				newY = Math.floor mouse.position.y * inputHeight
+				newX = Math.floor mouse.position.x * input.dataWidth
+				newY = Math.floor (1 - mouse.position.y) * input.dataHeight
 				if mouse.position.dataX isnt newX or mouse.position.dataY isnt newY
 					mouse.position.dataX = newX
 					mouse.position.dataY = newY
@@ -203,13 +224,32 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, mouse, map, markers
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
 
-		# show or hide regular grid according to the settings
-		toogleGrid = (showGrid) ->
-			if showGrid
+		# show or hide background layer
+		toggleBackground = (show) ->
+			if show
+				map.self.addLayer map.backgroundLayer
+				map.backgroundLayer.bringToBack()
+			else
+				map.self.removeLayer map.backgroundLayer
+		$scope.$watch "settings.showBackground", toggleBackground
+
+		# show or hide overlay layer
+		toggleOverlay = (show) ->
+			if show
+				map.self.addLayer map.overlayLayer
+				map.overlayLayer.bringToBack()
+				map.canvasLayer.bringToBack()
+				map.backgroundLayer.bringToBack()
+			else
+				map.self.removeLayer map.overlayLayer
+		$scope.$watch "settings.showOverlay", toggleOverlay
+
+		# show or hide regular grid
+		toggleGrid = (show) ->
+			if show
 				map.self.addLayer map.gridLayer
 			else
 				map.self.removeLayer map.gridLayer
-
-		$scope.$watch "settings.showGrid", toogleGrid
+		$scope.$watch "settings.showGrid", toggleGrid
 
 		return

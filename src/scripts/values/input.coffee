@@ -15,6 +15,12 @@ angular.module('quimbi').value 'input',
 	# image width
 	width: 0
 
+	# image height
+	dataHeight: 0
+
+	# image width
+	dataWidth: 0
+
 	# number of overall channels of the image
 	channels: 0
 
@@ -34,7 +40,17 @@ angular.module('quimbi').value 'input',
 	images: null
 
 	# url to overlay image
-	overlayImage: ''
+	backgroundImage: ''
+
+	# scale required to align overlay and data dimensions (for x and y axis)
+	overlayScale:
+		x: 1
+		y: 1
+
+	# shift required to align overlay and data dimensions (for x and y axis)
+	overlayShift:
+		x: 0
+		y: 0
 
 	# maximal occurring euclidean distance in this dataset
 	maxEuclDist: 0

@@ -35,12 +35,10 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, ColorGr
 		destruct: ->if @_type is Marker.TYPE_MULTI then Marker.colorGroupIndex--
 
 		_updateSelection: ->
-			glmvilib.setViewport 0, 0, @_textureDimension, @_textureDimension
 			angular.extend mouse.position, @_position
 			glmvilib.render 'selection-info'
 			# update spectrogram
 			glmvilib.getPixels 0, 0, @_textureDimension, @_textureDimension, @_selectionData.spectrogram
-			glmvilib.setViewport 0, 0, input.width, input.height
 
 			# update histogram
 			for intensity in [0...@_selectionData.histogram.length]

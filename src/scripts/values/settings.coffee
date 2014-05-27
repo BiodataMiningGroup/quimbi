@@ -9,8 +9,14 @@ angular.module('quimbi').value 'settings',
 	# show the overlay image
 	showOverlay: yes
 
+	# show the background image
+	showBackground: yes
+
 	# show the color scale
 	showColorScale: yes
+
+	# use background-canvas blending
+	useBlending: no
 
 	# the current overlay opacity
 	overlayOpacity: 0
@@ -27,6 +33,9 @@ angular.module('quimbi').value 'settings',
 
 	# color maps if multiple selections are present
 	colorMaps: ['red', 'green', 'blue']
+
+	# show the grid
+	spaceFillPercent: 1.0
 
 	# single colors representing the colorMaps above. markers and regions are
 	# displayed in this colors

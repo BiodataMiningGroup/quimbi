@@ -7,6 +7,15 @@ angular.module('quimbi').value 'map',
 	# the Leaflet map object
 	self: null
 
+	# layer for main canvas
+	canvasLayer: null
+
+	# layer for background image
+	backgroundLayer: null
+
+	# layer for overlay image (or foreground image)
+	overlayLayer: null
+
 	# regular grid on the map
 	gridLayer: null
 
