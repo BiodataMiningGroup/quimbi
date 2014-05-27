@@ -82,8 +82,6 @@ L.CanvasOverlay = L.Class.extend({
     _initCanvas: function () {
 
     	this._canvas = this.__canvas;
-        L.DomUtil.addClass(this._canvas, 'leaflet-image-layer');
-
 
         if (this._map.options.zoomAnimation && L.Browser.any3d) {
             L.DomUtil.addClass(this._canvas, 'leaflet-zoom-animated');
@@ -92,15 +90,6 @@ L.CanvasOverlay = L.Class.extend({
         }
 
         this._updateOpacity();
-
-        //TODO createImage util method to remove duplication
-        L.extend(this._canvas, {
-            galleryimg: 'no',
-            onselectstart: L.Util.falseFn,
-            onmousemove: L.Util.falseFn,
-            onload: L.bind(this._onImageLoad, this),
-        });
-
     },
 
     _animateZoom: function (e) {
