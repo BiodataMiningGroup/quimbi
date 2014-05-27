@@ -56,25 +56,25 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		overlayBounds = L.latLngBounds southWest_2, northEast_2
 		# overlayBounds = L.latLngBounds southWest, northEast
 
-		if input.overlayImage isnt ''
-			map.self.addLayer L.imageOverlay input.backgroundImage, overlayBounds
+		if input.backgroundImage isnt ''
+			map.backgroundLayer = L.imageOverlay input.backgroundImage, overlayBounds
 
-		canvasLayer = L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0 #0.8 #1.0 #
-		map.self.addLayer canvasLayer
+		map.canvasLayer = L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0
+		map.self.addLayer map.canvasLayer
 
 		if input.overlayImage isnt ''
-			map.self.addLayer L.imageOverlay input.overlayImage, overlayBounds
+			map.overlayLayer = L.imageOverlay input.overlayImage, overlayBounds
 
 		# add control to reduce opacity
 		lowerOpacity = new L.Control.lowerOpacity()
 		map.self.addControl lowerOpacity
-		lowerOpacity.setOpacityLayer canvasLayer
+		lowerOpacity.setOpacityLayer map.canvasLayer
 		lowerOpacity.setPosition 'bottomleft'
 
 		# add control to increase opacity
 		higherOpacity = new L.Control.higherOpacity()
 		map.self.addControl higherOpacity
-		higherOpacity.setOpacityLayer canvasLayer
+		higherOpacity.setOpacityLayer map.canvasLayer
 		higherOpacity.setPosition 'bottomleft'
 
 		inputPixelWidth = lngBound * 2 / input.dataWidth
@@ -217,13 +217,32 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
 
-		# show or hide regular grid according to the settings
-		toogleGrid = (showGrid) ->
-			if showGrid
+		# show or hide background layer
+		toggleBackground = (show) ->
+			if show
+				map.self.addLayer map.backgroundLayer
+				map.backgroundLayer.bringToBack()
+			else
+				map.self.removeLayer map.backgroundLayer
+		$scope.$watch "settings.showBackground", toggleBackground
+
+		# show or hide overlay layer
+		toggleOverlay = (show) ->
+			if show
+				map.self.addLayer map.overlayLayer
+				map.overlayLayer.bringToFront()
+				if settings.showGrid and map.self.hasLayer map.gridLayer then map.gridLayer.bringToFront()
+			else
+				map.self.removeLayer map.overlayLayer
+		$scope.$watch "settings.showOverlay", toggleOverlay
+
+		# show or hide regular grid
+		toggleGrid = (show) ->
+			if show
 				map.self.addLayer map.gridLayer
+				map.gridLayer.bringToFront()
 			else
 				map.self.removeLayer map.gridLayer
-
-		$scope.$watch "settings.showGrid", toogleGrid
+		$scope.$watch "settings.showGrid", toggleGrid
 
 		return
