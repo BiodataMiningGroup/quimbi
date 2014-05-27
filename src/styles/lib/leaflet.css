@@ -39,9 +39,10 @@
 	max-width: none !important;
 	}
 /* stupid Android 2 doesn't understand "max-width: none" properly */
-.leaflet-container img.leaflet-image-layer {
+/* leaflet bug: https://github.com/Leaflet/Leaflet/issues/2282 , probably a won't-fix for 0.7.2 */
+/*.leaflet-container img.leaflet-image-layer {
 	max-width: 15000px !important;
-	}
+	}*/
 .leaflet-tile {
 	filter: inherit;
 	visibility: hidden;
