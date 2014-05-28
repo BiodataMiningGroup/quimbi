@@ -11,10 +11,14 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 		# of an active range
 		@activeType: ColorGroup.TYPE_SINGLE
 
+		@count: 0
+
 		constructor: (@start) ->
 
 			# a new range is assigned the most recently used color group
 			super colorGroups.get Range.mostRecentColorGroup
+
+			@_name = "range-#{Range.count++}"
 
 			@offset = 0
 
@@ -49,3 +53,7 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 			# be the active one
 			Range.activeType = @getType() if currentlyActive
 			Range.mostRecentColorGroup = index
+
+		getName: -> @_name
+
+		setName: (name) -> @_name

@@ -10,11 +10,19 @@
 }
 
 .display-view__menu {
+	width: 100%;
 	height: @menu-height;
+	box-sizing: border-box;
 	position: fixed;
 	z-index: 2001;
-	overflow-x: auto;
-	overflow-y: hidden;
+	padding: @small-pad;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+
+	.pure-button {
+		padding: 0.5em 1em;
+	}
 }
 
 .display-view__content {
@@ -47,7 +55,7 @@
 
 .aside__top, .aside__bottom {
 	height: 50%;
-	padding: @pad;
+	padding: @small-pad;
 }
 
 .aside__bottom {
@@ -69,20 +77,12 @@
 	position: relative;
 }
 
-.canvas-tools {
-	position: relative;
-	padding: @small-pad;
-	white-space: nowrap;
-	line-height: 0;
+.menu__left, .menu__right {
 	display: flex;
 	flex-flow: row nowrap;
 
-	& > *{
+	& > *:not(:last-child) {
 		margin-right: @pad;
-	}
-
-	.pure-button {
-		padding: 0.5em 1em;
 	}
 }
 

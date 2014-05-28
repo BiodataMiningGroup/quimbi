@@ -13,45 +13,55 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings, colorGroup
 
 	controller: ($scope) ->
 		$scope.data =
-			label: ''
-			choosingGroup: no
+			startLabel: ''
+			endLabel: ''
+			editing: no
 			colorGroups: colorGroups.getAll()
 
 		$scope.inMeanMode = -> settings.displayMode is 'mean'
 
-		$scope.chooseGroup = (e) ->
+		# toggles the editing mode for this list item
+		$scope.edit = (e) ->
 			e.stopPropagation()
-			$scope.data.choosingGroup = not $scope.data.choosingGroup
+			$scope.data.editing = not $scope.data.editing
 
+		# sets the chosen color group for this item
 		$scope.setColorGroup = (e, group) ->
 			e.stopPropagation()
-			$scope.data.choosingGroup = no
 			$scope.range.setGroup group
 
 		$scope.removeRange = (e) ->
 			e.stopPropagation()
 			ranges.remove $scope.index
 
-		$scope.toggleRange = ->
+		# toggles the active state of this item
+		$scope.toggleRange = -> unless $scope.data.editing
 			if $scope.range.isActive()
 				$scope.range.setInactive()
 			else
 				$scope.range.setActive()
 			$scope.$emit 'rangeListItem.focusRange', $scope.index
 
-		$scope.class = ->
-			active: $scope.range.isActive()
+		$scope.class = -> active: $scope.range.isActive()
 
 		$scope.style = -> if $scope.inMeanMode()
 			'border-left-color': $scope.range.getColor()
 
-		updateLabel = ->
-			$scope.data.label = input.channelNames[$scope.range.start]
-			if $scope.range.offset > 1
-				$scope.data.label += ' - ' +
-					input.channelNames[$scope.range.start + $scope.range.offset]
+		# returns the maximal possible range.start value to choose
+		$scope.maxStart = ->	input.channels - $scope.range.offset
 
-		$scope.$watch 'range.start', updateLabel
-		$scope.$watch 'range.offset', updateLabel
+		# returns the maximal possible range.offset value to choose
+		$scope.maxOffset = -> input.channels - $scope.range.start
+
+		updateStartLabel = (start) ->
+			$scope.data.startLabel = input.channelNames[start]
+
+		$scope.$watch 'range.start', updateStartLabel
+
+		updateEndLabel = (offset) ->
+			$scope.data.endLabel = if offset <= 1 then '' else
+				input.channelNames[$scope.range.start + offset]
+
+		$scope.$watch 'range.offset', updateEndLabel
 		
 		return

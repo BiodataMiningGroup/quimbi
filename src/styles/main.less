@@ -1,9 +1,23 @@
 @import url(vars.less);
 @import url(helpers.less);
 
+// === Libs ===
+
 @import url(pure.less);
 @import url(angularui.less);
 @import url(angularmsg.less);
+
+// === Views ===
+
+@import url(init.less);
+@import url(loading.less);
+@import url(./display/main.less);
+@import url(settings.less);
+@import url(selection.less);
+
+// === Modules ===
+
+@import url(angular-tour.less);
 
 // === Global ===
 
@@ -63,14 +77,12 @@ body {
 	}
 }
 
-// === Views ===
 
-@import url(init.less);
-@import url(loading.less);
-@import url(./display/main.less);
-@import url(settings.less);
-@import url(selection.less);
+.number, input[type="number"] {
+	font-family: 'monospace';
+}
 
-// === Modules ===
-
-@import url(angular-tour.less);
+i[class^="icon-"].active {
+	color: @info-color;
+	opacity: 1;
+}

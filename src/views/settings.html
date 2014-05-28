@@ -11,7 +11,7 @@
 				<input id="dist-eucl" type="radio" name="distRadios" value="eucl" data-ng-model="settings.distMethod"/>
 				<b>Euclidean distance</b>
 			</label>
-			Normalized with {{info.normMethod}} <code data-ng-bind="info.norm | number:2"></code>.
+			Normalized with {{info.normMethod}} <span class="number" data-ng-bind="info.norm | number:2"></span>.
 		</fieldset>
 		<fieldset data-tourtip="Choose one of the default color maps to apply to the similarity/mean image. You can load custom color maps, too. Click on the color map preview to choose a CSV file." data-tourtip-step="1" data-tourtip-placement="top">
 			<legend>Color maps</legend>
@@ -55,7 +55,7 @@
 		<fieldset data-tourtip="Finally there are some settings to customize the user interface." data-tourtip-step="2" data-tourtip-placement="top">
 			<legend>Interface</legend>
 			<label for="space-fill-percent-number" class="pure-number">
-				Size of a data point in percent (<code data-ng-bind="settings.spaceFillPercent | number:2"></code>):
+				Size of a data point in percent (<span class="number" data-ng-bind="settings.spaceFillPercent | number:2"></span>):
 			</label>
 			<input class="full-range" type="range" id="space-fill-percent-number" min="0" max="1" step="0.01" data-ng-model="settings.spaceFillPercent"/>
 			<label for="points-checkbox" class="pure-checkbox">

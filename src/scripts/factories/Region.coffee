@@ -4,6 +4,8 @@ angular.module('quimbi').factory 'Region', ->
 
 	class Region
 
+		@count: 0
+
 		constructor: (params) ->
 
 			# Leaflet layer of this region
@@ -18,6 +20,8 @@ angular.module('quimbi').factory 'Region', ->
 			# vertex positions in Leaflet coordinates
 			@_latLngCoords = params.latLngCoords
 
+			@_name = "region-#{Region.count++}"
+
 		getLayer: -> @_layer
 
 		getStamp: -> @_stamp
@@ -25,3 +29,7 @@ angular.module('quimbi').factory 'Region', ->
 		getPixelCoords: -> @_pixelCoords
 
 		getLatLngCoords: -> @_latLngCoords
+
+		getName: -> @_name
+
+		setName: (name) -> @_name
