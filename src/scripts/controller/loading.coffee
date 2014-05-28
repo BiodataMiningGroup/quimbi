@@ -25,11 +25,11 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 	# initialize glmvilib
 	try
 		glmvilib.init canvas.element[0],
-			width: input.width
-			height: input.height
+			width: input.dataWidth
+			height: input.dataHeight
 			channels: input.channels
-			# one unit for the channel mask in the distance computing shaders
-			# and one unit for the region mask in the distance computing shaders
+			# 1 unit for the channel mask in the distance computing shaders
+			# 1 unit for the region mask in the distance computing shaders
 			reservedUnits: 2
 		shader.createPrograms()
 	catch e
@@ -80,6 +80,22 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 			image.onerror = error
 			image.src = input.base + src + input.format
 			loading.topIndex++
+
+	# # TODO callback for image onload event
+	# # overlayLoaded = ->
+	# #	console.log input.overlayImage
+
+	# # callback for image error event
+	# # don't fail if the overlay is missing
+	# overlayError = ->
+	# 	$scope.$emit 'message::error', "Failed to load overlay image: #{@src}."
+
+	# # load overlay image
+	# overlayImage = new Image()
+	# # TODO overlayImage.onload = overlayLoaded
+	# overlayImage.onerror = overlayError
+	# overlayImage.src = input.overlayImage
+	# input.overlayImage = overlayImage
 
 	# kick off loading
 	pack = loading.parallel()

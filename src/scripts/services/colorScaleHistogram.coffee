@@ -1,7 +1,7 @@
 angular.module('quimbi').service 'colorScaleHistogram', (input, shader) ->
 
 	# the raw pixel data
-	intensities = new Uint8Array input.width * input.height * 4
+	intensities = new Uint8Array input.dataWidth * input.dataHeight * 4
 
 	# the intensity histogram for every channel
 	histogram = [
@@ -18,7 +18,7 @@ angular.module('quimbi').service 'colorScaleHistogram', (input, shader) ->
 
 	updateIntensities = ->
 		glmvilib.render shader.getIntensity()
-		glmvilib.getPixels 0, 0, input.width, input.height, intensities
+		glmvilib.getPixels 0, 0, input.dataWidth, input.dataHeight, intensities
 		intensities
 
 	@get = ->
@@ -34,5 +34,5 @@ angular.module('quimbi').service 'colorScaleHistogram', (input, shader) ->
 			histogram[1][green]++
 			histogram[2][blue]++
 		histogram
-	
+
 	return

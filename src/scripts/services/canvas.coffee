@@ -1,5 +1,7 @@
 # service for the main canvas. it creates the canvas element (since it is shared
 # between different routes) and manages the downscaling (upscaling is done by css).
+# DEV I'm pretty sure down and upscaling are currently both handled by leaflet, leaving the canvas at its initial size all the time
+# DEV a quick check showed, that checkScale and getPixelPosition are never called
 angular.module('quimbi').service 'canvas', ($document, shader) ->
 	# the canvas element
 	@element = angular.element $document[0].createElement 'canvas'
@@ -21,12 +23,12 @@ angular.module('quimbi').service 'canvas', ($document, shader) ->
 				element.width = width
 				element.height = height
 				# render once because changing the size clears the canvas
-				glmvilib.render shader.getFinal()
+				glmvilib.render.apply shader.getFinal()
 		else
 			scale = w / width
 			element.width = width * scale
 			element.height = height * scale
-			glmvilib.render shader.getFinal()
+			glmvilib.render.apply shader.getFinal()
 
 	# returns the pixel position of relative coordinates (in [0, 1])
 	@getPixelPosition = (x, y) ->

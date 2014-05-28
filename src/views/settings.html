@@ -51,6 +51,11 @@
 				</label>
 				<select data-ng-model="settings.colorMaps[2]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
+
+			<label for="space-fill-percent-number" class="pure-number">
+				<input id="space-fill-percent-number" type="number" value="space-fill-percent" data-ng-model="settings.spaceFillPercent"/>
+				Size of a data point in percent.
+			</label>
 		</fieldset>
 		<fieldset data-tourtip="Finally there are some settings to customize the user interface." data-tourtip-step="2" data-tourtip-placement="top">
 			<legend>Interface</legend>
@@ -62,13 +67,21 @@
 				<input id="color-scale-checkbox" type="checkbox" value="color-scale" data-ng-model="settings.showColorScale"/>
 				Show color scale.
 			</label>
+			<label for="background-checkbox" class="pure-checkbox">
+				<input id="background-checkbox" type="checkbox" value="background" data-ng-model="settings.showBackground"/>
+				Show the background image.
+			</label>
+			<label for="overlay-checkbox" class="pure-checkbox">
+				<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay"/>
+				Show the overlay image.
+			</label>
+			<label for="blending-checkbox" class="pure-checkbox">
+				<input id="blending-checkbox" type="checkbox" value="blending" data-ng-model="settings.useBlending"/>
+				Blend the similarity map with the background image.
+			</label>
 			<label for="grid-checkbox" class="pure-checkbox">
 				<input id="grid-checkbox" type="checkbox" value="grid" data-ng-model="settings.showGrid"/>
 				Show a regular grid over the image.
-			</label>
-			<label for="overlay-checkbox" class="pure-checkbox" data-ng-if="info.hasOverlay">
-				<input id="overlay-checkbox" type="checkbox" value="overlay" data-ng-model="settings.showOverlay" />
-				Show overlay image.
 			</label>
 			<label for="reset-tour" data-tourtip="To restart the tour, reset the tooltips." data-tourtip-step="3" data-tourtip-placement="top" data-tourtip-next-label="Close">
 				<input id="reset-tour" type="button" value="Reset" class="pure-button pure-button-inline" data-ng-click="resetTour()" /> the introduction-tour tooltips.
