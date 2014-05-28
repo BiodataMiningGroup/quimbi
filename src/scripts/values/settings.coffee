@@ -18,6 +18,9 @@ angular.module('quimbi').value 'settings',
 	# show the grid
 	showGrid: yes
 
+	# show the regions/ranges sidebar
+	showSidebar: yes
+
 	# color map if only one selection (marker/range/...) is present
 	singleSelectionColorMap: 'fire'
 

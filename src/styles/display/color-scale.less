@@ -4,9 +4,14 @@
 	top: @pad;
 	right: @pad;
 	background-color: black;
-	border: 2px solid @dark-gray;
+	border: @radius solid @dark-gray;
 	border-radius: @radius;
 	line-height: 0;
+	transition: transform @duration @transition-type;
+}
+
+.sidebar-open .color-scale {
+	transform: translateX(-@aside-width);
 }
 
 .color-scale--1d, .color-scale--2d, .color-scale--3d {

@@ -16,7 +16,7 @@
 	cursor: pointer;
 	padding: @small-pad;
 	padding-top: 20px;
-	transition: all @duration;
+	transition: all @duration @transition-type;
 	border-left: @small-pad solid @info-color;
 	opacity: 0.5;
 
@@ -35,7 +35,7 @@
 
 		i {
 			opacity: 0.5;
-			transition: all @duration;
+			transition: all @duration @transition-type;
 
 			&:hover {
 				opacity: 1;
@@ -55,7 +55,7 @@
 		height: 100%;
 		background-color: @dark-gray;
 		overflow: hidden;
-		transition: width @duration;
+		transition: width @duration @transition-type;
 
 		&.show {
 			width: 20px;

@@ -12,10 +12,17 @@
 	}
 }
 
-.pure-button.pure-button-primary {
-	background-color: @info-color;
-}
+.pure-button {
+	&.pure-button-active {
+		background-color: @info-color;
+		color: white;
+	}
 
-.pure-button.pure-button-inline {
-	padding: 0.25em 0.5em;
+	&.pure-button-inline {
+		padding: 0.25em 0.5em;
+	}
+
+	&.pure-button-primary {
+		background-color: @info-color;
+	}
 }
