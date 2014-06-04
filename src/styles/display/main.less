@@ -3,6 +3,7 @@
 @content-top-height: 60%;
 @menu-height: 46px;
 @aside-width: 300px;
+@regions-list-height: 40%;
 
 .display-view {
 	height: 100%;
@@ -40,12 +41,11 @@
 	position: absolute;
 	box-sizing: border-box;
 	right: -@aside-width;
-	top: @menu-height;
+	top: 0;
+	padding-top: @menu-height;
 	height: 100%;
 	width: @aside-width;
 	transition: transform @duration @transition-type;
-	background-color: @light-gray;
-	border-left: @radius solid @dark-gray;
 	z-index: 2000;
 }
 
@@ -54,11 +54,33 @@
 }
 
 .aside__top, .aside__bottom {
-	height: 50%;
-	padding: @small-pad;
+	position: relative;
+	box-sizing: border-box;
+	background-color: @light-gray;
+	border-left: @radius solid @dark-gray;
+	padding-top: 30px;
+	padding-bottom: @small-pad;
+
+	h4 {
+		margin: 0;
+		padding: @small-pad;
+		position: absolute;
+		top: 0;
+	}
+
+	ul {
+		box-sizing: border-box;
+		max-height: 100%;
+		overflow-y: auto;
+	}
+}
+
+.aside__top {
+	height: @regions-list-height;
 }
 
 .aside__bottom {
+	height: 100% - @regions-list-height;
 	border-top: @radius solid @dark-gray;
 }
 
@@ -114,5 +136,5 @@
 @import url(canvas-wrapper.less);
 @import url(color-scale.less);
 @import url(marker-menu.less);
-@import url(range-list.less);
+@import url(range-region-list.less);
 

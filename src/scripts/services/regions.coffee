@@ -2,10 +2,7 @@
 angular.module('quimbi').service 'regions', ($document, Region, input) ->
 
 	# array of all existing regions
-	list = []
-
-	# is the user currently selecting regions?
-	active = no
+	regionList = []
 
 	regionMask = $document[0].createElement 'canvas'
 	regionMask.width = input.dataWidth
@@ -54,24 +51,10 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 		# 'convert' back to LatLng and return
 		L.latLng point.x, point.y for point in points
 
-	latLngsToPixelCoords = (latLngs, maxBounds) ->
-		pixelCoords = []
-		maxLng = maxBounds.getWest()
-		maxLat = maxBounds.getNorth()
-		boundsWidth = maxBounds.getEast() - maxLng
-		boundsHeight = maxBounds.getSouth() - maxLat
-		canvasWidth = input.dataWidth
-		canvasHeight = input.dataHeight
-
-		for latLng in latLngs
-			x = Math.round (latLng.lng - maxLng) / boundsWidth * canvasWidth
-			y = Math.round (latLng.lat - maxLat) / boundsHeight * canvasHeight
-			pixelCoords.push L.point(x, y)
-
-		pixelCoords
-
-	refreshRegionMask = ->
+	refreshRegionMask = =>
 		regionMaskCtx.clearRect 0, 0, regionMask.width, regionMask.height
+
+		list = @getList()
 
 		if list.length is 0
 			regionMaskCtx.fillRect 0, 0, regionMask.width, regionMask.height
@@ -85,7 +68,9 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 			regionMaskCtx.fill()
 		regionMask
 
-	@contain = (latLng) ->
+	@contain = (latLng) =>
+		list = @getList()
+
 		return yes if list.length is 0
 
 		for region in list when pointInPolygon latLng, region.getLatLngCoords()
@@ -102,23 +87,16 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 			# apply changes to the selection
 			regionLayer.setLatLngs latLngCoords
 
-		list.push new Region
-			layer: regionLayer
-			pixelCoords: latLngsToPixelCoords latLngCoords, maxBounds
-			latLngCoords: latLngCoords
+		regionList.push new Region regionLayer, maxBounds
 
 	@remove = (stamp) ->
-		for region, index in list when region.getStamp() is stamp
-			list.splice index, 1
+		for region, index in regionList when region.getStamp() is stamp
+			regionList.splice index, 1
 			return
 
-	@getList = -> list
+	@getList = -> region for region in regionList when region.isActive()
 
-	@setActive = -> active = yes
-
-	@setInactive = -> active = no
-
-	@isActive = -> active
+	@getListAll = -> regionList
 
 	@getRegionMask = -> refreshRegionMask()
 

@@ -1,6 +1,6 @@
 <div class="display-view" data-tour="" data-step="tourStep.display" data-post-step="tourNext('display')" data-post-tour="tourClose('display')">
 	<div class="display-view__menu" data-tourtip="These are the selection tools. Choose one by clicking the button and then click anywhere on the image on the right to make a selection." data-tourtip-step="1">
-		<div class="menu__left" data-tourtip="Finally you can configure the application by clicking on the Settings button below the tool buttons." data-tourtip-step="6" data-tourtip-next-label="Close">
+		<div class="menu__left">
 			<form class="mode-switches">
 				<label for="mode-similarity" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='similarity'}" data-tooltip="Display the similarity of each point to one or more selected positions on the similarity image.">
 					<input id="mode-similarity" type="radio" name="display-modes" value="similarity" data-ng-model="settings.displayMode"/>
@@ -13,12 +13,12 @@
 			</form>
 			<div class="marker-menu" marker-menu=""></div>
 		</div>
-		<div class="menu__right">
+		<div class="menu__right" data-tourtip="Finally you can configure the application by clicking on the settings button." data-tourtip-step="7" data-tourtip-next-label="Close">
 			<a href="#/settings" class="pure-button" data-tooltip="Settings.">
 				<i class="icon-cog"></i>
 			</a>
 			<button class="pure-button" data-ng-class="{'pure-button-active':settings.showSidebar}" data-ng-click="settings.showSidebar=!settings.showSidebar" data-tooltip="Toggle the regions and ranges sidebar.">
-				<i class="icon-beaker"></i>
+				<i class="icon-th-list"></i>
 			</button>
 		</div>
 	</div>
@@ -36,9 +36,14 @@
 		</div>
 		<div class="content__aside">
 			<div class="aside__top">
+				<h4>Regions</h4>
+				<ul class="region-list" data-tourtip="All regions of interest are listed here. You can enable or disable a region by clicking on the respective list item. Edit a range by clicking on the pencil icon or remove it by clicking on '&times;'." data-tourtip-step="6" data-tourtip-placement="right">
+					<li data-region-list-item="region" data-index="$index" data-ng-repeat="region in mapRegions()"></li>
+				</ul>
 			</div>
 			<div class="aside__bottom">
-				<ul class="range-list" data-tourtip="All regions of interest are listed here. You can enable or disable a region by clicking on the respective list item. Remove a region by clicking on '&times;'." data-tourtip-step="5" data-tourtip-placement="right">
+				<h4>Ranges</h4>
+				<ul class="range-list" data-tourtip="All spectrum ranges of interest are listed here. You can enable or disable a range by clicking on the respective list item. Edit a range by clicking on the pencil icon or remove it by clicking on '&times;'." data-tourtip-step="5" data-tourtip-placement="right">
 					<li data-range-list-item="range" data-index="$index" data-ng-repeat="range in spectrumRanges"></li>
 				</ul>
 			</div>

@@ -1,3 +1,4 @@
+# cuts a number string to a maximum length
 angular.module('quimbi').filter 'mass', ->
 	maxLength = 10
 	(input) ->

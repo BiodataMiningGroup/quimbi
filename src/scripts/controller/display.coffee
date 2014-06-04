@@ -1,5 +1,5 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges, regions) ->
 
 	# array to apply the color map for the single selection to all three color
 	# channels
@@ -19,6 +19,8 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 		length: input.channels
 
 	$scope.spectrumRanges = ranges.list
+
+	$scope.mapRegions = regions.getListAll
 
 	# updates the spectrograms of the different selections to display in the
 	# spectrum viewer
