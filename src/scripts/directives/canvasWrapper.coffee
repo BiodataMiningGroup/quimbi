@@ -98,9 +98,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 
 		map.self.addLayer map.drawnItems
 
-		L.drawLocal.edit.toolbar.buttons.edit = 'Edit regions.'
-		L.drawLocal.edit.toolbar.buttons.editDisabled = 'No regions to edit.'
-
 		# initialise the draw control and pass it the FeatureGroup of editable layers
 		map.self.addControl new L.Control.Draw
 			edit:
