@@ -3,14 +3,9 @@
 		<i class="icon-pencil" data-ng-click="edit($event)" data-tooltip="Toggle editing." data-ng-class="{active:data.editing}"></i>
 		<i class="icon-remove" data-ng-click="removeRegion($event)" data-tooltip="Remove this region."></i>
 	</span>
-	<form class="item__edit-form pure-g" data-ng-if="data.editing" data-ng-submit="edit($event)">
-		<input class="pure-u-4-5" type="text" data-ng-model="region._name" />
+	<div data-ng-if="!data.editing" data-ng-bind="region.getName()"></div>
+	<form class="item__edit-form" data-ng-if="data.editing" data-ng-submit="edit($event)">
+		<input type="text" data-ng-model="region._name" />
 		<input type="submit" value="submit" />
 	</form>
-	<div data-ng-if="!data.editing">
-		<div data-ng-bind="region.getName()"></div>
-		<!--div data-ng-repeat="point in region.getPixelCoords()">
-			<span class="number" data-ng-bind="point.x"></span> x <span class="number" data-ng-bind="point.y"></span>
-		</div-->
-	</div>
 </li>

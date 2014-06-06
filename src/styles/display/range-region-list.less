@@ -8,19 +8,19 @@
 	position: relative;
 	user-select: none;
 	word-wrap: break-word;
-	cursor: pointer;
 	padding: @small-pad;
 	transition: all @duration @transition-type;
 	border-left: @small-pad solid @info-color;
 	border-radius: @radius;
 	opacity: 0.5;
-
-	&:hover {
-		background-color: @dark-gray;
-	}
+	background-color: @dark-gray;
 
 	&.active {
 		opacity: 1;
+	}
+
+	&:not(.editing) {
+		cursor: pointer;
 	}
 
 	.item__controls {
@@ -31,6 +31,7 @@
 		i {
 			opacity: 0.5;
 			transition: all @duration @transition-type;
+			cursor: pointer;
 
 			&:hover {
 				opacity: 1;
@@ -54,13 +55,41 @@
 
 	.item__group-chooser {
 		height: 20px;
-		transition: width @duration @transition-type;
+		margin-top: @small-pad;
 
 		.pure-button {
 			height: 100%;
 			display: inline-block;
 			padding: 0;
 			border-radius: 0;
+		}
+	}
+
+	.item__labels {
+		display: flex;
+		flex-flow: row nowrap;
+		justify-content: space-around;
+		margin-top: @small-pad;
+	}
+
+	.item__label-button {
+		background: none;
+		border: 0;
+		padding: 0;
+		color: inherit;
+		opacity: 0.25;
+		transition: opacity @duration @transition-type;
+
+		&:not(.enabled) {
+			cursor: default;
+		}
+
+		&.enabled {
+			opacity: 0.5;
+
+			&:hover {
+				opacity: 1;
+			}
 		}
 	}
 }

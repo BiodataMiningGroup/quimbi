@@ -2,5 +2,5 @@
 angular.module('quimbi').filter 'mass', ->
 	maxLength = 11
 	(input) ->
-		if input.length > maxLength then "~#{input.substr -maxLength}"
+		if input.length > maxLength then "#{input.substr 0, maxLength}~"
 		else input
