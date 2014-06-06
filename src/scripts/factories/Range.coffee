@@ -31,7 +31,8 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 
 		style: ->
 			output =
-				left: "#{@start - 0.5}px"
+				'-webkit-transform': "translateX(#{@start - 0.5}px)"
+				transform: "translateX(#{@start - 0.5}px)"
 				width: "#{@offset}px"
 			if @isActive() and settings.displayMode is 'mean'
 				output['border-bottom-color'] = @getColor()
