@@ -71,7 +71,10 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 			markers.deactivate()
 
 	# reflect event from rangeListItem to spectrumViewer
-	$scope.$on 'rangeListItem.focusRange', (e, index) ->
-		$scope.$broadcast 'spectrumViewer.focusRange', index
+	$scope.$on 'rangeListItem.rangeClicked', (e, index) ->
+		$scope.$broadcast 'displayController.focusRange', index
+
+	$scope.$on 'canvasWrapper.regionsChanged', (e) ->
+		$scope.$broadcast 'displayController.updateHistogram'
 
 	return

@@ -222,7 +222,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 		$scope.$watch 'spectrum.layers.length', (length) ->
 			$scope.data.layers = length
 
-		$scope.$on 'spectrumViewer.focusRange', (e, index) ->
+		$scope.$on 'displayController.focusRange', (e, index) ->
 			range = $scope.ranges[index]
 			# center position of the range minus half of the viewer-width
 			$scope.data.left = Math.round ((2 * range.start + range.offset) * $scope.zoom.factor - $scope.props.width) / 2
