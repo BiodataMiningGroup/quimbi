@@ -11,10 +11,14 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 		# of an active range
 		@activeType: ColorGroup.TYPE_SINGLE
 
+		@count: 0
+
 		constructor: (@start) ->
 
 			# a new range is assigned the most recently used color group
 			super colorGroups.get Range.mostRecentColorGroup
+
+			@_name = "range-#{Range.count++}"
 
 			@offset = 0
 
@@ -27,7 +31,8 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 
 		style: ->
 			output =
-				left: "#{@start - 0.5}px"
+				'-webkit-transform': "translateX(#{@start - 0.5}px)"
+				transform: "translateX(#{@start - 0.5}px)"
 				width: "#{@offset}px"
 			if @isActive() and settings.displayMode is 'mean'
 				output['border-bottom-color'] = @getColor()
@@ -49,3 +54,7 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 			# be the active one
 			Range.activeType = @getType() if currentlyActive
 			Range.mostRecentColorGroup = index
+
+		getName: -> @_name
+
+		setName: (name) -> @_name

@@ -10,7 +10,7 @@ angular.module 'quimbi', [
 angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) ->
 	# configure ui.bootstrap tooltips
 	$tooltipProvider.options
-		placement: 'right'
+		placement: 'bottom'
 		animation: no
 		popupDelay: 1000
 		appendToBody: yes
@@ -30,7 +30,6 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) 
 		templateUrl: 'views/display.html'
 	)
 	.when('/about',
-		controller: 'aboutCtrl'
 		templateUrl: 'views/about.html'
 	)
 	.when('/settings',

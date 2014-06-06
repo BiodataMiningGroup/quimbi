@@ -1,27 +1,62 @@
 # creates a new Region object. It is a region of interest on the map, represented
 # as a polygon.
-angular.module('quimbi').factory 'Region', ->
+angular.module('quimbi').factory 'Region', (map, input) ->
 
 	class Region
 
-		constructor: (params) ->
+		@count: 0
 
-			# Leaflet layer of this region
-			@_layer = params.layer
+		constructor: (@_layer, @_maxBounds) ->
+
+			# own fature group and edit toolbar to allow editing of single
+			# regions (Leaflet.Draw allows only editing of everything at once)
+			@_featureGroup = L.featureGroup()
+
+			@_featureGroup.addLayer @_layer
+
+			@_editToolbar = new L.EditToolbar.Edit map.self,
+				featureGroup: @_featureGroup
+				selectedPathOptions: {}
 
 			# unique identifier
 			@_stamp = "#{L.stamp @_layer}"
 
-			# vertex positions in pixel coordinates
-			@_pixelCoords = params.pixelCoords
+			@_name = "region-#{Region.count++}"
 
-			# vertex positions in Leaflet coordinates
-			@_latLngCoords = params.latLngCoords
+			@_active = yes
+
+		_latLngsToPixelCoords: (latLngs) ->
+			pixelCoords = []
+			maxLng = @_maxBounds.getWest()
+			maxLat = @_maxBounds.getNorth()
+			boundsWidth = @_maxBounds.getEast() - maxLng
+			boundsHeight = @_maxBounds.getSouth() - maxLat
+			canvasWidth = input.dataWidth
+			canvasHeight = input.dataHeight
+
+			for latLng in latLngs
+				x = Math.round (latLng.lng - maxLng) / boundsWidth * canvasWidth
+				y = Math.round (latLng.lat - maxLat) / boundsHeight * canvasHeight
+				pixelCoords.push L.point(x, y)
+
+			pixelCoords
+
+		setActive: -> @_active = yes
+
+		setInactive: -> @_active = no
+
+		isActive: -> @_active
 
 		getLayer: -> @_layer
 
 		getStamp: -> @_stamp
 
-		getPixelCoords: -> @_pixelCoords
+		getPixelCoords: -> @_latLngsToPixelCoords @getLatLngCoords()
 
-		getLatLngCoords: -> @_latLngCoords
+		getLatLngCoords: -> @_layer.getLatLngs()
+
+		getName: -> @_name
+
+		setName: (name) -> @_name
+
+		editToolbar: -> @_editToolbar

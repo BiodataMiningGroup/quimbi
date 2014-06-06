@@ -28,8 +28,8 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 
 		scope.$watch (-> markers.getList()[0]), updateHistogram, yes
 
-		scope.$watchCollection (-> regions.getList()), updateHistogram
-
 		scope.$watch (-> ranges.list), updateHistogram, yes
+
+		scope.$on 'displayController.updateHistogram', updateHistogram
 		
 		return

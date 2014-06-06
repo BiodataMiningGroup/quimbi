@@ -102,6 +102,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		map.self.addControl new L.Control.Draw
 			edit:
 				featureGroup: map.drawnItems
+				remove: off
+				edit: off
 			draw:
 				# disable all leaflet dawing tools but rectangle and polygon
 				polyline: off
@@ -156,20 +158,18 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		map.self.on 'draw:created', (e) -> scope.$apply ->
 			regions.add e.layer, maxBounds
 
-		map.self.on 'draw:deleted', (e) -> scope.$apply ->
-			regions.remove stamp for stamp, layer of e.layers._layers
-
-		map.self.on 'draw:edited', (e) -> scope.$apply ->
-			for stamp, layer of e.layers._layers
-				regions.remove stamp
-				regions.add layer, maxBounds
+		regionChanged = ->
 			renderer.updateRegionMask()
+			scope.$emit 'canvasWrapper.regionsChanged'
 
-		map.self.on 'draw:drawstart draw:editstart draw:deletestart', (e) ->
-			scope.$apply regions.setActive
+		# update edited regions on the fly
+		map.self.on 'draw:editstart', (e) ->
+			map.self.on 'mouseup', regionChanged
+				
 
-		map.self.on 'draw:drawstop draw:editstop draw:deletestop', (e) ->
-			scope.$apply regions.setInactive
+		map.self.on 'draw:editstop', (e) ->
+			map.self.off 'mouseup', regionChanged
+			renderer.updateRegionMask()
 
 		return
 
@@ -220,7 +220,10 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			for region, i in regionList
 				layer = region.getLayer()
 				map.drawnItems.addLayer layer
+			# must be called in watch expression so the region mask is initialized
+			# correctly
 			renderer.updateRegionMask()
+			$scope.$emit 'canvasWrapper.regionsChanged'
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
 

@@ -1,10 +1,33 @@
 <li class="range-list__item" data-ng-class="class()" data-ng-style="style()" data-ng-click="toggleRange()">
 	<span class="item__controls">
-		<i class="icon-pencil" data-ng-if="inMeanMode()" data-ng-click="chooseGroup($event)" data-tooltip="Choose a group."></i>
+		<i class="icon-pencil" data-ng-click="edit($event)" data-tooltip="Toggle editing." data-ng-class="{active:data.editing}"></i>
 		<i class="icon-remove" data-ng-click="removeRange($event)" data-tooltip="Remove this range."></i>
 	</span>
-	<form class="item__group-chooser" data-ng-class="{show: data.choosingGroup}">
-		<input type="button" class="pure-button" style="background-color:{{colorGroup.getSingleColor()}};height:{{100/data.colorGroups.length}}%;" data-ng-repeat="colorGroup in data.colorGroups" data-ng-click="setColorGroup($event, $index)"/>
+	<div data-ng-if="!data.editing" data-ng-bind="range.getName()"></div>
+	<form class="item__edit-form" data-ng-if="data.editing" data-ng-submit="edit($event)">
+		<input class="pure-u-4-5" type="text" data-ng-model="range._name" />
+		<input type="submit" value="submit" />
 	</form>
-	{{data.label}}
+	<div class="item__labels">
+		<span class="number" data-ng-bind="data.startLabel | mass"></span>
+		<span data-ng-if="hasOffset()">-</span>
+		<span class="number" data-ng-if="hasOffset()" data-ng-bind="data.endLabel | mass"></span>
+	</div>
+	<form class="pure-g item__edit-form" data-ng-if="data.editing">
+		<button class="pure-u-1-4 item__label-button" data-ng-click="changeStart(-1)" data-ng-class="{enabled:canDecreaseStart()}" data-tooltip="Move start to the left.">
+			<i class="icon-chevron-left"></i>
+		</button>
+		<button class="pure-u-1-4 item__label-button" data-ng-click="changeStart(1)" data-ng-class="{enabled:canIncreaseStart()}" data-tooltip="Move start to the right.">
+			<i class="icon-chevron-right"></i>
+		</button>
+		<button class="pure-u-1-4 item__label-button" data-ng-click="changeOffset(-1)" data-ng-class="{enabled:canDecreaseOffset()}" data-tooltip="Decrease offset.">
+			<i class="icon-chevron-left"></i>
+		</button>
+		<button class="pure-u-1-4 item__label-button" data-ng-click="changeOffset(1)" data-ng-class="{enabled:canIncreaseOffset()}" data-tooltip="Increase offset.">
+			<i class="icon-chevron-right"></i>
+		</button>
+	</form>
+	<form class="pure-g item__group-chooser" data-ng-if="data.editing && inMeanMode()" data-tooltip="Choose a group.">
+		<input type="button" class="pure-button" style="background-color:{{colorGroup.getSingleColor()}};width:{{100/data.colorGroups.length}}%;" data-ng-repeat="colorGroup in data.colorGroups" data-ng-click="setColorGroup($event, $index)"/>
+	</form>
 </li>

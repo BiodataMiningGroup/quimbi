@@ -4,21 +4,21 @@
 	</div>
 	<div class="spectrum-viewer__inner" data-ng-style="innerStyle">
 		<div class="spectrum-viewer__canvas-wrapper" style="height:{{props.height}}px;" data-ng-class="{'butterfly':data.layers==2}">
-			<div class="spectrum-viewer__ratio ratio--25"></div>
-			<div class="spectrum-viewer__ratio ratio--50"></div>
-			<div class="spectrum-viewer__ratio ratio--75"></div>
-			<div class="spectrum-viewer__ratio inverse-ratio--0"></div>
-			<div class="spectrum-viewer__ratio inverse-ratio--25"></div>
-			<div class="spectrum-viewer__ratio inverse-ratio--50"></div>
-			<div class="spectrum-viewer__ratio inverse-ratio--75"></div>
+			<div class="spectrum-viewer__ratio ratio--25 number"></div>
+			<div class="spectrum-viewer__ratio ratio--50 number"></div>
+			<div class="spectrum-viewer__ratio ratio--75 number"></div>
+			<div class="spectrum-viewer__ratio inverse-ratio--0 number"></div>
+			<div class="spectrum-viewer__ratio inverse-ratio--25 number"></div>
+			<div class="spectrum-viewer__ratio inverse-ratio--50 number"></div>
+			<div class="spectrum-viewer__ratio inverse-ratio--75 number"></div>
 			<div data-spectrum-viewer-canvas="layer" data-props="layerProps" data-ng-repeat="layer in spectrum.layers"></div>
 			<span class="spectrum-viewer__indicator" data-ng-style="indicatorStyle"></span>
 		</div>
 		<div class="spectrum-viewer__info">
-			<span style="color:{{layer.color}};" data-ng-repeat="(index, layer) in spectrum.layers">{{data.values[index]}}% </span>at {{data.label}} m/z
+			<span style="color:{{layer.color}};" data-ng-repeat="(index, layer) in spectrum.layers"><span class="number" data-ng-bind="data.values[index]"></span>% </span>at <span class="number" data-ng-bind="data.label"></span> m/z
 		</div>
 		<div class="spectrum-viewer__x-axis">
-			<span class="spectrum-viewer__label" data-ng-repeat="label in labels" style="transform:translateX({{$index*props.labelOffset}}px);-webkit-transform:translateX({{$index*props.labelOffset}}px);" data-ng-bind="label"></span>
+			<span class="spectrum-viewer__label number" data-ng-repeat="label in labels" style="transform:translateX({{$index*props.labelOffset}}px);-webkit-transform:translateX({{$index*props.labelOffset}}px);" data-ng-bind="label"></span>
 		</div>
 	</div>
 </div>

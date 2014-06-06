@@ -1,8 +1,8 @@
-<div class="marker-menu__button" data-ng-repeat="marker in data.markers" data-ng-style="{'border-top-color':marker.getColor()}" data-ng-class="{'only':onlyMarker(), 'off':!marker.isOn()}">
+<div class="marker-menu__button" data-ng-repeat="marker in data.markers" data-ng-style="{'border-left-color':marker.getColor()}" data-ng-class="{'only':onlyMarker(), 'off':!marker.isOn()}">
 	<button class="marker-menu__button--edit pure-button" data-ng-click="switchOnMarker($index)" data-ng-class="{'pure-button-active':marker.isOn()&&!marker.isSet()}" data-tooltip="Edit this marker.">
-		<i class="icon-map-marker icon-large"></i>
+		<i class="icon-map-marker"></i>
 	</button><!--
 	--><button class="marker-menu__button--switch-off pure-button" data-ng-click="switchOffMarker($index)" data-tooltip="Switch off this marker.">
-		<i class="icon-remove icon-large"></i>
+		<i class="icon-remove"></i>
 	</button>
 </div>
