@@ -82,6 +82,8 @@ L.CanvasOverlay = L.Class.extend({
     _initCanvas: function () {
 
     	this._canvas = this.__canvas;
+        // needed for correct display of other elements!
+        L.DomUtil.addClass(this._canvas, 'leaflet-image-layer');
 
         if (this._map.options.zoomAnimation && L.Browser.any3d) {
             L.DomUtil.addClass(this._canvas, 'leaflet-zoom-animated');
