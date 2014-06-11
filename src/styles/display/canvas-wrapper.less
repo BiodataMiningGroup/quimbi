@@ -14,7 +14,6 @@
 	height: 100%;
 
 	canvas {
-		.image-crisp-edges;
 		height: 100%;
 		width: 100%;
 		display: block;
@@ -22,11 +21,7 @@
 }
 
 .marker-point {
-	position: absolute;
-	@border: 1px;
-	border: @border solid white;
-	box-shadow: 0 0 0 @border black;
-	border-radius: 50%;
+	.point()
 }
 
 .marker-point--lime {

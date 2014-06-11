@@ -1,10 +1,10 @@
 <div data-ng-class="colorScaleClass()">
-	<canvas class="color-scale__histogram" width="30" height="256" color-scale-histogram=""></canvas><!--
+	<canvas class="color-scale__histogram" width="30" height="256" color-scale-histogram="" data-ng-if="showHistogram()"></canvas><!--
 	--><div class="color-scale__canvas" data-ng-style="colorScaleDimension()">
-		<canvas width="256" height="256" data-color-scale-canvas=""></canvas>
-		<svg class="color-scale__triangle" height="256" width="256">
+		<svg class="color-scale__triangle" height="256" width="256" data-ng-if="showTriangle()">
 			<polygon points="0,256 256,256 128,0"/>
-		</svg> 
+		</svg>
+		<canvas width="256" height="256" data-color-scale-canvas="" data-ng-if="showCanvas()"></canvas>
 		<span class="color-scale__vertex3d vertex-3d--bl" data-ng-style="vertex3DColor(0)"></span>
 		<span class="color-scale__vertex3d vertex-3d--br" data-ng-style="vertex3DColor(1)"></span>
 		<span class="color-scale__vertex3d vertex-3d--t" data-ng-style="vertex3DColor(2)"></span>

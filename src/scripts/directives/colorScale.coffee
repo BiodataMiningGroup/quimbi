@@ -58,6 +58,12 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 				width: "#{fullWidth}px"
 				height: "#{fullWidth}px"
 
+		$scope.showHistogram = -> dimension is 1
+
+		$scope.showCanvas = -> 0 < dimension < 3
+
+		$scope.showTriangle = -> dimension is 3
+
 		# positions the indicator on the 1D color scale
 		indicatorStyle1D = -> translateCSS smallWidth * 0.5,
 			fullWidth * (1-intensities[activeIndices[0]])

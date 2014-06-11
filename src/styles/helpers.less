@@ -1,14 +1,14 @@
 // === Helpers ===
-
-.image-crisp-edges {
-	image-rendering: -moz-crisp-edges;
-	image-rendering: -o-crisp-edges;
-	image-rendering: -webkit-optimize-contrast;
-	image-rendering: crisp-edges;
-	image-rendering: pixelated;
+@keyframes fadein {
+	from 	{opacity: 0;}
+	to 	{opacity: 1;}
 }
 
-@keyframes fadein {
-	from {opacity: 0;}
-	to {opacity: 1;}
+.point() {
+	position: absolute;
+	border: 1px solid white;
+	box-shadow: 0 0 0 1px black;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
 }
