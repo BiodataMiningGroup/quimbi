@@ -8,169 +8,197 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 	scope: yes
 
 	link: (scope, element) ->
-		# if the map element already exists, just append it
-		unless map.element is null
+
+		configureMap = ->
+			# add or remove the background layer
+			if settings.showBackground and map.backgroundLayer
+				unless map.self.hasLayer map.backgroundLayer
+					map.self.addLayer map.backgroundLayer
+					map.backgroundLayer.bringToBack()
+			else
+				map.self.removeLayer map.backgroundLayer
+
+			# add or remove overlay layer
+			if settings.showOverlay and map.overlayLayer
+				unless map.self.hasLayer map.overlayLayer
+					map.self.addLayer map.overlayLayer
+			else
+				map.self.removeLayer map.overlayLayer
+
+			#add or remove the grid layer
+			if settings.showGrid and map.gridLayer
+				unless map.self.hasLayer map.gridLayer
+					map.self.addLayer map.gridLayer
+			else
+				map.self.removeLayer map.gridLayer
+
+		initializeMap = ->
+			map.element = angular.element '<div></div>'
 			element.append map.element
-			return
 
-		# otherwise initiate the Leaflet map and create the new map element
-		map.element = angular.element '<div></div>'
-		element.append map.element
+			inputWidth = input.width
+			inputHeight = input.height
 
-		inputWidth = input.width
-		inputHeight = input.height
+			shapeFactor = inputWidth / inputHeight
+			if shapeFactor >= 2
+				lngBound = 180
+				latBound = 180 / shapeFactor
+			else
+				lngBound = 90 * shapeFactor
+				latBound = 90
 
-		shapeFactor = inputWidth / inputHeight
-		if shapeFactor >= 2
-			lngBound = 180
-			latBound = 180 / shapeFactor
-		else
-			lngBound = 90 * shapeFactor
-			latBound = 90
+			# setup matching LatLng bounds for the input dimensions
+			southWest = L.latLng Math.ceil(-latBound), Math.ceil(-lngBound)
+			northEast = L.latLng Math.ceil(latBound), Math.ceil(lngBound)
+			# alternatively: set maxBounds on map.self options
+			maxBounds = new L.LatLngBounds southWest, northEast
 
-		# setup matching LatLng bounds for the input dimensions
-		southWest = L.latLng Math.ceil(-latBound), Math.ceil(-lngBound)
-		northEast = L.latLng Math.ceil(latBound), Math.ceil(lngBound)
-		# alternatively: set maxBounds on map.self options
-		maxBounds = new L.LatLngBounds southWest, northEast
+			# TODO: max zoom should depend on ratio between input and screen size
+			map.self = L.map map.element[0],
+				maxZoom: 10
+				minZoom: 0
+				crs: L.CRS.Simple
+				zoom: 0
+				center: [0, 0]
 
-		# TODO: max zoom should depend on ratio between input and screen size
-		map.self = L.map map.element[0],
-			maxZoom: 10
-			minZoom: 0
-			crs: L.CRS.Simple
-			zoom: 0
-			center: [0, 0]
+			# projection should not repeat itself (also getProjectionBounds and
+			# getPixelWorldBounds don't work without it)
+			map.self.options.crs.infinite = no
+			map.self.setMaxBounds maxBounds
 
-		# projection should not repeat itself (also getProjectionBounds and
-		# getPixelWorldBounds don't work without it)
-		map.self.options.crs.infinite = no
-		map.self.setMaxBounds maxBounds
+			# add scale with total object width in um
+			# TODO dynamic size depends on the input dataset
+			L.control.microScale(objectWidth: 80000).addTo map.self
 
-		# add scale with total object width in um
-		# TODO dynamic size depends on the input dataset
-		L.control.microScale(objectWidth: 80000).addTo map.self
+			southWest_2 = L.latLng Math.ceil(-latBound * (1 + input.overlayShiftY * 2)), Math.ceil(-lngBound)
+			northEast_2 = L.latLng Math.ceil(latBound), Math.ceil(lngBound * (1 + input.overlayShiftX * 2))
+			overlayBounds = L.latLngBounds southWest_2, northEast_2
+			# overlayBounds = L.latLngBounds southWest, northEast
 
-		southWest_2 = L.latLng Math.ceil(-latBound * (1 + input.overlayShiftY * 2)), Math.ceil(-lngBound)
-		northEast_2 = L.latLng Math.ceil(latBound), Math.ceil(lngBound * (1 + input.overlayShiftX * 2))
-		overlayBounds = L.latLngBounds southWest_2, northEast_2
-		# overlayBounds = L.latLngBounds southWest, northEast
+			# create background layer
+			if input.backgroundImage isnt ''
+				map.backgroundLayer = L.imageOverlay input.backgroundImage, overlayBounds
 
-		if input.backgroundImage isnt ''
-			map.backgroundLayer = L.imageOverlay input.backgroundImage, overlayBounds
+			map.canvasLayer = L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0
+			map.self.addLayer map.canvasLayer
 
-		map.canvasLayer = L.canvasOverlay canvas.element[0], maxBounds, opacity: 1.0
-		map.self.addLayer map.canvasLayer
+			if input.overlayImage isnt ''
+				map.overlayLayer = L.imageOverlay input.overlayImage, overlayBounds
 
-		if input.overlayImage isnt ''
-			map.overlayLayer = L.imageOverlay input.overlayImage, overlayBounds
+			# add control to reduce opacity
+			lowerOpacity = new L.Control.lowerOpacity()
+			map.self.addControl lowerOpacity
+			lowerOpacity.setOpacityLayer map.canvasLayer
+			lowerOpacity.setPosition 'bottomleft'
 
-		# add control to reduce opacity
-		lowerOpacity = new L.Control.lowerOpacity()
-		map.self.addControl lowerOpacity
-		lowerOpacity.setOpacityLayer map.canvasLayer
-		lowerOpacity.setPosition 'bottomleft'
+			# add control to increase opacity
+			higherOpacity = new L.Control.higherOpacity()
+			map.self.addControl higherOpacity
+			higherOpacity.setOpacityLayer map.canvasLayer
+			higherOpacity.setPosition 'bottomleft'
 
-		# add control to increase opacity
-		higherOpacity = new L.Control.higherOpacity()
-		map.self.addControl higherOpacity
-		higherOpacity.setOpacityLayer map.canvasLayer
-		higherOpacity.setPosition 'bottomleft'
+			inputPixelWidth = lngBound * 2 / input.dataWidth
 
-		inputPixelWidth = lngBound * 2 / input.dataWidth
+			map.gridLayer = L.graticule
+				interval: inputPixelWidth
+				southWest: southWest
+				northEast: northEast
+				clickable: no
 
-		map.gridLayer = L.graticule
-			interval: inputPixelWidth
-			southWest: southWest
-			northEast: northEast
-			clickable: no
+			#TODO use image of input data set
+			#TODO
+			# image2 = L.imageOverlay 'data/image_small.png', maxBounds
+			# minimap = L.control.minimap()
+			# minimap.initialize image2,
+			# 	zoomLevelFixed: 0
+			# 	width: inputWidth
+			# 	height: inputHeight
+			# 	toggleDisplay: on
+			# minimap.addTo map.self
 
-		#TODO use image of input data set
-		#TODO
-		# image2 = L.imageOverlay 'data/image_small.png', maxBounds
-		# minimap = L.control.minimap()
-		# minimap.initialize image2,
-		# 	zoomLevelFixed: 0
-		# 	width: inputWidth
-		# 	height: inputHeight
-		# 	toggleDisplay: on
-		# minimap.addTo map.self
+			map.self.addLayer map.drawnItems
 
-		map.self.addLayer map.drawnItems
+			# initialise the draw control and pass it the FeatureGroup of editable layers
+			map.self.addControl new L.Control.Draw
+				edit:
+					featureGroup: map.drawnItems
+					remove: off
+					edit: off
+				draw:
+					# disable all leaflet dawing tools but rectangle and polygon
+					polyline: off
+					circle: off
+					marker: off
+					rectangle: shapeOptions:
+						color: 'white'
+						fill: no
+						weight: 2
+					polygon: shapeOptions:
+						color: 'white'
+						fill: no
+						weight: 2
 
-		# initialise the draw control and pass it the FeatureGroup of editable layers
-		map.self.addControl new L.Control.Draw
-			edit:
-				featureGroup: map.drawnItems
-				remove: off
-				edit: off
-			draw:
-				# disable all leaflet dawing tools but rectangle and polygon
-				polyline: off
-				circle: off
-				marker: off
-				rectangle: shapeOptions:
-					color: 'white'
-					fill: no
-					weight: 2
-				polygon: shapeOptions:
-					color: 'white'
-					fill: no
-					weight: 2
+			# add the download canvas button
+			map.self.addControl new L.Control.Button
+				text: '<i class="icon-download-alt"></i>'
+				title: 'Download the image.'
+				onClick: (event, buttonElement) ->
+					buttonElement.href = canvas.element[0].toDataURL()
+					buttonElement.download = 'quimbi_image.png'
 
-		# add the download canvas button
-		map.self.addControl new L.Control.Button
-			text: '<i class="icon-download-alt"></i>'
-			title: 'Download the image.'
-			onClick: (event, buttonElement) ->
-				buttonElement.href = canvas.element[0].toDataURL()
-				buttonElement.download = 'quimbi_image.png'
+			# pass the events through
+			map.drawnItems.on 'mousemove', (e) -> map.self.fire 'mousemove', e
+			map.drawnItems.on 'click', (e) -> map.self.fire 'click', e
 
-		# pass the events through
-		map.drawnItems.on 'mousemove', (e) -> map.self.fire 'mousemove', e
-		map.drawnItems.on 'click', (e) -> map.self.fire 'click', e
+			map.self.fitBounds maxBounds, animate: off
 
-		map.self.fitBounds maxBounds, animate: off
+			map.self.on 'mousemove', (e) ->
+				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
+					# TODO refactor, pretty sure we don't really need lat/lng, x/y and dataX/dataY
+					mouse.position.lat = e.latlng.lat
+					mouse.position.lng = e.latlng.lng
+					mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
+					mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
+					newX = Math.floor mouse.position.x * input.dataWidth
+					newY = Math.floor (1 - mouse.position.y) * input.dataHeight
+					if mouse.position.dataX isnt newX or mouse.position.dataY isnt newY
+						mouse.position.dataX = newX
+						mouse.position.dataY = newY
+						renderer.update()
 
-		map.self.on 'mousemove', (e) ->
-			if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
-				# TODO refactor, pretty sure we don't really need lat/lng, x/y and dataX/dataY
-				mouse.position.lat = e.latlng.lat
-				mouse.position.lng = e.latlng.lng
-				mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
-				mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
-				newX = Math.floor mouse.position.x * input.dataWidth
-				newY = Math.floor (1 - mouse.position.y) * input.dataHeight
-				if mouse.position.dataX isnt newX or mouse.position.dataY isnt newY
-					mouse.position.dataX = newX
-					mouse.position.dataY = newY
+			map.self.on 'click', (e) -> if maxBounds.contains e.latlng
+				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
+					markers.setAt mouse.position
 					renderer.update()
 
-		map.self.on 'click', (e) -> if maxBounds.contains e.latlng
-			if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
-				markers.setAt mouse.position
-				renderer.update()
+			map.self.on 'moveend', (e) ->	map.center = e.target.getCenter()
 
-		map.self.on 'moveend', (e) ->	map.center = e.target.getCenter()
+			map.self.on 'zoomend', (e) -> map.zoom = e.target.getZoom()
 
-		map.self.on 'zoomend', (e) -> map.zoom = e.target.getZoom()
+			map.self.on 'draw:created', (e) -> scope.$apply ->
+				regions.add e.layer, maxBounds
 
-		map.self.on 'draw:created', (e) -> scope.$apply ->
-			regions.add e.layer, maxBounds
+			regionChanged = ->
+				renderer.updateRegionMask()
+				scope.$emit 'canvasWrapper.regionsChanged'
 
-		regionChanged = ->
-			renderer.updateRegionMask()
-			scope.$emit 'canvasWrapper.regionsChanged'
+			# update edited regions on the fly
+			map.self.on 'draw:editstart', (e) ->
+				map.self.on 'mouseup', regionChanged
 
-		# update edited regions on the fly
-		map.self.on 'draw:editstart', (e) ->
-			map.self.on 'mouseup', regionChanged
-				
+			map.self.on 'draw:editstop', (e) ->
+				map.self.off 'mouseup', regionChanged
+				renderer.updateRegionMask()
 
-		map.self.on 'draw:editstop', (e) ->
-			map.self.off 'mouseup', regionChanged
-			renderer.updateRegionMask()
+		if map.element is null
+			# if the map doesn't already exist, initialize it
+			initializeMap()
+		else
+			# else, just append it
+			element.append map.element
 
+		# re-configure the map either way
+		configureMap()
 		return
 
 
@@ -226,33 +254,5 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			$scope.$emit 'canvasWrapper.regionsChanged'
 
 		$scope.$watchCollection (-> regions.getList()), syncRegions
-
-		# show or hide background layer
-		toggleBackground = (show) ->
-			if show
-				map.self.addLayer map.backgroundLayer
-				map.backgroundLayer.bringToBack()
-			else
-				map.self.removeLayer map.backgroundLayer
-		$scope.$watch "settings.showBackground", toggleBackground
-
-		# show or hide overlay layer
-		toggleOverlay = (show) ->
-			if show
-				map.self.addLayer map.overlayLayer
-				map.overlayLayer.bringToBack()
-				map.canvasLayer.bringToBack()
-				map.backgroundLayer.bringToBack()
-			else
-				map.self.removeLayer map.overlayLayer
-		$scope.$watch "settings.showOverlay", toggleOverlay
-
-		# show or hide regular grid
-		toggleGrid = (show) ->
-			if show
-				map.self.addLayer map.gridLayer
-			else
-				map.self.removeLayer map.gridLayer
-		$scope.$watch "settings.showGrid", toggleGrid
 
 		return
