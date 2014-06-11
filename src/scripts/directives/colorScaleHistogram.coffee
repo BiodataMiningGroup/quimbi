@@ -1,5 +1,5 @@
 # directive to display the histogram of a marker if only one is present
-angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHistogram, regions, ranges) ->
+angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHistogram, ranges, settings) ->
 
 	restrict: 'A'
 
@@ -9,8 +9,8 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 		height = element[0].height
 		ctx.fillStyle = 'white'
 
-		redrawHistogram = (marker) ->
-			histogram = colorScaleHistogram.get()[marker.getIndex()]
+		redrawHistogram = (index) ->
+			histogram = colorScaleHistogram.get()[index]
 			maximum = 0
 			maximum = value for value in histogram when value > maximum
 			drawNumber = histogram.length
@@ -22,9 +22,12 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 
 		updateHistogram = ->
 			ctx.clearRect 0, 0, width, height
-			marker = markers.getList()[0]
-			unless marker is undefined
-				redrawHistogram marker if marker.isSet() or marker.getType() is 'mean'
+			switch settings.displayMode
+				when 'mean'
+					redrawHistogram ranges.currentGroups()[0]
+				else
+					marker = markers.getList()[0]
+					redrawHistogram marker.getIndex() if marker and marker.isSet()
 
 		scope.$watch (-> markers.getList()[0]), updateHistogram, yes
 
