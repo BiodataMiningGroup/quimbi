@@ -2,64 +2,34 @@ precision mediump float;
 
 varying vec2 v_texture_position;
 
-uniform float u_channel_mask_dimension;
-uniform float u_inv_channel_mask_dimension;
-uniform sampler2D u_channel_mask;
-
-uniform float u_inv_active_channels;
+uniform float u_channel;
 
 uniform sampler2D u_region_mask;
 
-const int LAST_CHANNELS = <%=CHANNELS_LAST_TILE=%>;
-const int TILES_MINUS_ONE = <%=TILES=%> - 1;
-const vec4 ONES = vec4(1);
+const vec4 ONES = vec4(0);
 const vec4 ZEROS = vec4(0);
 
 <%=TEXTURE_3D=%>
 
 void main() {
-    // if masked by the region mask, din't do anything
+    // if masked by the region mask, don't do anything
     if (texture2D(u_region_mask, v_texture_position).a == 0.0) {
         gl_FragColor = ZEROS;
         return;
     }
 
-    float color = 0.0;
-    vec4 current;
+    // index of the tile the desired channel is on
+    float tile = floor(u_channel / 4.0);
+    int channel_on_tile = int(mod(u_channel, 4.0));
 
-    float tile;
-    vec2 mask_position = vec2(0);
-    vec4 channel_mask;
+    // mask to eliminate all other channels but channel_on_tile
+    vec4 mask = vec4(0.0, 0.0, 0.0, 0.0);
+    mask[channel_on_tile] = 1.0;
 
-    for (int i = 0; i < TILES_MINUS_ONE; i++) {
-        tile = float(i);
-        mask_position.s = mod(tile, u_channel_mask_dimension);
-        mask_position.t = floor(tile * u_inv_channel_mask_dimension);
-        mask_position *= u_inv_channel_mask_dimension;
-        channel_mask = texture2D(u_channel_mask, mask_position);
-        // check if any channels of this tile are to be computed
-        if (dot(channel_mask, ONES) == 0.0) continue;
+    vec4 colors = glmvilib_texture3D(v_texture_position, tile);
+    colors *= mask;
 
-        // get rgba of the position of this pixel; filtered by the channel mask
-        current = channel_mask * glmvilib_texture3D(v_texture_position, tile);
+    float channel_color = dot(colors, ONES);
 
-        color += dot(current, ONES);
-    }
-
-    tile = float(TILES_MINUS_ONE);
-    mask_position.s = mod(tile, u_channel_mask_dimension);
-    mask_position.t = floor(tile * u_inv_channel_mask_dimension);
-    mask_position *= u_inv_channel_mask_dimension;
-    channel_mask = texture2D(u_channel_mask, mask_position);
-
-    // last tile (may use not all channels)
-    current = channel_mask * glmvilib_texture3D(v_texture_position, tile);
-    for (int i = 0; i < LAST_CHANNELS; i++) {
-        color += current[i];
-    }
-
-    // build average
-    color *= u_inv_active_channels;
-
-    gl_FragColor = vec4(vec3(color), 1.0);
+    gl_FragColor = vec4(channel_color, channel_color, channel_color, 1.0);
 }

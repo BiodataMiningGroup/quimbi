@@ -13,6 +13,11 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 	# mean calculations
 	activeColorMask = [0, 0, 0]
 
+	# indext of the previously rendered channel in the direct display mode
+	renderedDirectChannel = 0
+	# index of the current channel to render in the direct display mode
+	directChannel = 0
+
 	# sets all entries of the given array to 0
 	clearArray = (array) ->
 		array[index] = 0 for index in [0...array.length]
@@ -85,6 +90,11 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 
 	@update = => switch settings.displayMode
 		when 'mean' then @updateChannelMask()
+		when 'direct'
+			# do not render the same channel twice
+			if renderedDirectChannel is directChannel then return
+			renderedDirectChannel = directChannel
+			console.log directChannel
 		else
 			shader.setPassiveColorMask updatePassiveColorMask()
 			if markers.hasActive()
@@ -110,5 +120,9 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		for name, index in settings.activeColorMaps
 			maps[index] = colorMap.get name
 		shader.updateColorMaps maps
+
+	# updates the direct channel
+	@updateDirectChannel = (channel) ->
+		directChannel = channel
 
 	return

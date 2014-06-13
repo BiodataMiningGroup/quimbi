@@ -199,6 +199,50 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 	RenderChannel: ->
 		_gl = null
 		# pointers to texture objects
+		_regionMaskTexture = null
+		# pointer to the uniform
+		_channel = null
+
+		@id = 'render-channel'
+
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
+
+		@fragmentShaderUrl = 'shader/render-channel.glsl.frag'
+
+		@constructor = (gl, program, assets, helpers) ->
+			_gl = gl
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+			helpers.useInternalTextures program
+
+			_channel = gl.getUniformLocation program, 'u_channel'
+
+			setUpDistanceTexture gl, assets, helpers
+
+			_regionMaskTexture = setUpRegionMask gl, program, assets, helpers
+			return
+
+		@callback = (gl, program, assets, helpers) ->
+			gl.disable gl.BLEND
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
+			helpers.bindInternalTextures()
+			gl.activeTexture gl.TEXTURE1
+			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
+			return
+
+		@updateRegionMask = (mask) ->
+			updateRegionMask _gl, mask, _regionMaskTexture
+
+		@updateChannel = (channel) ->
+			_gl.uniform1f _channel, channel
+
+		return
+
+	# render the mean image of all channels in selected ranges
+	RenderMeanRanges: ->
+		_gl = null
+		# pointers to texture objects
 		_channelMaskTexture = null
 		_regionMaskTexture = null
 		# pointer to the uniform
@@ -206,11 +250,11 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		# number of active channels of the current channel mask
 		_activeChannels = 0
 
-		@id = 'render-channel'
+		@id = 'render-mean-ranges'
 
 		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/render-channel.glsl.frag'
+		@fragmentShaderUrl = 'shader/render-mean-ranges.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
 			_gl = gl

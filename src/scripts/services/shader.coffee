@@ -6,6 +6,8 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	angleDist = new Program.AngleDist()
 	# shader to do direct rendering of a single channel
 	renderChannel = new Program.RenderChannel()
+	# shader to render the mean image of all channels in selected ranges
+	renderMeanRanges = new Program.RenderMeanRanges()
 	# shader to update the rgb texture for multiple selections
 	rgbSelection = new Program.RGBSelection()
 	# shader to apply color maps to the rgb texture
@@ -22,6 +24,7 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		glmvilib.addProgram euclDist
 		glmvilib.addProgram angleDist
 		glmvilib.addProgram renderChannel
+		glmvilib.addProgram renderMeanRanges
 		glmvilib.addProgram rgbSelection
 		glmvilib.addProgram colorMap
 		glmvilib.addProgram drawImage
@@ -33,7 +36,8 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	@getActive = ->
 		active = []
 		switch settings.displayMode
-			when 'mean' then active.push renderChannel.id
+			when 'mean' then active.push renderMeanRanges.id
+			when 'direct' then active.push renderChannel.id
 			else switch settings.distMethod
 				when 'angle' then active.push angleDist.id
 				when 'eucl' then active.push euclDist.id
@@ -70,11 +74,12 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	@updateChannelMask = (mask, activeChannels) ->
 		angleDist.updateChannelMask mask, activeChannels
 		euclDist.updateChannelMask mask, activeChannels
-		renderChannel.updateChannelMask mask, activeChannels
+		renderMeanRanges.updateChannelMask mask, activeChannels
 
 	@updateRegionMask = (mask) ->
 		angleDist.updateRegionMask mask
 		euclDist.updateRegionMask mask
+		renderMeanRanges.updateRegionMask mask
 		renderChannel.updateRegionMask mask
 
 	@updateColorMaps = colorMap.updateColorMaps
