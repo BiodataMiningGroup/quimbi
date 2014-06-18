@@ -94,7 +94,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			# do not render the same channel twice
 			if renderedDirectChannel is directChannel then return
 			renderedDirectChannel = directChannel
-			console.log directChannel
+			shader.updateDirectChannel renderedDirectChannel
+			glmvilib.render.apply glmvilib, shader.getActive()
 		else
 			shader.setPassiveColorMask updatePassiveColorMask()
 			if markers.hasActive()

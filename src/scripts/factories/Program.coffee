@@ -201,7 +201,12 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		# pointers to texture objects
 		_regionMaskTexture = null
 		# pointer to the uniform
-		_channel = null
+		_tile = null
+		_channelMask = null
+		# index of channel to show
+		_channel = 0
+		# current channel mask
+		_mask = [0, 0, 0, 0]
 
 		@id = 'render-channel'
 
@@ -215,7 +220,8 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			helpers.useInternalTexturePositions program
 			helpers.useInternalTextures program
 
-			_channel = gl.getUniformLocation program, 'u_channel'
+			_tile = gl.getUniformLocation program, 'u_tile'
+			_channelMask = gl.getUniformLocation program, 'u_channel_mask'
 
 			setUpDistanceTexture gl, assets, helpers
 
@@ -228,6 +234,8 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
+			gl.uniform1f _tile, Math.floor _channel / 4
+			gl.uniform4f _channelMask, _mask[0], _mask[1], _mask[2], _mask[3]
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 			return
 
@@ -235,7 +243,9 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			updateRegionMask _gl, mask, _regionMaskTexture
 
 		@updateChannel = (channel) ->
-			_gl.uniform1f _channel, channel
+			_channel = channel
+			_mask[0] = _mask[1] = _mask[2] = _mask[3] = 0
+			_mask[channel % 4] = 1
 
 		return
 

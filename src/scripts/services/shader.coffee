@@ -82,6 +82,9 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 		renderMeanRanges.updateRegionMask mask
 		renderChannel.updateRegionMask mask
 
+	@updateDirectChannel = (channel) ->
+		renderChannel.updateChannel channel
+
 	@updateColorMaps = colorMap.updateColorMaps
 
 	return

@@ -45,7 +45,7 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 		setInactive: ->
 			@_active = no
 
-		isActive: -> @_active and (Range.activeType is @getType() or settings.displayMode isnt 'mean')
+		isActive: -> @_active and (Range.activeType is @getType() or settings.displayMode isnt 'mean') and settings.displayMode isnt 'direct'
 
 		setGroup: (index) ->
 			currentlyActive = @isActive()

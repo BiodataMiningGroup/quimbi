@@ -41,8 +41,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 		when 'mean' then ranges.getActive()
 		else markers.getList()
 
-	$scope.showColorScale = ->
-			settings.showColorScale and settings.displayMode isnt 'direct'
+	$scope.showColorScale = -> settings.showColorScale
 
 	$scope.$watch markers.getList, updateSelections, yes
 
@@ -82,6 +81,8 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 
 	$scope.$on 'spectrumViewer.cursorPositionChanged', (e, index) ->
 		renderer.updateDirectChannel index
-		renderer.update() if settings.displayMode is 'direct'
+		if settings.displayMode is 'direct'
+			renderer.update()
+			$scope.$broadcast 'displayController.updateHistogram'
 
 	return
