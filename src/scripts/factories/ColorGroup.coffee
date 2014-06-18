@@ -9,9 +9,6 @@ angular.module('quimbi').factory 'ColorGroup', (colorMap, settings) ->
 
 		constructor: (@_channelIndex, @_type) ->
 
-			unless 0 <= @_channelIndex <= 2
-				throw new Error 'The channel index must be in the range of [0, 2].'
-
 		getSingleColor: ->
 			if @_type is ColorGroup.TYPE_SINGLE then settings.singleSelectionSingleColor
 			else settings.colorMapSingleColors[@_channelIndex]

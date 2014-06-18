@@ -1,5 +1,6 @@
 # controller for the settings route
-angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, colorMap) ->
+angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, colorMap, MSG, C) ->
+	$scope.C = C
 	$scope.settings = settings
 
 	# additional information that can't be set directly
@@ -25,10 +26,10 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 
 	updateDistMethod = (newDistMethod) ->
 		switch newDistMethod
-			when 'angle'
+			when C.DISTANCE_METHOD.ANGLE
 				$scope.info.normMethod = input.angleDistNormMethod
 				$scope.info.norm = input.maxAngleDist
-			when 'eucl'
+			when C.DISTANCE_METHOD.EUCL
 				$scope.info.normMethod = input.euclDistNormMethod
 				$scope.info.norm = input.maxEuclDist
 
@@ -39,7 +40,7 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 			colorMap.add name, colorMapFile.data
 			return name
 		catch e
-			$scope.$emit 'message::error', "Error while reading color map '#{name}'. #{e.message}"
+			$scope.$emit 'message::error', "#{MSG.ERROR_READING_COLOR_MAP} (#{name}) #{e.message}"
 
 	$scope.$watch 'settings.distMethod', updateDistMethod
 

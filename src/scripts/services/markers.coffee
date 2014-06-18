@@ -1,5 +1,5 @@
 # manages all existing markers and provides functions to manipulate them
-angular.module('quimbi').service 'markers', (Marker, settings) ->
+angular.module('quimbi').service 'markers', (Marker, settings, C) ->
 
 	activeMarkerIndex = -1
 
@@ -23,8 +23,8 @@ angular.module('quimbi').service 'markers', (Marker, settings) ->
 
 	# returns the list of all currently existing markers
 	@getListAll = -> switch settings.displayMode
-		when 'mean' then meanMarkerList
-		when 'direct' then directMarkerList
+		when C.DISPLAY_MODE.MEAN then meanMarkerList
+		when C.DISPLAY_MODE.DIRECT then directMarkerList
 		else list
 
 	@getList = => marker for marker in @getListAll() when marker.isOn()

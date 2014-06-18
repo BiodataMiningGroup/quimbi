@@ -1,5 +1,5 @@
 # manages all existing markers and provides functions to manipulate them
-angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, regions, settings, shader, colorMap) ->
+angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, regions, settings, shader, colorMap, C) ->
 
 	# array with one entry for each channel of the dataset.
 	# channels that should be discarded are 0 and the others 1
@@ -89,8 +89,8 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			glmvilib.render.apply glmvilib, shader.getActive()
 
 	@update = => switch settings.displayMode
-		when 'mean' then @updateChannelMask()
-		when 'direct'
+		when C.DISPLAY_MODE.MEAN then @updateChannelMask()
+		when C.DISPLAY_MODE.DIRECT
 			# do not render the same channel twice
 			if renderedDirectChannel is directChannel then return
 			renderedDirectChannel = directChannel
@@ -107,7 +107,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 				glmvilib.render.apply shader.getFinal()
 
 	@updateChannelMask = ->	switch settings.displayMode
-		when 'mean' then updateMeanChannelMask()
+		when C.DISPLAY_MODE.MEAN then updateMeanChannelMask()
 		else updateDistancesChannelMask()
 
 	@updateRegionMask = =>

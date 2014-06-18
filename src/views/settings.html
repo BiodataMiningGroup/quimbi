@@ -2,13 +2,13 @@
 	<h1>Settings</h1>
 	<form class="pure-form">
 		<fieldset data-tourtip="You can choose from several distance computing methods. It depends on the nature of the dataset wich method produces best results." data-tourtip-step="0" data-tourtip-placement="top">
-			<legend>Distance computing method</legend>
+			<legend>Similarity computing method</legend>
 			<label for="dist-angle" class="pure-radio">
-				<input id="dist-angle" type="radio" name="distRadios" value="angle" data-ng-model="settings.distMethod"/>
+				<input id="dist-angle" type="radio" name="distRadios" value="{{C.DISTANCE_METHOD.ANGLE}}" data-ng-model="settings.distMethod"/>
 				<b>Angle distance</b>
 			</label>
 			<label for="dist-eucl" class="pure-radio">
-				<input id="dist-eucl" type="radio" name="distRadios" value="eucl" data-ng-model="settings.distMethod"/>
+				<input id="dist-eucl" type="radio" name="distRadios" value="{{C.DISTANCE_METHOD.EUCL}}" data-ng-model="settings.distMethod"/>
 				<b>Euclidean distance</b>
 			</label>
 			Normalized with {{info.normMethod}} <span class="number" data-ng-bind="info.norm | number:2"></span>.

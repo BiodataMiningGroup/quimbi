@@ -1,6 +1,6 @@
 # controller for the loading route. manages downloading of the dataset images and
 # setting up of glmvilib.
-angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, canvas, input, shader) ->
+angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, canvas, input, shader, C, MSG) ->
 
 	# number of files loaded in parallel
 	PARALLEL = 10
@@ -10,7 +10,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 
 	# data to display for the user
 	$scope.data =
-		message: 'Downloading data.'
+		message: MSG.DOWNLOADING_DATA
 		progress: 0
 
 	# information about the downloading process
@@ -33,9 +33,9 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 			reservedUnits: 2
 		shader.createPrograms()
 	catch e
-		$scope.$emit 'message::error', "Failed to set up WebGL: #{e.message}"
+		$scope.$emit 'message::error', "#{MSG.SETUP_WEBGL_FAILED} #{e.message}"
 		glmvilib.finish()
-		$scope.$apply -> state.to 'init'
+		$scope.$apply -> state.to C.STATE.INIT
 
 	# callback for image onload event
 	load = ->
@@ -43,33 +43,33 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 		progress = Math.round loading.finished / loading.goal * 100
 		$scope.$apply ->
 			$scope.data.progress = progress
-			$scope.data.message = "Downloading data: #{progress}%."
+			$scope.data.message = "#{MSG.DOWNLOADING_DATA} #{progress}%"
 		# start loading of the next image
 		loadImage()
 
 	# callback for image error event
 	error = ->
-		$scope.$emit 'message::error', "Failed to load image: #{@src}."
+		$scope.$emit 'message::error', "#{MSG.LOAD_IMAGE_FAILED} (#{@src})."
 		glmvilib.finish()
 		# reset to init route
-		$scope.$apply -> state.to 'init'
+		$scope.$apply -> state.to C.STATE.INIT
 
 	# called when everything is downloaded
 	finish = ->
 		glmvilib.storeTiles input.images
-		state.to 'display'
+		state.to C.STATE.DISPLAY
 
 	loadImage = ->
 		# loading is finished
 		if loading.finished is loading.goal
 			try
-				$scope.data.message = "Unpacking data."
+				$scope.data.message = MSG.UNPACKING_DATA
 				# do a timeout so the message is displayed in the UI
 				$timeout finish, 10, true
 			catch e
-				$scope.$emit 'message::error', "Failed to unpack the data: #{e.message}"
+				$scope.$emit 'message::error', "#{MSG:UNPACKING_DATA_FAILED} #{e.message}"
 				glmvilib.finish()
-				$scope.$apply -> state.to 'init'
+				$scope.$apply -> state.to C.STATE.INIT
 
 		# load the next image
 		else if loading.topIndex < loading.goal

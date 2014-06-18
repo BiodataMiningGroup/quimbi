@@ -1,6 +1,6 @@
 # creates a new Range object. A range represents a selected region of the
 # spectrum.
-angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGroup, colorGroups) ->
+angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGroup, colorGroups, C) ->
 
 	class Range extends ColorGroupObject
 
@@ -34,7 +34,7 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 				'-webkit-transform': "translateX(#{@start - 0.5}px)"
 				transform: "translateX(#{@start - 0.5}px)"
 				width: "#{@offset}px"
-			if @isActive() and settings.displayMode is 'mean'
+			if @isActive() and settings.displayMode is C.DISPLAY_MODE.MEAN
 				output['border-bottom-color'] = @getColor()
 			output
 
@@ -45,7 +45,7 @@ angular.module('quimbi').factory 'Range', (settings, ColorGroupObject, ColorGrou
 		setInactive: ->
 			@_active = no
 
-		isActive: -> @_active and (Range.activeType is @getType() or settings.displayMode isnt 'mean') and settings.displayMode isnt 'direct'
+		isActive: -> @_active and (Range.activeType is @getType() or settings.displayMode isnt C.DISPLAY_MODE.MEAN) and settings.displayMode isnt C.DISPLAY_MODE.DIRECT
 
 		setGroup: (index) ->
 			currentlyActive = @isActive()

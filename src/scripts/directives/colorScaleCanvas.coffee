@@ -1,5 +1,5 @@
 # directive to display the color scale's canvas
-angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, settings, colorMap) ->
+angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, settings, colorMap, C) ->
 
 	restrict: 'A'
 
@@ -48,7 +48,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 		# not just their length because the color scale should re-render when
 		# a group changes, too
 		getCurrentList = -> switch settings.displayMode
-			when 'mean' then ranges.currentGroups()
+			when C.DISPLAY_MODE.MEAN then ranges.currentGroups()
 			else markers.getList()
 
 		# updates the color scale (depends on the current dimension)
@@ -165,7 +165,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 
 		# assign the vertex colors according to the active markers/ranges in 1D
 		$scope.vertexColors1D = (list) ->
-			if settings.displayMode is 'mean'
+			if settings.displayMode is C.DISPLAY_MODE.MEAN
 				index = list[0]
 			else
 				index = list[0].getIndex()
@@ -176,7 +176,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 
 		# assign the vertex colors according to the active markers/ranges in 2D
 		$scope.vertexColors2D = (list) ->
-			if settings.displayMode is 'mean'
+			if settings.displayMode is C.DISPLAY_MODE.MEAN
 				index0 = list[0]
 				index1 = list[1]
 			else

@@ -1,8 +1,8 @@
 # service for managing the routes since not every route is allowed/fuctional at
 # any time. the application has several states in which only certain routes work
-angular.module('quimbi').service 'state', ($rootScope, $location) ->
+angular.module('quimbi').service 'state', ($rootScope, $location, C) ->
 	# current application state
-	state = 'init'
+	state = C.STATE.INIT
 	# defines all possible application states with their allowed routes
 	states =
 		init: [
