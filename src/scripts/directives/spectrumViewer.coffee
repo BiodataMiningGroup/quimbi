@@ -65,9 +65,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 				delta = if e.deltaY < 0 then 1 else -1
 				scope.zoom.factor += scope.zoom.step * delta
 				updateProps()
-				# new data.left position for zooming towards data.current
 				scope.data.left = Math.round scope.data.left +
-					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.current)
+					(scope.zoom.factor / oldFactor - 1) * (scope.data.left + scope.data.posX)
 
 		# update and redraw if the input data changes
 		updateData = (data) ->
@@ -112,6 +111,8 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 			'-webkit-transform': "translateX(0px)"
 
 		$scope.data =
+			# x-position of the mouse over the spectrum viewer
+			posX: 0
 			# index of the currently hovered position
 			current: 0
 			# x-axiy value of the currently hovered position
@@ -188,7 +189,7 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 			posX = e.pageX - $scope.props.left
 			if posX > $scope.props.width then return
 
-			$scope.data.current = posX
+			$scope.data.posX = posX
 
 			# update active range
 			unless $scope.data.activeRange < 0
@@ -208,13 +209,23 @@ angular.module('quimbi').directive 'spectrumViewer', ($window, Range) ->
 			$scope.scroll.start = -1
 
 		# update the information of the currently hovered position
-		$scope.$watch 'data.current', (current) -> unless $scope.spectrum.length is 0
+		$scope.$watch 'data.posX', (posX) -> unless $scope.spectrum.length is 0
 			$scope.indicatorStyle['transform'] =
 				$scope.indicatorStyle['-webkit-transform'] =
-					"translateX(#{current}px)"
-			current = Math.round ($scope.data.left + current) / $scope.zoom.factor
+					"translateX(#{posX}px)"
+
+			current = Math.round ($scope.data.left + posX) / $scope.zoom.factor
+
+			# do not update 'current' when its value hasn't changed
+			if current is $scope.data.current then return
+
+			$scope.data.current = current
+
 			if current >= $scope.spectrum.length then return
+
 			$scope.data.label = "#{$scope.spectrum.labels[current]}"
+			$scope.$emit 'spectrumViewer.cursorPositionChanged', current
+
 			for layer, index in $scope.spectrum.layers
 				$scope.data.values[index] = Math.round layer.data[current] / $scope.spectrum.maximum * 100
 

@@ -8,6 +8,7 @@ angular.module('quimbi').factory 'Marker', (input, mouse, SelectionData, ColorGr
 		@TYPE_MULTI: 'multi'
 		@TYPE_SINGLE: 'single'
 		@TYPE_MEAN: 'mean'
+		@TYPE_DIRECT: 'direct'
 
 		constructor: (@_type) ->
 			switch @_type

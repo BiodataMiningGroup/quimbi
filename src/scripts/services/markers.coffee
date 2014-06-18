@@ -16,9 +16,15 @@ angular.module('quimbi').service 'markers', (Marker, settings) ->
 		new Marker Marker.TYPE_MEAN
 	]
 
+	# single marker for the direct display mode
+	directMarkerList = [
+		new Marker Marker.TYPE_DIRECT
+	]
+
 	# returns the list of all currently existing markers
 	@getListAll = -> switch settings.displayMode
 		when 'mean' then meanMarkerList
+		when 'direct' then directMarkerList
 		else list
 
 	@getList = => marker for marker in @getListAll() when marker.isOn()

@@ -23,6 +23,8 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 		updateHistogram = ->
 			ctx.clearRect 0, 0, width, height
 			switch settings.displayMode
+				when 'direct'
+					redrawHistogram 0
 				when 'mean'
 					redrawHistogram ranges.currentGroups()[0]
 				else
