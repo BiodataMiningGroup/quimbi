@@ -2,16 +2,16 @@
 	<div class="display-view__menu" data-tourtip="These are the selection tools. Choose one by clicking the button and then click anywhere on the image on the right to make a selection." data-tourtip-step="1">
 		<div class="menu__left">
 			<form class="mode-switches button-row">
-				<label for="mode-similarity" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='similarity'}" data-tooltip="Display the similarity of each point to one or more selected positions on the similarity image.">
-					<input id="mode-similarity" type="radio" name="display-modes" value="similarity" data-ng-model="settings.displayMode"/>
+				<label for="mode-similarity" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode==C.DISPLAY_MODE.SIMILARITY}" data-tooltip="Display the similarity of each point to one or more selected positions on the similarity image.">
+					<input id="mode-similarity" type="radio" name="display-modes" value="{{C.DISPLAY_MODE.SIMILARITY}}" data-ng-model="settings.displayMode"/>
 					similarity
 				</label>
-				<label for="mode-mean" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='mean'}" data-tooltip="Display the mean intensities of all points according to one or more selected ranges in the spectrum viewer.">
-					<input id="mode-mean" type="radio" name="display-modes" value="mean" data-ng-model="settings.displayMode"/>
+				<label for="mode-mean" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode==C.DISPLAY_MODE.MEAN}" data-tooltip="Display the mean intensities of all points according to one or more selected ranges in the spectrum viewer.">
+					<input id="mode-mean" type="radio" name="display-modes" value="{{C.DISPLAY_MODE.MEAN}}" data-ng-model="settings.displayMode"/>
 					mean
 				</label>
-				<label for="mode-direct" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode=='direct'}" data-tooltip="Display the raw channel intensities of the hovered channel in the spectrum viewer.">
-					<input id="mode-direct" type="radio" name="display-modes" value="direct" data-ng-model="settings.displayMode"/>
+				<label for="mode-direct" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode==C.DISPLAY_MODE.DIRECT}" data-tooltip="Display the raw channel intensities of the hovered channel in the spectrum viewer.">
+					<input id="mode-direct" type="radio" name="display-modes" value="{{C.DISPLAY_MODE.DIRECT}}" data-ng-model="settings.displayMode"/>
 					direct
 				</label>
 			</form>

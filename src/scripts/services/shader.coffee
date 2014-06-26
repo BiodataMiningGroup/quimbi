@@ -1,5 +1,5 @@
 # service for managing the shader programs
-angular.module('quimbi').service 'shader', (Program, settings) ->
+angular.module('quimbi').service 'shader', (Program, settings, C) ->
 	# shader to compute the euclidean distance
 	euclDist = new Program.EuclDist()
 	# shader to compute the angle distance
@@ -36,11 +36,11 @@ angular.module('quimbi').service 'shader', (Program, settings) ->
 	@getActive = ->
 		active = []
 		switch settings.displayMode
-			when 'mean' then active.push renderMeanRanges.id
-			when 'direct' then active.push renderChannel.id
+			when C.DISPLAY_MODE.MEAN then active.push renderMeanRanges.id
+			when C.DISPLAY_MODE.DIRECT then active.push renderChannel.id
 			else switch settings.distMethod
-				when 'angle' then active.push angleDist.id
-				when 'eucl' then active.push euclDist.id
+				when C.DISTANCE_METHOD.ANGLE then active.push angleDist.id
+				when C.DISTANCE_METHOD.EUCL then active.push euclDist.id
 		active.push rgbSelection.id
 		active.push colorMap.id
 		if settings.useBlending

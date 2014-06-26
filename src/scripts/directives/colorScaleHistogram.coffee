@@ -1,5 +1,5 @@
 # directive to display the histogram of a marker if only one is present
-angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHistogram, ranges, settings) ->
+angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHistogram, ranges, settings, C) ->
 
 	restrict: 'A'
 
@@ -23,9 +23,9 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 		updateHistogram = ->
 			ctx.clearRect 0, 0, width, height
 			switch settings.displayMode
-				when 'direct'
+				when C.DISPLAY_MODE.DIRECT
 					redrawHistogram 0
-				when 'mean'
+				when C.DISPLAY_MODE.MEAN
 					redrawHistogram ranges.currentGroups()[0]
 				else
 					marker = markers.getList()[0]

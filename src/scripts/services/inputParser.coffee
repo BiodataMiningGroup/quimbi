@@ -1,5 +1,5 @@
 # service for reading the dataset file format.
-angular.module('quimbi').service 'inputParser', (input) ->
+angular.module('quimbi').service 'inputParser', (input, MSG) ->
 
 	# filters out invalid filenames (e.g. empty line at the end of the file)
 	filesFilter = (item) -> item && typeof item is 'string' && item.trim() isnt ''
@@ -46,7 +46,7 @@ angular.module('quimbi').service 'inputParser', (input) ->
 		unless input.valid()
 			throw
 				name: 'InvalidFormatException'
-				message: 'Invalid input format.'
+				message: MSG.INVALID_INPUT_FORMAT
 		return
 
 	return

@@ -1,5 +1,5 @@
 # directive to display a color scale of all present markers
-angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, colorScaleIndicator) ->
+angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, colorScaleIndicator, C) ->
 	
 	restrict: 'A'
 
@@ -33,8 +33,8 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 
 		# returns the active color channel indices
 		getActiveIndices = -> switch settings.displayMode
-			when 'direct' then [0]
-			when 'mean' then ranges.currentGroups()
+			when C.DISPLAY_MODE.DIRECT then [0]
+			when C.DISPLAY_MODE.MEAN then ranges.currentGroups()
 			else marker.getIndex() for marker in markers.getList()
 
 		# returns a transform: translate CSS style object for ng-style

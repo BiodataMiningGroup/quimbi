@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the map has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG) ->
 
 	restrict: 'A'
 
@@ -141,7 +141,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			# add the download canvas button
 			map.self.addControl new L.Control.Button
 				text: '<i class="icon-download-alt"></i>'
-				title: 'Download the image.'
+				title: MSG.DOWNLOAD_IMAGE
 				onClick: (event, buttonElement) ->
 					buttonElement.href = canvas.element[0].toDataURL()
 					buttonElement.download = 'quimbi_image.png'

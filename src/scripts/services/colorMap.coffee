@@ -1,5 +1,5 @@
 # service loading, caching and providing color maps
-angular.module('quimbi').service 'colorMap', ($http, msg) ->
+angular.module('quimbi').service 'colorMap', ($http, msg, MSG) ->
 
 	cache = {}
 
@@ -22,13 +22,13 @@ angular.module('quimbi').service 'colorMap', ($http, msg) ->
 		colors = rawInput.split "\n"
 
 		unless colors.length = 256
-			throw new Error "Invalid input format. CSV doesn't contain 256 color values."
+			throw new Error "#{MSG.INVALID_INPUT_FORMAT} CSV doesn't contain 256 color values."
 
 		colors = colors.map (value) -> value.split ","
 
 		for color, i in colors
 			unless color.length is 3
-				throw new Error "Invalid input format. Color doesn't have 3 values at line #{i+1}."
+				throw new Error "#{MSG.INVALID_INPUT_FORMAT} Color doesn't have 3 values at line #{i+1}."
 
 		for color in colors
 			output.push parseInt color[0]
@@ -43,9 +43,9 @@ angular.module('quimbi').service 'colorMap', ($http, msg) ->
 			try
 				cache[colorMapName] = parse data
 			catch e
-				msg.error "Error while reading color map '#{colorMapName}'. #{e.message}"
+				msg.error "#{MSG.ERROR_READING_COLOR_MAP} (#{colorMapName}). #{e.message}"
 		promise.error (data, status) ->
-			msg.error "Color map '#{colorMapName}' couldn't be loaded! Status code #{status}"
+			msg.error "#{MSG.ERROR_READING_COLOR_MAP} (#{colorMapName}). #{MSG.STATUS_CODE} #{status}"
 
 	@get = (colorMapName) -> cache[colorMapName]
 

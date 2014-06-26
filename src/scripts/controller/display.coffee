@@ -1,5 +1,7 @@
 # controller for the display route
-angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges, regions) ->
+angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, renderer, markers, ranges, regions, C) ->
+
+	$scope.C = C
 
 	# array to apply the color map for the single selection to all three color
 	# channels
@@ -38,7 +40,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 	# returns the list of colorGroupObjects that determines the colorMaps
 	# according to the current display mode
 	getCurrentList = -> switch settings.displayMode
-		when 'mean' then ranges.getActive()
+		when C.DISPLAY_MODE.MEAN then ranges.getActive()
 		else markers.getList()
 
 	$scope.showColorScale = -> settings.showColorScale
@@ -81,7 +83,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 
 	$scope.$on 'spectrumViewer.cursorPositionChanged', (e, index) ->
 		renderer.updateDirectChannel index
-		if settings.displayMode is 'direct'
+		if settings.displayMode is C.DISPLAY_MODE.DIRECT
 			renderer.update()
 			$scope.$broadcast 'displayController.updateHistogram'
 

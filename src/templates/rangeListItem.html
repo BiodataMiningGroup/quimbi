@@ -27,7 +27,7 @@
 			<i class="icon-chevron-right"></i>
 		</button>
 	</form>
-	<form class="pure-g item__group-chooser" data-ng-if="data.editing && inMeanMode()" data-tooltip="Choose a group.">
+	<form class="item__group-chooser" data-ng-if="data.editing && inMeanMode()" data-tooltip="Choose a group.">
 		<input type="button" class="pure-button" style="background-color:{{colorGroup.getSingleColor()}};width:{{100/data.colorGroups.length}}%;" data-ng-repeat="colorGroup in data.colorGroups" data-ng-click="setColorGroup($event, $index)"/>
 	</form>
 </li>
