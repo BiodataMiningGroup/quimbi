@@ -5,8 +5,7 @@ angular.module('quimbi').controller 'loadingCtrl', ($scope, $timeout, state, can
 	# number of files loaded in parallel
 	PARALLEL = 10
 
-	# set original size of the canvas (needed for scaling it)
-	canvas.setOrigSize input.width, input.height
+	canvas.setSize input.width, input.height
 
 	# data to display for the user
 	$scope.data =

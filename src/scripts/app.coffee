@@ -36,10 +36,6 @@ angular.module('quimbi').config ($tooltipProvider, $routeProvider, msgProvider) 
 		controller: 'settingsCtrl'
 		templateUrl: 'views/settings.html'
 	)
-	.when('/selection',
-		controller: 'selectionCtrl'
-		templateUrl: 'views/selection.html'
-	)
 	# default route
 	.otherwise redirectTo: '/init'
 

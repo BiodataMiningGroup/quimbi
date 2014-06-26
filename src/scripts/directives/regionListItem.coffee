@@ -35,7 +35,6 @@ angular.module('quimbi').directive 'regionListItem', (input, settings, regions) 
 				$scope.region.setInactive()
 			else
 				$scope.region.setActive()
-			#$scope.$emit 'rangeListItem.focusRange', $scope.index
 
 		$scope.class = ->
 			active: $scope.region.isActive()

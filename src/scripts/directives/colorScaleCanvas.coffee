@@ -58,8 +58,6 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 					vertexCoordinateBuffer, vertexColorBuffer, list
 				when 2 then scope.render2D gl,
 					vertexCoordinateBuffer, vertexColorBuffer, list
-				#when 3 then scope.render3D gl,
-				#	vertexCoordinateBuffer, vertexColorBuffer, list
 
 		# fill textures with currently active color maps
 		updateColorMaps = (colorMaps) ->
@@ -131,15 +129,6 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			gl.bindBuffer gl.ARRAY_BUFFER, colorBuffer
 			gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors2D(list), gl.STATIC_DRAW
 			gl.drawArrays gl.TRIANGLES, 0, 6
-
-		# render the color scale for the 3D case
-		# $scope.render3D = (gl, coordinateBuffer, colorBuffer, list) ->
-		# 	gl.bindBuffer gl.ARRAY_BUFFER, coordinateBuffer
-		# 	gl.bufferData gl.ARRAY_BUFFER, $scope.vertexCoordinatesTriangle, gl.STATIC_DRAW
-		# 	gl.bindBuffer gl.ARRAY_BUFFER, colorBuffer
-		# 	gl.bufferData gl.ARRAY_BUFFER, $scope.vertexColors3D(list), gl.STATIC_DRAW
-		# 	gl.bufferData gl.ARRAY_BUFFER, vertexColorsTriangle, gl.STATIC_DRAW
-		# 	gl.drawArrays gl.TRIANGLES, 0, 3
 
 		clearArray = (array) ->	array[i] = 0 for i in [0...array.length]
 

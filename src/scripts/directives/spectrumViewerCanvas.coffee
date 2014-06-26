@@ -2,10 +2,6 @@
 angular.module('quimbi').directive 'spectrumViewerCanvas', ->
 	restrict: 'A'
 
-	templateUrl: './templates/spectrumViewerCanvas.html'
-
-	replace: yes
-
 	scope: 
 		# data, color
 		layer: '=spectrumViewerCanvas'
