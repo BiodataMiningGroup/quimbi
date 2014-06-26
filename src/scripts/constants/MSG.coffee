@@ -24,3 +24,7 @@ angular.module('quimbi').constant 'MSG',
 	DOWNLOAD_IMAGE: "Download the image."
 
 	INVALID_INPUT_FORMAT: "Invalid input format."
+
+	ERROR: "Error"
+
+	STATUS_CODE: "Status code"

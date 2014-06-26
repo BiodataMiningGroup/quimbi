@@ -18,14 +18,14 @@ angular.module('quimbi').controller 'initCtrl', ($scope, $http, state, inputPars
 				state.to C.STATE.LOADING
 			# catches error from inputParser
 			catch e
-				$scope.$emit 'message::error', "#{MSG.FILE_NOT_PARSED} Error: #{e.message}"
+				$scope.$emit 'message::error', "#{MSG.FILE_NOT_PARSED} #{MSG.ERROR}: #{e.message}"
 		# return code for no successful download
 		else
-			$scope.$emit 'message::error', "#{MSG.FILE_NOT_LOADED} Status code: #{status}"
+			$scope.$emit 'message::error', "#{MSG.FILE_NOT_LOADED} #{MSG.STATUS_CODE}: #{status}"
 
 	# http request failed
 	error = (data, status) ->
-		$scope.$emit 'message::warning', "#{MSG.FILE_DOESNT_EXIST} Status code: #{status}"
+		$scope.$emit 'message::warning', "#{MSG.FILE_DOESNT_EXIST} #{MSG.STATUS_CODE}: #{status}"
 
 	# submit button pressed
 	$scope.submitForm = (form) ->

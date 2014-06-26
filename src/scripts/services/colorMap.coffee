@@ -45,7 +45,7 @@ angular.module('quimbi').service 'colorMap', ($http, msg, MSG) ->
 			catch e
 				msg.error "#{MSG.ERROR_READING_COLOR_MAP} (#{colorMapName}). #{e.message}"
 		promise.error (data, status) ->
-			msg.error "#{MSG.ERROR_READING_COLOR_MAP} (#{colorMapName}). Status code #{status}"
+			msg.error "#{MSG.ERROR_READING_COLOR_MAP} (#{colorMapName}). #{MSG.STATUS_CODE} #{status}"
 
 	@get = (colorMapName) -> cache[colorMapName]
 

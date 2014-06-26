@@ -14,3 +14,6 @@ angular.module('quimbi').constant 'C',
 	DISTANCE_METHOD:
 		ANGLE: 'angle'
 		EUCL: 'eucl'
+
+	COOKIE_ID:
+		TOUR: '-quimbi-tour-steps'
