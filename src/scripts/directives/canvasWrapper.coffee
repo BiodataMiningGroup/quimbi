@@ -61,6 +61,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 				zoom: 0
 				center: [0, 0]
 
+			L.drawLocal.edit.handlers.edit.tooltip.text = MSG.L_DRAW_EDIT_TOOLTIP
+			L.drawLocal.edit.handlers.edit.tooltip.subtext = ''
+
 			# projection should not repeat itself (also getProjectionBounds and
 			# getPixelWorldBounds don't work without it)
 			map.self.options.crs.infinite = no
