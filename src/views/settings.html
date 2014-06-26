@@ -57,7 +57,7 @@
 			<label for="space-fill-percent-number" class="pure-number">
 				Size of a data point in percent (<span class="number" data-ng-bind="settings.spaceFillPercent | number:2"></span>):
 			</label>
-			<input class="full-range" type="range" id="space-fill-percent-number" min="0" max="1" step="0.01" data-ng-model="settings.spaceFillPercent"/>
+			<input class="full-range" type="range" id="space-fill-percent-number" min="0.25" max="1" step="0.25" data-ng-model="settings.spaceFillPercent"/>
 			<label for="points-checkbox" class="pure-checkbox">
 				<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
 				Show selection points.
@@ -88,5 +88,5 @@
 		</fieldset>
 	</form>
 	<a href="#/about" class="about" data-tooltip="About this tool."><i class="icon-question-sign"></i></a>
-	<a href="#/display" class="pure-button" >back</a>
+	<a href="#/display" class="pure-button">back</a>
 </div>
