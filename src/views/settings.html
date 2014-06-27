@@ -1,7 +1,9 @@
 <div class="view__box settings-view" data-tour="" data-step="tourStep.settings" data-post-step="tourNext('settings')" data-post-tour="tourClose('settings')">
+	<span data-tourtip="This is the settings view that allows you to configure Quimbi." data-tourtip-step="0" data-tourtip-placement="left" data-tourtip-offset="52"></span>
 	<h1>Settings</h1>
 	<form class="pure-form">
-		<fieldset data-tourtip="You can choose from several distance computing methods. It depends on the nature of the dataset wich method produces best results." data-tourtip-step="0" data-tourtip-placement="top">
+		<span data-tourtip="You can choose from several distance computing methods for the 'similarity' display mode. It depends on the nature of your dataset wich method produces best results." data-tourtip-step="1" data-tourtip-placement="left" data-tourtip-offset="52"></span>
+		<fieldset>
 			<legend>Similarity computing method</legend>
 			<label for="dist-angle" class="pure-radio">
 				<input id="dist-angle" type="radio" name="distRadios" value="{{C.DISTANCE_METHOD.ANGLE}}" data-ng-model="settings.distMethod"/>
@@ -13,9 +15,10 @@
 			</label>
 			Normalized with {{info.normMethod}} <span class="number" data-ng-bind="info.norm | number:2"></span>.
 		</fieldset>
-		<fieldset data-tourtip="Choose one of the default color maps to apply to the similarity/mean image. You can load custom color maps, too. Click on the color map preview to choose a CSV file." data-tourtip-step="1" data-tourtip-placement="top">
+		<span data-tourtip="Here you can select the color-maps that are applied to the intensity images. Use the dropdown menu on the right to choose one of the default color-maps or click on the color-map preview in the middle to open a custom color-map file as CSV." data-tourtip-step="2" data-tourtip-placement="left" data-tourtip-offset="52"></span>
+		<fieldset>
 			<legend>Color maps</legend>
-
+			<span data-tourtip="There are one single selection and three multi selection color-maps. The single selection color-map should include a variety of different colors to make small intensity differences visually distinguishable (like 'fire') while the multi selection color-maps' colors should differ to be mixable." data-tourtip-step="3" data-tourtip-placement="left" data-tourtip-offset="52"></span>
 			<div class="color-map">
 				<span class="color-map__single-color" data-ng-style="{'background-color':settings.singleSelectionSingleColor}" data-tooltip="Single selection."></span>
 				<label for="color-map-url-single">
@@ -52,7 +55,8 @@
 				<select data-ng-model="settings.colorMaps[2]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
 		</fieldset>
-		<fieldset data-tourtip="Finally there are some settings to customize the user interface." data-tourtip-step="2" data-tourtip-placement="top">
+		<fieldset>
+			<span data-tourtip="The size of a data point referts to the size of the squares displayed e.g. on the 'similarity' map. Go on and reduce the size to see gaps appear between the squares and the background image showing through." data-tourtip-step="4" data-tourtip-placement="left" data-tourtip-offset="52"></span>
 			<legend>Interface</legend>
 			<label for="space-fill-percent-number" class="pure-number">
 				Size of a data point in percent (<span class="number" data-ng-bind="settings.spaceFillPercent | number:2"></span>):
@@ -60,8 +64,9 @@
 			<input class="full-range" type="range" id="space-fill-percent-number" min="0.25" max="1" step="0.25" data-ng-model="settings.spaceFillPercent"/>
 			<label for="points-checkbox" class="pure-checkbox">
 				<input id="points-checkbox" type="checkbox" value="points" data-ng-model="settings.showPoints"/>
-				Show selection points.
+				Show marker points.
 			</label>
+			<span data-tourtip="There are some other options, too, which should be self-explanatory. If not, just try them and watch the changes in the main view." data-tourtip-step="5" data-tourtip-placement="left" data-tourtip-offset="52"></span>
 			<label for="color-scale-checkbox" class="pure-checkbox">
 				<input id="color-scale-checkbox" type="checkbox" value="color-scale" data-ng-model="settings.showColorScale"/>
 				Show color scale.
@@ -82,7 +87,8 @@
 				<input id="grid-checkbox" type="checkbox" value="grid" data-ng-model="settings.showGrid"/>
 				Show a regular grid over the image.
 			</label>
-			<label for="reset-tour" data-tourtip="To restart the tour, reset the tooltips." data-tourtip-step="3" data-tourtip-placement="top" data-tourtip-next-label="Close">
+			<span data-tourtip="This concludes the introduction to the settings view. To reset the tour for all views, click 'Reset'." data-tourtip-step="6" data-tourtip-next-label="Close" data-tourtip-offset="40"></span>
+			<label for="reset-tour">
 				<input id="reset-tour" type="button" value="Reset" class="pure-button pure-button-inline" data-ng-click="resetTour()" /> the introduction-tour tooltips.
 			</label>
 		</fieldset>
