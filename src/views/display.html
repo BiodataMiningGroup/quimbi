@@ -12,7 +12,7 @@
 					<input id="mode-mean" type="radio" name="display-modes" value="{{C.DISPLAY_MODE.MEAN}}" data-ng-model="settings.displayMode"/>
 					mean
 				</label>
-				<span data-tourtip="Third" data-tourtip-step="12" data-tourtip-placement="bottom"></span>
+				<span data-tourtip="The third is the 'direct' display mode. In this mode there is also only a single marker to view the mass spectra of different points on the direct display map. The map displays the intensities of the currently hovered mass channel in the spectrum viewer colored by the single selection color-map. The ranges of interest have no function in this display mode and are deactivated. Choose this mode, place the marker and move the mouse over the spectrum viewer to see how the direct display map changes." data-tourtip-step="12" data-tourtip-placement="bottom"></span>
 				<label for="mode-direct" class="pure-button" data-ng-class="{'pure-button-active':settings.displayMode==C.DISPLAY_MODE.DIRECT}" data-tooltip="Display the raw channel intensities of the hovered channel in the spectrum viewer.">
 					<input id="mode-direct" type="radio" name="display-modes" value="{{C.DISPLAY_MODE.DIRECT}}" data-ng-model="settings.displayMode"/>
 					direct
@@ -21,6 +21,7 @@
 			<div class="marker-menu" marker-menu="" data-tourtip="These are the selection markers. There are one single selection and three multi selection markers. Each marker is assigned an individual color-map. With the multi selection markers you can produce fusion images with up to three selections. Activate a marker by clicking on the marker icon and remove one of multiple selections by clicking on the '&times;' icon. You can drag selection markers on the similarity map, too." data-tourtip-step="3" data-tourtip-placement="bottom"></div>
 		</div>
 		<div class="menu__right">
+			<span class="menu__right__tourtip" data-tourtip="Finally you can configure the application. Press the list icon to close the sidebar or press the cog icon to switch to the settings view. This concludes the introduction of the main view. Thanks for taking the tour!" data-tourtip-step="13" data-tourtip-placement="left" data-tourtip-next-label="Close"></span>
 			<a href="#/settings" class="pure-button" data-tooltip="Settings.">
 				<i class="icon-cog"></i>
 			</a>
@@ -31,9 +32,8 @@
 	</div>
 	<div class="display-view__content" data-ng-class="{'sidebar-open':settings.showSidebar}">
 		<span data-tourtip="This is the main view of QUIMBI where the similarity map is displayed. The single selection tool was already activated for you. Now choose a location on the similarity map and click to make a selection." data-tourtip-step="0" data-tourtip-placement="left" data-tourtip-offset="-400"></span>
-		<span data-tourtip="What you see now is the similarity map. On the map each point is highlighted according to it's similarity to the point of your selection and colored with respect to a specified color-map. This way you can explore your dataset to find similar regions. You can zoom and pan the image." data-tourtip-step="1" data-tourtip-placement="left" data-tourtip-offset="-400"></span>
-		<span data-tourtip="On the right of the similarity map you can see the similarity scale. It displays the currently active color map with the colors for maximum similarity on the top. The scale features an indicator to show the similarity of the currently hovered position on the similarity map. For a single selection, it displays a histogram showing the similarity-distribution of all points on the map, as well." data-tourtip-step="2" data-tourtip-placement="left" data-tourtip-offset="-400"></span>
-		<span data-tourtip="By combining multiple ranges of interest with different groups, you can create a fusion image of up to three different mean value maps. Each group is assigned an individual color-map just like the markers in 'similarity' mode." data-tourtip-step="11" data-tourtip-placement="left" data-tourtip-offset="-400"></span>
+		<span data-tourtip="What you see now is the similarity map. On the map each point is highlighted according to it's similarity to the point of your selection and colored with respect to the single selection color-map. This way you can explore your dataset to find similar regions. You can zoom and pan the image." data-tourtip-step="1" data-tourtip-placement="left" data-tourtip-offset="-400"></span>
+		<span data-tourtip="By combining multiple ranges of interest with different groups, you can create a fusion image of up to three different mean value maps. Each group is assigned to an individual color-map just like the markers in 'similarity' mode." data-tourtip-step="11" data-tourtip-placement="left" data-tourtip-offset="-400"></span>
 		<div class="content__main">
 			<div class="main__top">
 				<div class="canvas-wrapper" data-canvas-wrapper=""></div></span>
@@ -48,6 +48,7 @@
 		<div class="content__aside">
 			<div class="aside__top">
 				<h4>Regions</h4>
+				<span data-tourtip="This is the similarity scale. It displays the currently active color map with the colors for maximum similarity on the top. The scale features an indicator to show the similarity of the currently hovered position on the similarity map. For a single selection, it displays a histogram showing the similarity-distribution of all points on the map, as well." data-tourtip-step="2" data-tourtip-placement="left" data-tourtip-offset="200"></span>
 				<span data-tourtip="You can select regions of interest on the similarity map, too. Choose either the polygon or the rectangle region selection tool on the left of the similarity map and draw a region. Regions can be de-/activated, edited and deleted similar to the ranges of the spectrum viewer." data-tourtip-step="7" data-tourtip-placement="left" data-tourtip-offset="130"></span>
 				<ul class="region-list">
 					<li data-region-list-item="region" data-index="$index" data-ng-repeat="region in mapRegions()"></li>
