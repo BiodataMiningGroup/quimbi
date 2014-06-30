@@ -41,17 +41,22 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 			return name
 		catch e
 			$scope.$emit 'message::error', "#{MSG.ERROR_READING_COLOR_MAP} (#{name}) #{e.message}"
+			return undefined
 
 	$scope.$watch 'settings.distMethod', updateDistMethod
 
 	$scope.$watch 'data.colorMapFileR', (colorMapFile) -> if colorMapFile
-		settings.colorMaps[0] = setNewColorMap colorMapFile
+		newMap = setNewColorMap colorMapFile
+		settings.colorMaps[0] = newMap if newMap
 	$scope.$watch 'data.colorMapFileG', (colorMapFile) -> if colorMapFile
-		settings.colorMaps[1] = setNewColorMap colorMapFile
+		newMap = setNewColorMap colorMapFile
+		settings.colorMaps[1] = newMap if newMap
 	$scope.$watch 'data.colorMapFileB', (colorMapFile) -> if colorMapFile
-		settings.colorMaps[2] = setNewColorMap colorMapFile
+		newMap = setNewColorMap colorMapFile
+		settings.colorMaps[2] = newMap if newMap
 	$scope.$watch 'data.colorMapFileSingle', (colorMapFile) -> if colorMapFile
-		settings.singleSelectionColorMap = setNewColorMap colorMapFile
+		newMap = setNewColorMap colorMapFile
+		settings.singleSelectionColorMap = newMap if newMap
 
 	# update the color map previw directives
 	$scope.$watchCollection 'settings.colorMaps', (colorMapNames) ->
