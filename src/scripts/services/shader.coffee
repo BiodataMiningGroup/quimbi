@@ -56,10 +56,11 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 
 	# returns the shader id for rendering to the canvas
 	@getFinal = ->
-		if settings.useBlending
-			[drawImage.id, spaceFillDisplay.id]
-		else
-			spaceFillDisplay.id
+		final = []
+		final.push colorMap.id
+		final.push drawImage.id if settings.useBlending
+		final.push spaceFillDisplay.id
+		final
 
 	# sets the color mask for updating the rgb texture
 	@setActiveColorMask = (mask) ->
