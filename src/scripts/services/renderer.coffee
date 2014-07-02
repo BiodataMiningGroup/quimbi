@@ -13,6 +13,9 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 	# mean calculations
 	activeColorMask = [0, 0, 0]
 
+	# final color mask for the direct display mode
+	directColorMask = [1, 0, 0]
+
 	# indext of the previously rendered channel in the direct display mode
 	renderedDirectChannel = 0
 	# index of the current channel to render in the direct display mode
@@ -79,7 +82,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 		passiveColorMask[group] = 1 for group of groups
 		shader.setPassiveColorMask passiveColorMask
 		# clears image if there are no ranges
-		glmvilib.render.apply shader.getFinal()
+		glmvilib.render.apply glmvilib, shader.getFinal()
 
 		for group, rangesList of groups
 			updateChannelMaskWith rangesList
@@ -88,23 +91,29 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			shader.setActiveColorMask activeColorMask
 			glmvilib.render.apply glmvilib, shader.getActive()
 
-	@update = => switch settings.displayMode
-		when C.DISPLAY_MODE.MEAN then @updateChannelMask()
+	@update = -> switch settings.displayMode
+		when C.DISPLAY_MODE.MEAN then updateMeanChannelMask()
 		when C.DISPLAY_MODE.DIRECT
 			# do not render the same channel twice
 			if renderedDirectChannel is directChannel then return
 			renderedDirectChannel = directChannel
 			shader.updateDirectChannel renderedDirectChannel
 			glmvilib.render.apply glmvilib, shader.getActive()
-		else
+		when C.DISPLAY_MODE.SIMILARITY
 			if markers.hasActive()
 				shader.setPassiveColorMask updatePassiveColorMask()
 				shader.setActiveColorMask updateActiveColorMask()
 				glmvilib.render.apply glmvilib, shader.getActive()
 
-	@updateFinal = =>
-		shader.setPassiveColorMask updatePassiveColorMask()
-		glmvilib.render.apply glmvilib, shader.getFinal()
+	@updateFinal = -> switch settings.displayMode
+		when C.DISPLAY_MODE.MEAN then updateMeanChannelMask()
+		when C.DISPLAY_MODE.DIRECT
+			shader.setPassiveColorMask directColorMask
+			shader.setActiveColorMask directColorMask
+			glmvilib.render.apply glmvilib, shader.getActive()
+		when C.DISPLAY_MODE.SIMILARITY
+			shader.setPassiveColorMask updatePassiveColorMask()
+			glmvilib.render.apply glmvilib, shader.getFinal()
 
 	@updateChannelMask = ->	switch settings.displayMode
 		when C.DISPLAY_MODE.MEAN then updateMeanChannelMask()

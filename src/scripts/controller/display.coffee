@@ -64,7 +64,7 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 
 	$scope.$watch 'settings.displayMode', (displayMode) ->
 		renderer.updateChannelMask()
-		renderer.update()
+		renderer.updateFinal()
 
 		unless markers.getList()[0]?.isSet()
 			# activate first marker when switching display modes if it isn't already set

@@ -17,7 +17,7 @@ angular.module('quimbi').service 'ranges', ->
 	@byGroup = =>
 		output = {}
 
-		for range in @list
+		for range in @list when range.isActive()
 			group = range.getIndex()
 			if output[group] instanceof Array
 				output[group].push range
