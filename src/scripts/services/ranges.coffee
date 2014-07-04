@@ -28,6 +28,15 @@ angular.module('quimbi').service 'ranges', ->
 
 	@getActive = => range for range in @list when range.isActive()
 
+	# output can be efficiently watched for changes in the ranges list
+	# without a deep watch on the list itself
+	@getActivePositions = =>
+		output = []
+		for range in @getActive()
+			output.push range.start
+			output.push range.offset
+		output
+
 	@currentGroups = =>
 		output = []
 		for range in @getActive()

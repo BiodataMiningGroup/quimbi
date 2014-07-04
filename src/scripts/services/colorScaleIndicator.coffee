@@ -1,4 +1,4 @@
-angular.module('quimbi').service 'colorScaleIndicator', (mouse, shader) ->
+angular.module('quimbi').service 'colorScaleIndicator', ($timeout, mouse, shader) ->
 
 	intensities = new Uint8Array 4
 
@@ -6,11 +6,19 @@ angular.module('quimbi').service 'colorScaleIndicator', (mouse, shader) ->
 
 	color = new Uint8Array 4
 
-	@update = ->
+	timeoutPromise = null
+
+	delay = 100
+
+	getPixels = ->
 		glmvilib.render shader.getIntensity()
 		glmvilib.getPixels mouse.position.dataX, mouse.position.dataY, 1, 1, intensities
 		glmvilib.render shader.getColor()
 		glmvilib.getPixels mouse.position.dataX, mouse.position.dataY, 1, 1, color
+
+	@update = ->
+		$timeout.cancel timeoutPromise
+		timeoutPromise = $timeout getPixels, delay, no
 
 	@getIntensities = -> intensities
 

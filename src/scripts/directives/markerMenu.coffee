@@ -23,7 +23,7 @@ angular.module('quimbi').directive 'markerMenu', (markers, regions, renderer) ->
 			count++ for marker in $scope.data.markers when marker.isOn()
 			count is 1
 
-		$scope.$watch (-> markers.getListAll()), (markersList) ->
+		$scope.$watchCollection markers.getListAll, (markersList) ->
 			$scope.data.markers = markersList
 		
 		return
