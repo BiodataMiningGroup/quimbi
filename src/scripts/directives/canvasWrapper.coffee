@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the map has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, colorScaleIndicator) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, colorScaleIndicator, $timeout) ->
 
 	restrict: 'A'
 
@@ -33,6 +33,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 				map.self.removeLayer map.gridLayer
 
 		initializeMap = ->
+			# delay of calculations in ms at rapid mousemovement
+			moueseMoveDelay = 50
+
 			map.element = angular.element '<div></div>'
 			element.append map.element
 
@@ -157,22 +160,29 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 
 			map.self.fitBounds maxBounds, animate: off
 
+			mousemoveTimeoutPromise = null
+			performMousemove = (e) ->
+				position = mouse.position
+				# TODO refactor, pretty sure we don't really need lat/lng, x/y and dataX/dataY
+				position.lat = e.latlng.lat
+				position.lng = e.latlng.lng
+				position.x = (e.latlng.lng - maxBoundsDirections.west) / (maxBoundsDirections.east - maxBoundsDirections.west)
+				position.y = (e.latlng.lat - maxBoundsDirections.north) / (maxBoundsDirections.south - maxBoundsDirections.north)
+				newX = Math.floor position.x * input.dataWidth
+				newY = Math.floor (1 - position.y) * input.dataHeight
+				if position.dataX isnt newX or position.dataY isnt newY
+					position.dataX = newX
+					position.dataY = newY
+					renderer.update()
+					# after update so the new intensities are calculated first
+					colorScaleIndicator.update()
+
 			map.self.on 'mousemove', (e) ->
-				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
-					position = mouse.position
-					# TODO refactor, pretty sure we don't really need lat/lng, x/y and dataX/dataY
-					position.lat = e.latlng.lat
-					position.lng = e.latlng.lng
-					position.x = (e.latlng.lng - maxBoundsDirections.west) / (maxBoundsDirections.east - maxBoundsDirections.west)
-					position.y = (e.latlng.lat - maxBoundsDirections.north) / (maxBoundsDirections.south - maxBoundsDirections.north)
-					newX = Math.floor position.x * input.dataWidth
-					newY = Math.floor (1 - position.y) * input.dataHeight
-					if position.dataX isnt newX or position.dataY isnt newY
-						position.dataX = newX
-						position.dataY = newY
-						renderer.update()
-						# after update so the new intensities are calculated first
-						colorScaleIndicator.update()
+				if (maxBounds.contains e.latlng) and (regions.contain e.latlng)
+					# use timeout to delay calculation at rapid mouse movement
+					# greatly increases performance!
+					$timeout.cancel mousemoveTimeoutPromise
+					mousemoveTimeoutPromise = $timeout (-> performMousemove(e)), moueseMoveDelay
 
 			map.self.on 'click', (e) -> if maxBounds.contains e.latlng
 				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
