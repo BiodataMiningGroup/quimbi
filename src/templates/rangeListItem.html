@@ -14,10 +14,10 @@
 		<span class="number" data-ng-if="hasOffset()" data-ng-bind="data.endLabel | mass"></span>
 	</div>
 	<form class="pure-g item__edit-form" data-ng-if="data.editing">
-		<button class="pure-u-1-4 item__label-button" data-ng-click="changeStart(-1)" data-ng-class="{enabled:canDecreaseStart()}" data-tooltip="Move start to the left.">
+		<button class="pure-u-1-4 item__label-button" data-ng-click="changeStart(-1)" data-ng-class="{enabled:canDecreaseStart()}" data-tooltip="Move to the left.">
 			<i class="icon-chevron-left"></i>
 		</button>
-		<button class="pure-u-1-4 item__label-button" data-ng-click="changeStart(1)" data-ng-class="{enabled:canIncreaseStart()}" data-tooltip="Move start to the right.">
+		<button class="pure-u-1-4 item__label-button" data-ng-click="changeStart(1)" data-ng-class="{enabled:canIncreaseStart()}" data-tooltip="Move to the right.">
 			<i class="icon-chevron-right"></i>
 		</button>
 		<button class="pure-u-1-4 item__label-button" data-ng-click="changeOffset(-1)" data-ng-class="{enabled:canDecreaseOffset()}" data-tooltip="Decrease offset.">
