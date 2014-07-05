@@ -34,8 +34,9 @@ angular.module('quimbi').service 'markers', (Marker, settings, C) ->
 	# inefficient for large datasets due to SelectionData)
 	@getWatchList = =>
 		output = []
-		for marker in @getList()
+		for marker, index in @getListAll() when marker.isOn()
 			position = marker.getPosition()
+			output.push index
 			output.push position.x
 			output.push position.y
 			output.push marker.isSet()
