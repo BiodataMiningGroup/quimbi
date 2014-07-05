@@ -230,9 +230,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			# but remove them in case there are some
 			unless settings.showPoints then return
 
-			for marker in markerList when marker.isSet()
+			for marker, index in markers.getListAll() when marker.isSet()
 				m = newLeafletMarkerFrom marker
-				m._index = marker.getIndex()
+				m._index = index
 				m.on 'dragstart', ->	$scope.$apply =>
 					markerDragging = yes
 					markers.switchOn @_index
