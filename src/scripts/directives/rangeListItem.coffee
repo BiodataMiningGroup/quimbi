@@ -40,7 +40,10 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings, colorGroup
 				$scope.range.setInactive()
 			else
 				$scope.range.setActive()
-			$scope.$emit 'rangeListItem.rangeClicked', $scope.index
+
+		$scope.focusRange = (e) ->
+			e.stopPropagation()
+			$scope.$emit 'rangeListItem.focusRange', $scope.index
 
 		$scope.class = ->
 			active: $scope.range.isActive()

@@ -1,11 +1,12 @@
 <li class="range-list__item" data-ng-class="class()" data-ng-style="style()" data-ng-click="toggleRange()">
 	<span class="item__controls">
+		<i class="icon-eye-open" data-ng-click="focusRange($event)" data-tooltip="Focus this range."></i>
 		<i class="icon-pencil" data-ng-click="edit($event)" data-tooltip="Toggle editing." data-ng-class="{active:data.editing}"></i>
 		<i class="icon-remove" data-ng-click="removeRange($event)" data-tooltip="Remove this range."></i>
 	</span>
 	<div data-ng-if="!data.editing" data-ng-bind="range.getName()"></div>
 	<form class="item__edit-form" data-ng-if="data.editing" data-ng-submit="edit($event)">
-		<input class="pure-u-4-5" type="text" data-ng-model="range._name" />
+		<input class="pure-u-3-5" type="text" data-ng-model="range._name" />
 		<input type="submit" value="submit" />
 	</form>
 	<div class="item__labels">
