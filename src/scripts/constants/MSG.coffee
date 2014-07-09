@@ -28,3 +28,5 @@ angular.module('quimbi').constant 'MSG',
 	ERROR: "Error"
 
 	STATUS_CODE: "Status code"
+
+	L_DRAW_EDIT_TOOLTIP: "Drag handles, or marker to edit region."
