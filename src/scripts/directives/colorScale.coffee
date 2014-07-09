@@ -107,12 +107,12 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 			color = settings.colorMapSingleColors[activeIndices[index]]
 			'background-color': if color then color else ''
 
-		$scope.$watchCollection (-> colorScaleIndicator.getIntensities()), (newIntensities) ->
+		$scope.$watchCollection colorScaleIndicator.getIntensities, (newIntensities) ->
 			for intensity, index in newIntensities
 				intensities[index] = intensity / 255
 			normalizedIntensities = colorScaleIndicator.getNormalizedIntensities()
 
-		$scope.$watchCollection (-> getActiveIndices()), (newActiveIndices) ->
+		$scope.$watchCollection getActiveIndices, (newActiveIndices) ->
 			dimension = newActiveIndices.length
 			activeIndices = newActiveIndices
 		

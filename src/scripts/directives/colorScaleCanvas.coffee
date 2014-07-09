@@ -51,8 +51,13 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			when C.DISPLAY_MODE.MEAN then ranges.currentGroups()
 			else markers.getList()
 
+		getCurrentWatchList = -> switch settings.displayMode
+			when C.DISPLAY_MODE.MEAN then ranges.getActivePositions()
+			else markers.getWatchList()
+
 		# updates the color scale (depends on the current dimension)
-		updateScale = (list) ->	
+		updateScale = ->
+			list = getCurrentList()	
 			switch list.length
 				when 1 then scope.render1D gl,
 					vertexCoordinateBuffer, vertexColorBuffer, list
@@ -72,7 +77,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 		# initially updated before rendering
 		scope.$watch (-> settings.activeColorMaps), updateColorMaps, yes
 
-		scope.$watch getCurrentList, updateScale, yes
+		scope.$watchCollection getCurrentWatchList, updateScale
 
 		return
 

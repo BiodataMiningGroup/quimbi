@@ -31,9 +31,9 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHi
 					marker = markers.getList()[0]
 					redrawHistogram marker.getIndex() if marker and marker.isSet()
 
-		scope.$watch (-> markers.getList()[0]), updateHistogram, yes
+		scope.$watchCollection markers.getWatchList, updateHistogram
 
-		scope.$watch (-> ranges.list), updateHistogram, yes
+		scope.$watchCollection ranges.getActivePositions, updateHistogram
 
 		scope.$on 'displayController.updateHistogram', updateHistogram
 		

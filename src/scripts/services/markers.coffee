@@ -29,6 +29,19 @@ angular.module('quimbi').service 'markers', (Marker, settings, C) ->
 
 	@getList = => marker for marker in @getListAll() when marker.isOn()
 
+	# returns a list that changes when the marker list changes so the markers can
+	# be efficiently watched without a deep watch on the original list (which is
+	# inefficient for large datasets due to SelectionData)
+	@getWatchList = =>
+		output = []
+		for marker, index in @getListAll() when marker.isOn()
+			position = marker.getPosition()
+			output.push index
+			output.push position.x
+			output.push position.y
+			output.push marker.isSet()
+		output
+
 	# returns the selection data of all currently existing markers
 	@getSelectionData = =>
 		marker.getSelectionData() for marker in @getList() when marker.isSet()

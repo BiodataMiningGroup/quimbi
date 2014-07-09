@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the map has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, colorScaleIndicator) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, colorScaleIndicator, $timeout) ->
 
 	restrict: 'A'
 
@@ -33,6 +33,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 				map.self.removeLayer map.gridLayer
 
 		initializeMap = ->
+			# delay of calculations in ms at rapid mousemovement
+			moueseMoveDelay = 50
+
 			map.element = angular.element '<div></div>'
 			element.append map.element
 
@@ -52,6 +55,11 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			northEast = L.latLng Math.ceil(latBound), Math.ceil(lngBound)
 			# alternatively: set maxBounds on map.self options
 			maxBounds = new L.LatLngBounds southWest, northEast
+			maxBoundsDirections =
+				north: maxBounds.getNorth()
+				east: maxBounds.getEast()
+				south: maxBounds.getSouth()
+				west: maxBounds.getWest()
 
 			# TODO: max zoom should depend on ratio between input and screen size
 			map.self = L.map map.element[0],
@@ -155,21 +163,29 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 
 			map.self.fitBounds maxBounds, animate: off
 
+			mousemoveTimeoutPromise = null
+			performMousemove = (e) ->
+				position = mouse.position
+				# TODO refactor, pretty sure we don't really need lat/lng, x/y and dataX/dataY
+				position.lat = e.latlng.lat
+				position.lng = e.latlng.lng
+				position.x = (e.latlng.lng - maxBoundsDirections.west) / (maxBoundsDirections.east - maxBoundsDirections.west)
+				position.y = (e.latlng.lat - maxBoundsDirections.north) / (maxBoundsDirections.south - maxBoundsDirections.north)
+				newX = Math.floor position.x * input.dataWidth
+				newY = Math.floor (1 - position.y) * input.dataHeight
+				if position.dataX isnt newX or position.dataY isnt newY
+					position.dataX = newX
+					position.dataY = newY
+					renderer.update()
+					# after update so the new intensities are calculated first
+					colorScaleIndicator.update()
+
 			map.self.on 'mousemove', (e) ->
-				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
-					# TODO refactor, pretty sure we don't really need lat/lng, x/y and dataX/dataY
-					mouse.position.lat = e.latlng.lat
-					mouse.position.lng = e.latlng.lng
-					mouse.position.x = (e.latlng.lng - maxBounds.getWest()) / (maxBounds.getEast() - maxBounds.getWest())
-					mouse.position.y = (e.latlng.lat - maxBounds.getNorth()) / (maxBounds.getSouth() - maxBounds.getNorth())
-					newX = Math.floor mouse.position.x * input.dataWidth
-					newY = Math.floor (1 - mouse.position.y) * input.dataHeight
-					if mouse.position.dataX isnt newX or mouse.position.dataY isnt newY
-						mouse.position.dataX = newX
-						mouse.position.dataY = newY
-						renderer.update()
-						# after update so the new intensities are calculated first
-						colorScaleIndicator.update()
+				if (maxBounds.contains e.latlng) and (regions.contain e.latlng)
+					# use timeout to delay calculation at rapid mouse movement
+					# greatly increases performance!
+					$timeout.cancel mousemoveTimeoutPromise
+					mousemoveTimeoutPromise = $timeout (-> performMousemove(e)), moueseMoveDelay
 
 			map.self.on 'click', (e) -> if maxBounds.contains e.latlng
 				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
@@ -220,7 +236,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		# synchronizes the Leaflet markers with the list of the markers service
 		# don't do it while dragging a marker, because then no 'dragend' event
 		# is fired
-		syncMarkers = (markerList) -> unless markerDragging
+		syncMarkers = -> unless markerDragging
+
 			for leafletMarker in map.markers
 				map.self.removeLayer leafletMarker
 
@@ -230,7 +247,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			# but remove them in case there are some
 			unless settings.showPoints then return
 
-			for marker, index in markers.getListAll() when marker.isSet()
+			for marker in markers.getList() when marker.isSet()
 				m = newLeafletMarkerFrom marker
 				m._index = index
 				m.on 'dragstart', ->	$scope.$apply =>
@@ -245,7 +262,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 				m.addTo map.self
 				map.markers.push m
 
-		$scope.$watch (-> markers.getList()), syncMarkers, yes
+		$scope.$watchCollection markers.getWatchList, syncMarkers
 
 		# synchronize the Leaflet Draw regions with the list of the regions service
 		syncRegions = (regionList) ->
@@ -258,6 +275,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			renderer.updateRegionMask()
 			$scope.$emit 'canvasWrapper.regionsChanged'
 
-		$scope.$watchCollection (-> regions.getList()), syncRegions
+		$scope.$watchCollection regions.getList, syncRegions
 
 		return

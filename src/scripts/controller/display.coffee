@@ -34,8 +34,8 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 			if not layers[index]? then layers[index] = {}
 			layers[index].color = selection.color
 			layers[index].data = selection.data.spectrogram
-			# add histogram, too, to check for apectrum update efficiently
-			layers[index].histogram = selection.data.histogram
+			# add timestamp, too, to check for spectrum update efficiently
+			layers[index].timestamp = Date.now()
 
 	# returns the list of colorGroupObjects that determines the colorMaps
 	# according to the current display mode
@@ -43,24 +43,28 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 		when C.DISPLAY_MODE.MEAN then ranges.getActive()
 		else markers.getList()
 
+	getCurrentWatchList = -> switch settings.displayMode
+		when C.DISPLAY_MODE.MEAN then ranges.getActivePositions()
+		else markers.getWatchList()
+
 	$scope.showColorScale = -> settings.showColorScale
 
-	$scope.$watch markers.getList, updateSelections, yes
+	$scope.$watchCollection markers.getWatchList, updateSelections
 
-	$scope.$watch 'spectrumRanges', renderer.updateChannelMask, yes
+	$scope.$watchCollection ranges.getActivePositions, renderer.updateChannelMask
 
-	updateActiveColorMaps = (list) ->
+	updateActiveColorMaps = ->
 		# clear the array
 		for i in [0...settings.activeColorMaps.length]
 			settings.activeColorMaps[i] = null
 		# refill the array
-		for colorGroupObject in list
+		for colorGroupObject in getCurrentList()
 			settings.activeColorMaps[colorGroupObject.getIndex()] =
 				colorGroupObject.getColorMapName()
 		renderer.updateColorMaps()
 		renderer.update()
 
-	$scope.$watch getCurrentList, updateActiveColorMaps, yes
+	$scope.$watchCollection getCurrentWatchList, updateActiveColorMaps
 
 	$scope.$watch 'settings.displayMode', (displayMode) ->
 		renderer.updateChannelMask()
