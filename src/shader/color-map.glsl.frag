@@ -86,7 +86,7 @@ void main() {
 		(a.g + b.g + c.g) / weight,
 		// intensities.r * a.g + intensities.g * b.g + intensities.b * c.g,
 		// (a.g + b.g + c.g) / float(dot(u_color_mask, ONES))
-		intensities.r * a.b + intensities.g * b.b + intensities.b * c.b
+		(intensities.r * a.b + intensities.g * b.b + intensities.b * c.b) / (intensities.r + intensities.g + intensities.b)
 	);
 
 	// mixed_colors /= float(dot(u_color_mask, ONES));

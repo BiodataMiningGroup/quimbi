@@ -99,7 +99,7 @@ void main() {
 		(r.g + g.g + b.g) / weight,
 		// v_vertex_color.r * r.g + v_vertex_color.g * g.g + v_vertex_color.b * b.g,
 		// (r.b + g.b + b.b) / weight
-		v_vertex_color.r * r.b + v_vertex_color.g * g.b + v_vertex_color.b * b.b
+		(v_vertex_color.r * r.b + v_vertex_color.g * g.b + v_vertex_color.b * b.b) / (v_vertex_color.r + v_vertex_color.g + v_vertex_color.b)
 	);
 
 	// vec3 mixed_colors = r + g + b;
