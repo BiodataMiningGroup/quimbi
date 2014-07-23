@@ -12,6 +12,8 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 	rgbSelection = new Program.RGBSelection()
 	# shader to apply color maps to the rgb texture
 	colorMap = new Program.ColorMap()
+	# shader to convert LCh colors to RGB
+	lchToRgb = new Program.LchToRgb()
 	# shader to render an image to the draw buffer
 	drawImage = new Program.DrawImage()
 	# shader to render positions as dots (from invisible to space filling) to the draw buffer
@@ -27,6 +29,7 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 		glmvilib.addProgram renderMeanRanges
 		glmvilib.addProgram rgbSelection
 		glmvilib.addProgram colorMap
+		glmvilib.addProgram lchToRgb
 		glmvilib.addProgram drawImage
 		glmvilib.addProgram spaceFillDisplay
 		glmvilib.addProgram selectionInfo
@@ -43,6 +46,7 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 				when C.DISTANCE_METHOD.EUCL then active.push euclDist.id
 		active.push rgbSelection.id
 		active.push colorMap.id
+		active.push lchToRgb.id
 		if settings.useBlending
 			active.push drawImage.id
 		active.push spaceFillDisplay.id
@@ -58,6 +62,7 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 	@getFinal = ->
 		final = []
 		final.push colorMap.id
+		final.push lchToRgb.id
 		final.push drawImage.id if settings.useBlending
 		final.push spaceFillDisplay.id
 		final
