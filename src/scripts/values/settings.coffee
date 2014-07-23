@@ -35,7 +35,7 @@ angular.module('quimbi').value 'settings',
 	singleSelectionSingleColor: 'white'
 
 	# color maps if multiple selections are present
-	colorMaps: ['red-lch', 'green-lch', 'blue-lch']
+	colorMaps: ['red', 'green', 'blue']
 
 	# show the grid
 	spaceFillPercent: 1.0
