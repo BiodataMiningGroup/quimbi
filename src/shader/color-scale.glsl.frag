@@ -70,41 +70,26 @@ vec3 convert_lch_to_rgb(vec3 color) {
 
 void main() {
 	vec3 r, g, b;
-	float weight = 0.0;
 
 	if (v_vertex_color.r == 0.0) {
 		r = ZEROS;
 	} else {
 		r = texture2D(u_color_map_r, vec2(v_vertex_color.r, 0.5)).rgb;
-		weight++;
 	}
 
 	if (v_vertex_color.g == 0.0) {
 		g = ZEROS;
 	} else {
 		g = texture2D(u_color_map_g, vec2(v_vertex_color.g, 0.5)).rgb;
-		weight++;
 	}
 
 	if (v_vertex_color.b == 0.0) {
 		b = ZEROS;
 	} else {
 		b = texture2D(u_color_map_b, vec2(v_vertex_color.b, 0.5)).rgb;
-		weight++;
 	}
 
-	vec3 mixed_colors = vec3(
-		(r.r + g.r + b.r) / weight,
-		// v_vertex_color.r * r.r + v_vertex_color.g * g.r + v_vertex_color.b * b.r,
-		(r.g + g.g + b.g) / weight,
-		// v_vertex_color.r * r.g + v_vertex_color.g * g.g + v_vertex_color.b * b.g,
-		// (r.b + g.b + b.b) / weight
-		(v_vertex_color.r * r.b + v_vertex_color.g * g.b + v_vertex_color.b * b.b) / (v_vertex_color.r + v_vertex_color.g + v_vertex_color.b)
-	);
-
-	// vec3 mixed_colors = r + g + b;
-
-	// mixed_colors.g = 1.0;
+	vec3 mixed_colors = (v_vertex_color.r * r + v_vertex_color.g * g + v_vertex_color.b * b) / float(dot(v_vertex_color, ONES));
 
 	mixed_colors *= BYTE_TO_LCH;
 

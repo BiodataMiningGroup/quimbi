@@ -14,8 +14,6 @@ const vec3 ONES = vec3(1);
 void main() {
 	vec3 intensities = texture2D(u_rgb, v_texture_position).rgb;
 
-	float normalization = float(dot(u_color_mask, ONES));
-
 	vec3 color_r = u_color_mask.r *
 		texture2D(u_color_map_r, vec2(intensities.r, 0.5)).rgb;
 
@@ -29,11 +27,9 @@ void main() {
 	// (otherwise they would affect the h/b output value)
 	intensities *= u_color_mask;
 
-	gl_FragColor = vec4(
-		(color_r.r + color_g.r + color_b.r) / normalization,
-		(color_r.g + color_g.g + color_b.g) / normalization,
-		(intensities.r * color_r.b + intensities.g * color_g.b +
-			intensities.b * color_b.b) / float(dot(intensities, ONES)),
+	gl_FragColor = vec4(vec3((intensities.r * color_r +
+		intensities.g * color_g + intensities.b * color_b) /
+		float(dot(intensities, ONES))),
 		1.0
 	);
 }
