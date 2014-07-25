@@ -100,4 +100,7 @@ angular.module('quimbi').service 'regions', ($document, Region, input) ->
 
 	@getRegionMask = -> refreshRegionMask()
 
+	@get = (stamp) =>
+		return region for region in @getList() when region.getStamp() is stamp
+
 	return

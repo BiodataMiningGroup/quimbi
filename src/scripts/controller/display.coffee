@@ -83,8 +83,8 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 		$scope.$broadcast 'displayController.focusRange', index
 
 	# reflect event from regionListItem to canvasWrapper
-	$scope.$on 'regionListItem.focusRegion', (e, index) ->
-		$scope.$broadcast 'displayController.focusRegion', index
+	$scope.$on 'regionListItem.focusRegion', (e, stamp) ->
+		$scope.$broadcast 'displayController.focusRegion', stamp
 
 	$scope.$on 'canvasWrapper.regionsChanged', (e) ->
 		$scope.$broadcast 'displayController.updateHistogram'
