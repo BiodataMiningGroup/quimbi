@@ -1,5 +1,5 @@
 # directive to read a local text file
-angular.module('quimbi').directive 'colormapPreview', ->
+angular.module('quimbi').directive 'colormapPreview', (colorConverter) ->
 	
 	restrict: 'A'
 
@@ -15,10 +15,12 @@ angular.module('quimbi').directive 'colormapPreview', ->
 		imageData = ctx.createImageData 256, 1
 
 		updatePreview = (newColorMap) -> if newColorMap
+			rgb = []
 			for i in [0..255]
-				imageData.data[i*4] = newColorMap[i*3]
-				imageData.data[i*4+1] = newColorMap[i*3+1]
-				imageData.data[i*4+2] = newColorMap[i*3+2]
+				rgb = colorConverter.rgbFromLchBytes newColorMap[i*3], newColorMap[i*3+1], newColorMap[i*3+2]
+				imageData.data[i*4] = rgb[0]
+				imageData.data[i*4+1] = rgb[1]
+				imageData.data[i*4+2] = rgb[2]
 				imageData.data[i*4+3] = 255
 
 			ctx.putImageData imageData, 0, 0
