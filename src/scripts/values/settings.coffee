@@ -35,14 +35,14 @@ angular.module('quimbi').value 'settings',
 	singleSelectionSingleColor: 'white'
 
 	# color maps if multiple selections are present
-	colorMaps: ['red', 'green', 'blue']
+	colorMaps: ['red', 'green', 'yellow']
 
 	# show the grid
 	spaceFillPercent: 1.0
 
-	# single colors representing the colorMaps above. markers and regions are
-	# displayed in this colors
-	colorMapSingleColors: ['red', 'lime', 'blue']
+	# single colors representing the colorMaps above. markers and ranges are
+	# displayed in this colors. must be valid css colors!
+	colorMapSingleColors: ['red', 'limegreen', 'yellow']
 
 	# the currrntly active color maps for each color channel
 	activeColorMaps: [null, null, null]
