@@ -228,7 +228,9 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 		# creates a new Leaflet marker from a Marker object
 		newLeafletMarkerFrom = (marker) ->
 			L.marker marker.getPosition(),
-				icon: L.divIcon className: "marker-point marker-point--#{marker.getColor()}"
+				icon: L.divIcon
+					className: "marker-point"
+					html: "<span style=\"background-color:#{marker.getColor()};\"></span>"
 				draggable: yes
 
 		markerDragging = no
