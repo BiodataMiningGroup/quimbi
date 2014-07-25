@@ -2,17 +2,13 @@ precision mediump float;
 
 #define M_PI 3.1415926535897932384626433832795
 
-varying vec3 v_vertex_color;
+varying vec2 v_texture_position;
 
-uniform sampler2D u_color_map_r;
-uniform sampler2D u_color_map_g;
-uniform sampler2D u_color_map_b;
-
-const vec3 ZEROS = vec3(0);
+uniform sampler2D u_color_texture;
 
 const vec3 ONES = vec3(1);
 
-const vec3 BYTE_TO_LCH = vec3(100, 100, 360);
+const vec4 BYTE_TO_LCH = vec4(100, 100, 360, 1);
 
 const float ref_X = 95.047;
 const float ref_Y = 100.0;
@@ -21,8 +17,10 @@ const float ref_Z = 108.883;
 const float XYZ_compare = 0.008856;
 const float RGB_compare = 0.0031308;
 
-// adapted from colorjizz (https://code.google.com/p/colorjizz/)
-vec3 convert_lch_to_rgb(vec3 color) {
+void main() {
+	vec4 color = BYTE_TO_LCH * texture2D(u_color_texture, v_texture_position);
+
+	// adapted from colorjizz (https://code.google.com/p/colorjizz/)
 	// convert LCh to Lab
 	float h_rad = color.b * (M_PI / 180.0);
 	float var_L = color.r;
@@ -65,33 +63,5 @@ vec3 convert_lch_to_rgb(vec3 color) {
 		? 1.055 * pow(var_B, 1.0/2.4) - 0.055
 		: 12.92 * var_B;
 
-	return vec3(var_R, var_G, var_B);
-}
-
-void main() {
-	vec3 r, g, b;
-
-	if (v_vertex_color.r == 0.0) {
-		r = ZEROS;
-	} else {
-		r = texture2D(u_color_map_r, vec2(v_vertex_color.r, 0.5)).rgb;
-	}
-
-	if (v_vertex_color.g == 0.0) {
-		g = ZEROS;
-	} else {
-		g = texture2D(u_color_map_g, vec2(v_vertex_color.g, 0.5)).rgb;
-	}
-
-	if (v_vertex_color.b == 0.0) {
-		b = ZEROS;
-	} else {
-		b = texture2D(u_color_map_b, vec2(v_vertex_color.b, 0.5)).rgb;
-	}
-
-	vec3 mixed_colors = (v_vertex_color.r * r + v_vertex_color.g * g + v_vertex_color.b * b) / float(dot(v_vertex_color, ONES));
-
-	mixed_colors *= BYTE_TO_LCH;
-
-   gl_FragColor = vec4(convert_lch_to_rgb(mixed_colors), 1.0);
+	gl_FragColor = vec4(var_R, var_G, var_B, 1.0);
 }

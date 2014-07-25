@@ -353,7 +353,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 		return
 
-	# applies a color map to the R channel of the rgb texture
+	# applies a color map to the intensity map
 	ColorMap: ->
 		_colorMapTextureR = null
 		_colorMapTextureG = null
@@ -410,11 +410,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
 			return
 
-		@updateColorMask = (mask) ->
-			_colorMask[0] = mask[0]
-			_colorMask[1] = mask[1]
-			_colorMask[2] = mask[2]
-
 		@updateColorMaps = (maps) ->
 			_gl.activeTexture _gl.TEXTURE0
 			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureR
@@ -434,33 +429,31 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 		return
 
-	DrawImage: ->
-		_gl = null
-		_imageTexture = null
-
-		@id = 'draw-image'
+	# converts LCh colors to RGB
+	LchToRgb: ->
+		@id = 'lch-to-rgb'
 
 		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
 
-		@fragmentShaderUrl = 'shader/draw-image.glsl.frag'
+		@fragmentShaderUrl = 'shader/lch_to_rgb.glsl.frag'
 
 		@constructor = (gl, program, assets, helpers) ->
-			_gl = gl
 			helpers.useInternalVertexPositions program
 			helpers.useInternalTexturePositions program
-			_imageTexture = setUpImageTexture gl, program, assets, helpers
+
+			rgb = gl.getUniformLocation program, 'u_color_texture'
+			gl.uniform1i rgb, 0
 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
 			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.width, input.height
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 
 			gl.activeTexture gl.TEXTURE0
-			gl.bindTexture gl.TEXTURE_2D, _imageTexture
+			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 
-			# render to screen
-			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
 			return
 
 		return
@@ -529,11 +522,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			# render to screen
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
-
-		@updateColorMask = (mask) ->
-			_colorMask[0] = mask[0]
-			_colorMask[1] = mask[1]
-			_colorMask[2] = mask[2]
 
 		return
 

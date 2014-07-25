@@ -10,10 +10,6 @@ angular.module('quimbi').service 'colorMap', ($http, msg, MSG) ->
 		'green'
 		'yellow'
 		'blue'
-		'cyan'
-		'magenta'
-		'yellow'
-		'phase'
 		'fire'
 	]
 
