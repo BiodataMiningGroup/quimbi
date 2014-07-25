@@ -8,6 +8,7 @@ angular.module('quimbi').service 'colorMap', ($http, msg, MSG) ->
 	defaultColorMaps = [
 		'red'
 		'green'
+		'yellow'
 		'blue'
 		'cyan'
 		'magenta'
@@ -30,10 +31,13 @@ angular.module('quimbi').service 'colorMap', ($http, msg, MSG) ->
 			unless color.length is 3
 				throw new Error "#{MSG.INVALID_INPUT_FORMAT} Color doesn't have 3 values at line #{i+1}."
 
+		tmp = 0
 		for color in colors
-			output.push parseInt color[0]
-			output.push parseInt color[1]
-			output.push parseInt color[2]
+			for i in [0..2]
+				tmp = parseInt color[i]
+				unless 0 <= tmp <= 255
+					throw new Error "#{MSG.INVALID_INPUT_FORMAT} Invalid value '#{tmp}'."
+				output.push tmp
 
 		new Uint8Array output
 
