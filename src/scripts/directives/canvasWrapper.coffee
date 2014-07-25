@@ -277,4 +277,8 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 
 		$scope.$watchCollection regions.getList, syncRegions
 
+		$scope.$on 'displayController.focusRegion', (e, index) ->
+			map.self.panTo regions.getList()[index].getLatLngCenter(),
+				animate: yes
+
 		return

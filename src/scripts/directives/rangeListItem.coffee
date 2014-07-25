@@ -35,13 +35,14 @@ angular.module('quimbi').directive 'rangeListItem', (input, settings, colorGroup
 			ranges.remove $scope.index
 
 		# toggles the active state of this item
-		$scope.toggleRange = -> unless $scope.data.editing
+		$scope.toggleRange = (e) ->
+			e.stopPropagation()
 			if $scope.range.isActive()
 				$scope.range.setInactive()
 			else
 				$scope.range.setActive()
 
-		$scope.focusRange = (e) ->
+		$scope.focusRange = (e) -> unless $scope.data.editing
 			e.stopPropagation()
 			$scope.$emit 'rangeListItem.focusRange', $scope.index
 

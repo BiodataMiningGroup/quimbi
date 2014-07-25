@@ -30,11 +30,16 @@ angular.module('quimbi').directive 'regionListItem', (input, settings, regions) 
 			regions.remove $scope.region.getStamp()
 
 		# toggles the active state of this item
-		$scope.toggleRegion = -> unless $scope.data.editing
+		$scope.toggleRegion = (e) ->
+			e.stopPropagation()
 			if $scope.region.isActive()
 				$scope.region.setInactive()
 			else
 				$scope.region.setActive()
+
+		$scope.focusRegion = (e) -> if not $scope.data.editing and $scope.region.isActive()
+			e.stopPropagation()
+			$scope.$emit 'regionListItem.focusRegion', $scope.index
 
 		$scope.class = ->
 			active: $scope.region.isActive()
