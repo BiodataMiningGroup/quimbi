@@ -122,13 +122,7 @@ module.exports = (grunt) ->
 					dest: '<%= buildDir %>/js/images'
 					expand: true
 				]
-			colormaps:
-				files: [
-					cwd: '<%= colormapsDir %>'
-					src: '*.csv'
-					dest: '<%= buildDir %>/color-maps'
-					expand: true
-				]
+				
 		# Declare files to watch for live reload
 		delta:
 			options:
@@ -158,10 +152,6 @@ module.exports = (grunt) ->
 			less:
 				files: [ '<%= srcDir %>/styles/**/*.less' ]
 				tasks: [ 'recess', 'autoprefixer' ]
-			colormaps:
-				files: [ '<%= colormapsDir %>/*.csv' ]
-				tasks: [ 'copy:colormaps' ]
-
 
 	grunt.renameTask 'watch', 'delta'
 	grunt.registerTask 'watch', [
