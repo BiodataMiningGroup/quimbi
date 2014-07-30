@@ -28,8 +28,8 @@ angular.module('quimbi').service 'colorScaleHistogram', (input, shader) ->
 			red = intensities[index]
 			green = intensities[index + 1]
 			blue = intensities[index + 2]
-			# ignore 0 pixels
-			if red is 0 and green is 0 and blue is 0 then continue
+			# ignore pixels with alpha == 0
+			if intensities[index + 3] is 0 then continue
 			histogram[0][red]++
 			histogram[1][green]++
 			histogram[2][blue]++

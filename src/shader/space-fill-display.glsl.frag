@@ -12,7 +12,7 @@ const vec4 ZEROS = vec4(0.0);
 void main() {
 
     vec4 color = texture2D(u_color_map, v_texture_position);
-    if (color.rgb == ZEROS.rgb) {
+    if (color.a == 0.0) {
         gl_FragColor = ZEROS;
         return;
     }
