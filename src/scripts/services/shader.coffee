@@ -10,6 +10,8 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 	renderMeanRanges = new Program.RenderMeanRanges()
 	# shader to update the rgb texture for multiple selections
 	rgbSelection = new Program.RGBSelection()
+	# shader to normalizes the rgb intensities to fill the whole [0, 1] interval
+	colorLens = new Program.ColorLens()
 	# shader to apply color maps to the rgb texture
 	colorMap = new Program.ColorMap()
 	# shader to convert LCh colors to RGB
@@ -28,6 +30,7 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 		glmvilib.addProgram renderChannel
 		glmvilib.addProgram renderMeanRanges
 		glmvilib.addProgram rgbSelection
+		glmvilib.addProgram colorLens
 		glmvilib.addProgram colorMap
 		glmvilib.addProgram lchToRgb
 		glmvilib.addProgram drawImage
@@ -45,6 +48,7 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 				when C.DISTANCE_METHOD.ANGLE then active.push angleDist.id
 				when C.DISTANCE_METHOD.EUCL then active.push euclDist.id
 		active.push rgbSelection.id
+		active.push colorLens.id
 		active.push colorMap.id
 		active.push lchToRgb.id
 		if settings.useBlending
