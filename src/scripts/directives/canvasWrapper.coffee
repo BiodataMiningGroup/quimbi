@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the map has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, colorScaleIndicator, $timeout) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, $timeout) ->
 
 	restrict: 'A'
 
@@ -177,8 +177,6 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 					position.dataX = newX
 					position.dataY = newY
 					renderer.update()
-					# after update so the new intensities are calculated first
-					colorScaleIndicator.update()
 
 			map.self.on 'mousemove', (e) ->
 				if (maxBounds.contains e.latlng) and (regions.contain e.latlng)

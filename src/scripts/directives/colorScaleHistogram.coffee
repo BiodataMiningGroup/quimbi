@@ -1,5 +1,5 @@
 # directive to display the histogram of a marker if only one is present
-angular.module('quimbi').directive 'colorScaleHistogram', (markers, intensityHistogram, ranges, settings, C) ->
+angular.module('quimbi').directive 'colorScaleHistogram', (markers, colorScaleHistogram, ranges, settings, C) ->
 
 	restrict: 'A'
 
@@ -10,7 +10,7 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, intensityHis
 		ctx.fillStyle = 'white'
 
 		redrawHistogram = (index) ->
-			histogram = intensityHistogram.get()[index]
+			histogram = colorScaleHistogram.get()[index]
 			maximum = 0
 			maximum = value for value in histogram when value > maximum
 			drawNumber = histogram.length

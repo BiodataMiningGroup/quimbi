@@ -1,5 +1,5 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) ->
+angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, framebuffer) ->
 
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
@@ -125,8 +125,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
@@ -175,9 +173,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
@@ -229,8 +224,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
@@ -281,8 +274,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform1f _invActiveChannels, 1 / (_activeChannels || -1)
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
@@ -333,10 +324,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			_colorMaskLocation = gl.getUniformLocation program, 'u_color_mask'
 			return
 
-		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
-
+		@callback = (gl, program, assets, helpers) ->
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.distanceTexture
 			gl.activeTexture gl.TEXTURE1
@@ -345,6 +333,9 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			framebuffer.updateIntensities()
 
 		@updateColorMask = (mask) ->
 			_colorMask[0] = mask[0]
@@ -393,9 +384,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
-
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 			gl.activeTexture gl.TEXTURE1
@@ -406,9 +394,11 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureB
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
-			# use distance texture because it has the same dimensions and is not needed at the step
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
 			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			framebuffer.updateColors()
 
 		@updateColorMaps = (maps) ->
 			_gl.activeTexture _gl.TEXTURE0
@@ -447,9 +437,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
-
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 
@@ -477,7 +464,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.width, input.height
 
 			gl.activeTexture gl.TEXTURE0
@@ -485,6 +471,10 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 			# render to screen
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			return
 
 		return
@@ -520,10 +510,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 			return
 
-		@callback = (gl, program, assets, helpers) =>
-			# TODO find out where to disable blending in the other shaders to avoid
-			#      side effects (currently disabled in every callback, which is probably overkill)
-			gl.disable gl.BLEND
+		@callback = (gl, program, assets, helpers) ->
 			gl.viewport 0, 0, input.width, input.height
 
 			if settings.useBlending
@@ -552,6 +539,11 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			gl.uniform1f halfPointSize, (1.0 - spaceFillPercent) / 2.0
 			# render to screen
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			gl.disable gl.BLEND
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			return
 
 		return
@@ -585,10 +577,14 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.getChannelTextureDimension(), input.getChannelTextureDimension()
 			gl.uniform2f mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.selection
 			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
+			return
+
 		return

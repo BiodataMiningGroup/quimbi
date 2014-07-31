@@ -52,12 +52,6 @@ angular.module('quimbi').service 'shader', (Program, settings, C) ->
 		active.push spaceFillDisplay.id
 		active
 
-	# returns the shader id for rendering to the rgb intensity texture
-	@getIntensity = -> rgbSelection.id
-
-	# returns the shader id for rendering to the color map
-	@getColor = -> colorMap.id
-
 	# returns the shader id for rendering to the canvas
 	@getFinal = ->
 		final = []

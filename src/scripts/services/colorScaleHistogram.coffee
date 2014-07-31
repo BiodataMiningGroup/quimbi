@@ -1,8 +1,4 @@
-angular.module('quimbi').service 'intensityHistogram', (input, shader) ->
-
-	# the raw pixel data
-	intensities = new Uint8Array input.dataWidth * input.dataHeight * 4
-
+angular.module('quimbi').service 'colorScaleHistogram', (framebuffer) ->
 	# the intensity histogram for every channel
 	histogram = [
 		new Array 256
@@ -28,12 +24,9 @@ angular.module('quimbi').service 'intensityHistogram', (input, shader) ->
 		channelBounds[channel].max = 0
 		channelBounds[channel].min = 255
 
-	# ATTENTION:
-	# assumes the rgb framebuffer of the rgb-selection shader to be bound!
-	# must be as fast as possible
-	@update = ->
-		glmvilib.getPixels 0, 0, input.dataWidth, input.dataHeight, intensities
+	@get = ->
 		clear()
+		intensities = framebuffer.getIntensities()
 		for intensityIndex in [0...intensities.length] by 4
 			# ignore pixels with alpha == 0
 			if intensities[intensityIndex + 3] is 0 then continue
@@ -44,10 +37,9 @@ angular.module('quimbi').service 'intensityHistogram', (input, shader) ->
 				histogram[channelIndex][tmpIntensity]++
 				# find bounds
 				tmpBund = channelBounds[channelIndex].max
-				channelBounds[channelIndex].max = Math.max tmpBund, tmp
+				channelBounds[channelIndex].max = Math.max tmpBund, tmpIntensity
 				tmpBund = channelBounds[channelIndex].min
-				channelBounds[channelIndex].min = Math.min tmpBund, tmp
-
-	@get = -> histogram
+				channelBounds[channelIndex].min = Math.min tmpBund, tmpIntensity
+		histogram
 
 	return
