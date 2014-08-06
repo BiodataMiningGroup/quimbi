@@ -1,5 +1,5 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, framebuffer) ->
+angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, framebuffer, intensityHistogram) ->
 
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
@@ -350,31 +350,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 		_channelBoundsGLocation = null
 		_channelBoundsBLocation = null
 
-		# contains the maximum and minimum occuring intensity values of the rgb
-		# channels of the current image
-		_channelBounds = [
-			{max: 0, min: 1}
-			{max: 0, min: 1}
-			{max: 0, min: 1}
-		]
-		# the temporary intensity value to find the channel bounds
-		_tmpIntensity = 0
-
-		_updateChannelBounds = ->
-			# clear
-			for bound in _channelBounds
-				bound.max = 0
-				bound.min = 1
-
-			intensities = framebuffer.getIntensities()
-			for intensityIndex in [0...intensities.length] by 4
-				# ignore intensities with alpha == 0
-				if intensities[intensityIndex + 3] is 0 then continue
-
-				for bound, channelIndex in _channelBounds
-					_tmpIntensity = intensities[intensityIndex + channelIndex] / 255
-					bound.max = Math.max bound.max, _tmpIntensity
-					bound.min = Math.min bound.min, _tmpIntensity
+		_channelBounds = null
 
 		@id = 'color-lens'
 
@@ -398,7 +374,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
 
-			_updateChannelBounds()
+			_channelBounds = intensityHistogram.update()
 			# use inverse of (max - min) and prevent division by 0
 			gl.uniform2f _channelBoundsRLocation, _channelBounds[0].min,
 				1 / ((_channelBounds[0].max || 1) - _channelBounds[0].min)
@@ -409,10 +385,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
-
-		@postCallback = (gl, program, assets, helpers) ->
-			# new update to sync the framebuffer service
-			framebuffer.updateIntensities()
 
 		return
 
