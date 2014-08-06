@@ -18,15 +18,14 @@ angular.module('quimbi').service 'intensityHistogram', (framebuffer) ->
 		channel[i] = 0 for i in [0...channel.length]
 
 	updateChannelBounds = ->
-		for values, channel in histogram
+		for values, channelIndex in histogram
 			for value, index in values when value isnt 0
-				channelBounds[channel].min = index / 255
+				channelBounds[channelIndex].min = index / 255
 				break
 
 			for value, index in values by -1 when value isnt 0
-				channelBounds[channel].max = index / 255
+				channelBounds[channelIndex].max = index / 255
 				break
-
 		channelBounds
 
 	updateHistogram = ->
@@ -36,7 +35,7 @@ angular.module('quimbi').service 'intensityHistogram', (framebuffer) ->
 			# ignore intensities with alpha == 0
 			if intensities[intensityIndex + 3] is 0 then continue
 
-			for channel, channelIndex in histogram
+			for channelIndex in [0...histogram.length]
 				histogram[channelIndex][intensities[intensityIndex + channelIndex]]++
 		histogram
 

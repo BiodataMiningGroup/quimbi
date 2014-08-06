@@ -2,7 +2,7 @@ precision mediump float;
 
 varying vec2 v_texture_position;
 
-uniform sampler2D u_rgb;
+uniform sampler2D u_rgb_color_lens;
 uniform sampler2D u_color_map_r;
 uniform sampler2D u_color_map_g;
 uniform sampler2D u_color_map_b;
@@ -12,7 +12,7 @@ uniform vec3 u_color_mask;
 const vec3 ONES = vec3(1);
 
 void main() {
-	vec4 intensities = texture2D(u_rgb, v_texture_position);
+	vec4 intensities = texture2D(u_rgb_color_lens, v_texture_position);
 
 	vec3 color_r = u_color_mask.r *
 		texture2D(u_color_map_r, vec2(intensities.r, 0.5)).rgb;

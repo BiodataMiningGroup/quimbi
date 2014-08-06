@@ -8,6 +8,10 @@ uniform sampler2D u_color_map_r;
 uniform sampler2D u_color_map_g;
 uniform sampler2D u_color_map_b;
 
+uniform vec2 u_channel_bounds_r;
+uniform vec2 u_channel_bounds_g;
+uniform vec2 u_channel_bounds_b;
+
 const vec3 ZEROS = vec3(0);
 
 const vec3 ONES = vec3(1);
@@ -70,23 +74,30 @@ vec3 convert_lch_to_rgb(vec3 color) {
 
 void main() {
 	vec3 r, g, b;
+	float intensity = 0.0;
 
 	if (v_vertex_color.r == 0.0) {
 		r = ZEROS;
 	} else {
-		r = texture2D(u_color_map_r, vec2(v_vertex_color.r, 0.5)).rgb;
+		intensity = (v_vertex_color.r - u_channel_bounds_r[0]) * u_channel_bounds_r[1];
+		intensity = max(min(intensity, 1.0), 0.0);
+		r = texture2D(u_color_map_r, vec2(intensity, 0.5)).rgb;
 	}
 
 	if (v_vertex_color.g == 0.0) {
 		g = ZEROS;
 	} else {
-		g = texture2D(u_color_map_g, vec2(v_vertex_color.g, 0.5)).rgb;
+		intensity = (v_vertex_color.g - u_channel_bounds_g[0]) * u_channel_bounds_g[1];
+		intensity = max(min(intensity, 1.0), 0.0);
+		g = texture2D(u_color_map_g, vec2(intensity, 0.5)).rgb;
 	}
 
 	if (v_vertex_color.b == 0.0) {
 		b = ZEROS;
 	} else {
-		b = texture2D(u_color_map_b, vec2(v_vertex_color.b, 0.5)).rgb;
+		intensity = (v_vertex_color.b - u_channel_bounds_b[0]) * u_channel_bounds_b[1];
+		intensity = max(min(intensity, 1.0), 0.0);
+		b = texture2D(u_color_map_b, vec2(intensity, 0.5)).rgb;
 	}
 
 	vec3 mixed_colors = (v_vertex_color.r * r + v_vertex_color.g * g + v_vertex_color.b * b) / float(dot(v_vertex_color, ONES));

@@ -3,7 +3,7 @@
 	position: absolute;
 	top: @pad;
 	right: @pad;
-	background-color: black;
+	background-color: @dark-gray;
 	border: @radius solid @dark-gray;
 	border-radius: @radius;
 	line-height: 0;
@@ -16,6 +16,11 @@
 
 .color-scale--1d, .color-scale--2d, .color-scale--3d {
 	display: block;
+}
+
+.color-scale--3d {
+	background-color: transparent;
+	border: 0;
 }
 
 .color-scale__canvas {

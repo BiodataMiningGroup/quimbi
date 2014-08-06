@@ -346,9 +346,11 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 
 	# normalizes the intensities to fill the whole [0, 1] interval
 	ColorLens: ->
-		_channelBoundsRLocation = null
-		_channelBoundsGLocation = null
-		_channelBoundsBLocation = null
+		_channelBoundsLocation = [
+			null
+			null
+			null
+		]
 
 		_channelBounds = null
 
@@ -362,12 +364,19 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			helpers.useInternalVertexPositions program
 			helpers.useInternalTexturePositions program
 
+			assets.framebuffers.rgbColorLens = gl.createFramebuffer()
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens
+			texture = helpers.newTexture 'rgbColorLensTexture'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth, input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
+			gl.bindFramebuffer gl.FRAMEBUFFER, null
+
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 0
 
-			_channelBoundsRLocation = gl.getUniformLocation program, 'u_channel_bounds_r'
-			_channelBoundsGLocation = gl.getUniformLocation program, 'u_channel_bounds_g'
-			_channelBoundsBLocation = gl.getUniformLocation program, 'u_channel_bounds_b'
+			_channelBoundsLocation[0] = gl.getUniformLocation program, 'u_channel_bounds_r'
+			_channelBoundsLocation[1] = gl.getUniformLocation program, 'u_channel_bounds_g'
+			_channelBoundsLocation[2] = gl.getUniformLocation program, 'u_channel_bounds_b'
 			return
 
 		@callback = (gl, program, assets, helpers) ->
@@ -376,14 +385,14 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 
 			_channelBounds = intensityHistogram.update()
 			# use inverse of (max - min) and prevent division by 0
-			gl.uniform2f _channelBoundsRLocation, _channelBounds[0].min,
+			gl.uniform2f _channelBoundsLocation[0], _channelBounds[0].min,
 				1 / ((_channelBounds[0].max || 1) - _channelBounds[0].min)
-			gl.uniform2f _channelBoundsGLocation, _channelBounds[1].min,
+			gl.uniform2f _channelBoundsLocation[1], _channelBounds[1].min,
 				1 / ((_channelBounds[1].max || 1) - _channelBounds[1].min)
-			gl.uniform2f _channelBoundsBLocation, _channelBounds[2].min,
+			gl.uniform2f _channelBoundsLocation[2], _channelBounds[2].min,
 				1 / ((_channelBounds[2].max || 1) - _channelBounds[2].min)
 
-			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens
 			return
 
 		return
@@ -408,8 +417,8 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			helpers.useInternalVertexPositions program
 			helpers.useInternalTexturePositions program
 
-			rgb = gl.getUniformLocation program, 'u_rgb'
-			gl.uniform1i rgb, 0
+			rgbColorLens = gl.getUniformLocation program, 'u_rgb_color_lens'
+			gl.uniform1i rgbColorLens, 0
 
 			_colorMapTextureR = helpers.newTexture 'colorMapTextureR'
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
@@ -429,7 +438,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 
 		@callback = (gl, program, assets, helpers) =>
 			gl.activeTexture gl.TEXTURE0
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
+			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbColorLensTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureR
 			gl.activeTexture gl.TEXTURE2
