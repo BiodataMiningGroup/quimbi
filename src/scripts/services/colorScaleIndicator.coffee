@@ -1,6 +1,6 @@
 angular.module('quimbi').service 'colorScaleIndicator', (framebuffer, colorConverter) ->
 
-	normalizedIntensities = [0, 0, 0]
+	normalizedIntensities = [0, 0, 0, 0]
 
 	@getIntensities = -> framebuffer.getMouseIntensities()
 
@@ -8,13 +8,14 @@ angular.module('quimbi').service 'colorScaleIndicator', (framebuffer, colorConve
 		colorConverter.rgbFromLchBytes framebuffer.getMouseColors()...
 
 	# normalizes the color channel intensities so r+g+b=1
-	@getNormalizedIntensities = ->
-		intensities = framebuffer.getMouseIntensities()
+	@getNormalizedIntensities = =>
+		intensities = @getIntensities()
 		sum = intensities[0] + intensities[1] + intensities[2]
-		if sum is 0 then for index in [0...normalizedIntensities.length]
-			normalizedIntensities[index] = 1/3
-		else for index in [0...normalizedIntensities.length]
+		# equal distribution in this case
+		sum = 3 if sum is 0
+		for index in [0...3]
 			normalizedIntensities[index] = intensities[index] / sum
+		normalizedIntensities[3] = intensities[3] / 255
 		normalizedIntensities
 
 	return

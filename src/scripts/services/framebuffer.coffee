@@ -5,6 +5,8 @@ angular.module('quimbi').service 'framebuffer', (input, mouse) ->
 
 	mouseIntensities = [0, 0, 0, 0]
 
+	emptyIntensities = [0, 0, 0, 0]
+
 	colors = new Uint8Array input.dataWidth * input.dataHeight * 4
 
 	mouseColors = [0, 0, 0, 0]
@@ -19,6 +21,11 @@ angular.module('quimbi').service 'framebuffer', (input, mouse) ->
 
 	@getMouseIntensities = ->
 		position = (mouse.position.dataY * input.dataWidth + mouse.position.dataX) * 4
+
+		# sometimes the dataY value gets one step too high
+		if position + mouseIntensities.length - 1 > intensities.length
+			return emptyIntensities
+
 		for index in [0...mouseIntensities.length]
 			mouseIntensities[index] = intensities[position + index]
 		mouseIntensities

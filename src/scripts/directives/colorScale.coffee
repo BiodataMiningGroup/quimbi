@@ -92,7 +92,7 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 			color = colorScaleIndicator.getColor()
 			"rgb(#{color[0]}, #{color[1]}, #{color[2]})"
 
-		# returns the position style for the indicator
+		# returns the style for the indicator
 		$scope.indicatorStyle = ->
 			output = switch dimension
 				when 1 then indicatorStyle1D()
@@ -100,6 +100,8 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 				when 3 then indicatorStyle3D()
 				else {}
 			output['background-color'] = indicatorColor()
+			# dont display indicator if mouse hovers over transparent pixel
+			output['display'] = 'none' if intensities[3] is 0
 			output
 
 		# returns the single colors for the vertices of the 3D coolor scale triangle
