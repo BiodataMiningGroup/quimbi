@@ -179,14 +179,14 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 					renderer.update()
 
 			map.self.on 'mousemove', (e) ->
-				if (maxBounds.contains e.latlng) and (regions.contain e.latlng)
+				if maxBounds.contains e.latlng
 					# use timeout to delay calculation at rapid mouse movement
 					# greatly increases performance!
 					$timeout.cancel mousemoveTimeoutPromise
 					mousemoveTimeoutPromise = $timeout (-> performMousemove(e)), moueseMoveDelay
 
 			map.self.on 'click', (e) -> if maxBounds.contains e.latlng
-				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
+				if maxBounds.contains e.latlng then scope.$apply ->
 					markers.setAt mouse.position
 					renderer.update()
 
