@@ -78,13 +78,14 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 				when 2 then scope.render2D gl,
 					vertexCoordinateBuffer, vertexColorBuffer, list
 
-		# fill textures with currently active color maps
+		# fill textures with currently active color maps. fill with null if a map
+		# is not selected
 		updateColorMaps = (colorMaps) ->
-			for map, index in colorMaps when map
+			for map, index in colorMaps
 				gl.activeTexture gl.TEXTURE0 + index
 				gl.bindTexture gl.TEXTURE_2D, colorMapTextures[index]
 				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,
-					gl.UNSIGNED_BYTE, colorMap.get map
+					gl.UNSIGNED_BYTE, colorMap.get(map) or null
 			updateScale getCurrentList()
 
 		# this has to be put BEFORE updateColorMapCountWatcher! so the textures are
