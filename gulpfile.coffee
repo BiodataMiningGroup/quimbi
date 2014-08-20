@@ -5,6 +5,7 @@ gulp 			= require 'gulp'
 del			= require 'del'
 concat 		= require 'gulp-concat'
 symlink		= require 'gulp-symlink'
+notify		= require 'gulp-notify'
 
 coffee 		= require 'gulp-coffee'
 ngAnnotate	= require 'gulp-ng-annotate'
@@ -44,13 +45,14 @@ gulp.task "copyScripts", ->
 gulp.task "scripts", ->	
 	del.sync "#{paths.build.scripts}*.js"
 	gulp.src "#{paths.source.scripts}**/*.coffee"
+		.pipe concat "#{pack.name}.annotated.js"
 		.pipe coffee()
 		.pipe ngAnnotate()
-		.pipe concat "#{pack.name}.annotated.js"
 		.pipe gulp.dest paths.build.scripts
 		.pipe concat "#{pack.name}.min.js"
 		.pipe uglify()
 		.pipe gulp.dest paths.build.scripts
+		.pipe notify "Scripts finished."
 
 gulp.task "copyStyles", ->
 	del.sync "#{paths.build.styles}lib"
