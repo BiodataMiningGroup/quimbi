@@ -3,7 +3,7 @@
 	position: absolute;
 	top: @pad;
 	right: @pad;
-	background-color: @dark-gray;
+	background-color: black;
 	border: @radius solid @dark-gray;
 	border-radius: @radius;
 	line-height: 0;
@@ -42,6 +42,44 @@
 	.point();
 	top: -5px;
 	left: -5px;
+}
+
+.color-scale__bounds {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+
+	.bounds {
+		position: absolute;
+		top: 0;
+		left: 0;
+		border: 1px dotted transparent;
+	}
+
+	.bounds--top {
+		top: -2px;
+	}
+
+	.bounds--left {
+		left: -2px;
+	}
+
+	.bounds--top, .bounds--bottom {
+		border-top-color: white;
+		border-bottom-color: black;
+	}
+
+	.bounds--left, .bounds--right {
+		border-left-color: white;
+		border-right-color: black;
+	}
+}
+
+.color-scale--1d .color-scale__bounds .bounds {
+	width: 100%;
 }
 
 .color-scale__vertex3d {

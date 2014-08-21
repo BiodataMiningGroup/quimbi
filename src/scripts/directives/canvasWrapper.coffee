@@ -197,12 +197,14 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			map.self.on 'draw:created', (e) -> scope.$apply ->
 				regions.add e.layer, maxBounds
 
+			applyUpdateRegionMask = -> scope.$apply renderer.updateRegionMask
+
 			# update edited regions on the fly
 			map.self.on 'draw:editstart', (e) ->
-				map.self.on 'mouseup', renderer.updateRegionMask
+				map.self.on 'mouseup', applyUpdateRegionMask
 
 			map.self.on 'draw:editstop', (e) ->
-				map.self.off 'mouseup', renderer.updateRegionMask
+				map.self.off 'mouseup', applyUpdateRegionMask
 				renderer.updateRegionMask()
 
 		if map.element is null

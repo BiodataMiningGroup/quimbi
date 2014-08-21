@@ -7,19 +7,13 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, intensityHis
 		ctx = element[0].getContext '2d'
 		width = element[0].width
 		height = element[0].height
+		ctx.fillStyle = 'white'
 
-		histogram = bounds = null
-		boundsStart = boundsEnd = 0
+		histogram = null
 		maximum = drawNumber = widthCoefficient = heightCoefficient = 0
 
 		redrawHistogram = (index) ->
 			histogram = intensityHistogram.get()[index]
-			bounds = intensityHistogram.getChannelBounds()[index]
-			boundsStart = Math.round (1 - bounds.max) * height
-			boundsEnd = Math.round (1 - bounds.min) * height
-			ctx.fillStyle = 'black'
-			ctx.fillRect 0, boundsStart, width, boundsEnd - boundsStart
-			ctx.fillStyle = 'white'
 			maximum = 0
 			maximum = value for value in histogram when value > maximum
 			drawNumber = histogram.length

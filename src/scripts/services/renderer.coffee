@@ -72,7 +72,6 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			shader.setActiveColorMask activeColorMask
 			angular.extend mouse.position, marker.getPosition()
 			glmvilib.render shader.getActive()...
-		$rootScope.$broadcast 'renderer.updated'
 
 	# updates the channel mask and re-renders for each ranges group
 	# separately
@@ -91,7 +90,6 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			activeColorMask[group] = 1
 			shader.setActiveColorMask activeColorMask
 			glmvilib.render shader.getActive()...
-		$rootScope.$broadcast 'renderer.updated'
 
 	@update = ->
 		switch settings.displayMode
@@ -122,9 +120,11 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 				glmvilib.render shader.getFinal()...
 		$rootScope.$broadcast 'renderer.updated'
 
-	@updateChannelMask = ->	switch settings.displayMode
-		when C.DISPLAY_MODE.MEAN then updateMeanChannelMask()
-		else updateDistancesChannelMask()
+	@updateChannelMask = ->
+		switch settings.displayMode
+			when C.DISPLAY_MODE.MEAN then updateMeanChannelMask()
+			else updateDistancesChannelMask()
+		$rootScope.$broadcast 'renderer.updated'
 
 	@updateRegionMask = =>
 		shader.updateRegionMask regions.getRegionMask()
