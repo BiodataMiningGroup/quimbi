@@ -26,5 +26,5 @@ void main() {
 
     float channel_color = dot(colors, ONES);
 
-    gl_FragColor = vec4(channel_color, channel_color, channel_color, 1.0);
+    gl_FragColor = vec4(vec3(channel_color), (channel_color == 0.0) ? 0.0 : 1.0);
 }
