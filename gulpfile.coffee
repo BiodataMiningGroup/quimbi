@@ -37,6 +37,15 @@ paths =
 		templates:	"#{basePaths.source}templates/"
 		views:		"#{basePaths.source}views/"
 
+handleError = (error) ->
+	notify.onError(
+		title: "<%= error.plugin %> <%= error.name %>"
+		message: "<%= error.message %>"
+	)(error)
+	console.log "Stack:\n #{error.stack}"
+	@emit "end"
+
+
 gulp.task "copyScripts", ->
 	del.sync "#{paths.build.scripts}lib"
 	gulp.src "#{paths.source.scripts}lib/**/*"
@@ -46,13 +55,13 @@ gulp.task "scripts", ->
 	del.sync "#{paths.build.scripts}*.js"
 	gulp.src "#{paths.source.scripts}**/*.coffee"
 		.pipe concat "#{pack.name}.annotated.js"
-		.pipe coffee()
+		.pipe coffee().on "error", handleError
 		.pipe ngAnnotate()
 		.pipe gulp.dest paths.build.scripts
 		.pipe concat "#{pack.name}.min.js"
 		.pipe uglify()
 		.pipe gulp.dest paths.build.scripts
-		.pipe notify "Scripts finished."
+		.pipe notify title: "gulp", message: "Scripts finished."
 
 gulp.task "copyStyles", ->
 	del.sync "#{paths.build.styles}lib"
@@ -62,7 +71,7 @@ gulp.task "copyStyles", ->
 gulp.task "styles", ->
 	del.sync "#{paths.build.styles}*.css"
 	gulp.src "#{paths.source.styles}main.less"
-		.pipe less()
+		.pipe less().on "error", handleError
 		.pipe autoprefixer()
 		.pipe concat "#{pack.name}.css"
 		.pipe gulp.dest paths.build.styles
