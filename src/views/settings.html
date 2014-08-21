@@ -18,7 +18,7 @@
 		<span data-tourtip="Here you can select the color-maps that are applied to the intensity images. Use the dropdown menu on the right to choose one of the default color-maps or click on the color-map preview in the middle to open a custom color-map file as CSV." data-tourtip-step="2"></span>
 		<fieldset>
 			<legend>Color maps</legend>
-			<span data-tourtip="There are one single selection and three multi selection color-maps. The single selection color-map should include a variety of different colors to make small intensity differences visually distinguishable (like 'fire') while the multi selection color-maps' colors should differ to be mixable." data-tourtip-step="3"></span>
+			<span data-tourtip="There are one single selection and two multi selection color-maps. The single selection color-map should include a variety of different colors to make small intensity differences visually distinguishable (like 'fire') while the multi selection color-maps' colors should differ to be mixable." data-tourtip-step="3"></span>
 			<div class="color-map">
 				<span class="color-map__single-color" data-ng-style="{'background-color':settings.singleSelectionSingleColor}" data-tooltip="Single selection."></span>
 				<label for="color-map-url-single">
@@ -44,15 +44,6 @@
 					<div colormap-preview="data.colorMapG"></div>
 				</label>
 				<select data-ng-model="settings.colorMaps[1]" data-ng-options="name for name in data.availableColorMaps()"></select>
-			</div>
-
-			<div class="color-map">
-				<span class="color-map__single-color" data-ng-style="{'background-color':settings.colorMapSingleColors[2]}" data-tooltip="Multiple selections 3."></span>
-				<label for="color-map-url-b">
-					<input id="color-map-url-b" filereader="data.colorMapFileB"/>
-					<div colormap-preview="data.colorMapB"></div>
-				</label>
-				<select data-ng-model="settings.colorMaps[2]" data-ng-options="name for name in data.availableColorMaps()"></select>
 			</div>
 		</fieldset>
 		<fieldset>

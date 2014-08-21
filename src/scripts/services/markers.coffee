@@ -8,7 +8,6 @@ angular.module('quimbi').service 'markers', (Marker, settings, C) ->
 		new Marker Marker.TYPE_SINGLE
 		new Marker Marker.TYPE_MULTI
 		new Marker Marker.TYPE_MULTI
-		new Marker Marker.TYPE_MULTI
 	]
 
 	# single marker for the mean display mode

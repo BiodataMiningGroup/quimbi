@@ -18,6 +18,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 
 	# indext of the previously rendered channel in the direct display mode
 	renderedDirectChannel = 0
+
 	# index of the current channel to render in the direct display mode
 	directChannel = 0
 

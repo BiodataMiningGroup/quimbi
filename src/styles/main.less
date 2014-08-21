@@ -20,6 +20,15 @@
 
 // === Global ===
 
+html, body, .view {
+	height: 100%;
+	width: 100%;
+}
+
+html {
+	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+}
+
 a {
 	text-decoration: none;
 	color: @text-color;
@@ -38,11 +47,6 @@ input {
 	&[type="range"], &[type="checkbox"], &[type="radio"] {
 		cursor: pointer;
 	}
-}
-
-html, body, .view {
-	height: 100%;
-	width: 100%;
 }
 
 body {
@@ -78,7 +82,7 @@ body {
 
 
 .number, input[type="number"] {
-	font-family: 'monospace';
+	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
 i[class^="icon-"].active {

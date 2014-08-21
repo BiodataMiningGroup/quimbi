@@ -35,12 +35,6 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 			left: display: 'none'
 			right: display: 'none'
 
-		# the points/vertices of the 3D color scale triangle
-		point3D =
-			bottomLeft: x: 0, y: fullWidth
-			bottomRight: x: fullWidth, y: fullWidth
-			top: x: fullWidth / 2, y: 0
-
 		# returns the active color channel indices
 		getActiveIndices = -> switch settings.displayMode
 			when C.DISPLAY_MODE.DIRECT then [0]
@@ -71,10 +65,6 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 
 		$scope.showHistogram = -> dimension is 1
 
-		$scope.showCanvas = -> 0 < dimension < 3
-
-		$scope.showTriangle = -> dimension is 3
-
 		# positions the indicator on the 1D color scale
 		indicatorStyle1D = -> translateCSS smallWidth * 0.5,
 			fullWidth * (1-intensities[activeIndices[0]])
@@ -82,19 +72,6 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 		# positions the indicator on the 2D color scale
 		indicatorStyle2D = -> translateCSS fullWidth * (1-intensities[activeIndices[0]]),
 			fullWidth * (1-intensities[activeIndices[1]])
-
-		# positions the indicator on the 3D color scale
-		indicatorStyle3D = ->
-			intensityR = normalizedIntensities[activeIndices[0]]
-			intensityG = normalizedIntensities[activeIndices[1]]
-			intensityB = normalizedIntensities[activeIndices[2]]
-			x = intensityR * point3D.bottomLeft.x +
-				intensityG * point3D.bottomRight.x +
-				intensityB * point3D.top.x
-			y = intensityR * point3D.bottomLeft.y +
-				intensityG * point3D.bottomRight.y +
-				intensityB * point3D.top.y
-			translateCSS x, y
 
 		# mixes a css rgb color to match the color of the currently hovered
 		# pixel according to the active color maps
@@ -107,7 +84,6 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 			output = switch dimension
 				when 1 then indicatorStyle1D()
 				when 2 then indicatorStyle2D()
-				when 3 then indicatorStyle3D()
 				else {}
 			output['background-color'] = indicatorColor()
 			# dont display indicator if mouse hovers over transparent pixel
@@ -142,11 +118,7 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 		updateBoundsStyles = ->	$scope.boundsStyles = switch dimension
 			when 1 then boundsStyles1D()
 			when 2 then boundsStyles2D()
-
-		# returns the single colors for the vertices of the 3D coolor scale triangle
-		$scope.vertex3DColor = (index) ->
-			color = settings.colorMapSingleColors[activeIndices[index]]
-			'background-color': if color then color else ''
+			else {}
 
 		$scope.$watchCollection colorScaleIndicator.getIntensities, (newIntensities) ->
 			for intensity, index in newIntensities

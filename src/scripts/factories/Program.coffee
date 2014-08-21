@@ -349,7 +349,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 		_channelBoundsLocation = [
 			null
 			null
-			null
 		]
 
 		_channelBounds = null
@@ -376,7 +375,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 
 			_channelBoundsLocation[0] = gl.getUniformLocation program, 'u_channel_bounds_r'
 			_channelBoundsLocation[1] = gl.getUniformLocation program, 'u_channel_bounds_g'
-			_channelBoundsLocation[2] = gl.getUniformLocation program, 'u_channel_bounds_b'
 			return
 
 		@callback = (gl, program, assets, helpers) ->
@@ -389,8 +387,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 				1 / ((_channelBounds[0].max || 1) - _channelBounds[0].min)
 			gl.uniform2f _channelBoundsLocation[1], _channelBounds[1].min,
 				1 / ((_channelBounds[1].max || 1) - _channelBounds[1].min)
-			gl.uniform2f _channelBoundsLocation[2], _channelBounds[2].min,
-				1 / ((_channelBounds[2].max || 1) - _channelBounds[2].min)
 
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens
 			return
@@ -401,7 +397,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 	ColorMap: ->
 		_colorMapTextureR = null
 		_colorMapTextureG = null
-		_colorMapTextureB = null
 		_colorMask = [0, 0, 0]
 		_colorMaskLocation = null
 		_gl = null
@@ -424,12 +419,9 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
 			_colorMapTextureG = helpers.newTexture 'colorMapTextureG'
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
-			_colorMapTextureB = helpers.newTexture 'colorMapTextureB'
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
 
 			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_r'), 1
 			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_g'), 2
-			gl.uniform1i gl.getUniformLocation(program, 'u_color_map_b'), 3
 
 			setUpColorMapTexture gl, assets, helpers
 
@@ -443,8 +435,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureR
 			gl.activeTexture gl.TEXTURE2
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureG
-			gl.activeTexture gl.TEXTURE3
-			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureB
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 
@@ -462,9 +452,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureG
 			if maps[1] then _gl.texImage2D _gl.TEXTURE_2D,
 				0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[1]
-			_gl.bindTexture _gl.TEXTURE_2D, _colorMapTextureB
-			if maps[2] then _gl.texImage2D _gl.TEXTURE_2D,
-				0, _gl.RGB, 256, 1, 0, _gl.RGB, _gl.UNSIGNED_BYTE, maps[2]
 
 		@updateColorMask = (mask) ->
 			_colorMask[0] = mask[0]

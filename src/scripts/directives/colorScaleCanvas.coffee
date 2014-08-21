@@ -35,11 +35,9 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 		# assign textures to texture units
 		gl.uniform1i gl.getUniformLocation(program, 'u_color_map_r'), 0
 		gl.uniform1i gl.getUniformLocation(program, 'u_color_map_g'), 1
-		gl.uniform1i gl.getUniformLocation(program, 'u_color_map_b'), 2
 
 		# the color map textures; one for each color channel
 		colorMapTextures = [
-			scope.newTexture gl
 			scope.newTexture gl
 			scope.newTexture gl
 		]
@@ -47,7 +45,6 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 		channelBoundsLocation = [
 			gl.getUniformLocation program, 'u_channel_bounds_r'
 			gl.getUniformLocation program, 'u_channel_bounds_g'
-			gl.getUniformLocation program, 'u_channel_bounds_b'
 		]
 
 		channelBounds = null
@@ -65,8 +62,6 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 				1 / ((channelBounds[0].max || 1) - channelBounds[0].min)
 			gl.uniform2f channelBoundsLocation[1], channelBounds[1].min,
 				1 / ((channelBounds[1].max || 1) - channelBounds[1].min)
-			gl.uniform2f channelBoundsLocation[2], channelBounds[2].min,
-				1 / ((channelBounds[2].max || 1) - channelBounds[2].min)
 
 		# updates the color scale (depends on the current dimension)
 		updateScale = ->
