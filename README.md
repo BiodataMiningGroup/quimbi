@@ -5,8 +5,8 @@ Quick exploration tool for multivariate bioimages
 
 ## Set up
 
-To run the project you need `node`, `npm` and `grunt` installed. Clone this repository, run `npm install` and then `grunt build` to build the project.
+To run the project you need `node`, `npm` and `gulp-cli` installed. Clone this repository, run `npm install` and then `gulp build` to build the project.
 
-For developement you can use `grunt watch` to build changed files on the fly.
+For developement you can simply use `gulp` to build changed files on the fly.
 
-To start the tool, run `build/index.html`.
+To start the tool, open `build/index.html` in a browser either locally or from a webserver.
