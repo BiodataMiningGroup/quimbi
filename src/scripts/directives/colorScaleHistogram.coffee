@@ -29,7 +29,8 @@ angular.module('quimbi').directive 'colorScaleHistogram', (markers, intensityHis
 				when C.DISPLAY_MODE.DIRECT
 					redrawHistogram 0
 				when C.DISPLAY_MODE.MEAN
-					redrawHistogram ranges.currentGroups()[0]
+					group = ranges.currentGroups()[0]
+					redrawHistogram group if group
 				else
 					marker = markers.getList()[0]
 					redrawHistogram marker.getIndex() if marker
