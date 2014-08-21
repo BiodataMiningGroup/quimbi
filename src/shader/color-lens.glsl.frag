@@ -6,7 +6,6 @@ uniform sampler2D u_rgb;
 
 uniform vec2 u_channel_bounds_r;
 uniform vec2 u_channel_bounds_g;
-uniform vec2 u_channel_bounds_b;
 
 void main() {
 	vec4 intensities = texture2D(u_rgb, v_texture_position);
@@ -15,8 +14,6 @@ void main() {
 		* u_channel_bounds_r[1];
 	intensities.g = (intensities.g - u_channel_bounds_g[0])
 		* u_channel_bounds_g[1];
-	intensities.b = (intensities.b - u_channel_bounds_b[0])
-		* u_channel_bounds_b[1];
 
 	gl_FragColor = intensities;
 }

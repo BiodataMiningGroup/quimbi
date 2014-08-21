@@ -6,11 +6,9 @@ varying vec3 v_vertex_color;
 
 uniform sampler2D u_color_map_r;
 uniform sampler2D u_color_map_g;
-uniform sampler2D u_color_map_b;
 
 uniform vec2 u_channel_bounds_r;
 uniform vec2 u_channel_bounds_g;
-uniform vec2 u_channel_bounds_b;
 
 const vec3 ZEROS = vec3(0);
 
@@ -92,15 +90,7 @@ void main() {
 		g = texture2D(u_color_map_g, vec2(intensity, 0.5)).rgb;
 	}
 
-	if (v_vertex_color.b == 0.0) {
-		b = ZEROS;
-	} else {
-		intensity = (v_vertex_color.b - u_channel_bounds_b[0]) * u_channel_bounds_b[1];
-		intensity = max(min(intensity, 1.0), 0.0);
-		b = texture2D(u_color_map_b, vec2(intensity, 0.5)).rgb;
-	}
-
-	vec3 mixed_colors = (v_vertex_color.r * r + v_vertex_color.g * g + v_vertex_color.b * b) / float(dot(v_vertex_color, ONES));
+	vec3 mixed_colors = (v_vertex_color.r * r + v_vertex_color.g * g) / float(dot(v_vertex_color, ONES));
 
 	mixed_colors *= BYTE_TO_LCH;
 

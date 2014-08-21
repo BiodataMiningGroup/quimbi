@@ -5,7 +5,6 @@ angular.module('quimbi').service 'colorGroups', (ColorGroup, settings) ->
 		new ColorGroup 0, ColorGroup.TYPE_SINGLE
 		new ColorGroup 0, ColorGroup.TYPE_MULTI
 		new ColorGroup 1, ColorGroup.TYPE_MULTI
-		new ColorGroup 2, ColorGroup.TYPE_MULTI
 	]
 
 	@get = (index) -> groups[index]

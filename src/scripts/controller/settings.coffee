@@ -16,12 +16,10 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 		# color maps
 		colorMapFileR: null
 		colorMapFileG: null
-		colorMapFileB: null
 		colorMapFileSingle: null
 		# the color map arrays of the color maps
 		colorMapR: null
 		colorMapG: null
-		colorMapB: null
 		colorMapSingle: null
 
 	updateDistMethod = (newDistMethod) ->
@@ -51,9 +49,6 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 	$scope.$watch 'data.colorMapFileG', (colorMapFile) -> if colorMapFile
 		newMap = setNewColorMap colorMapFile
 		settings.colorMaps[1] = newMap if newMap
-	$scope.$watch 'data.colorMapFileB', (colorMapFile) -> if colorMapFile
-		newMap = setNewColorMap colorMapFile
-		settings.colorMaps[2] = newMap if newMap
 	$scope.$watch 'data.colorMapFileSingle', (colorMapFile) -> if colorMapFile
 		newMap = setNewColorMap colorMapFile
 		settings.singleSelectionColorMap = newMap if newMap
@@ -62,7 +57,6 @@ angular.module('quimbi').controller 'settingsCtrl', ($scope, settings, input, co
 	$scope.$watchCollection 'settings.colorMaps', (colorMapNames) ->
 		$scope.data.colorMapR = colorMap.get colorMapNames[0]
 		$scope.data.colorMapG = colorMap.get colorMapNames[1]
-		$scope.data.colorMapB = colorMap.get colorMapNames[2]
 
 	$scope.$watch 'settings.singleSelectionColorMap', (colorMapName) ->
 		$scope.data.colorMapSingle = colorMap.get colorMapName

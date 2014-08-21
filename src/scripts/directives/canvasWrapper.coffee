@@ -185,7 +185,7 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 					$timeout.cancel mousemoveTimeoutPromise
 					mousemoveTimeoutPromise = $timeout (-> performMousemove(e)), moueseMoveDelay
 
-			map.self.on 'click', (e) -> if maxBounds.contains e.latlng
+			map.self.on 'click', (e) ->
 				if maxBounds.contains e.latlng then scope.$apply ->
 					markers.setAt mouse.position
 					renderer.update()
