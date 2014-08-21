@@ -14,13 +14,8 @@
 	transform: translateX(-@aside-width);
 }
 
-.color-scale--1d, .color-scale--2d, .color-scale--3d {
+.color-scale--1d, .color-scale--2d {
 	display: block;
-}
-
-.color-scale--3d {
-	background-color: transparent;
-	border: 0;
 }
 
 .color-scale__canvas {
@@ -80,39 +75,4 @@
 
 .color-scale--1d .color-scale__bounds .bounds {
 	width: 100%;
-}
-
-.color-scale__vertex3d {
-	.point();
-	display: none;
-}
-
-.color-scale--3d .color-scale__vertex3d {
-	display: block;
-}
-
-.vertex-3d--bl {
-	left: -6px;
-	bottom: -6px;
-}
-
-.vertex-3d--br {
-	right: -6px;
-	bottom: -6px;
-}
-
-.vertex-3d--t {
-	top: -6px;
-	right: 50%;
-	transform: translateX(6px);
-}
-
-.color-scale__triangle {
-	position: absolute;
-	top: 0;
-	left: 0;
-
-	polygon {
-		fill: @dark-gray;
-	}
 }

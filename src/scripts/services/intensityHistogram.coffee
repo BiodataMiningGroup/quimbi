@@ -3,13 +3,11 @@ angular.module('quimbi').service 'intensityHistogram', (framebuffer) ->
 	histogram = [
 		new Array 256
 		new Array 256
-		new Array 256
 	]
 
 	# contains the maximum and minimum occuring intensity values of the rgb
 	# channels of the current image
 	channelBounds = [
-		{max: 0, min: 1}
 		{max: 0, min: 1}
 		{max: 0, min: 1}
 	]

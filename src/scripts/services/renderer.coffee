@@ -18,6 +18,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 
 	# indext of the previously rendered channel in the direct display mode
 	renderedDirectChannel = 0
+
 	# index of the current channel to render in the direct display mode
 	directChannel = 0
 
@@ -63,8 +64,10 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 
 	# updates the channel mask array with all ranges, regardless their group
 	# and re-renders the dustances for every marker
+	tmpMousePosition = {}
 	updateDistancesChannelMask = ->
 		updateChannelMaskWith ranges.list
+		tmpMousePosition = angular.copy mouse.position
 
 		for marker in markers.getList() when marker.isSet()
 			clearArray activeColorMask
@@ -72,6 +75,7 @@ angular.module('quimbi').service 'renderer', (input, mouse, markers, ranges, reg
 			shader.setActiveColorMask activeColorMask
 			angular.extend mouse.position, marker.getPosition()
 			glmvilib.render shader.getActive()...
+		angular.extend mouse.position, tmpMousePosition
 
 	# updates the channel mask and re-renders for each ranges group
 	# separately
