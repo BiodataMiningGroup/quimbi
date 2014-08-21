@@ -1,5 +1,5 @@
 # directive to display the color scale's canvas
-angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, settings, colorMap, C) ->
+angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, settings, colorMap, intensityHistogram, C) ->
 
 	restrict: 'A'
 
@@ -44,6 +44,14 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			scope.newTexture gl
 		]
 
+		channelBoundsLocation = [
+			gl.getUniformLocation program, 'u_channel_bounds_r'
+			gl.getUniformLocation program, 'u_channel_bounds_g'
+			gl.getUniformLocation program, 'u_channel_bounds_b'
+		]
+
+		channelBounds = null
+
 		# returns the list of markers/ranges groups
 		# not just their length because the color scale should re-render when
 		# a group changes, too
@@ -51,33 +59,40 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			when C.DISPLAY_MODE.MEAN then ranges.currentGroups()
 			else markers.getList()
 
-		getCurrentWatchList = -> switch settings.displayMode
-			when C.DISPLAY_MODE.MEAN then ranges.getActivePositions()
-			else markers.getWatchList()
+		updateChannelBounds = ->
+			channelBounds = intensityHistogram.getChannelBounds()
+			gl.uniform2f channelBoundsLocation[0], channelBounds[0].min,
+				1 / ((channelBounds[0].max || 1) - channelBounds[0].min)
+			gl.uniform2f channelBoundsLocation[1], channelBounds[1].min,
+				1 / ((channelBounds[1].max || 1) - channelBounds[1].min)
+			gl.uniform2f channelBoundsLocation[2], channelBounds[2].min,
+				1 / ((channelBounds[2].max || 1) - channelBounds[2].min)
 
 		# updates the color scale (depends on the current dimension)
 		updateScale = ->
-			list = getCurrentList()	
+			list = getCurrentList()
+			updateChannelBounds()
 			switch list.length
 				when 1 then scope.render1D gl,
 					vertexCoordinateBuffer, vertexColorBuffer, list
 				when 2 then scope.render2D gl,
 					vertexCoordinateBuffer, vertexColorBuffer, list
 
-		# fill textures with currently active color maps
+		# fill textures with currently active color maps. fill with null if a map
+		# is not selected
 		updateColorMaps = (colorMaps) ->
-			for map, index in colorMaps when map
+			for map, index in colorMaps
 				gl.activeTexture gl.TEXTURE0 + index
 				gl.bindTexture gl.TEXTURE_2D, colorMapTextures[index]
 				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,
-					gl.UNSIGNED_BYTE, colorMap.get map
+					gl.UNSIGNED_BYTE, colorMap.get(map) or null
 			updateScale getCurrentList()
 
 		# this has to be put BEFORE updateColorMapCountWatcher! so the textures are
 		# initially updated before rendering
 		scope.$watch (-> settings.activeColorMaps), updateColorMaps, yes
 
-		scope.$watchCollection getCurrentWatchList, updateScale
+		scope.$on 'renderer.updated', updateScale
 
 		return
 

@@ -1,7 +1,7 @@
 # directive for the canvas wrapper element in the display route.
 # this could be just a controller, too, but the map has to be appended to
 # the DOM so an "element" is needed.
-angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, colorScaleIndicator, $timeout) ->
+angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, markers, regions, renderer, settings, MSG, $timeout) ->
 
 	restrict: 'A'
 
@@ -177,18 +177,16 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 					position.dataX = newX
 					position.dataY = newY
 					renderer.update()
-					# after update so the new intensities are calculated first
-					colorScaleIndicator.update()
 
 			map.self.on 'mousemove', (e) ->
-				if (maxBounds.contains e.latlng) and (regions.contain e.latlng)
+				if maxBounds.contains e.latlng
 					# use timeout to delay calculation at rapid mouse movement
 					# greatly increases performance!
 					$timeout.cancel mousemoveTimeoutPromise
 					mousemoveTimeoutPromise = $timeout (-> performMousemove(e)), moueseMoveDelay
 
 			map.self.on 'click', (e) -> if maxBounds.contains e.latlng
-				if (maxBounds.contains e.latlng) and (regions.contain e.latlng) then scope.$apply ->
+				if maxBounds.contains e.latlng then scope.$apply ->
 					markers.setAt mouse.position
 					renderer.update()
 
@@ -199,16 +197,14 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			map.self.on 'draw:created', (e) -> scope.$apply ->
 				regions.add e.layer, maxBounds
 
-			regionChanged = ->
-				renderer.updateRegionMask()
-				scope.$emit 'canvasWrapper.regionsChanged'
+			applyUpdateRegionMask = -> scope.$apply renderer.updateRegionMask
 
 			# update edited regions on the fly
 			map.self.on 'draw:editstart', (e) ->
-				map.self.on 'mouseup', regionChanged
+				map.self.on 'mouseup', applyUpdateRegionMask
 
 			map.self.on 'draw:editstop', (e) ->
-				map.self.off 'mouseup', regionChanged
+				map.self.off 'mouseup', applyUpdateRegionMask
 				renderer.updateRegionMask()
 
 		if map.element is null
@@ -275,12 +271,11 @@ angular.module('quimbi').directive 'canvasWrapper', (canvas, input, mouse, map, 
 			# must be called in watch expression so the region mask is initialized
 			# correctly
 			renderer.updateRegionMask()
-			$scope.$emit 'canvasWrapper.regionsChanged'
 
 		$scope.$watchCollection regions.getList, syncRegions
 
 		$scope.$on 'displayController.focusRegion', (e, stamp) ->
-			map.self.panTo regions.get(stamp).getLatLngCenter(),
+			map.self.fitBounds regions.get(stamp).getLatLngBounds(),
 				animate: yes
 
 		return

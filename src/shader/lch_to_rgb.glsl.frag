@@ -63,5 +63,5 @@ void main() {
 		? 1.055 * pow(var_B, 1.0/2.4) - 0.055
 		: 12.92 * var_B;
 
-	gl_FragColor = vec4(var_R, var_G, var_B, 1.0);
+	gl_FragColor = vec4(var_R, var_G, var_B, color.a);
 }

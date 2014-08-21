@@ -16,7 +16,6 @@ angular.module('quimbi').directive 'markerMenu', (markers, regions, renderer) ->
 
 		$scope.switchOnMarker = (index) ->
 			markers.switchOn index
-			renderer.updateFinal()
 
 		$scope.onlyMarker = ->
 			count = 0

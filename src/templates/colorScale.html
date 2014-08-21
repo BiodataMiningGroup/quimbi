@@ -1,6 +1,12 @@
 <div data-ng-class="colorScaleClass()">
 	<canvas class="color-scale__histogram" width="30" height="256" color-scale-histogram="" data-ng-if="showHistogram()"></canvas><!--
 	--><div class="color-scale__canvas" data-ng-style="colorScaleDimension()">
+		<div class="color-scale__bounds">
+			<div class="bounds bounds--top" data-ng-style="boundsStyles.top"></div>
+			<div class="bounds bounds--bottom" data-ng-style="boundsStyles.bottom"></div>
+			<div class="bounds bounds--left" data-ng-style="boundsStyles.left"></div>
+			<div class="bounds bounds--right" data-ng-style="boundsStyles.right"></div>
+		</div>
 		<svg class="color-scale__triangle" height="256" width="256" data-ng-if="showTriangle()">
 			<polygon points="0,256 256,256 128,0"/>
 		</svg>

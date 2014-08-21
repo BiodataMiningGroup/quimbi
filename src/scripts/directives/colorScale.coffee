@@ -1,5 +1,5 @@
 # directive to display a color scale of all present markers
-angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, colorScaleIndicator, C) ->
+angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, colorScaleIndicator, intensityHistogram, C) ->
 	
 	restrict: 'A'
 
@@ -24,6 +24,16 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 
 		# number of currently active color channels
 		dimension = 0
+
+		# array of bounds of the normalized color scale
+		bounds = intensityHistogram.getChannelBounds()
+
+		# the styles of the 4 color scale bounds elements
+		$scope.boundsStyles =
+			top: display: 'none'
+			bottom: display: 'none'
+			left: display: 'none'
+			right: display: 'none'
 
 		# the points/vertices of the 3D color scale triangle
 		point3D =
@@ -92,7 +102,7 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 			color = colorScaleIndicator.getColor()
 			"rgb(#{color[0]}, #{color[1]}, #{color[2]})"
 
-		# returns the position style for the indicator
+		# returns the style for the indicator
 		$scope.indicatorStyle = ->
 			output = switch dimension
 				when 1 then indicatorStyle1D()
@@ -100,7 +110,38 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 				when 3 then indicatorStyle3D()
 				else {}
 			output['background-color'] = indicatorColor()
+			# dont display indicator if mouse hovers over transparent pixel
+			output['display'] = 'none' if intensities[3] is 0
 			output
+
+		# positions the top and bottom bounds elements in 1D
+		boundsStyles1D = ->
+			left: display: 'none'
+			right: display: 'none'
+			top: translateCSS 0, Math.round (1 - bounds[activeIndices[0]].max) * fullWidth
+			bottom: translateCSS 0, Math.round (1 - bounds[activeIndices[0]].min) * fullWidth
+
+		# positions all 4 bounds elements in 2D
+		boundsStyles2D = ->
+			boundingBox =
+				left: Math.round (1 - bounds[activeIndices[0]].max) * fullWidth
+				right: Math.round (1 - bounds[activeIndices[0]].min) * fullWidth
+				top: Math.round (1 - bounds[activeIndices[1]].max) * fullWidth
+				bottom: Math.round (1 - bounds[activeIndices[1]].min) * fullWidth
+
+			output =
+				left: translateCSS boundingBox.left, boundingBox.top
+				right: translateCSS boundingBox.right, boundingBox.top
+				top: translateCSS boundingBox.left, boundingBox.top
+				bottom: translateCSS boundingBox.left, boundingBox.bottom
+			output.left.height = output.right.height = "#{boundingBox.bottom - boundingBox.top}px"
+			output.top.width = output.bottom.width = "#{boundingBox.right - boundingBox.left}px"
+
+			output
+
+		updateBoundsStyles = ->	$scope.boundsStyles = switch dimension
+			when 1 then boundsStyles1D()
+			when 2 then boundsStyles2D()
 
 		# returns the single colors for the vertices of the 3D coolor scale triangle
 		$scope.vertex3DColor = (index) ->
@@ -115,5 +156,10 @@ angular.module('quimbi').directive 'colorScale', (markers, ranges, settings, col
 		$scope.$watchCollection getActiveIndices, (newActiveIndices) ->
 			dimension = newActiveIndices.length
 			activeIndices = newActiveIndices
+			updateBoundsStyles()
+
+		$scope.$on 'renderer.updated', ->
+			bounds = intensityHistogram.getChannelBounds()
+			updateBoundsStyles()
 		
 		return

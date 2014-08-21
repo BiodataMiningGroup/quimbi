@@ -86,13 +86,9 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 	$scope.$on 'regionListItem.focusRegion', (e, stamp) ->
 		$scope.$broadcast 'displayController.focusRegion', stamp
 
-	$scope.$on 'canvasWrapper.regionsChanged', (e) ->
-		$scope.$broadcast 'displayController.updateHistogram'
-
 	$scope.$on 'spectrumViewer.cursorPositionChanged', (e, index) ->
 		renderer.updateDirectChannel index
 		if settings.displayMode is C.DISPLAY_MODE.DIRECT
 			renderer.update()
-			$scope.$broadcast 'displayController.updateHistogram'
 
 	return

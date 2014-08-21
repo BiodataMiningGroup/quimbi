@@ -55,10 +55,7 @@ angular.module('quimbi').factory 'Region', (map, input) ->
 
 		getLatLngCoords: -> @_layer.getLatLngs()
 
-		getLatLngCenter: =>
-			latLngs = @getLatLngCoords()
-			L.latLng (latLngs[0].lat + latLngs[1].lat) / 2,
-				(latLngs[0].lng + latLngs[2].lng) / 2
+		getLatLngBounds: => L.latLngBounds @getLatLngCoords()
 
 		getName: -> @_name
 

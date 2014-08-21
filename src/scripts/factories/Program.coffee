@@ -1,13 +1,13 @@
 # Factory for creating shader program objects
-angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) ->
+angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, framebuffer, intensityHistogram) ->
 
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
 		gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
 		texture = helpers.newTexture 'distanceTexture'
-		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB,
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA,
 			input.dataWidth, input.dataHeight,
-			0, gl.RGB, gl.UNSIGNED_BYTE, null
+			0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 		gl.bindTexture gl.TEXTURE_2D, null
 		gl.bindFramebuffer gl.FRAMEBUFFER, null
@@ -16,9 +16,9 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 		assets.framebuffers.colorMapTexture = gl.createFramebuffer()
 		gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
 		texture = helpers.newTexture 'colorMapTexture'
-		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB,
+		gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA,
 			input.dataWidth, input.dataHeight,
-			0, gl.RGB, gl.UNSIGNED_BYTE, null
+			0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 		gl.bindTexture gl.TEXTURE_2D, null
 		gl.bindFramebuffer gl.FRAMEBUFFER, null
@@ -125,8 +125,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
@@ -175,9 +173,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform2f _mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
@@ -229,8 +224,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _regionMaskTexture
@@ -281,8 +274,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			gl.uniform1f _invActiveChannels, 1 / (_activeChannels || -1)
 			helpers.bindInternalTextures()
 			gl.activeTexture gl.TEXTURE0
@@ -323,7 +314,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			assets.framebuffers.rgb = gl.createFramebuffer()
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			texture = helpers.newTexture 'rgbTexture'
-			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, input.dataWidth, input.dataHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, null
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth, input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
 			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
 
@@ -333,10 +324,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			_colorMaskLocation = gl.getUniformLocation program, 'u_color_mask'
 			return
 
-		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
-
+		@callback = (gl, program, assets, helpers) ->
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.distanceTexture
 			gl.activeTexture gl.TEXTURE1
@@ -346,10 +334,66 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
 			return
 
+		@postCallback = (gl, program, assets, helpers) ->
+			framebuffer.updateIntensities()
+
 		@updateColorMask = (mask) ->
 			_colorMask[0] = mask[0]
 			_colorMask[1] = mask[1]
 			_colorMask[2] = mask[2]
+
+		return
+
+	# normalizes the intensities to fill the whole [0, 1] interval
+	ColorLens: ->
+		_channelBoundsLocation = [
+			null
+			null
+			null
+		]
+
+		_channelBounds = null
+
+		@id = 'color-lens'
+
+		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
+
+		@fragmentShaderUrl = 'shader/color-lens.glsl.frag'
+
+		@constructor = (gl, program, assets, helpers) ->
+			helpers.useInternalVertexPositions program
+			helpers.useInternalTexturePositions program
+
+			assets.framebuffers.rgbColorLens = gl.createFramebuffer()
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens
+			texture = helpers.newTexture 'rgbColorLensTexture'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth, input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
+			gl.bindFramebuffer gl.FRAMEBUFFER, null
+
+			rgb = gl.getUniformLocation program, 'u_rgb'
+			gl.uniform1i rgb, 0
+
+			_channelBoundsLocation[0] = gl.getUniformLocation program, 'u_channel_bounds_r'
+			_channelBoundsLocation[1] = gl.getUniformLocation program, 'u_channel_bounds_g'
+			_channelBoundsLocation[2] = gl.getUniformLocation program, 'u_channel_bounds_b'
+			return
+
+		@callback = (gl, program, assets, helpers) ->
+			gl.activeTexture gl.TEXTURE0
+			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
+
+			_channelBounds = intensityHistogram.update()
+			# use inverse of (max - min) and prevent division by 0
+			gl.uniform2f _channelBoundsLocation[0], _channelBounds[0].min,
+				1 / ((_channelBounds[0].max || 1) - _channelBounds[0].min)
+			gl.uniform2f _channelBoundsLocation[1], _channelBounds[1].min,
+				1 / ((_channelBounds[1].max || 1) - _channelBounds[1].min)
+			gl.uniform2f _channelBoundsLocation[2], _channelBounds[2].min,
+				1 / ((_channelBounds[2].max || 1) - _channelBounds[2].min)
+
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens
+			return
 
 		return
 
@@ -373,8 +417,8 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			helpers.useInternalVertexPositions program
 			helpers.useInternalTexturePositions program
 
-			rgb = gl.getUniformLocation program, 'u_rgb'
-			gl.uniform1i rgb, 0
+			rgbColorLens = gl.getUniformLocation program, 'u_rgb_color_lens'
+			gl.uniform1i rgbColorLens, 0
 
 			_colorMapTextureR = helpers.newTexture 'colorMapTextureR'
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null
@@ -393,11 +437,8 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
-
 			gl.activeTexture gl.TEXTURE0
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
+			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbColorLensTexture
 			gl.activeTexture gl.TEXTURE1
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureR
 			gl.activeTexture gl.TEXTURE2
@@ -406,9 +447,12 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			gl.bindTexture gl.TEXTURE_2D, _colorMapTextureB
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
-			# use distance texture because it has the same dimensions and is not needed at the step
+
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
 			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			framebuffer.updateColors()
 
 		@updateColorMaps = (maps) ->
 			_gl.activeTexture _gl.TEXTURE0
@@ -447,80 +491,10 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.dataWidth, input.dataHeight
-
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
-			return
-
-		return
-
-	# applies a color map to the R channel of the rgb texture
-	SpaceFillDisplay: ->
-		_gl = null
-		_spaceFillPercent = null
-
-		@id = 'space-fill-display'
-
-		@vertexShaderUrl = 'shader/display-rectangle.glsl.vert'
-
-		@fragmentShaderUrl = 'shader/space-fill-display.glsl.frag'
-
-		@constructor = (gl, program, assets, helpers) ->
-			_gl = gl
-			helpers.useInternalVertexPositions program
-			helpers.useInternalTexturePositions program
-
-			rgb = gl.getUniformLocation program, 'u_color_map'
-			gl.uniform1i rgb, 0
-
-			# 0.0 .. 1.0, meaningfull are only steps in pixel size
-			spaceFillPercent = 1.0
-			renderScale = input.width / input.dataWidth
-			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
-			gl.uniform1f halfPointSize, (1.0 - spaceFillPercent) / 2.0
-
-			# u_pixel_size; // i.e. vec2(1.0, 1.0) / texture_size;
-			pixelSize = gl.getUniformLocation program, 'u_pixel_size'
-			gl.uniform2f pixelSize, 1.0 / input.dataWidth, 1.0 / input.dataHeight
-
-			return
-
-		@callback = (gl, program, assets, helpers) =>
-			# TODO find out where to disable blending in the other shaders to avoid
-			#      side effects (currently disabled in every callback, which is probably overkill)
-			gl.disable gl.BLEND
-			gl.viewport 0, 0, input.width, input.height
-
-			if settings.useBlending
-				# deactivate depth testing
-				# TODO move this to initialization?
-				# TODO do I need to disable depth testing at all?
-				gl.disable gl.DEPTH_TEST
-
-				# alternative blending, same effect as opaque canvas + background image
-				# # transparent areas of SM are transparent, image is opaque
-				# gl.blendFunc gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA
-				# gl.blendEquation gl.FUNC_ADD
-
-				gl.blendFunc gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA
-				gl.blendEquation gl.FUNC_ADD
-				gl.enable gl.BLEND
-
-			gl.activeTexture gl.TEXTURE0
-			# DEV try to use distance texture because it has the same dimensions and is not needed at the step (simply replacing doesn't work)
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
-
-			# 0.0 .. 1.0, meaningfull are only steps in pixel size
-			spaceFillPercent = settings.spaceFillPercent
-			renderScale = input.width / input.dataWidth
-			halfPointSize = gl.getUniformLocation program, 'u_half_point_size'
-			gl.uniform1f halfPointSize, (1.0 - spaceFillPercent) / 2.0
-			# render to screen
-			gl.bindFramebuffer gl.FRAMEBUFFER, null
 			return
 
 		return
@@ -544,7 +518,6 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) =>
-			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.width, input.height
 
 			gl.activeTexture gl.TEXTURE0
@@ -552,6 +525,10 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 			# render to screen
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			return
 
 		return
@@ -587,10 +564,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 
 			return
 
-		@callback = (gl, program, assets, helpers) =>
-			# TODO find out where to disable blending in the other shaders to avoid
-			#      side effects (currently disabled in every callback, which is probably overkill)
-			gl.disable gl.BLEND
+		@callback = (gl, program, assets, helpers) ->
 			gl.viewport 0, 0, input.width, input.height
 
 			if settings.useBlending
@@ -619,6 +593,11 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			gl.uniform1f halfPointSize, (1.0 - spaceFillPercent) / 2.0
 			# render to screen
 			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			gl.disable gl.BLEND
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
 			return
 
 		return
@@ -652,10 +631,14 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings) 
 			return
 
 		@callback = (gl, program, assets, helpers) ->
-			gl.disable gl.BLEND
 			gl.viewport 0, 0, input.getChannelTextureDimension(), input.getChannelTextureDimension()
 			gl.uniform2f mousePosition, mouse.position.x, 1 - mouse.position.y
 			helpers.bindInternalTextures()
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.selection
 			return
+
+		@postCallback = (gl, program, assets, helpers) ->
+			gl.viewport 0, 0, input.dataWidth, input.dataHeight
+			return
+
 		return
