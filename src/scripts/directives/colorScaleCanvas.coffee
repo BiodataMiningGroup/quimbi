@@ -47,7 +47,11 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 			gl.getUniformLocation program, 'u_channel_bounds_g'
 		]
 
+		# the bounds of the displayed colors (color map feature)
 		channelBounds = null
+
+		# yes if the textures are loaded and ready to render
+		texturesReady = no
 
 		# returns the list of markers/ranges groups
 		# not just their length because the color scale should re-render when
@@ -64,7 +68,7 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 				1 / ((channelBounds[1].max || 1) - channelBounds[1].min)
 
 		# updates the color scale (depends on the current dimension)
-		updateScale = ->
+		updateScale = -> if texturesReady
 			list = getCurrentList()
 			updateChannelBounds()
 			switch list.length
@@ -81,11 +85,10 @@ angular.module('quimbi').directive 'colorScaleCanvas', (markers, ranges, setting
 				gl.bindTexture gl.TEXTURE_2D, colorMapTextures[index]
 				gl.texImage2D gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB,
 					gl.UNSIGNED_BYTE, colorMap.get(map) or null
-			updateScale getCurrentList()
+			texturesReady = yes
+			updateScale()
 
-		# this has to be put BEFORE updateColorMapCountWatcher! so the textures are
-		# initially updated before rendering
-		scope.$watch (-> settings.activeColorMaps), updateColorMaps, yes
+		scope.$watchCollection (-> settings.activeColorMaps), updateColorMaps
 
 		scope.$on 'renderer.updated', updateScale
 
