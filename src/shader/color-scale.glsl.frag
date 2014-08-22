@@ -71,28 +71,40 @@ vec3 convert_lch_to_rgb(vec3 color) {
 }
 
 void main() {
-	vec3 r, g, b;
+	vec3 r, g;
 	float intensity = 0.0;
 
 	if (v_vertex_color.r == 0.0) {
 		r = ZEROS;
 	} else {
-		intensity = (v_vertex_color.r - u_channel_bounds_r[0]) * u_channel_bounds_r[1];
-		intensity = max(min(intensity, 1.0), 0.0);
+		intensity = (v_vertex_color.r - u_channel_bounds_r[0])
+			* u_channel_bounds_r[1];
+		intensity = clamp(intensity, 0.0, 1.0);
 		r = texture2D(u_color_map_r, vec2(intensity, 0.5)).rgb;
 	}
 
 	if (v_vertex_color.g == 0.0) {
 		g = ZEROS;
 	} else {
-		intensity = (v_vertex_color.g - u_channel_bounds_g[0]) * u_channel_bounds_g[1];
-		intensity = max(min(intensity, 1.0), 0.0);
+		intensity = (v_vertex_color.g - u_channel_bounds_g[0])
+			* u_channel_bounds_g[1];
+		intensity = clamp(intensity, 0.0, 1.0);
 		g = texture2D(u_color_map_g, vec2(intensity, 0.5)).rgb;
 	}
 
-	vec3 mixed_colors = (v_vertex_color.r * r + v_vertex_color.g * g) / float(dot(v_vertex_color, ONES));
+	// more intuitive color mixing
+	if (r.b - g.b < -0.5) {
+		r.b += (v_vertex_color.r == 0.0) ? 0.0 : 1.0;
+	} else if (g.b - r.b < -0.5) {
+		g.b += (v_vertex_color.g == 0.0) ? 0.0 : 1.0;
+	}
 
-	mixed_colors *= BYTE_TO_LCH;
+	vec3 mixed_color = (v_vertex_color.r * r + v_vertex_color.g * g) /
+		float(dot(v_vertex_color.rg, ONES.rg));
 
-   gl_FragColor = vec4(convert_lch_to_rgb(mixed_colors), 1.0);
+	mixed_color.b = mod(mixed_color.b, 1.0);
+
+	mixed_color *= BYTE_TO_LCH;
+
+   gl_FragColor = vec4(convert_lch_to_rgb(mixed_color), 1.0);
 }

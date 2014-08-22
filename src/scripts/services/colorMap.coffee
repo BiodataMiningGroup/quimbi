@@ -7,9 +7,13 @@ angular.module('quimbi').service 'colorMap', ($http, msg, MSG) ->
 	# cached at startup
 	defaultColorMaps = [
 		'red'
-		'green'
+		'red-log-chroma'
 		'yellow'
+		'yellow-log-chroma'
+		'green'
+		'green-log-chroma'
 		'blue'
+		'blue-log-chroma'
 		'fire'
 	]
 
