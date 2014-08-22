@@ -44,14 +44,14 @@ angular.module('quimbi').controller 'displayCtrl', ($scope, input, settings, ren
 		else markers.getList()
 
 	getCurrentWatchList = -> switch settings.displayMode
-		when C.DISPLAY_MODE.MEAN then ranges.getActivePositions()
+		when C.DISPLAY_MODE.MEAN then ranges.getWatchList()
 		else markers.getWatchList()
 
 	$scope.showColorScale = -> settings.showColorScale
 
 	$scope.$watchCollection markers.getWatchList, updateSelections
 
-	$scope.$watchCollection ranges.getActivePositions, renderer.updateChannelMask
+	$scope.$watchCollection ranges.getWatchList, renderer.updateChannelMask
 
 	updateActiveColorMaps = ->
 		# clear the array

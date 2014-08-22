@@ -30,9 +30,10 @@ angular.module('quimbi').service 'ranges', ->
 
 	# output can be efficiently watched for changes in the ranges list
 	# without a deep watch on the list itself
-	@getActivePositions = =>
+	@getWatchList = =>
 		output = []
 		for range in @getActive()
+			output.push range.getColorMapName()
 			output.push range.start
 			output.push range.offset
 		output
