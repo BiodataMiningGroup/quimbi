@@ -1,6 +1,11 @@
 # Factory for creating shader program objects
 angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, framebuffer, intensityHistogram) ->
 
+	# We need two textures for the rgbSelection program that are swapped between
+	# render calls. This stores the currently active texture that can be used by the
+	# colorLens (or other) programs.
+	_activeRgbTexture = null
+
 	setUpDistanceTexture = (gl, assets, helpers) -> unless assets.framebuffers.distances
 		assets.framebuffers.distances = gl.createFramebuffer()
 		gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.distances
@@ -297,6 +302,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 	RGBSelection: ->
 		_colorMask = [0, 0, 0]
 		_colorMaskLocation = null
+		_activeRgbTextureIndex = 0
 
 		@id = 'rgb-selection'
 
@@ -312,11 +318,15 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			gl.uniform1i distances, 0
 
 			assets.framebuffers.rgb = gl.createFramebuffer()
-			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
-			texture = helpers.newTexture 'rgbTexture'
+
+			# Use two textures that are swapped between render calls because rendering to
+			# a texture that is a source, too, is not supported.
+			texture = helpers.newTexture 'rgbTexture0'
 			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth, input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
-			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
-			gl.bindFramebuffer gl.FRAMEBUFFER, null
+			_activeRgbTexture = texture
+
+			texture = helpers.newTexture 'rgbTexture1'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth, input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
 
 			rgb = gl.getUniformLocation program, 'u_rgb'
 			gl.uniform1i rgb, 1
@@ -328,10 +338,17 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.distanceTexture
 			gl.activeTexture gl.TEXTURE1
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
+			gl.bindTexture gl.TEXTURE_2D, _activeRgbTexture
+
+			# Now swap the active texture to have one as source, and the other as render
+			# target.
+			_activeRgbTextureIndex = (_activeRgbTextureIndex + 1) % 2
+			_activeRgbTexture = assets.textures['rgbTexture' + _activeRgbTextureIndex]
 
 			gl.uniform3f _colorMaskLocation, _colorMask[0], _colorMask[1], _colorMask[2]
 			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.rgb
+			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, _activeRgbTexture, 0
+
 			return
 
 		@postCallback = (gl, program, assets, helpers) ->
@@ -379,7 +396,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 
 		@callback = (gl, program, assets, helpers) ->
 			gl.activeTexture gl.TEXTURE0
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.rgbTexture
+			gl.bindTexture gl.TEXTURE_2D, _activeRgbTexture
 
 			_channelBounds = intensityHistogram.update()
 			# use inverse of (max - min) and prevent division by 0
@@ -472,6 +489,13 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			helpers.useInternalVertexPositions program
 			helpers.useInternalTexturePositions program
 
+			assets.framebuffers.lchToRgb = gl.createFramebuffer()
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.lchToRgb
+			texture = helpers.newTexture 'lchToRgbTexture'
+			gl.texImage2D gl.TEXTURE_2D, 0, gl.RGBA, input.dataWidth, input.dataHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null
+			gl.framebufferTexture2D gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0
+			gl.bindFramebuffer gl.FRAMEBUFFER, null
+
 			rgb = gl.getUniformLocation program, 'u_color_texture'
 			gl.uniform1i rgb, 0
 
@@ -481,7 +505,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 			gl.activeTexture gl.TEXTURE0
 			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
 
-			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture
+			gl.bindFramebuffer gl.FRAMEBUFFER, assets.framebuffers.lchToRgb
 			return
 
 		return
@@ -571,7 +595,7 @@ angular.module('quimbi').factory 'Program', ($document, input, mouse, settings, 
 
 			gl.activeTexture gl.TEXTURE0
 			# DEV try to use distance texture because it has the same dimensions and is not needed at the step (simply replacing doesn't work)
-			gl.bindTexture gl.TEXTURE_2D, assets.textures.colorMapTexture
+			gl.bindTexture gl.TEXTURE_2D, assets.textures.lchToRgbTexture
 
 			# 0.0 .. 1.0, meaningfull are only steps in pixel size
 			spaceFillPercent = settings.spaceFillPercent
