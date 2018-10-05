@@ -4,3 +4,5 @@ build
 data/OpG4dVa20120918Sc4/all/
 *.sublime-project
 *.sublime-workspace
+.idea
+.DS_Store
