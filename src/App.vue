@@ -1,27 +1,16 @@
 <template>
     <div id="app">
-        <section class="section">
-            <div class="container">
-                <h1 class="title">
-                    Hello World
-                </h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-
-
-            </div>
-        </section>
+        <InitData></InitData>
     </div>
 </template>
 
 <script>
-    import Test from './components/test.vue'
+    import InitData from './components/InitData.vue'
 
     export default {
         name: 'app',
         components: {
-            Test
+            InitData
         }
     }
 </script>

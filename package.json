@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "Quick exploration tool for multivariate bioimages.",
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=6.9.0"
   },
   "dependencies": {
     "@babel/core": "^7.1.2",
@@ -20,7 +20,7 @@
     "webpack-dev-server": "^3.1.9"
   },
   "scripts": {
-    "start:dev": "webpack-dev-server --content-base ./dist --hot",
+    "start:dev": "webpack-dev-server --hot",
     "build": "webpack -p"
   }
 }
