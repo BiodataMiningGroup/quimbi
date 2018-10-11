@@ -1,7 +1,9 @@
 <template>
     <div class="counter">
-        {{ number }}
-        <a href="#" @click.prevent="increment">Increment</a>
+            <p class="subtitle">
+                {{ number }}
+                <a href="#" @click.prevent="increment">Increment</a>
+            </p>
     </div>
 </template>
 
@@ -19,3 +21,6 @@
         }
     }
 </script>
+
+<style scoped>
+</style>
