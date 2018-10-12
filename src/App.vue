@@ -7,10 +7,11 @@
 <script>
     import InitData from './components/InitData.vue'
 
+
     export default {
         name: 'app',
         components: {
-            InitData
+            InitData,
         }
     }
 </script>
