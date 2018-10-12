@@ -4,13 +4,8 @@
             <h1 class="title">
                 Quimbi
             </h1>
-            <label class="text-reader">
-                <input type="file" id="file">
-            </label>
-            <label for=><button class="button" @click="parseData">Load Data</button></label>
-
-
-
+            <label><button class="button" @click="parseData">Load Data</button></label>
+            <a href="/data/small-stacked-max.txt">ddata</a>
         </div>
     </section>
 </template>
@@ -19,12 +14,11 @@
     export default {
         data() {
             return {
-                file: './data/small-stacked-max.txt'
+
             }
         },
         methods: {
             parseData() {
-
 
             }
 
