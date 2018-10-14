@@ -38,8 +38,12 @@ module.exports = {
                         }
                     }
                 ]
+
             }
-        ]
+        ],
+    },
+    resolve: {
+        symlinks: true
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -57,4 +61,4 @@ module.exports = {
         ])
     ]
 
-}
+};

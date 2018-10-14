@@ -1,40 +1,107 @@
 <template>
     <section class="section">
         <div class="container">
-            <h1 class="title">
-                Quimbi
+            <h1 class="title has-text-centered">
+                quimbi
             </h1>
-            <label>
-                <button class="button" @click="parseData">Load Data</button>
-            </label>
-            <a href="/data/small-stacked-max.txt">data</a>
+            <div class="tile is-ancestor">
+                <div class="tile is-2"></div>
+                <div class="tile is-8">
+                    <div class="container has-text-centered">
+                        <div class="field">
+                            <div class="control has-text-centered">
+                                <label class="label has-text-centered">Datei:</label>
+                                <input v-model="filePath" type="text" class="input is-full">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control has-text-centered">
+                                <button class="button" @click="getData">Laden</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
             <div id="data">
-                {{ data }}
             </div>
         </div>
     </section>
 </template>
 
 <script>
-        import axios from 'axios';
+    import axios from 'axios';
+
     export default {
         data() {
             return {
                 filePath: 'data/small-stacked-max.txt',
-                data: ''
+                data: {},
+                input: null,
+                loading: false
             }
         },
         methods: {
-            parseData() {
-                axios.get(this.filePath).then(
-                    response => (this.data = response)
-                );
-                console.log(this.data);
+            getData() {
+                this.loading = true;
+                axios.get(this.filePath)
+                    .then(
+                        response => {
+                            this.parseData(response);
+                        }
+                    )
+                    .catch(error => console.log(error));
+                this.loading = false;
+            },
+            parseData: function (response) {
+                // Create array from input data and fill the data object
+                let input = response.data.split('\n');
+                let header = input[0].split(',');
+                let brightfieldConfigLine = input[2];
+                let brightfieldConfig = brightfieldConfigLine.split(',');
+
+                let configLength = 3;
+
+                this.data.backgroundImage = brightfieldConfig[0];
+                this.data.overlayImage = brightfieldConfig[1];
+
+                this.data.overlayScaleX = parseFloat(brightfieldConfig[2]);
+                this.data.overlayScaleY = parseFloat(brightfieldConfig[3]);
+                this.data.overlayShiftX = parseFloat(brightfieldConfig[4]);
+                this.data.overlayShiftY = parseFloat(brightfieldConfig[5]);
+
+                this.data.id = header[0];
+                this.data.base = header[1];
+                this.data.format = header[2];
+                this.data.channels = parseInt(header[3]);
+                this.data.width = parseInt(header[4] * this.data.overlayScaleX);
+                this.data.height = parseInt(header[5] * this.data.overlayScaleY);
+                this.data.dataWidth = parseInt(header[4]);
+                this.data.dataHeight = parseInt(header[5]);
+
+                this.data.maxEuclDist = Math.sqrt(input.channels) * 255;
+
+                this.data.preprocessing = input[0];
+                this.data.channelNames = [];
+                let amountOfImages = 0;
+                input.forEach((inputLine, key)=> {
+                    if(key >= configLength && inputLine !== '') {
+                        inputLine.split('-').forEach((item) => {
+                        this.data.channelNames.push(item);
+                        });
+                        amountOfImages++;
+                    }
+                });
+
+                this.data.images = new Array(amountOfImages);
+
             }
+
         }
     }
 </script>
 
-<style>
+<style scoped>
 
 </style>
