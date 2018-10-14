@@ -49,18 +49,19 @@
                     .then(
                         response => {
                             this.parseData(response);
+                            this.loadImages();
                         }
                     )
                     .catch(error => console.log(error));
                 this.loading = false;
             },
-            parseData: function (response) {
+            parseData (response) {
                 // Create array from input data and fill the data object
                 let input = response.data.split('\n');
                 let header = input[0].split(',');
                 let brightfieldConfigLine = input[2];
                 let brightfieldConfig = brightfieldConfigLine.split(',');
-
+                // Amount of lines for configuration and information
                 let configLength = 3;
 
                 this.data.backgroundImage = brightfieldConfig[0];
@@ -85,10 +86,10 @@
                 this.data.preprocessing = input[0];
                 this.data.channelNames = [];
                 let amountOfImages = 0;
-                input.forEach((inputLine, key)=> {
-                    if(key >= configLength && inputLine !== '') {
+                input.forEach((inputLine, key) => {
+                    if (key >= configLength && inputLine !== '') {
                         inputLine.split('-').forEach((item) => {
-                        this.data.channelNames.push(item);
+                            this.data.channelNames.push(item);
                         });
                         amountOfImages++;
                     }
@@ -96,6 +97,11 @@
 
                 this.data.images = new Array(amountOfImages);
 
+            },
+
+            loadImages: () => {
+                let glm = window.glmvilib.init();
+                console.log(glm);
             }
 
         }

@@ -58,6 +58,13 @@ module.exports = {
                 to: 'data',
                 toType: 'dir'
             }
+        ]),
+        new CopyWebpackPlugin([
+            {
+                from: './src/libs',
+                to: 'js/libs',
+                toType: 'dir'
+            }
         ])
     ]
 
