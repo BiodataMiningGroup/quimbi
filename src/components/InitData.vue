@@ -1,9 +1,7 @@
 <template>
     <section class="section">
         <div class="container">
-            <h1 class="title has-text-centered">
-                quimbi
-            </h1>
+            <h1 class="title has-text-centered">quimbi</h1>
             <div class="tile is-ancestor">
                 <div class="tile is-2"></div>
                 <div class="tile is-8">
@@ -16,15 +14,16 @@
                         </div>
                         <div class="field">
                             <div class="control has-text-centered">
-                                <button class="button" @click="getData">Laden</button>
+                                <button v-if="!loading" class="button" @click="getData">Laden</button>
                             </div>
                         </div>
                     </div>
 
                 </div>
             </div>
-
-            <div id="data">
+            <canvas id="canvas" ref="canvas"></canvas>
+            <div id="">
+                <img v-bind:src="image">
             </div>
         </div>
     </section>
@@ -38,8 +37,7 @@
             return {
                 filePath: 'data/small-stacked-max.txt',
                 data: {},
-                input: null,
-                loading: false
+                loading: false,
             }
         },
         methods: {
@@ -48,15 +46,19 @@
                 axios.get(this.filePath)
                     .then(
                         response => {
+                            this.loading = true;
                             this.parseData(response);
-                            this.loadImages();
                         }
                     )
                     .catch(error => console.log(error));
                 this.loading = false;
             },
-            parseData (response) {
-                // Create array from input data and fill the data object
+            /**
+             * Parses data to create the canvas from the downloaded txt-file
+             * @param response
+             */
+            parseData(response) {
+                // Split lines into array and fill the data object
                 let input = response.data.split('\n');
                 let header = input[0].split(',');
                 let brightfieldConfigLine = input[2];
@@ -84,24 +86,60 @@
                 this.data.maxEuclDist = Math.sqrt(input.channels) * 255;
 
                 this.data.preprocessing = input[0];
+
+                // Push image names into channelNames
                 this.data.channelNames = [];
-                let amountOfImages = 0;
+                this.data.files = [];
                 input.forEach((inputLine, key) => {
                     if (key >= configLength && inputLine !== '') {
+
+                        this.data.files.push(inputLine);
+
                         inputLine.split('-').forEach((item) => {
                             this.data.channelNames.push(item);
                         });
-                        amountOfImages++;
                     }
                 });
 
-                this.data.images = new Array(amountOfImages);
+                // Download all images
+                this.data.images = new Array(this.data.files.length);
+                this.loadImages();
 
             },
 
-            loadImages: () => {
-                let glm = window.glmvilib.init();
-                console.log(glm);
+            /**
+             * Downloads data images parallel from the server and puts them into an array
+             */
+            loadImages() {
+                //console.log(glm);
+                for (let i = 0; i < this.data.images.length; i++) {
+                    let imagePath = this.data.base + this.data.files[i] + this.data.format;
+                    this.data.images[i] = new Image();
+                    this.data.images[i].src = imagePath;
+                    //console.log(this.data.images[i]);
+                    //document.body.appendChild(this.data.images[i]);
+                }
+
+                this.$refs.canvas.width = this.data.width;
+                this.$refs.canvas.height = this.data.height;
+                try {
+                    window.glmvilib.init(
+                        this.$refs.canvas,
+                        {
+                            width: this.data.width,
+                            height: this.data.height,
+                            channels: this.data.channels,
+                            reservedUnits: 2
+                        }
+                    );
+
+                    window.glmvilib.storeTiles(this.data.images);
+                    window.glmvilib.finish();
+                    this.loading = false;
+                } catch (error) {
+                    console.log(error);
+                }
+
             }
 
         }
