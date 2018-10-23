@@ -85,6 +85,7 @@
 
                 this.data.maxEuclDist = Math.sqrt(input.channels) * 255;
 
+                // ??
                 this.data.preprocessing = input[0];
 
                 // Push image names into channelNames
@@ -101,7 +102,7 @@
                     }
                 });
 
-                // Download all images
+                // Download images
                 this.data.images = new Array(this.data.files.length);
                 this.loadImages();
 
@@ -117,7 +118,7 @@
                     this.data.images[i] = new Image();
                     this.data.images[i].src = imagePath;
                     //console.log(this.data.images[i]);
-                    //document.body.appendChild(this.data.images[i]);
+                    document.body.appendChild(this.data.images[i]);
                 }
 
                 this.$refs.canvas.width = this.data.width;
