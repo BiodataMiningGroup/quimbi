@@ -22,9 +22,6 @@
                 </div>
             </div>
             <canvas id="canvas" ref="canvas"></canvas>
-            <div id="">
-                <img v-bind:src="image">
-            </div>
         </div>
     </section>
 </template>
@@ -85,7 +82,7 @@
 
                 this.data.maxEuclDist = Math.sqrt(input.channels) * 255;
 
-                // ??
+                // Todo ??
                 this.data.preprocessing = input[0];
 
                 // Push image names into channelNames
@@ -121,9 +118,17 @@
                     document.body.appendChild(this.data.images[i]);
                 }
 
+                // Initialize the glmvlib after last image has been downloaded
+                this.data.images[this.data.images.length - 1].onload = () => (this.initGlmvlib());
+
+
+            },
+
+            initGlmvlib () {
                 this.$refs.canvas.width = this.data.width;
                 this.$refs.canvas.height = this.data.height;
                 try {
+                    // Todo Passt das so?
                     window.glmvilib.init(
                         this.$refs.canvas,
                         {
@@ -137,10 +142,10 @@
                     window.glmvilib.storeTiles(this.data.images);
                     window.glmvilib.finish();
                     this.loading = false;
+                    this.$emit('finish', this.data)
                 } catch (error) {
                     console.log(error);
                 }
-
             }
 
         }

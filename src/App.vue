@@ -1,17 +1,35 @@
 <template>
     <div id="app">
-        <InitData></InitData>
+        <InitData v-if="showInitData" @finish="onFinishedInit"></InitData>
+        <DisplayData v-if="showDisplayData"></DisplayData>
     </div>
 </template>
 
 <script>
     import InitData from './components/InitData.vue'
+    import DisplayData from './components/DisplayData.vue'
 
 
     export default {
         name: 'app',
         components: {
             InitData,
+            DisplayData,
+        },
+        data() {
+            return {
+                data: {},
+                showInitData: true,
+                showDisplayData: false
+            }
+        },
+        methods: {
+            onFinishedInit(data) {
+                this.showInitData = false;
+                this.showDisplayData = true;
+                // Todo Needed here?
+                this.data = data;
+            }
         }
     }
 </script>
