@@ -121,7 +121,6 @@
                 // Initialize the glmvlib after last image has been downloaded
                 this.data.images[this.data.images.length - 1].onload = () => (this.initGlmvlib());
 
-
             },
 
             initGlmvlib () {
@@ -144,6 +143,9 @@
                     this.loading = false;
                     this.$emit('finish', this.data)
                 } catch (error) {
+
+                    // Todo ab und zu: WebGL: Invalid_vValue: texSubImage2D: invalid image/bad image data
+                    // Todo Large Dataset zum besseren Testen
                     console.log(error);
                 }
             }

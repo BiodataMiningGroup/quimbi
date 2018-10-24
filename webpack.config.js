@@ -43,7 +43,10 @@ module.exports = {
         ],
     },
     resolve: {
-        symlinks: true
+        symlinks: true,
+        alias: {
+            'node_modules': path.join(__dirname, 'node_modules'),
+        }
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -64,6 +67,13 @@ module.exports = {
                 from: './src/libs',
                 to: 'js/libs',
                 toType: 'dir'
+            }
+        ]),
+        new CopyWebpackPlugin([
+            {
+                from: './node_modules/ol/ol.css',
+                to: 'css/ol.css',
+                toType: 'file'
             }
         ])
     ]
