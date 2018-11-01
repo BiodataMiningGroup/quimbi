@@ -21,7 +21,6 @@
 
                 </div>
             </div>
-            <canvas id="canvas" ref="canvas"></canvas>
         </div>
     </section>
 </template>
@@ -102,6 +101,9 @@
                     }
                 });
 
+                // Create Canvas Element for openlayers
+                this.data.canvas = document.createElement('canvas')
+
                 // Download images
                 this.data.images = new Array(this.data.files.length);
                 this.loadImages();
@@ -130,13 +132,10 @@
             },
 
             initGlmvlib () {
-                // Todo canvas as object in data
-                this.$refs.canvas.width = this.data.width;
-                this.$refs.canvas.height = this.data.height;
                 try {
                     // Todo Passt das so?
                     window.glmvilib.init(
-                        this.$refs.canvas,
+                        this.data.canvas,
                         {
                             width: this.data.width,
                             height: this.data.height,
