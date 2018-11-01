@@ -66,6 +66,9 @@
                 this.data.backgroundImage = brightfieldConfig[0];
                 this.data.overlayImage = brightfieldConfig[1];
 
+                // Todo move into angledist shader
+                this.data.maxAngleDist =  Math.PI/2;
+
                 this.data.overlayScaleX = parseFloat(brightfieldConfig[2]);
                 this.data.overlayScaleY = parseFloat(brightfieldConfig[3]);
                 this.data.overlayShiftX = parseFloat(brightfieldConfig[4]);
@@ -80,10 +83,10 @@
                 this.data.dataWidth = parseInt(header[4]);
                 this.data.dataHeight = parseInt(header[5]);
 
-                this.data.maxEuclDist = Math.sqrt(input.channels) * 255;
+                //this.data.maxEuclDist = Math.sqrt(input.channels) * 255;
 
                 // Todo ??
-                this.data.preprocessing = input[0];
+                //this.data.preprocessing = input[0];
 
                 // Push image names into channelNames
                 this.data.channelNames = [];
@@ -113,17 +116,21 @@
                 for (let i = 0; i < this.data.images.length; i++) {
                     let imagePath = this.data.base + this.data.files[i] + this.data.format;
                     this.data.images[i] = new Image();
+                    // Todo onload here
                     this.data.images[i].src = imagePath;
                     //console.log(this.data.images[i]);
                     document.body.appendChild(this.data.images[i]);
+                    // Todo add counter
                 }
 
                 // Initialize the glmvlib after last image has been downloaded
+                // Todo counter, if counter == amount of images do
                 this.data.images[this.data.images.length - 1].onload = () => (this.initGlmvlib());
 
             },
 
             initGlmvlib () {
+                // Todo canvas as object in data
                 this.$refs.canvas.width = this.data.width;
                 this.$refs.canvas.height = this.data.height;
                 try {
@@ -139,14 +146,20 @@
                     );
 
                     window.glmvilib.storeTiles(this.data.images);
-                    window.glmvilib.finish();
                     this.loading = false;
                     this.$emit('finish', this.data)
-                } catch (error) {
+                    // Todo shader.getActive()
+                    // Todo glmvilib.render.apply(null, [a,b,c])
+                    // Todo start with angledist shader, Programm.coffee,
+                    // services/shader.coffee : createProgramms(), getActive()
+                    // renderer.coffee: update() glmvilib.render(shader.getActive())
+                    // glmbilib.render('angle-dist');s
 
+                } catch (error) {
                     // Todo ab und zu: WebGL: Invalid_vValue: texSubImage2D: invalid image/bad image data
                     // Todo Large Dataset zum besseren Testen
                     console.log(error);
+                    window.glmvilib.finish();
                 }
             }
 

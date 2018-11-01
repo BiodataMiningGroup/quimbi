@@ -19,9 +19,12 @@
         data() {
             return {
                 data: this.$parent.$data.data,
+                // Todo replace with property
+
+                // Webgl inspector for chrome
             }
         },
-        beforeMount() {
+        mounted() {
             this.createMap()
         },
         methods: {
@@ -38,6 +41,7 @@
                     ],
                     target: 'map'
                 });
+                console.log(map.getTargetElement());
             }
         }
     }

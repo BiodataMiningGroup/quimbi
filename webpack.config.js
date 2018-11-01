@@ -43,7 +43,8 @@ module.exports = {
         ],
     },
     resolve: {
-        symlinks: true,
+        // Todo Laden über Symlink klappt nicht
+        //symlinks: true,
         alias: {
             'node_modules': path.join(__dirname, 'node_modules'),
         }
