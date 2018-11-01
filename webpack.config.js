@@ -56,13 +56,13 @@ module.exports = {
             template: 'index.html'
         }),
         new VueLoaderPlugin(),
-        new CopyWebpackPlugin([
+        /*new CopyWebpackPlugin([
             {
                 from: './data',
                 to: 'data',
                 toType: 'dir'
             }
-        ]),
+        ]),*/
         new CopyWebpackPlugin([
             {
                 from: './src/libs',

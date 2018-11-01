@@ -33,7 +33,18 @@
             return {
                 filePath: 'data/small-stacked-max.txt',
                 data: {},
+                counter: 0,
                 loading: false,
+            }
+        },
+        watch: {
+            // Loads glmvlib if all images are loaded
+            counter() {
+                if (this.counter === this.data.files.length) {
+                this.initGlmvlib();
+                } else {
+                    console.log('still loading');
+                }
             }
         },
         methods: {
@@ -102,7 +113,7 @@
                 });
 
                 // Create Canvas Element for openlayers
-                this.data.canvas = document.createElement('canvas')
+                this.data.canvas = document.createElement('canvas');
 
                 // Download images
                 this.data.images = new Array(this.data.files.length);
@@ -114,20 +125,14 @@
              * Downloads data images parallel from the server and puts them into an array
              */
             loadImages() {
-                //console.log(glm);
+                this.data.counter = 0;
                 for (let i = 0; i < this.data.images.length; i++) {
                     let imagePath = this.data.base + this.data.files[i] + this.data.format;
                     this.data.images[i] = new Image();
-                    // Todo onload here
+                    // Initialize the glmvlib after last image has been downloaded via vue-watch
+                    this.data.images[i].onload = () => this.counter++;
                     this.data.images[i].src = imagePath;
-                    //console.log(this.data.images[i]);
-                    document.body.appendChild(this.data.images[i]);
-                    // Todo add counter
                 }
-
-                // Initialize the glmvlib after last image has been downloaded
-                // Todo counter, if counter == amount of images do
-                this.data.images[this.data.images.length - 1].onload = () => (this.initGlmvlib());
 
             },
 

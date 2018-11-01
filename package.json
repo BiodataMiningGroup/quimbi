@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start:dev": "webpack-dev-server --hot",
-    "build": "webpack -p",
+    "build": "webpack -p && ln -sf ../data dist/data",
     "comment": "// Todo symlink ln -sf"
   }
 }

@@ -1,7 +1,7 @@
 node_modules
 build
 dist
-data/OpG4dVa20120918Sc4/all/
+data
 *.sublime-project
 *.sublime-workspace
 .idea
