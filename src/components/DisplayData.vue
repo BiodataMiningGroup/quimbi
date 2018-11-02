@@ -15,19 +15,23 @@
     import XYZ from 'node_modules/ol/source/XYZ';
     import OSM from '../../node_modules/ol/source/OSM';
 
+    import ShaderHandler from '../utils/ShaderHandler.js';
+
+
     export default {
         props: [
-            'data'
+            'initData'
         ],
         data() {
             return {
-                data: this.data
-
+                data: this.data,
+                shaderHandler: undefined,
                 // Webgl inspector for chrome
             }
         },
         mounted() {
             this.createMap();
+            this.shaderHandler = new ShaderHandler();
             // Todo remove me
             window.glmvilib.finish();
         },
@@ -45,7 +49,6 @@
                     ],
                     target: 'map'
                 });
-                console.log(map.getTargetElement());
             }
         }
     }
@@ -55,6 +58,6 @@
 <style scoped>
     .map {
         height: 400px;
-        width: 90%;
+        width: 100%;
     }
 </style>

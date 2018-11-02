@@ -19,7 +19,7 @@
                         </div>
                         <div v-if="loading">
                             <p class="progress-label"><strong>Lade Daten ...</strong></p>
-                            <progress class="progress" :value="progressBar" max="100"></progress>
+                            <progress class="progress is-medium" :value="progressBar" max="100"></progress>
                         </div>
 
                     </div>
@@ -53,6 +53,9 @@
             }
         },
         methods: {
+            /**
+             * Makes ajax request to config file, calls parseData
+             */
             getData() {
                 this.loading = true;
                 axios.get(this.filePath)
@@ -131,7 +134,7 @@
                     this.data.images[i] = new Image();
                     // watch counter and initialize the glmvlib after last image has been downloaded
                     this.data.images[i].onload = () => this.counter++;
-                    // Todo add onerror
+                    // Todo add onerror and show on gui
                     this.data.images[i].src = imagePath;
                 }
 
@@ -139,7 +142,6 @@
 
             initGlmvlib() {
                 try {
-                    // Todo Passt das so?
                     window.glmvilib.init(
                         this.data.canvas,
                         {
@@ -161,8 +163,7 @@
                     // glmbilib.render('angle-dist');s
 
                 } catch (error) {
-                    // Todo ab und zu: WebGL: Invalid_vValue: texSubImage2D: invalid image/bad image data
-                    // Todo Large Dataset zum besseren Testen
+                    // Todo show error on gui
                     console.log(error);
                     window.glmvilib.finish();
                 }
@@ -177,6 +178,7 @@
         margin-top: 30px;
         margin-bottom: 0;
     }
+
     .progress {
         margin-top: 20px;
     }

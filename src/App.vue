@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <InitData v-if="showInitData" @finish="onFinishedInit"></InitData>
-        <DisplayData v-if="showDisplayData" :data="data"></DisplayData>
+        <DisplayData v-if="showDisplayData" :initData="data"></DisplayData>
     </div>
 </template>
 
@@ -27,7 +27,6 @@
             onFinishedInit(data) {
                 this.showInitData = false;
                 this.showDisplayData = true;
-                // Todo Needed here?
                 this.data = data;
             }
         }
