@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <InitData v-if="showInitData" @finish="onFinishedInit"></InitData>
-        <DisplayData v-if="showDisplayData"></DisplayData>
+        <DisplayData v-if="showDisplayData" :data="data"></DisplayData>
     </div>
 </template>
 

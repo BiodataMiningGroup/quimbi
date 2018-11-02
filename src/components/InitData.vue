@@ -98,11 +98,6 @@
                 this.data.dataWidth = parseInt(header[4]);
                 this.data.dataHeight = parseInt(header[5]);
 
-                //this.data.maxEuclDist = Math.sqrt(input.channels) * 255;
-
-                // Todo ??
-                //this.data.preprocessing = input[0];
-
                 // Push image names into channelNames
                 this.data.channelNames = [];
                 this.data.files = [];

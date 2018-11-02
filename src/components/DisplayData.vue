@@ -16,10 +16,12 @@
     import OSM from '../../node_modules/ol/source/OSM';
 
     export default {
+        props: [
+            'data'
+        ],
         data() {
             return {
-                data: this.$parent.$data.data,
-                // Todo replace with property
+                data: this.data
 
                 // Webgl inspector for chrome
             }
