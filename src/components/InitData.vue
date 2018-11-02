@@ -88,8 +88,8 @@
                 this.data.base = header[1];
                 this.data.format = header[2];
                 this.data.channels = parseInt(header[3]);
-                this.data.width = parseInt(header[4] * this.data.overlayScaleX);
-                this.data.height = parseInt(header[5] * this.data.overlayScaleY);
+                this.data.imageWidth = parseInt(header[4] * this.data.overlayScaleX);
+                this.data.imageHeight = parseInt(header[5] * this.data.overlayScaleY);
                 this.data.dataWidth = parseInt(header[4]);
                 this.data.dataHeight = parseInt(header[5]);
 
@@ -142,8 +142,8 @@
                     window.glmvilib.init(
                         this.data.canvas,
                         {
-                            width: this.data.width,
-                            height: this.data.height,
+                            width: this.data.dataWidth,
+                            height: this.data.dataHeight,
                             channels: this.data.channels,
                             reservedUnits: 2
                         }
