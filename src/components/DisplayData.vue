@@ -25,7 +25,9 @@
             }
         },
         mounted() {
-            this.createMap()
+            this.createMap();
+            // Todo remove me
+            window.glmvilib.finish();
         },
         methods: {
             createMap() {

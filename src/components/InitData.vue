@@ -6,19 +6,23 @@
                 <div class="tile is-2"></div>
                 <div class="tile is-8">
                     <div class="container has-text-centered">
-                        <div class="field">
+                        <div v-if="!loading" class="field">
                             <div class="control has-text-centered">
                                 <label class="label has-text-centered">Datei:</label>
                                 <input v-model="filePath" type="text" class="input is-full">
                             </div>
                         </div>
-                        <div class="field">
+                        <div v-if="!loading" class="field">
                             <div class="control has-text-centered">
-                                <button v-if="!loading" class="button" @click="getData">Laden</button>
+                                <button class="button" @click="getData">Laden</button>
                             </div>
                         </div>
-                    </div>
+                        <div v-if="loading">
+                            <p class="progress-label"><strong>Lade Daten ...</strong></p>
+                            <progress class="progress" :value="progressBar" max="100"></progress>
+                        </div>
 
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,19 +35,20 @@
     export default {
         data() {
             return {
-                filePath: 'data/small-stacked-max.txt',
+                filePath: 'data/medium-stacked-max.txt',
                 data: {},
                 counter: 0,
+                progressBar: 0,
                 loading: false,
             }
         },
         watch: {
             // Loads glmvlib if all images are loaded
             counter() {
+                this.progressBar = Math.round((this.counter / this.data.files.length * 100));
                 if (this.counter === this.data.files.length) {
-                this.initGlmvlib();
-                } else {
-                    console.log('still loading');
+                    this.initGlmvlib();
+
                 }
             }
         },
@@ -77,7 +82,7 @@
                 this.data.overlayImage = brightfieldConfig[1];
 
                 // Todo move into angledist shader
-                this.data.maxAngleDist =  Math.PI/2;
+                this.data.maxAngleDist = Math.PI / 2;
 
                 this.data.overlayScaleX = parseFloat(brightfieldConfig[2]);
                 this.data.overlayScaleY = parseFloat(brightfieldConfig[3]);
@@ -129,14 +134,15 @@
                 for (let i = 0; i < this.data.images.length; i++) {
                     let imagePath = this.data.base + this.data.files[i] + this.data.format;
                     this.data.images[i] = new Image();
-                    // Initialize the glmvlib after last image has been downloaded via vue-watch
+                    // watch counter and initialize the glmvlib after last image has been downloaded
                     this.data.images[i].onload = () => this.counter++;
+                    // Todo add onerror
                     this.data.images[i].src = imagePath;
                 }
 
             },
 
-            initGlmvlib () {
+            initGlmvlib() {
                 try {
                     // Todo Passt das so?
                     window.glmvilib.init(
@@ -172,5 +178,12 @@
 </script>
 
 <style scoped>
+    .progress-label {
+        margin-top: 30px;
+        margin-bottom: 0;
+    }
+    .progress {
+        margin-top: 20px;
+    }
 
 </style>
