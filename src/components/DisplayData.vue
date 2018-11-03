@@ -33,6 +33,7 @@
             this.createMap();
             this.shaderHandler = new ShaderHandler();
             // Todo remove me
+            this.shaderHandler.createShader();
             window.glmvilib.finish();
         },
         methods: {

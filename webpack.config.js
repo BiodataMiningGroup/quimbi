@@ -39,14 +39,13 @@ module.exports = {
                     }
                 ]
 
-            }
+            },
         ],
     },
     resolve: {
-        // Todo Laden über Symlink klappt nicht
-        //symlinks: true,
         alias: {
             'node_modules': path.join(__dirname, 'node_modules'),
+            'shader' : path.join(__dirname, 'src/shader'),
         }
     },
     plugins: [
@@ -56,13 +55,7 @@ module.exports = {
             template: 'index.html'
         }),
         new VueLoaderPlugin(),
-        /*new CopyWebpackPlugin([
-            {
-                from: './data',
-                to: 'data',
-                toType: 'dir'
-            }
-        ]),*/
+        // Copy Libaries
         new CopyWebpackPlugin([
             {
                 from: './src/libs',
@@ -70,13 +63,22 @@ module.exports = {
                 toType: 'dir'
             }
         ]),
+        // Copy Openlayers CSS
         new CopyWebpackPlugin([
             {
                 from: './node_modules/ol/ol.css',
                 to: 'css/ol.css',
                 toType: 'file'
             }
-        ])
+        ]),
+        // Copy Shader
+        new CopyWebpackPlugin([
+            {
+                from: './src/shader',
+                to: 'shader',
+                toType: 'dir'
+            }
+        ]),
     ]
 
 };
