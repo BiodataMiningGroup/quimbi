@@ -1,38 +1,39 @@
 export default class ShaderHandler {
 
-    constructor (angleDist) {
+    constructor() {
         this.angleDist = new AngleDist();
     }
 
-    createShader () {
+    createShader() {
         window.glmvilib.addProgram(this.angleDist);
     }
 
-    getActive () {
+    getActive() {
         let active = [];
         active.push(this.angleDist.id)
     }
-
 }
 
+export class AngleDist {
 
-class AngleDist {
-
-    constructor (gl, program, assets, helpers) {
-        this.id = 'angle-dist';
-        this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
-        this.fragmentShaderUrl = 'shader/angle-dist.glsl.frag';
-        this._gl = gl;
-        this.mousePosition = null;
-        this.channelMaskTexture = null;
-        this._regionMaskTexture = null;
+    constructor() {
         //helpers.useInternalVertexPositions(program);
         //helpers.useInternalTexturePositions(program);
         //helpers.useInternalTextures(program);
+        this.id = 'angle-dist';
 
         //gl.uniform1f(normalization, 1 / this.angleDist);
+    }
 
 
+    setUp(gl, program, assets, helpers) {
+        let id = 'angle-dist';
+        let vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
+        let fragmentShaderUrl = 'shader/angle-dist.glsl.frag';
+        let _gl = gl;
+        let mousePosition = null;
+        let channelMaskTexture = null;
+        let _regionMaskTexture = null;
     }
 
 }

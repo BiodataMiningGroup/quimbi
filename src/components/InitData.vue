@@ -35,7 +35,7 @@
     export default {
         data() {
             return {
-                filePath: 'data/medium-stacked-max.txt',
+                filePath: 'data/small-stacked-max.txt',
                 data: {},
                 counter: 0,
                 progressBar: 0,

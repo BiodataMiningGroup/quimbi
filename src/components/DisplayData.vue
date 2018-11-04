@@ -30,10 +30,11 @@
             }
         },
         mounted() {
-            this.createMap();
             this.shaderHandler = new ShaderHandler();
-            // Todo remove me
+            this.shaderHandler.getActive();
             this.shaderHandler.createShader();
+            this.createMap();
+            // Todo remove me
             window.glmvilib.finish();
         },
         methods: {

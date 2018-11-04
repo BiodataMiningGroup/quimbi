@@ -9,4 +9,4 @@ To run the project you need `node` and `npm` . Clone this repository, run `npm i
 
 For developement you can simply use the build in server with `npm run start:dev` to build changed files on the fly (except index.html).
 
-To start the tool, open `dist/index.html` in a browser either locally or from a webserver.
+To start the tool, open `localhost:8080` in a browser for if you use the build in server or open `dist/index.html` in a browser either locally or from a webserver.
