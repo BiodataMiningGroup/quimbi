@@ -32,8 +32,8 @@
         },
         mounted() {
             this.shaderHandler = new ShaderHandler();
-            this.shaderHandler.getActive();
-            //this.shaderHandler.createShader();
+            //this.shaderHandler.getActive();
+            this.shaderHandler.createShader();
             this.createMap();
             // Todo remove me
             window.glmvilib.finish();

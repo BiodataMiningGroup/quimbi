@@ -5,7 +5,7 @@ export default class ShaderHandler {
     }
 
     createShader() {
-        window.glmvilib.addProgram(window.angleDist);
+        window.glmvilib.addProgram(this.angleDist);
     }
 
     getActive() {
