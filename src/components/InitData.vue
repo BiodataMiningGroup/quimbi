@@ -117,6 +117,7 @@
 
                 // Create Canvas Element for openlayers
                 this.data.canvas = document.createElement('canvas');
+                console.log(this.data.canvas.getContext('webgl'));
 
                 // Download images
                 this.data.images = new Array(this.data.files.length);
@@ -154,6 +155,7 @@
 
                     window.glmvilib.storeTiles(this.data.images);
                     this.loading = false;
+
                     this.$emit('finish', this.data)
                     // Todo shader.getActive()
                     // Todo glmvilib.render.apply(null, [a,b,c])

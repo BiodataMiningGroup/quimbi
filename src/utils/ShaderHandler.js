@@ -5,16 +5,17 @@ export default class ShaderHandler {
     }
 
     createShader() {
-        window.glmvilib.addProgram(this.angleDist);
+        window.glmvilib.addProgram(window.angleDist);
     }
 
     getActive() {
         let active = [];
         active.push(this.angleDist.id)
     }
+
 }
 
-export class AngleDist {
+class AngleDist {
 
     constructor() {
         //helpers.useInternalVertexPositions(program);
