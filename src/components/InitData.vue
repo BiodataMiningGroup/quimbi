@@ -84,9 +84,6 @@
                 this.data.backgroundImage = brightfieldConfig[0];
                 this.data.overlayImage = brightfieldConfig[1];
 
-                // Todo move into angledist shader
-                this.data.maxAngleDist = Math.PI / 2;
-
                 this.data.overlayScaleX = parseFloat(brightfieldConfig[2]);
                 this.data.overlayScaleY = parseFloat(brightfieldConfig[3]);
                 this.data.overlayShiftX = parseFloat(brightfieldConfig[4]);

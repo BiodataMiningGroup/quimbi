@@ -17,6 +17,7 @@
     import {getCenter} from 'node_modules/ol/extent';
 
     import ShaderHandler from '../utils/ShaderHandler.js';
+    import AngleDist from "../utils/programs/angledist";
 
 
     export default {
@@ -27,13 +28,16 @@
             return {
                 data: this.initData,
                 shaderHandler: undefined,
-                // Webgl inspector for chrome
+                mousePosition: undefined
             }
         },
         mounted() {
+            //let angleDist = new AngleDist();
+            //console.log(angleDist);
             this.shaderHandler = new ShaderHandler();
-            //this.shaderHandler.getActive();
             this.shaderHandler.createShader();
+            this.shaderHandler.getActive();
+            //this.shaderHandler.render();
             this.createMap();
             // Todo remove me
             window.glmvilib.finish();
@@ -82,6 +86,9 @@
                         // Restrict movement.
                         extent: extent,
                     }),
+                });
+                map.on('pointermove', function (event) {
+                    console.log = event.coordinate;
                 });
             }
         }

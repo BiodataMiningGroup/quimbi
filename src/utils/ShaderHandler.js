@@ -10,6 +10,11 @@ export default class ShaderHandler {
         window.glmvilib.addProgram(this.angleDist);
     }
 
+    render() {
+        window.glmvilib.render.apply(null, ['angle-dist']);
+
+    }
+
     getActive() {
         let active = [];
         active.push(this.angleDist.id)
