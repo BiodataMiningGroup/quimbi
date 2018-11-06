@@ -10,8 +10,10 @@ export default class ShaderHandler {
         window.glmvilib.addProgram(this.angleDist);
     }
 
-    render() {
+    render(mouse) {
+        this.angleDist.updateMouse(mouse.x, mouse.y);
         window.glmvilib.render.apply(null, ['angle-dist']);
+
 
     }
 

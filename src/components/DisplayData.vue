@@ -43,10 +43,9 @@
             this.shaderHandler = new ShaderHandler();
             this.shaderHandler.createShader();
             this.shaderHandler.getActive();
-            //this.shaderHandler.render();
             this.createMap();
             // Todo remove me
-            window.glmvilib.finish();
+            //window.glmvilib.finish();
         },
         methods: {
             createMap() {
@@ -96,9 +95,10 @@
                 this.map.on('pointermove', (event) => {
                     // Update if there is a certain time interval (in ms) between movements
                     if(event.originalEvent.timeStamp - this.timeStampBefore > 300) {
-                        console.log(event.coordinate);
+                        //console.log(event.coordinate);
                         this.mouse.x = event.coordinate[0];
                         this.mouse.y = event.coordinate[1];
+                        this.shaderHandler.render(this.mouse);
 
                         this.timeStampBefore = event.originalEvent.timeStamp;
                     }

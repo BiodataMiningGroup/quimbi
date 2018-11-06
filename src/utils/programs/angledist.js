@@ -7,6 +7,13 @@ export default class AngleDist {
         this._gl = undefined;
         this._mousePosition = undefined;
         this.maxAngleDist = Math.PI / 2;
+        this.mouseX = 0;
+        this.mouseY = 0;
+    }
+
+    updateMouse(mouseX, mouseY) {
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
     }
 
 
@@ -31,7 +38,7 @@ export default class AngleDist {
     }
 
     callback(gl, program, assets, helpers) {
-        gl.uniform2f(this._mousePosition, mouse.position.x, 1 - mouse.position.y);
+        gl.uniform2f(this._mousePosition, this.mouseX, 1 - this.mouseY);
         helpers.bindInternalTextures();
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, _channelMaskTexture);
