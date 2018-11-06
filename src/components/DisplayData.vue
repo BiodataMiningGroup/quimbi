@@ -50,20 +50,18 @@
         },
         methods: {
             createMap() {
-                /* Todo implement webgl context
-                this.data.canvas.height = 100;
-                this.data.canvas.width = 100;
-                console.log(this.data.canvas.getContext("webgl"));
-                let ctx = this.data.canvas.getContext('webgl');
-                */
-                let tmpCanvas = document.createElement('canvas');
+                // Todo: Contect 2d or webgl?
+                let ctx = this.data.canvas.getContext('2d');
+
+                /*let tmpCanvas = document.createElement('canvas');
                 tmpCanvas.height = 100;
                 tmpCanvas.width = 100;
                 let ctx = tmpCanvas.getContext('2d');
                 ctx.fillStyle = 'green';
                 ctx.fillRect(0, 0, 100, 100);
+                */
 
-                let extent = [0, 0, tmpCanvas.width, tmpCanvas.height];
+                let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
                 let projection = new Projection({
                     code: 'pixel-projection',
                     units: 'pixels',
@@ -75,7 +73,7 @@
                     layers: [
                         new ImageLayer({
                             source: new ImageSource({
-                                canvas: tmpCanvas,
+                                canvas: ctx,
                                 projection: projection,
                                 imageExtent: extent,
                             }),
