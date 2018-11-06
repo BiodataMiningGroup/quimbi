@@ -15,9 +15,9 @@
     import ImageSource from '../utils/ImageCanvas.js';
     import Projection from 'node_modules/ol/proj/Projection';
     import {getCenter} from 'node_modules/ol/extent';
+    import MousePosition from 'ol/control/MousePosition';
 
     import ShaderHandler from '../utils/ShaderHandler.js';
-    import AngleDist from "../utils/programs/angledist";
 
 
     export default {
@@ -27,8 +27,14 @@
         data() {
             return {
                 data: this.initData,
+                map: undefined,
                 shaderHandler: undefined,
-                mousePosition: undefined
+                coord: undefined,
+                timeStampBefore: 0,
+                mouse: {
+                    x: 0,
+                    y: 0
+                }
             }
         },
         mounted() {
@@ -44,7 +50,7 @@
         },
         methods: {
             createMap() {
-                /*
+                /* Todo implement webgl context
                 this.data.canvas.height = 100;
                 this.data.canvas.width = 100;
                 console.log(this.data.canvas.getContext("webgl"));
@@ -64,7 +70,7 @@
                     extent: extent,
 
                 });
-                const map = new Map({
+                this.map = new Map({
                     target: 'map',
                     layers: [
                         new ImageLayer({
@@ -87,11 +93,24 @@
                         extent: extent,
                     }),
                 });
-                map.on('pointermove', function (event) {
-                    console.log = event.coordinate;
+
+                // Listen for mouse movement and pdate mouse coordinates
+                this.map.on('pointermove', (event) => {
+                    // Update if there is a certain time interval (in ms) between movements
+                    if(event.originalEvent.timeStamp - this.timeStampBefore > 300) {
+                        console.log(event.coordinate);
+                        this.mouse.x = event.coordinate[0];
+                        this.mouse.y = event.coordinate[1];
+
+                        this.timeStampBefore = event.originalEvent.timeStamp;
+                    }
+
                 });
-            }
+
+            },
         }
+
+
     }
 
 </script>
@@ -100,5 +119,6 @@
     .map {
         height: 400px;
         width: 100%;
+        background-color: grey;
     }
 </style>
