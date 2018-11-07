@@ -15,7 +15,6 @@
     import ImageSource from '../utils/ImageCanvas.js';
     import Projection from 'node_modules/ol/proj/Projection';
     import {getCenter} from 'node_modules/ol/extent';
-    import MousePosition from 'ol/control/MousePosition';
 
     import ShaderHandler from '../utils/ShaderHandler.js';
 
@@ -49,7 +48,7 @@
         },
         methods: {
             createMap() {
-                // Todo: Contect 2d or webgl?
+                // Todo: Context 2d or webgl?
                 let ctx = this.data.canvas.getContext('2d');
 
                 /*let tmpCanvas = document.createElement('canvas');
@@ -95,9 +94,10 @@
                 this.map.on('pointermove', (event) => {
                     // Update if there is a certain time interval (in ms) between movements
                     if(event.originalEvent.timeStamp - this.timeStampBefore > 300) {
-                        //console.log(event.coordinate);
+                        console.log(event.coordinate);
                         this.mouse.x = event.coordinate[0];
                         this.mouse.y = event.coordinate[1];
+
                         this.shaderHandler.render(this.mouse);
 
                         this.timeStampBefore = event.originalEvent.timeStamp;
