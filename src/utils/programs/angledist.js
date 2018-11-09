@@ -1,27 +1,35 @@
 export default class AngleDist {
 
-    constructor() {
+    constructor(canvasWidth, canvasHeight) {
         this.id = 'angle-dist';
-        this.vertexShaderUrl = '/shader/display-rectangle.glsl.vert';
+        this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/angle-dist.glsl.frag';
-        this._gl = undefined;
-        this._mousePosition = undefined;
         this.maxAngleDist = Math.PI / 2;
-        this.assets = {};
-
-        this._channelMaskTexture = null;
-        this._regionMaskTexture = null;
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.width = canvasWidth;
+        this.height = canvasHeight;
     }
 
     updateMouse(mouseX, mouseY) {
-        this.assets.mouseX = mouseX;
-        this.assets.mouseY = mouseY;
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
     }
 
+    setUpDistanceTexture(gl, assets, helpers) {
+        if(typeof(assets.framebuffers.distances) === 'undefined') {
+            assets.framebuffers.distances = gl.createFramebuffer();
+        }
+        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
+        let texture = helpers.newTexture('distanceTexture');
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 300, 150, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    }
 
     setUp(gl, program, assets, helpers) {
-        this._gl = gl;
-        this.assets = assets;
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
         helpers.useInternalTextures(program);
@@ -29,7 +37,8 @@ export default class AngleDist {
         let normalization = gl.getUniformLocation(program, 'u_normalization');
         gl.uniform1f(normalization, 1 / this.maxAngleDist);
 
-        this.assets._mousePosition = gl.getUniformLocation(program, 'u_mouse_position');
+        assets._mousePosition = gl.getUniformLocation(program, 'u_mouse_position');
+        this.setUpDistanceTexture(gl, assets, helpers);
 
         // Todo do i need this right now?
         //this._channelMaskTexture = this.setUpChannelMask(gl, program, assets, helpers);
@@ -38,16 +47,15 @@ export default class AngleDist {
     }
 
     callback(gl, program, assets, helpers) {
-        //console.log(this);
-        gl.uniform2f(assets._mousePosition, assets.mouseX, assets.mouseY);
+        gl.uniform2f(assets._mousePosition, this.mouseX, this.mouseY);
         helpers.bindInternalTextures();
         //gl.activeTexture(gl.TEXTURE0);
         //Todo where does _channelMaskTexture come from, do i need it right now?
         //gl.bindTexture(gl.TEXTURE_2D, _channelMaskTexture);
         //gl.activeTexture(gl.TEXTURE1);
         // Todo Call setUpDistanceTexture and:
-        //gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
     }
 /*
     updateChannelMask(mask) {

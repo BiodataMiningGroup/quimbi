@@ -36,7 +36,7 @@
         },
         created() {
             // Initialize shader
-            this.shaderHandler = new ShaderHandler();
+            this.shaderHandler = new ShaderHandler(this.data);
             this.shaderHandler.createShader();
         },
         mounted() {

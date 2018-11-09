@@ -1,9 +1,11 @@
 import AngleDist from './programs/angledist.js'
+import ColorMap from './programs/colormap.js'
 
 export default class ShaderHandler {
 
-    constructor() {
-        this.angleDist = new AngleDist();
+    constructor(data) {
+        this.angleDist = new AngleDist(data.canvas.width, data.canvas.height);
+        this.colorMap = new ColorMap();
 
         // Todo implement ColorMap Program
         // ColorMap Service implementieren, evtl in ColorMap programm implementieren (fire.csv)
@@ -13,11 +15,12 @@ export default class ShaderHandler {
 
     createShader() {
         window.glmvilib.addProgram(this.angleDist);
+        window.glmvilib.addProgram(this.colorMap);
     }
 
     render(mouse) {
         this.angleDist.updateMouse(mouse.x, mouse.y);
-        window.glmvilib.render.apply(null, ['angle-dist']);
+        window.glmvilib.render.apply(null, ['angle-dist', 'color-map']);
 
     }
 
@@ -25,6 +28,5 @@ export default class ShaderHandler {
         let active = [];
         active.push(this.angleDist.id)
     }
-
 
 }
