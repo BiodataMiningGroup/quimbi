@@ -4,6 +4,11 @@ export default class ShaderHandler {
 
     constructor() {
         this.angleDist = new AngleDist();
+
+        // Todo implement ColorMap Program
+        // ColorMap Service implementieren, evtl in ColorMap programm implementieren (fire.csv)
+        //ColorMap Program: gl.activeTexture gl.TEXTURE0  Texture from angle-dist
+        //setUpDistanceTexture
     }
 
     createShader() {
@@ -13,7 +18,6 @@ export default class ShaderHandler {
     render(mouse) {
         this.angleDist.updateMouse(mouse.x, mouse.y);
         window.glmvilib.render.apply(null, ['angle-dist']);
-
 
     }
 

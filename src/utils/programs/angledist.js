@@ -7,21 +7,21 @@ export default class AngleDist {
         this._gl = undefined;
         this._mousePosition = undefined;
         this.maxAngleDist = Math.PI / 2;
-        this.mouseX = 0;
-        this.mouseY = 0;
+        this.assets = {};
 
         this._channelMaskTexture = null;
         this._regionMaskTexture = null;
     }
 
     updateMouse(mouseX, mouseY) {
-        this.mouseX = mouseX;
-        this.mouseY = mouseY;
+        this.assets.mouseX = mouseX;
+        this.assets.mouseY = mouseY;
     }
 
 
     setUp(gl, program, assets, helpers) {
         this._gl = gl;
+        this.assets = assets;
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
         helpers.useInternalTextures(program);
@@ -29,25 +29,27 @@ export default class AngleDist {
         let normalization = gl.getUniformLocation(program, 'u_normalization');
         gl.uniform1f(normalization, 1 / this.maxAngleDist);
 
-        this._mousePosition = gl.getUniformLocation(program, 'u_mouse_position');
+        this.assets._mousePosition = gl.getUniformLocation(program, 'u_mouse_position');
 
         // Todo do i need this right now?
         //this._channelMaskTexture = this.setUpChannelMask(gl, program, assets, helpers);
+        // Todo soll raus
         //this._regionMaskTexture = setUpRegionMask(gl, program, assets, helpers);
     }
 
     callback(gl, program, assets, helpers) {
-        gl.uniform2f(this._mousePosition, this.mouseX, 1 - this.mouseY);
+        //console.log(this);
+        gl.uniform2f(assets._mousePosition, assets.mouseX, assets.mouseY);
         helpers.bindInternalTextures();
-        gl.activeTexture(gl.TEXTURE0);
+        //gl.activeTexture(gl.TEXTURE0);
         //Todo where does _channelMaskTexture come from, do i need it right now?
         //gl.bindTexture(gl.TEXTURE_2D, _channelMaskTexture);
-        gl.activeTexture(gl.TEXTURE1);
-        // Todo where does _regionMaskTexture come from
-        //gl.bindTexture(gl.TEXTURE_2D, _regionMaskTexture);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
+        //gl.activeTexture(gl.TEXTURE1);
+        // Todo Call setUpDistanceTexture and:
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
-
+/*
     updateChannelMask(mask) {
         updateChannelMask(this._gl, mask, this._channelMaskTexture);
     }
@@ -55,8 +57,9 @@ export default class AngleDist {
     updateRegionMask(mask) {
         updateRegionMask(this._gl, mask, this._regionMaskTexture);
     }
-
+*/
     // Todo implementation correct? Needed right now?
+    /*
     setUpChannelMask(gl, program, assets, helpers) {
         let channelMaskTexture;
         gl.uniform1i(gl.getUniformLocation(program, 'u_channel_mask'), 0);
@@ -75,6 +78,6 @@ export default class AngleDist {
             input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
         return channelMaskTexture;
     }
-
+    */
 
 }

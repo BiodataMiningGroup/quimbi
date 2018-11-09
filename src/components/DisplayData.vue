@@ -48,16 +48,7 @@
         },
         methods: {
             createMap() {
-                // Todo: Context 2d or webgl?
-                let ctx = this.data.canvas.getContext('2d');
-
-                /*let tmpCanvas = document.createElement('canvas');
-                tmpCanvas.height = 100;
-                tmpCanvas.width = 100;
-                let ctx = tmpCanvas.getContext('2d');
-                ctx.fillStyle = 'green';
-                ctx.fillRect(0, 0, 100, 100);
-                */
+                // Openlayers keine kantenglättung beim zoomen ImageSmoothingEnable
 
                 let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
                 let projection = new Projection({
@@ -71,7 +62,7 @@
                     layers: [
                         new ImageLayer({
                             source: new ImageSource({
-                                canvas: ctx,
+                                canvas: this.data.canvas,
                                 projection: projection,
                                 imageExtent: extent,
                             }),
@@ -90,15 +81,19 @@
                     }),
                 });
 
+
                 // Listen for mouse movement and pdate mouse coordinates
                 this.map.on('pointermove', (event) => {
                     // Update if there is a certain time interval (in ms) between movements
-                    if(event.originalEvent.timeStamp - this.timeStampBefore > 300) {
-                        console.log(event.coordinate);
-                        this.mouse.x = event.coordinate[0];
-                        this.mouse.y = event.coordinate[1];
+                    if(event.originalEvent.timeStamp - this.timeStampBefore > 50) {
+                        //console.log(event.coordinate);
+                        this.mouse.x = event.coordinate[0] / this.data.canvas.width;
+                        this.mouse.y = event.coordinate[1] / this.data.canvas.height;
 
-                        this.shaderHandler.render(this.mouse);
+                        if(this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
+                            this.shaderHandler.render(this.mouse);
+                            this.map.render();
+                        }
 
                         this.timeStampBefore = event.originalEvent.timeStamp;
                     }
