@@ -28,7 +28,6 @@
                 data: this.initData,
                 map: undefined,
                 shaderHandler: undefined,
-                coord: undefined,
                 timeStampBefore: 0,
                 mouse: {
                     x: 0,
@@ -81,16 +80,20 @@
                     }),
                 });
 
+                // Render image to show it before user moves the mouse
+                this.shaderHandler.render(this.mouse);
+                this.map.render();
 
-                // Listen for mouse movement and pdate mouse coordinates
+
+                // Listen for mouse movement, update mouse coordinates and render the image
                 this.map.on('pointermove', (event) => {
                     // Update if there is a certain time interval (in ms) between movements
-                    if(event.originalEvent.timeStamp - this.timeStampBefore > 50) {
+                    if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
                         //console.log(event.coordinate);
                         this.mouse.x = event.coordinate[0] / this.data.canvas.width;
                         this.mouse.y = event.coordinate[1] / this.data.canvas.height;
 
-                        if(this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
+                        if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
                             this.shaderHandler.render(this.mouse);
                             this.map.render();
                         }
