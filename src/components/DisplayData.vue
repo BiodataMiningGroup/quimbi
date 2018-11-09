@@ -77,6 +77,8 @@
                         extent: extent,
                     }),
                 });
+
+                // Render and update image on mouse movement
                 this.updateView();
 
             },
@@ -108,9 +110,7 @@
                         }
                         this.timeStampBefore = event.originalEvent.timeStamp;
                     }
-
                 });
-
             }
         },
     }
