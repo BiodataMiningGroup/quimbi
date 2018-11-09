@@ -3,7 +3,6 @@
         <div class="container">
             <h1 class=" has-text-centered">Display</h1>
             <div id="map" class="map"></div>
-
         </div>
     </section>
 </template>
@@ -35,20 +34,19 @@
                 }
             }
         },
-        mounted() {
-            //let angleDist = new AngleDist();
-            //console.log(angleDist);
+        created() {
+            // Initialize shader
             this.shaderHandler = new ShaderHandler();
             this.shaderHandler.createShader();
-            this.shaderHandler.getActive();
+        },
+        mounted() {
+            // Create map view after html template has loaded
             this.createMap();
             // Todo remove me
             //window.glmvilib.finish();
         },
         methods: {
             createMap() {
-                // Openlayers keine kantenglättung beim zoomen ImageSmoothingEnable
-
                 let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
                 let projection = new Projection({
                     code: 'pixel-projection',
@@ -79,15 +77,26 @@
                         extent: extent,
                     }),
                 });
+                this.updateView();
 
+            },
+            updateView() {
                 // Render image to show it before user moves the mouse
                 this.shaderHandler.render(this.mouse);
                 this.map.render();
 
+                // Prevent image smoothing on mouse movement
+                this.map.on('precompose', function(evt) {
+                    evt.context.imageSmoothingEnabled = false;
+                    evt.context.webkitImageSmoothingEnabled = false;
+                    evt.context.mozImageSmoothingEnabled = false;
+                    evt.context.msImageSmoothingEnabled = false;
+                });
 
                 // Listen for mouse movement, update mouse coordinates and render the image
                 this.map.on('pointermove', (event) => {
                     // Update if there is a certain time interval (in ms) between movements
+                    // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
                     if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
                         //console.log(event.coordinate);
                         this.mouse.x = event.coordinate[0] / this.data.canvas.width;
@@ -97,18 +106,14 @@
                             this.shaderHandler.render(this.mouse);
                             this.map.render();
                         }
-
                         this.timeStampBefore = event.originalEvent.timeStamp;
                     }
 
                 });
 
-            },
-        }
-
-
+            }
+        },
     }
-
 </script>
 
 <style scoped>
