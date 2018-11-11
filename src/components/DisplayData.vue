@@ -54,6 +54,7 @@
                     extent: extent,
 
                 });
+
                 this.map = new Map({
                     target: 'map',
                     layers: [
@@ -88,31 +89,42 @@
                 this.map.render();
 
                 // Prevent image smoothing on mouse movement
-                this.map.on('precompose', function(evt) {
+                this.map.on('precompose', function (evt) {
                     evt.context.imageSmoothingEnabled = false;
                     evt.context.webkitImageSmoothingEnabled = false;
                     evt.context.mozImageSmoothingEnabled = false;
                     evt.context.msImageSmoothingEnabled = false;
                 });
 
-                // Listen for mouse movement, update mouse coordinates and render the image
-                this.map.on('pointermove', (event) => {
-                    // Update if there is a certain time interval (in ms) between movements
-                    // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
-                    if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
-                        //console.log(event.coordinate);
-                        this.mouse.x = event.coordinate[0] / this.data.canvas.width;
-                        this.mouse.y = event.coordinate[1] / this.data.canvas.height;
+                // Add event listener for single click and mouse movement
+                this.map.on('singleclick', this.updateOnMouseClick);
+                this.map.on('pointermove', this.updateOnMouseMove);
+            },
+            updateOnMouseMove(event) {
+                // Update if there is a certain time interval (in ms) between movements
+                // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
+                if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
+                    this.updateMousePosition(event);
+                    this.timeStampBefore = event.originalEvent.timeStamp;
+                }
 
-                        if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
-                            this.shaderHandler.render(this.mouse);
-                            this.map.render();
-                        }
-                        this.timeStampBefore = event.originalEvent.timeStamp;
-                    }
-                });
-            }
-        },
+            },
+            updateOnMouseClick(event) {
+                // Disable mouse movement event listener
+                this.map.un('pointermove', this.updateOnMouseMove);
+                this.updateMousePosition(event);
+
+            },
+            updateMousePosition(event) {
+                this.mouse.x = event.coordinate[0] / this.data.canvas.width;
+                this.mouse.y = event.coordinate[1] / this.data.canvas.height;
+
+                if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
+                    this.shaderHandler.render(this.mouse);
+                    this.map.render();
+                }
+            },
+        }
     }
 </script>
 
