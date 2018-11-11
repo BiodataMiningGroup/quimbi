@@ -69,10 +69,10 @@
                         projection: projection,
                         center: getCenter(extent),
                         // Initially, display canvas at original resolution (100%).
-                        resolution: 1,
+                        resolution: 0.3,
                         zoomFactor: 2,
-                        // Allow a maximum of 4x magnification.
-                        minResolution: 0.25,
+                        // Allow a maximum magnification.
+                        minResolution: 0.1,
                         // Restrict movement.
                         extent: extent,
                     }),

@@ -114,7 +114,8 @@
 
                 // Create Canvas Element for openlayers
                 this.data.canvas = document.createElement('canvas');
-                console.log(this.data.canvas.getContext('webgl'));
+                this.data.canvas.width = this.data.dataWidth;
+                this.data.canvas.height = this.data.dataHeight;
 
                 // Download images
                 this.data.images = new Array(this.data.files.length);

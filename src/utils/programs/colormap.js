@@ -2,10 +2,8 @@ export default class ColorMap {
 
     constructor() {
         this._colorMapTextureR = null;
-        this._colorMapTextureG = null;
         this._colorMask = [0, 0, 0];
         this._colorMaskLocation = null;
-        this._gl = null;
         this.id = 'color-map';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/color-map.glsl.frag';
@@ -16,8 +14,6 @@ export default class ColorMap {
 
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
-
-
 
         this._colorMapTextureR = helpers.newTexture('colorMapTextureR');
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, this.getColorMapValues());
@@ -34,12 +30,13 @@ export default class ColorMap {
         gl.bindTexture(gl.TEXTURE_2D, assets.textures.distanceTexture);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureR);
-        // Todo Which values?
+        // Todo Which values for masks?
         gl.uniform3f(this._colorMaskLocation, 1, 0, 0);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
     }
 
+    // Todo needed?
     postCallback (gl, program, assets, helpers) {
     //assets.framebuffer.updateColors();
 
