@@ -1,6 +1,6 @@
 export default class AngleDist {
 
-    constructor(canvasWidth, canvasHeight) {
+    constructor(framebuffer, canvasWidth, canvasHeight) {
         this.id = 'angle-dist';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/angle-dist.glsl.frag';
@@ -9,6 +9,7 @@ export default class AngleDist {
         this.mouseY = 0;
         this.width = canvasWidth;
         this.height = canvasHeight;
+        this.framebuffer = framebuffer;
     }
 
     updateMouse(mouseX, mouseY) {
@@ -57,35 +58,11 @@ export default class AngleDist {
         //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
     }
-/*
-    updateChannelMask(mask) {
-        updateChannelMask(this._gl, mask, this._channelMaskTexture);
+
+    postCallback (gl, program, assets, helpers) {
+        // Todo Where does this framebuffer come from?
+        this.framebuffer.updateIntensities();
     }
 
-    updateRegionMask(mask) {
-        updateRegionMask(this._gl, mask, this._regionMaskTexture);
-    }
-*/
-    // Todo implementation correct? Needed right now?
-    /*
-    setUpChannelMask(gl, program, assets, helpers) {
-        let channelMaskTexture;
-        gl.uniform1i(gl.getUniformLocation(program, 'u_channel_mask'), 0);
-
-        // Todo where does input.getchanneltexture... come from?
-        //gl.uniform1f(gl.getUniformLocation(program, 'u_channel_mask_dimension'), input.getChannelTextureDimension());
-        //gl.uniform1f(gl.getUniformLocation(program, 'u_inv_channel_mask_dimension'), 1 / input.getChannelTextureDimension());
-        //check if texture already exists
-        if(!assets.textures.channelMaskTexture) {
-            channelMaskTexture = assets.textures.channelMaskTexture;
-        } else {
-            channelMaskTexture = helpers.newTexture('channelMaskTexture');
-        }
-        // Todo where does input.getchanneltexture... come from?
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, input.getChannelTextureDimension(),
-            input.getChannelTextureDimension(), 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        return channelMaskTexture;
-    }
-    */
 
 }

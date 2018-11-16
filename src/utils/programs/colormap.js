@@ -1,12 +1,14 @@
 export default class ColorMap {
 
-    constructor() {
+    constructor(framebuffer) {
         this._colorMapTextureR = null;
         this._colorMask = [0, 0, 0];
         this._colorMaskLocation = null;
         this.id = 'color-map';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/color-map.glsl.frag';
+
+        this.framebuffer = framebuffer;
 
     }
 
@@ -36,7 +38,7 @@ export default class ColorMap {
 
     // Todo needed?
     postCallback (gl, program, assets, helpers) {
-    //assets.framebuffer.updateColors();
+        this.framebuffer.updateColors();
 
     }
 
