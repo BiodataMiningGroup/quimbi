@@ -7,7 +7,7 @@ export default class ShaderHandler {
         this.angleDist = new AngleDist(data.canvas.width, data.canvas.height);
         this.colorMap = new ColorMap();
 
-        // Todo implement ColorMap Program
+
         // ColorMap Service implementieren, evtl in ColorMap programm implementieren (fire.csv)
         //ColorMap Program: gl.activeTexture gl.TEXTURE0  Texture from angle-dist
         //setUpDistanceTexture

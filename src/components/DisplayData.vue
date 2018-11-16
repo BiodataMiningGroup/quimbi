@@ -52,7 +52,6 @@
                     code: 'pixel-projection',
                     units: 'pixels',
                     extent: extent,
-
                 });
 
                 this.map = new Map({
@@ -66,18 +65,26 @@
                             }),
                         }),
                     ],
-                    view: new View({
+                    view: this.view = new View({
                         projection: projection,
                         center: getCenter(extent),
                         // Initially, display canvas at original resolution (100%).
-                        resolution: 0.3,
+                        // Todo fix
+                        /*
+                        resolution: 1,
                         zoomFactor: 2,
                         // Allow a maximum magnification.
-                        minResolution: 0.1,
+                        minResolution: 0.25,
+                        */
+                        resolution: 1,
+                        zoomFactor: 2,
+                        // Allow a maximum magnification.
+                        //minResolution: 0.25,
                         // Restrict movement.
                         extent: extent,
-                    }),
+                    })
                 });
+                this.map.getView().fit(extent);
 
                 // Render and update image on mouse movement
                 this.updateView();
@@ -115,6 +122,7 @@
                 this.updateMousePosition(event);
 
             },
+            // Updates relative mouse position and rerenders the map
             updateMousePosition(event) {
                 this.mouse.x = event.coordinate[0] / this.data.canvas.width;
                 this.mouse.y = event.coordinate[1] / this.data.canvas.height;
