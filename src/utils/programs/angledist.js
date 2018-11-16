@@ -1,3 +1,6 @@
+// Todo remove
+import IntensitiyHistogram from '../IntensityHistogram';
+
 export default class AngleDist {
 
     constructor(framebuffer, canvasWidth, canvasHeight) {
@@ -10,6 +13,8 @@ export default class AngleDist {
         this.width = canvasWidth;
         this.height = canvasHeight;
         this.framebuffer = framebuffer;
+
+        this.intensityHistogram = new IntensitiyHistogram(this.framebuffer);
     }
 
     updateMouse(mouseX, mouseY) {
@@ -62,6 +67,8 @@ export default class AngleDist {
     postCallback (gl, program, assets, helpers) {
         // Todo Where does this framebuffer come from?
         this.framebuffer.updateIntensities();
+        console.log(this.intensityHistogram.updateHistogram());
+
     }
 
 

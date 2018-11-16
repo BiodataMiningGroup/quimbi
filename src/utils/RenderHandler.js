@@ -3,7 +3,7 @@ import ColorMap from './programs/colormap.js'
 import ColorLens from './programs/colorlens.js';
 import FrameBuffer from './programs/helper/framebuffer.js';
 
-export default class ShaderHandler {
+export default class RenderHandler {
 
     constructor(data) {
         this.framebuffer = new FrameBuffer(data.dataWidth, data.dataHeight);

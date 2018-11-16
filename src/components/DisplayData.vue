@@ -15,7 +15,7 @@
     import Projection from 'node_modules/ol/proj/Projection';
     import {getCenter} from 'node_modules/ol/extent';
 
-    import ShaderHandler from '../utils/ShaderHandler.js';
+    import RenderHandler from '../utils/RenderHandler.js';
 
 
     export default {
@@ -26,7 +26,7 @@
             return {
                 data: this.initData,
                 map: undefined,
-                shaderHandler: undefined,
+                renderHandler: undefined,
                 timeStampBefore: 0,
                 mouse: {
                     x: 0,
@@ -36,8 +36,8 @@
         },
         created() {
             // Initialize shader
-            this.shaderHandler = new ShaderHandler(this.data);
-            this.shaderHandler.createShader();
+            this.renderHandler = new RenderHandler(this.data);
+            this.renderHandler.createShader();
         },
         mounted() {
             // Create map view after html template has loaded
@@ -92,7 +92,7 @@
             },
             updateView() {
                 // Render image to show it before user moves the mouse
-                this.shaderHandler.render(this.mouse);
+                this.renderHandler.render(this.mouse);
                 this.map.render();
 
                 // Prevent image smoothing on mouse movement
@@ -128,7 +128,7 @@
                 this.mouse.y = event.coordinate[1] / this.data.canvas.height;
 
                 if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
-                    this.shaderHandler.render(this.mouse);
+                    this.renderHandler.render(this.mouse);
                     this.map.render();
                 }
             },

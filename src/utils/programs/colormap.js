@@ -36,7 +36,6 @@ export default class ColorMap {
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
     }
 
-    // Todo needed?
     postCallback (gl, program, assets, helpers) {
         this.framebuffer.updateColors();
 
