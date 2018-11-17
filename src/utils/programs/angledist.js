@@ -66,7 +66,7 @@ export default class AngleDist {
 
     postCallback (gl, program, assets, helpers) {
         this.framebuffer.updateIntensities();
-        console.log(this.intensityHistogram.updateHistogram());
+        this.intensityHistogram.updateHistogram();
 
     }
 

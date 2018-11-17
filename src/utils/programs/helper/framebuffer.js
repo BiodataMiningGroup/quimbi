@@ -12,7 +12,6 @@ export default class FrameBuffer {
     // Called by shader program to updated the intensities
     updateIntensities() {
         window.glmvilib.getPixels(0, 0, this.width, this.height, this.intensities);
-        //console.log(this.intensities.length);
     }
 
     updateColors() {
