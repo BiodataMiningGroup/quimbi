@@ -1,7 +1,7 @@
-import AngleDist from './programs/angledist.js'
-import ColorMap from './programs/colormap.js'
-import ColorLens from './programs/colorlens.js';
-import FrameBuffer from './programs/helper/framebuffer.js';
+import AngleDist from './programs/AngleDist.js'
+import ColorMap from './programs/ColorMap.js'
+import ColorLens from './programs/ColorLens.js';
+import FrameBuffer from './programs/helper/FrameBuffer.js';
 import IntensitiyHistogram from './programs/helper/IntensityHistogram';
 
 export default class RenderHandler {

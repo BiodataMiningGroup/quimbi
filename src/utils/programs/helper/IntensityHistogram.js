@@ -1,13 +1,14 @@
 // Todo add description here
 export default class IntensityHistogram {
+
     constructor(framebuffer) {
         this.histogram = new Array(256);
         this.framebuffer = framebuffer;
         // min and max value of the histogram
-        this.bounds = [0, 0]
-        // Todo add channelbounds
+        this.bounds = [0, 0];
     }
 
+    // Sets all values to zero
     resetHistogram() {
         this.histogram.fill(0);
     }
@@ -34,4 +35,5 @@ export default class IntensityHistogram {
         this.updateBounds();
         return this.histogram;
     }
+
 }
