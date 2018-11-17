@@ -65,7 +65,6 @@ export default class AngleDist {
     }
 
     postCallback (gl, program, assets, helpers) {
-        // Todo Where does this framebuffer come from?
         this.framebuffer.updateIntensities();
         console.log(this.intensityHistogram.updateHistogram());
 
