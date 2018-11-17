@@ -19,7 +19,7 @@ export default class IntensityHistogram {
         this.bounds[1] = this.histogram.indexOf(Math.max.apply(0, this.histogram)) / 255;
     }
 
-    // Update the Histogram for the color values of the current pixels displayed on the screen
+    // Updates the Histogram for the color values of the current pixels displayed on the screen
     updateHistogram() {
         this.resetHistogram();
         let intensities = this.framebuffer.getIntensities();

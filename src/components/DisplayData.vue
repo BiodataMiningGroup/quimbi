@@ -1,8 +1,23 @@
 <template>
-    <section class="section">
-        <div class="container">
-            <h1 class=" has-text-centered">Display</h1>
-            <div id="map" class="map"></div>
+    <section class="section display">
+            <div class="container is-fluid" id="navbar">
+                <div class="buttons has-addons">
+                    <a class="button is-light">
+                        similarity
+                    </a>
+                    <a class="button is-dark">mean</a>
+                    <a class="button is-dark">direct</a>
+                </div>
+
+            </div>
+        <div class="container is-fluid" id="map-view">
+            <div id="map">
+                <canvas id="histogram" width="30" height="256"></canvas>
+
+            </div>
+        </div>
+        <div class="container is-fluid" id="spectrum">
+            Spectrum
         </div>
     </section>
 </template>
@@ -86,6 +101,12 @@
                 });
                 this.map.getView().fit(extent);
 
+                // Todo Remove
+                let ctx = document.getElementById('histogram').getContext("2d");
+                ctx.fillStyle = "rgb(200, 0 ,0";
+                ctx.fillRect(10, 10, 55, 50);
+
+
                 // Render and update image on mouse movement
                 this.updateView();
 
@@ -137,9 +158,45 @@
 </script>
 
 <style scoped>
-    .map {
-        height: 400px;
-        width: 100%;
-        background-color: grey;
+
+    .display {
+        margin: 0;
+        padding: 0;
     }
+
+    #map-view {
+        padding: 0;
+        margin: 0;
+        background-color: red;
+    }
+
+    #map {
+        width: 100%;
+        background-color: #1f1f1f;
+        height: 60vh;
+        min-height: 300px;
+    }
+
+    #histogram {
+        position: absolute;
+        z-index: 99999;
+        right: 0;
+        top: 10px;
+
+    }
+
+    #spectrum {
+        padding: 0;
+        margin: 0;
+        height: 35vh;
+        background-color: #454545;
+    }
+
+    #navbar {
+        padding: 2px;
+        margin: 0;
+        height: 38px;
+        background-color: #292929;
+    }
+
 </style>

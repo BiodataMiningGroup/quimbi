@@ -1,4 +1,5 @@
 export default class FrameBuffer {
+
     constructor(width, height) {
         this.width = width;
         this.height = height;
@@ -14,9 +15,9 @@ export default class FrameBuffer {
         window.glmvilib.getPixels(0, 0, this.width, this.height, this.intensities);
     }
 
+    // Todo needed?
     updateColors() {
         glmvilib.getPixels(0, 0, this.width, this.height, this.colors);
-
     }
 
     getIntensities() {

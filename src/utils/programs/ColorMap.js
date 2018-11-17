@@ -38,9 +38,7 @@ export default class ColorMap {
 
     postCallback (gl, program, assets, helpers) {
         this.framebuffer.updateColors();
-
     }
-
 
     getColorMapValues() {
         return new Uint8Array(
@@ -73,4 +71,5 @@ export default class ColorMap {
             ]
         );
     }
+
 }
