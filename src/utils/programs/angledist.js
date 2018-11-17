@@ -1,9 +1,9 @@
 // Todo remove
-import IntensitiyHistogram from '../IntensityHistogram';
+import IntensitiyHistogram from './helper/IntensityHistogram';
 
 export default class AngleDist {
 
-    constructor(framebuffer, canvasWidth, canvasHeight) {
+    constructor(framebuffer, intensityHistogram, canvasWidth, canvasHeight) {
         this.id = 'angle-dist';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/angle-dist.glsl.frag';
@@ -14,7 +14,7 @@ export default class AngleDist {
         this.height = canvasHeight;
         this.framebuffer = framebuffer;
 
-        this.intensityHistogram = new IntensitiyHistogram(this.framebuffer);
+        this.intensityHistogram = intensityHistogram;
     }
 
     updateMouse(mouseX, mouseY) {

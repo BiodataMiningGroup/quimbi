@@ -32,7 +32,6 @@ export default class IntensityHistogram {
             }
         }
         this.updateBounds();
-        console.log(this.bounds);
         return this.histogram;
     }
 }
