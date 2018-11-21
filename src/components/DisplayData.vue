@@ -1,30 +1,31 @@
 <template>
     <section class="section display is-marginless is-paddingless">
-        <div class="container is-fluid" id="navbar">
+        <div class="container is-fluid" id="toolbar">
             <div class="columns">
                 <div class="column">
                     <div class="buttons has-addons">
-                        <a class="button is-light">similarity</a>
-                        <a class="button is-dark">mean</a>
-                        <a class="button is-dark">direct</a>
-                        <a class="button marker is-dark"><i class="fas fa-map-marker-alt"></i></a>
+                        <a class="button" v-bind:class="[viewMode === 'similarity' ? 'is-light' : 'is-dark']">similarity</a>
+                        <a class="button" v-bind:class="[viewMode === 'mean' ? 'is-light' : 'is-dark']">mean</a>
+                        <a class="button" v-bind:class="[viewMode === 'direct' ? 'is-light' : 'is-dark']">direct</a>
+                        <a class="button" v-bind:class="[markerIsActive ? 'is-light' : 'is-dark']" @click="toggleMarker" ><i class="fas fa-map-marker-alt"></i></a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="container is-fluid is-marginless is-paddingless" id="map-view">
-            <div id="map">
-                <canvas id="histogram" width="30" height="256"></canvas>
-
-            </div>
+            <Histogram id="histogram" :histogramData="histogramData"></Histogram>
+            <div id="map"></div>
         </div>
         <div class="container is-fluid is-marginless" id="spectrum">
-            Spectrum
+            <Spectrum></Spectrum>
         </div>
     </section>
 </template>
 
 <script>
+    import Histogram from './Histogram.vue'
+    import Spectrum from './Spectrum.vue'
+
     import Map from '../../node_modules/ol/Map';
     import View from '../../node_modules/ol/View';
     import ImageLayer from 'node_modules/ol/layer/Image';
@@ -39,6 +40,10 @@
         props: [
             'initData'
         ],
+        components: {
+            Histogram,
+            Spectrum
+        },
         data() {
             return {
                 data: this.initData,
@@ -48,7 +53,10 @@
                 mouse: {
                     x: 0,
                     y: 0
-                }
+                },
+                histogramData: {},
+                markerIsActive: false,
+                viewMode: 'similarity',
             }
         },
         created() {
@@ -97,7 +105,6 @@
                 ctx.fillStyle = "rgb(200, 0 ,0";
                 ctx.fillRect(10, 10, 55, 50);
 
-
                 // Render and update image on mouse movement
                 this.updateView();
 
@@ -120,17 +127,20 @@
                 this.map.on('pointermove', this.updateOnMouseMove);
             },
             updateOnMouseMove(event) {
-                // Update if there is a certain time interval (in ms) between movements
-                // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
-                if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
-                    this.updateMousePosition(event);
-                    this.timeStampBefore = event.originalEvent.timeStamp;
+                if(!this.markerIsActive) {
+                    // Update if there is a certain time interval (in ms) between movements
+                    // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
+                    if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
+                        this.updateMousePosition(event);
+                        this.timeStampBefore = event.originalEvent.timeStamp;
+                    }
                 }
 
             },
             updateOnMouseClick(event) {
-                // Disable mouse movement event listener
-                this.map.un('pointermove', this.updateOnMouseMove);
+                if(!this.markerIsActive) {
+                    this.markerIsActive = true;
+                }
                 this.updateMousePosition(event);
 
             },
@@ -144,6 +154,14 @@
                     this.map.render();
                 }
             },
+            toggleMarker() {
+                // Deactivate Marker
+                if(this.markerIsActive) {
+                    this.markerIsActive = false;
+                    return;
+                }
+                this.markerIsActive = true;
+            }
         }
     }
 </script>
@@ -176,7 +194,7 @@
         background-color: #454545;
     }
 
-    #navbar {
+    #toolbar {
         padding: 2px;
         margin: 0;
         height: 38px;
