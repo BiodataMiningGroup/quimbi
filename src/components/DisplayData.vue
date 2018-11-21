@@ -1,22 +1,24 @@
 <template>
-    <section class="section display">
-            <div class="container is-fluid" id="navbar">
-                <div class="buttons has-addons">
-                    <a class="button is-light">
-                        similarity
-                    </a>
-                    <a class="button is-dark">mean</a>
-                    <a class="button is-dark">direct</a>
+    <section class="section display is-marginless is-paddingless">
+        <div class="container is-fluid" id="navbar">
+            <div class="columns">
+                <div class="column">
+                    <div class="buttons has-addons">
+                        <a class="button is-light">similarity</a>
+                        <a class="button is-dark">mean</a>
+                        <a class="button is-dark">direct</a>
+                        <a class="button marker is-dark"><i class="fas fa-map-marker-alt"></i></a>
+                    </div>
                 </div>
-
             </div>
-        <div class="container is-fluid" id="map-view">
+        </div>
+        <div class="container is-fluid is-marginless is-paddingless" id="map-view">
             <div id="map">
                 <canvas id="histogram" width="30" height="256"></canvas>
 
             </div>
         </div>
-        <div class="container is-fluid" id="spectrum">
+        <div class="container is-fluid is-marginless" id="spectrum">
             Spectrum
         </div>
     </section>
@@ -83,19 +85,8 @@
                     view: this.view = new View({
                         projection: projection,
                         center: getCenter(extent),
-                        // Initially, display canvas at original resolution (100%).
-                        // Todo fix
-                        /*
                         resolution: 1,
                         zoomFactor: 2,
-                        // Allow a maximum magnification.
-                        minResolution: 0.25,
-                        */
-                        resolution: 1,
-                        zoomFactor: 2,
-                        // Allow a maximum magnification.
-                        //minResolution: 0.25,
-                        // Restrict movement.
                         extent: extent,
                     })
                 });
@@ -160,13 +151,9 @@
 <style scoped>
 
     .display {
-        margin: 0;
-        padding: 0;
     }
 
     #map-view {
-        padding: 0;
-        margin: 0;
         background-color: red;
     }
 
@@ -182,12 +169,9 @@
         z-index: 99999;
         right: 0;
         top: 10px;
-
     }
 
     #spectrum {
-        padding: 0;
-        margin: 0;
         height: 35vh;
         background-color: #454545;
     }
@@ -197,6 +181,10 @@
         margin: 0;
         height: 38px;
         background-color: #292929;
+    }
+
+    .marker {
+        margin-left: 50px;
     }
 
 </style>
