@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="container is-fluid is-marginless is-paddingless" id="map-view">
-            <Histogram id="histogram" :histogramData="histogramData"></Histogram>
+            <Histogram ref="histogram" :histogram="histogramData"></Histogram>
             <div id="map"></div>
         </div>
         <div class="container is-fluid is-marginless" id="spectrum">
@@ -54,7 +54,8 @@
                     x: 0,
                     y: 0
                 },
-                histogramData: {},
+                histogramData: [],
+                colorMapData: {},
                 markerIsActive: false,
                 viewMode: 'similarity',
             }
@@ -101,9 +102,11 @@
                 this.map.getView().fit(extent);
 
                 // Todo Remove
+                /*
                 let ctx = document.getElementById('histogram').getContext("2d");
                 ctx.fillStyle = "rgb(200, 0 ,0";
                 ctx.fillRect(10, 10, 55, 50);
+                */
 
                 // Render and update image on mouse movement
                 this.updateView();
@@ -152,6 +155,7 @@
                 if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
                     this.renderHandler.render(this.mouse);
                     this.map.render();
+                    this.updateHistogram();
                 }
             },
             toggleMarker() {
@@ -161,7 +165,13 @@
                     return;
                 }
                 this.markerIsActive = true;
+            },
+            updateHistogram() {
+                this.histogramData = this.renderHandler.intensityHistogram.histogram;
+                //Todo fix workaround for "watch" not working
+                this.$refs.histogram.redrawHistogram();
             }
+
         }
     }
 </script>
@@ -180,13 +190,6 @@
         background-color: #1f1f1f;
         height: 60vh;
         min-height: 300px;
-    }
-
-    #histogram {
-        position: absolute;
-        z-index: 99999;
-        right: 0;
-        top: 10px;
     }
 
     #spectrum {

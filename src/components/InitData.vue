@@ -48,7 +48,6 @@
                 this.progressBar = Math.round((this.counter / this.data.files.length * 100));
                 if (this.counter === this.data.files.length) {
                     this.initGlmvlib();
-
                 }
             }
         },
