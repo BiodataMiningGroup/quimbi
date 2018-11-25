@@ -78,6 +78,8 @@
             this.createMap();
             // Todo remove me
             //window.glmvilib.finish();
+            // Draw Color-Scale
+            this.$refs.scaleCanvas.redrawScale();
         },
         methods: {
             createMap() {
@@ -112,13 +114,6 @@
                 // Set values for the Intensity Histogram and Color-Scale
                 this.histogramData = this.renderHandler.intensityHistogram.histogram;
                 this.bounds = this.renderHandler.intensityHistogram.bounds;
-
-                // Todo Remove
-                /*
-                let ctx = document.getElementById('histogram').getContext("2d");
-                ctx.fillStyle = "rgb(200, 0 ,0";
-                ctx.fillRect(10, 10, 55, 50);
-                */
 
                 // Render and update image on mouse movement
                 this.updateView();
@@ -180,7 +175,6 @@
             },
             updateHistogram() {
                 this.$refs.histogram.redrawHistogram();
-                this.$refs.scaleCanvas.redrawScale();
             }
 
         }

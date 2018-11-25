@@ -28,12 +28,22 @@ export default class ColorMap {
     }
 
     callback(gl, program, assets, helpers) {
+        /* Todo old - working
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, assets.textures.distanceTexture);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureR);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
+        /*
+        /* Todo fix*/
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, assets.textures.rgbColorLens);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureR);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
+
     }
 
     postCallback (gl, program, assets, helpers) {
