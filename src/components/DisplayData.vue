@@ -13,11 +13,14 @@
             </div>
         </div>
         <div class="container is-fluid is-marginless is-paddingless" id="map-view">
-            <Histogram ref="histogram" :histogram="histogramData"></Histogram>
+            <div id="additionals">
+                <Histogram ref="histogram" :histogram="histogramData"></Histogram>
+                <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
+            </div>
             <div id="map"></div>
         </div>
         <div class="container is-fluid is-marginless" id="spectrum">
-            <Spectrum></Spectrum>
+                <Spectrum></Spectrum>
         </div>
     </section>
 </template>
@@ -25,6 +28,7 @@
 <script>
     import Histogram from './Histogram.vue'
     import Spectrum from './Spectrum.vue'
+    import ColorScale from './ColorScale.vue'
 
     import Map from '../../node_modules/ol/Map';
     import View from '../../node_modules/ol/View';
@@ -42,6 +46,7 @@
         ],
         components: {
             Histogram,
+            ColorScale,
             Spectrum
         },
         data() {
@@ -55,15 +60,18 @@
                     y: 0
                 },
                 histogramData: [],
+                bounds: {},
                 colorMapData: {},
                 markerIsActive: false,
                 viewMode: 'similarity',
+                colormapvalues: {},
             }
         },
         created() {
             // Initialize shader
             this.renderHandler = new RenderHandler(this.data);
             this.renderHandler.createShader();
+            this.colormapvalues = this.renderHandler.colorMap.getColorMapValues();
         },
         mounted() {
             // Create map view after html template has loaded
@@ -100,6 +108,10 @@
                     })
                 });
                 this.map.getView().fit(extent);
+
+                // Set values for the Intensity Histogram and Color-Scale
+                this.histogramData = this.renderHandler.intensityHistogram.histogram;
+                this.bounds = this.renderHandler.intensityHistogram.bounds;
 
                 // Todo Remove
                 /*
@@ -167,9 +179,8 @@
                 this.markerIsActive = true;
             },
             updateHistogram() {
-                this.histogramData = this.renderHandler.intensityHistogram.histogram;
-                //Todo fix workaround for "watch" not working
                 this.$refs.histogram.redrawHistogram();
+                this.$refs.scaleCanvas.redrawScale();
             }
 
         }
@@ -182,7 +193,6 @@
     }
 
     #map-view {
-        background-color: red;
     }
 
     #map {
@@ -206,6 +216,19 @@
 
     .marker {
         margin-left: 50px;
+    }
+
+    #additionals {
+        display: flex;
+        position: absolute;
+        z-index: 99999;
+        padding: 5px;
+        right: 10px;
+        top: 10px;
+        width: 80px;
+        height: 266px;
+        background-color: rgba(41, 41, 41, 0.8);
+        border-radius: 10px;
     }
 
 </style>

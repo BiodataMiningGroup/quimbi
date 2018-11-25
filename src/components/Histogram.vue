@@ -32,7 +32,12 @@
                 let drawNumber = this.histogram.length;
                 let widthCoefficient = width / maximum;
                 while(drawNumber) {
-                    this.ctx.fillRect(width, this.histogram.length - drawNumber--, -1* this.histogram[drawNumber] * widthCoefficient, 1);
+                    this.ctx.fillRect(
+                        width,
+                        this.histogram.length - drawNumber--,
+                        -1* this.histogram[drawNumber] * widthCoefficient,
+                        1
+                    );
                 }
             },
         }
@@ -42,10 +47,6 @@
 
 <style scoped>
     #histogram {
-        position: absolute;
-        z-index: 99999;
-        right: 0;
-        top: 10px;
     }
 
 </style>
