@@ -11,7 +11,7 @@ void main() {
 	vec4 intensities = texture2D(u_rgb, v_texture_position);
 
 	intensities.r = (intensities.r - u_channel_bounds_r[0])
-		* u_channel_bounds_r[1];
+		/ (u_channel_bounds_r[1] - u_channel_bounds_r[0]);
 	//intensities.g = (intensities.g - u_channel_bounds_g[0])
 	//	* u_channel_bounds_g[1];
 

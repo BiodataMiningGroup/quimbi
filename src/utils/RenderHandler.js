@@ -13,7 +13,7 @@ export default class RenderHandler {
 
         // Init Shader
         this.angleDist = new AngleDist(this.framebuffer, this.intensityHistogram, data.canvas.width, data.canvas.height);
-        this.colorLens = new ColorLens(this.intensityHistogram, data.canvas.width, data.canvas.height);
+        this.colorLens = new ColorLens(this.intensityHistogram, data.canvas.width, data.canvas.height, this.framebuffer);
         this.colorMap = new ColorMap(this.framebuffer);
     }
 

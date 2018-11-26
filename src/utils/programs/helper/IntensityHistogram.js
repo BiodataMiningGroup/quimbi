@@ -15,8 +15,19 @@ export default class IntensityHistogram {
 
     // Find lowest and highest value in the histogram and norm it between 0 and 1
     updateBounds() {
-        this.bounds[0] = this.histogram.indexOf(Math.min.apply(0, this.histogram)) / 255;
-        this.bounds[1] = this.histogram.indexOf(Math.max.apply(0, this.histogram)) / 255;
+
+        for (let i = 0; i < this.histogram.length; i++) {
+            if (this.histogram[i] !== 0) {
+                this.bounds[0] = i / 255;
+                break;
+            }
+        }
+        for (let i = this.histogram.length - 1; i >= 0; i--) {
+            if (this.histogram[i] !== 0) {
+                this.bounds[1] = i / 255;
+                break;
+            }
+        }
     }
 
     // Updates the Histogram for the color values of the current pixels displayed on the screen

@@ -38,7 +38,7 @@ export default class ColorMap {
         /*
         /* Todo fix*/
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, assets.textures.rgbColorLens);
+        gl.bindTexture(gl.TEXTURE_2D, assets.textures.rgbColorLensTexture);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureR);
 

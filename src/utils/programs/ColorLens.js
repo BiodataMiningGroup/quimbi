@@ -1,6 +1,6 @@
 export default class ColorLens {
 
-    constructor(intensityHistogram, width, height) {
+    constructor(intensityHistogram, width, height, framebuffer) {
         this.id = 'color-lens';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/color-lens.glsl.frag';
@@ -9,16 +9,12 @@ export default class ColorLens {
         this._channelBoundsLocation = null;
         this.intensityHistogram = intensityHistogram;
         this.texture = null;
-        this.rgbtexture = null;
-        this._activeRgbTexture = null;
+        this.framebuffer = framebuffer;
     }
 
     setUp(gl, program, assets, helpers) {
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
-        // Todo ?!
-        this.rgbtexture = helpers.newTexture('rgbTexture0');
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
         assets.framebuffers.rgbColorLens = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens);
@@ -38,11 +34,17 @@ export default class ColorLens {
         //Todo ??
         gl.bindTexture(gl.TEXTURE_2D, assets.textures.distanceTexture);
 
-
         let _channelBounds = this.intensityHistogram.bounds;
-        gl.uniform2f(this._channelBoundsLocation, _channelBounds[0], 1 / ((_channelBounds[1] || 1) - _channelBounds[0]));
+        console.log(_channelBounds);
+        gl.uniform2f(this._channelBoundsLocation, _channelBounds[0], _channelBounds[1]);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens);
     }
+/*
+    postCallback (gl, program, assets, helpers) {
+        this.framebuffer.updateIntensities();
+        this.intensityHistogram.updateHistogram();
 
+    }
+*/
 }
