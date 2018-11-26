@@ -72,6 +72,7 @@
             this.renderHandler = new RenderHandler(this.data);
             this.renderHandler.createShader();
             this.colormapvalues = this.renderHandler.colorMap.getColorMapValues();
+            this.bounds = this.renderHandler.intensityHistogram.bounds;
         },
         mounted() {
             // Create map view after html template has loaded
@@ -175,6 +176,7 @@
             },
             updateHistogram() {
                 this.$refs.histogram.redrawHistogram();
+                this.$refs.scaleCanvas.redrawScale();
             }
 
         }

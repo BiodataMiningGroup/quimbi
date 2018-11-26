@@ -35,7 +35,7 @@ export default class ColorLens {
         gl.bindTexture(gl.TEXTURE_2D, assets.textures.distanceTexture);
 
         let _channelBounds = this.intensityHistogram.bounds;
-        console.log(_channelBounds);
+        //console.log(_channelBounds);
         gl.uniform2f(this._channelBoundsLocation, _channelBounds[0], _channelBounds[1]);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens);
