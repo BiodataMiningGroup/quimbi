@@ -1,14 +1,13 @@
 <template>
     <section class="section display is-marginless is-paddingless">
-        <div class="container is-fluid" id="toolbar">
-            <div class="columns">
-                <div class="column">
-                    <div class="buttons has-addons">
-                        <a class="button" v-bind:class="[viewMode === 'similarity' ? 'is-light' : 'is-dark']">similarity</a>
-                        <a class="button" v-bind:class="[viewMode === 'mean' ? 'is-light' : 'is-dark']">mean</a>
-                        <a class="button" v-bind:class="[viewMode === 'direct' ? 'is-light' : 'is-dark']">direct</a>
-                        <a class="button" v-bind:class="[markerIsActive ? 'is-light' : 'is-dark']" @click="toggleMarker" ><i class="fas fa-map-marker-alt"></i></a>
-                    </div>
+        <div class="level" id="toolbar">
+            <div class="level-item has-text-centered">
+                <div class="buttons has-addons">
+                    <a class="button" v-bind:class="[viewMode === 'similarity' ? 'is-light' : 'is-dark']">similarity</a>
+                    <a class="button" v-bind:class="[viewMode === 'mean' ? 'is-light' : 'is-dark']">mean</a>
+                    <a class="button" v-bind:class="[viewMode === 'direct' ? 'is-light' : 'is-dark']">direct</a>
+                    <a class="button" v-bind:class="[markerIsActive ? 'is-light' : 'is-dark']" @click="toggleMarker"><i
+                            class="fas fa-map-marker-alt"></i></a>
                 </div>
             </div>
         </div>
@@ -20,7 +19,7 @@
             <div id="map"></div>
         </div>
         <div class="container is-fluid is-marginless" id="spectrum">
-                <Spectrum></Spectrum>
+            <Spectrum></Spectrum>
         </div>
     </section>
 </template>
@@ -138,7 +137,7 @@
                 this.map.on('pointermove', this.updateOnMouseMove);
             },
             updateOnMouseMove(event) {
-                if(!this.markerIsActive) {
+                if (!this.markerIsActive) {
                     // Update if there is a certain time interval (in ms) between movements
                     // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
                     if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
@@ -149,7 +148,7 @@
 
             },
             updateOnMouseClick(event) {
-                if(!this.markerIsActive) {
+                if (!this.markerIsActive) {
                     this.markerIsActive = true;
                 }
                 this.updateMousePosition(event);
@@ -168,7 +167,7 @@
             },
             toggleMarker() {
                 // Deactivate Marker
-                if(this.markerIsActive) {
+                if (this.markerIsActive) {
                     this.markerIsActive = false;
                     return;
                 }
@@ -194,21 +193,22 @@
     #map {
         width: 100%;
         background-color: #1f1f1f;
-        height: 60vh;
+        height: 65vh;
         min-height: 300px;
     }
 
     #spectrum {
         height: 35vh;
-        background-color: #454545;
+        background-color: #353535;
     }
 
     #toolbar {
-        padding: 2px;
-        margin: 0;
-        height: 38px;
-        background-color: #292929;
+        position: absolute;
+        top: 5px;
+        z-index: 800;
+        width: 100%;
     }
+
 
     .marker {
         margin-left: 50px;
@@ -217,7 +217,7 @@
     #additionals {
         display: flex;
         position: absolute;
-        z-index: 99999;
+        z-index: 700;
         padding: 5px;
         right: 10px;
         top: 10px;
