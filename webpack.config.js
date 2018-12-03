@@ -98,6 +98,14 @@ module.exports = {
                 toType: 'file'
             }
         ]),
+        // Copy Marker Icon
+        new CopyWebpackPlugin([
+            {
+                from: './src/assets/marker.png',
+                to: 'img/marker.png',
+                toType: 'file'
+            }
+        ]),
     ]
 
 };

@@ -33,10 +33,16 @@
     import View from '../../node_modules/ol/View';
     import ImageLayer from 'node_modules/ol/layer/Image';
     import ImageSource from '../utils/ImageCanvas.js';
+    import VectorLayer from 'ol/layer/Vector';
+    import VectorSource from '../../node_modules/ol/source/Vector';
+    import Icon from '../../node_modules/ol/style/Icon';
+    import Point from '../../node_modules/ol/geom/Point';
+    import Style from '../../node_modules/ol/style/Style';
     import Projection from 'node_modules/ol/proj/Projection';
     import {getCenter} from 'node_modules/ol/extent';
 
     import RenderHandler from '../utils/RenderHandler.js';
+    import Feature from "../../node_modules/ol/Feature";
 
 
     export default {
@@ -90,6 +96,26 @@
                     extent: extent,
                 });
 
+                let vectorSource = new VectorSource({
+                    features: []
+                });
+
+                let markerStyle = new Style({
+                   image: new Icon({
+                       anchor: [0.5, 50],
+                       anchorXUnits : 'fraction',
+                       anchorYUnits : 'pixels',
+                       src : 'img/marker.png',
+                       zIndex: 10
+                   })
+                });
+
+                let markerVectorLayer = new VectorLayer({
+                    source: vectorSource,
+                    style: markerStyle
+                });
+
+
                 this.map = new Map({
                     target: 'map',
                     layers: [
@@ -109,7 +135,9 @@
                         extent: extent,
                     })
                 });
+                this.map.addLayer(markerVectorLayer);
                 this.map.getView().fit(extent);
+
 
                 // Set values for the Intensity Histogram and Color-Scale
                 this.histogramData = this.renderHandler.intensityHistogram.histogram;
