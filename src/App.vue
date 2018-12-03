@@ -36,5 +36,5 @@
 
 <style>
     @import '~bulma/css/bulma.min.css';
-    @import '/src/assets/fontawesome-free-5.5.0-web/css/all.css';
+    @import '~@fortawesome/fontawesome-free/css/all.css';
 </style>

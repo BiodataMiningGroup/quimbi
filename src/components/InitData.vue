@@ -1,31 +1,41 @@
 <template>
     <section class="section">
-        <div class="container">
-            <h1 class="title has-text-centered">quimbi</h1>
-            <div class="tile is-ancestor">
-                <div class="tile is-2"></div>
-                <div class="tile is-8">
-                    <div class="container has-text-centered">
-                        <div v-if="!loading" class="field">
-                            <div class="control has-text-centered">
-                                <label class="label has-text-centered">Datei:</label>
-                                <input v-model="filePath" type="text" class="input is-full">
-                            </div>
+        <div class="app-content box">
+            <div class="level">
+                <div class="level-item has-text-centered">
+                    <h1>Quimbi</h1>
+                </div>
+            </div>
+            <div class="level" v-if="!loading">
+                <div class="level-item has-text-centered">
+                    <div class="field">
+                        <div class="control has-text-centered">
+                            <label class="label has-text-centered">Datei:</label>
+                            <input v-model="filePath" type="text" class="input is-full path">
                         </div>
-                        <div v-if="!loading" class="field">
-                            <div class="control has-text-centered">
-                                <button class="button" @click="getData">Laden</button>
-                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="level" v-if="!loading">
+                <div class="level-item has-text-centered">
+                    <div class="field">
+                        <div class="control has-text-centered">
+                            <button class="button" @click="getData">Laden</button>
                         </div>
-                        <div v-if="loading">
-                            <p class="progress-label"><strong>Lade Daten ...</strong></p>
-                            <progress class="progress is-medium" :value="progressBar" max="100"></progress>
-                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="level" v-if="loading">
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="progress-label">Lade Daten ...</p>
+                        <progress class="progress path is-medium is-info" :value="progressBar" max="100"></progress>
                     </div>
                 </div>
             </div>
         </div>
+
     </section>
 </template>
 
@@ -174,12 +184,43 @@
 
 <style scoped>
     .progress-label {
-        margin-top: 30px;
         margin-bottom: 0;
+        color: whitesmoke !important;
     }
 
     .progress {
         margin-top: 20px;
     }
+
+    .path {
+        width: 30vw;
+        min-width: 350px;
+    }
+
+    .section {
+        height: 100vh !important;
+        background-color: #1f1f1f;
+    }
+
+    label {
+        color: whitesmoke;
+    }
+
+    .app-content {
+        color: whitesmoke !important;
+        background-color: #454545;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -90%);
+    }
+
+    h1 {
+        font-family: Helvetica,sans-serif;
+        font-weight: bold;
+        font-size: 1.7em;
+    }
+
+
 
 </style>
