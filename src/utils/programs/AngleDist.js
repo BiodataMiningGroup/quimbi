@@ -1,5 +1,4 @@
-// Todo remove
-import IntensitiyHistogram from './helper/IntensityHistogram';
+
 
 export default class AngleDist {
 
@@ -67,6 +66,7 @@ export default class AngleDist {
     postCallback (gl, program, assets, helpers) {
         this.framebuffer.updateIntensities();
         this.intensityHistogram.updateHistogram();
+
 
     }
 

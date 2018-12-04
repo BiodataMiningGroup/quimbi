@@ -19,7 +19,7 @@
             <div id="map"></div>
         </div>
         <div class="container is-fluid is-marginless" id="spectrum">
-            <Spectrum></Spectrum>
+            <Spectrum :xValues="data.channelNames" yValues=""></Spectrum>
         </div>
     </section>
 </template>
@@ -178,6 +178,10 @@
                     this.markerIsActive = true;
                 }
                 this.updateMousePosition(event);
+                // Todo wohin damit?
+                glmvilib.render.apply(null,['selection-info']);
+                this.framebuffer.updateSpectrum();
+                console.log(this.framebuffer.spectrumValues);
 
             },
             // Updates relative mouse position and rerenders the map

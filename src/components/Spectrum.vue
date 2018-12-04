@@ -10,6 +10,10 @@
     import * as d3 from '../../node_modules/d3/dist/d3';
 
     export default {
+        props: [
+            'xValues',
+            'yValues'
+        ],
         data() {
             return {
                 data: [],
@@ -77,7 +81,7 @@
 
                 // Init Scales
                 this.x = d3.scaleLinear()
-                    .domain([0, d3.max(this.dataExample, (d) => d[0])])
+                    .domain([this.xValues[0], this.xValues[this.xValues.length-1]])
                     .range([0, this.canvasWidth])
                     .nice();
                 this.y = d3.scaleLinear()
