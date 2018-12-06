@@ -19,7 +19,7 @@
             <div id="map"></div>
         </div>
         <div class="container is-fluid is-marginless" id="spectrum">
-            <Spectrum :xValues="data.channelNames" yValues=""></Spectrum>
+            <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>
         </div>
     </section>
 </template>
@@ -179,9 +179,11 @@
                 }
                 this.updateMousePosition(event);
                 // Todo wohin damit?
+                this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
                 glmvilib.render.apply(null,['selection-info']);
-                this.framebuffer.updateSpectrum();
-                console.log(this.framebuffer.spectrumValues);
+                this.renderHandler.framebuffer.updateSpectrum();
+                this.$refs.spectrum.redrawSpectrum();
+                console.log(this.renderHandler.framebuffer.spectrumValues);
 
             },
             // Updates relative mouse position and rerenders the map
@@ -213,9 +215,6 @@
 </script>
 
 <style scoped>
-
-    .display {
-    }
 
     #map-view {
     }

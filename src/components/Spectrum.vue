@@ -30,18 +30,11 @@
                 xAxis: {},
                 yAxis: {},
                 gxAxis: {},
-                gyAxis: {}
+                gyAxis: {},
+                transform: {},
             }
         },
         mounted() {
-            this.dataExample = [];
-
-            for (let i = 0; i < 10000; i++) {
-                const x = Math.floor(Math.random() * 999999) + 1;
-                const y = Math.floor(Math.random() * 999999) + 1;
-                this.dataExample.push([x, y]);
-            }
-
             this.initCanvas();
             this.drawSpectrum(d3.zoomIdentity);
 
@@ -81,11 +74,11 @@
 
                 // Init Scales
                 this.x = d3.scaleLinear()
-                    .domain([this.xValues[0], this.xValues[this.xValues.length-1]])
+                    .domain([0, 54])
                     .range([0, this.canvasWidth])
                     .nice();
                 this.y = d3.scaleLinear()
-                    .domain([0, 100])
+                    .domain([0, 255])
                     .range([this.canvasHeight, 0])
                     .nice();
 
@@ -115,16 +108,22 @@
                 this.gyAxis.call(this.yAxis.scale(scaleY));
                 this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-
-                this.dataExample.forEach(point => {
+                console.log(this.yValues);
+                this.yValues.forEach((point, index) => {
+                    console.log(point);
                     this.ctx.beginPath();
                     this.ctx.fillStyle = '#3585ff';
-                    const px = scaleX(point[0]);
-                    const py = scaleY(point[1]);
+                    const px = scaleX(index);
+                    const py = scaleY(point);
 
                     this.ctx.arc(px, py, 1.2 * transform.k, 0, 2 * Math.PI, true);
                     this.ctx.fill();
                 });
+
+            },
+
+            redrawSpectrum() {
+                this.drawSpectrum(d3.zoomIdentity);
 
             },
             zoomSpectrum() {
