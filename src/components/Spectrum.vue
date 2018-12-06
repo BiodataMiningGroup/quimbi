@@ -108,26 +108,25 @@
                 this.gyAxis.call(this.yAxis.scale(scaleY));
                 this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-                console.log(this.yValues);
+
                 this.yValues.forEach((point, index) => {
-                    console.log(point);
                     this.ctx.beginPath();
-                    this.ctx.fillStyle = '#3585ff';
+                    this.ctx.fillStyle = '#e8e8e8';
                     const px = scaleX(index);
                     const py = scaleY(point);
 
                     this.ctx.arc(px, py, 1.2 * transform.k, 0, 2 * Math.PI, true);
                     this.ctx.fill();
                 });
-
             },
 
             redrawSpectrum() {
-                this.drawSpectrum(d3.zoomIdentity);
+                // Redraw spectrum with current zoom
+                this.drawSpectrum(d3.zoomTransform(this.canvas.node()));
 
             },
             zoomSpectrum() {
-                return d3.zoom().scaleExtent([1, 1000])
+                return d3.zoom().scaleExtent([1, 100])
                     .on('zoom', () => {
                         let transform = d3.event.transform;
                         this.ctx.save();
