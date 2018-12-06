@@ -32,6 +32,8 @@
                 gxAxis: {},
                 gyAxis: {},
                 transform: {},
+                normedYValues: [],
+                clearedXValues: []
             }
         },
         mounted() {
@@ -48,6 +50,7 @@
                     right: 10
 
                 };
+
 
                 this.spectrumAxes = document.getElementById('spectrum-axes');
                 this.canvasWidth = document.getElementById('spectrum-axes').offsetWidth - margin.left - margin.right;
@@ -74,11 +77,11 @@
 
                 // Init Scales
                 this.x = d3.scaleLinear()
-                    .domain([0, 54])
+                    .domain([0, this.xValues.length-1])
                     .range([0, this.canvasWidth])
                     .nice();
                 this.y = d3.scaleLinear()
-                    .domain([0, 255])
+                    .domain([0, 100])
                     .range([this.canvasHeight, 0])
                     .nice();
 
@@ -109,30 +112,63 @@
                 this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 
-                this.yValues.forEach((point, index) => {
+                let lastpX = 0;
+                let lastpY = this.canvasHeight;
+                this.normedYValues.forEach((point, index) => {
+                    // Draw point
                     this.ctx.beginPath();
                     this.ctx.fillStyle = '#e8e8e8';
                     const px = scaleX(index);
                     const py = scaleY(point);
 
-                    this.ctx.arc(px, py, 1.2 * transform.k, 0, 2 * Math.PI, true);
+                    this.ctx.arc(px, py, 1 * transform.k, 0, 2 * Math.PI, true);
                     this.ctx.fill();
+                    // Draw line between this and the point before
+                    this.ctx.beginPath();
+                    // If first point start drawing from there
+                    if (index === 0) {
+                        this.ctx.moveTo(px, py);
+                    } else {
+                        this.ctx.moveTo(lastpX, lastpY);
+                    }
+                    this.ctx.lineTo(px, py);
+                    this.ctx.strokeStyle = 'white';
+                    this.ctx.stroke();
+                    lastpX = px;
+                    lastpY = py;
                 });
+
             },
 
             redrawSpectrum() {
+                this.normYValues();
                 // Redraw spectrum with current zoom
                 this.drawSpectrum(d3.zoomTransform(this.canvas.node()));
 
             },
             zoomSpectrum() {
-                return d3.zoom().scaleExtent([1, 100])
+                return d3.zoom().scaleExtent([1, 100]).translateExtent([[0, 0], [this.canvasWidth, this.canvasHeight]]).extent([[0, 0], [this.canvasWidth, this.canvasHeight]])
                     .on('zoom', () => {
                         let transform = d3.event.transform;
                         this.ctx.save();
                         this.drawSpectrum(transform);
                         this.ctx.restore();
                     });
+            },
+            normYValues() {
+                let maxY = this.findMaxYValue();
+                console.log(maxY);
+                this.normedYValues = this.yValues.map(val => val/maxY * 100);
+                console.log(this.normedYValues);
+            },
+            findMaxYValue() {
+                let maxValue = 0;
+                this.yValues.forEach(val => {
+                    if (val > maxValue) {
+                        maxValue = val;
+                    }
+                });
+                return maxValue;
             }
         }
     }

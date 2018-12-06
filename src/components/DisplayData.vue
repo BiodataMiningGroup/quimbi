@@ -183,7 +183,7 @@
                 glmvilib.render.apply(null,['selection-info']);
                 this.renderHandler.framebuffer.updateSpectrum();
                 this.$refs.spectrum.redrawSpectrum();
-                console.log(this.renderHandler.framebuffer.spectrumValues);
+                //console.log(this.renderHandler.framebuffer.spectrumValues);
 
             },
             // Updates relative mouse position and rerenders the map
