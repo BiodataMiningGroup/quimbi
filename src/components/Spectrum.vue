@@ -33,7 +33,9 @@
                 gyAxis: {},
                 transform: {},
                 normedYValues: [],
-                clearedXValues: []
+                clearedXValues: [],
+                lineColor: '#e8e8e8',
+                tickXValues: [],
             }
         },
         mounted() {
@@ -76,8 +78,13 @@
                 this.ctx = this.canvas.node().getContext('2d');
 
                 // Init Scales
+                this.xValues.forEach((val, i) => {
+                    this.tickXValues[i] = Number(val);
+                });
+                console.log(this.tickValues);
+
                 this.x = d3.scaleLinear()
-                    .domain([0, this.xValues.length-1])
+                    .domain([0, this.xValues.length - 1])
                     .range([0, this.canvasWidth])
                     .nice();
                 this.y = d3.scaleLinear()
@@ -85,8 +92,13 @@
                     .range([this.canvasHeight, 0])
                     .nice();
 
+                let xVars = this.xValues;
                 // Init Axis
-                this.xAxis = d3.axisBottom(this.x);
+                console.log(this.xValues);
+                this.xAxis = d3.axisBottom(this.x).tickFormat(function(d, i){
+                    console.log(xVars[i]);
+                    return xVars[i];
+                });
                 this.yAxis = d3.axisLeft(this.y);
 
                 this.gxAxis = svgChart.append('g')
@@ -117,7 +129,7 @@
                 this.normedYValues.forEach((point, index) => {
                     // Draw point
                     this.ctx.beginPath();
-                    this.ctx.fillStyle = '#e8e8e8';
+                    this.ctx.fillStyle = this.lineColor;
                     const px = scaleX(index);
                     const py = scaleY(point);
 
@@ -157,8 +169,7 @@
             },
             normYValues() {
                 let maxY = this.findMaxYValue();
-                console.log(maxY);
-                this.normedYValues = this.yValues.map(val => val/maxY * 100);
+                this.normedYValues = this.yValues.map(val => val / maxY * 100);
                 console.log(this.normedYValues);
             },
             findMaxYValue() {

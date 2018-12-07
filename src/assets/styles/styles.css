@@ -11,3 +11,7 @@ html {
     z-index: 900;
     border-color: #131313;
 }
+
+body {
+    color: #e8e8e8;
+}
