@@ -79,24 +79,22 @@
 
                 // Init Scales
                 this.xValues.forEach((val, i) => {
-                    this.tickXValues[i] = Number(val);
+                    this.tickXValues[i] = i;
                 });
                 console.log(this.tickValues);
 
                 this.x = d3.scaleLinear()
-                    .domain([0, this.xValues.length - 1])
-                    .range([0, this.canvasWidth])
-                    .nice();
+                    .domain([0, this.xValues.length-1])
+                    .range([0, this.canvasWidth]);
                 this.y = d3.scaleLinear()
                     .domain([0, 100])
-                    .range([this.canvasHeight, 0])
-                    .nice();
+                    .range([this.canvasHeight, 0]);
 
+
+                // Workaround to use channel name labels in tickFormat
                 let xVars = this.xValues;
                 // Init Axis
-                console.log(this.xValues);
                 this.xAxis = d3.axisBottom(this.x).tickFormat(function(d, i){
-                    console.log(xVars[i]);
                     return xVars[i];
                 });
                 this.yAxis = d3.axisLeft(this.y);
@@ -119,13 +117,24 @@
                 let scaleX = transform.rescaleX(this.x);
                 let scaleY = transform.rescaleY(this.y);
 
-                this.gxAxis.call(this.xAxis.scale(scaleX));
+                console.log(scaleX);
+
+                this.gxAxis.call(this.xAxis.scale(scaleX).tickFormat((d, e, target) => {
+                    // has bug when the scale is too big
+                    if (Math.floor(d) === d3.format(".1f")(d)) {
+                        return this.xValues[Math.floor(d)]
+                    }
+                    return this.xValues[d];
+
+                }));
                 this.gyAxis.call(this.yAxis.scale(scaleY));
                 this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 
+                // Init lastpX/Y
                 let lastpX = 0;
                 let lastpY = this.canvasHeight;
+                // Loop over all normed y values and draw them to their corresponding x values
                 this.normedYValues.forEach((point, index) => {
                     // Draw point
                     this.ctx.beginPath();
@@ -133,9 +142,9 @@
                     const px = scaleX(index);
                     const py = scaleY(point);
 
-                    this.ctx.arc(px, py, 1 * transform.k, 0, 2 * Math.PI, true);
+                    this.ctx.arc(px, py, 0.1 * transform.k, 0, 2 * Math.PI, true);
                     this.ctx.fill();
-                    // Draw line between this and the point before
+                    // Draw line between current and the point before
                     this.ctx.beginPath();
                     // If first point start drawing from there
                     if (index === 0) {
