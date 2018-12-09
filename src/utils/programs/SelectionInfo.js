@@ -42,7 +42,7 @@ export default class SelectionInfo {
 
     callback (gl, program, assets, helpers) {
         gl.viewport(0, 0, this.textureDimension, this.textureDimension);
-        gl.uniform2f(this.mousePosition, this.mouseX, 1 - this.mouseY);
+        gl.uniform2f(this.mousePosition, this.mouseX, this.mouseY);
         helpers.bindInternalTextures();
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.selection);
     }

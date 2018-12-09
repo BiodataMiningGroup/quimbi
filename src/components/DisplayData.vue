@@ -19,7 +19,8 @@
             <div id="map"></div>
         </div>
         <div class="container is-fluid is-marginless" id="spectrum">
-            <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>
+            <Spectrum ref="spectrum" :xValues="data.channelNames"
+                      :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>
         </div>
     </section>
 </template>
@@ -31,11 +32,14 @@
 
     import Map from '../../node_modules/ol/Map';
     import View from '../../node_modules/ol/View';
+    import Feature from '../../node_modules/ol/Feature';
+    import Circle from 'node_modules/ol/style/Circle';
+    import Point from 'node_modules/ol/geom/Point';
+    import Fill from 'node_modules/ol/style/Fill';
     import ImageLayer from 'node_modules/ol/layer/Image';
     import ImageSource from '../utils/ImageCanvas.js';
     import VectorLayer from 'ol/layer/Vector';
     import VectorSource from '../../node_modules/ol/source/Vector';
-    import Icon from '../../node_modules/ol/style/Icon';
     import Style from '../../node_modules/ol/style/Style';
     import Projection from 'node_modules/ol/proj/Projection';
     import {getCenter} from 'node_modules/ol/extent';
@@ -68,6 +72,7 @@
                 markerIsActive: false,
                 viewMode: 'similarity',
                 colormapvalues: {},
+                marker: {}
             }
         },
         created() {
@@ -99,20 +104,23 @@
                 });
 
                 let markerStyle = new Style({
-                   image: new Icon({
-                       anchor: [0.5, 50],
-                       anchorXUnits : 'fraction',
-                       anchorYUnits : 'pixels',
-                       src : 'img/marker.png',
-                       zIndex: 10
-                   })
+                    image: new Circle({
+                        radius: 10,
+                        fill: new Fill({
+                            color: 'black'
+                        })
+                    })
                 });
+
+
+                this.marker = new Feature(new Point([0,0]));
 
                 let markerVectorLayer = new VectorLayer({
                     source: vectorSource,
                     style: markerStyle
                 });
 
+                vectorSource.addFeature(this.marker);
 
                 this.map = new Map({
                     target: 'map',
@@ -174,13 +182,15 @@
 
             },
             updateOnMouseClick(event) {
+                this.marker.getGeometry().setCoordinates([(Math.floor(event.coordinate[0]) + 0.5),
+                    (Math.floor(event.coordinate[1]) + 0.5)]);
                 if (!this.markerIsActive) {
                     this.markerIsActive = true;
                 }
                 this.updateMousePosition(event);
                 // Todo wohin damit?
                 this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
-                glmvilib.render.apply(null,['selection-info']);
+                glmvilib.render.apply(null, ['selection-info']);
                 this.renderHandler.framebuffer.updateSpectrum();
                 this.$refs.spectrum.redrawSpectrum();
                 //console.log(this.renderHandler.framebuffer.spectrumValues);
@@ -188,8 +198,9 @@
             },
             // Updates relative mouse position and rerenders the map
             updateMousePosition(event) {
-                this.mouse.x = event.coordinate[0] / this.data.canvas.width;
-                this.mouse.y = event.coordinate[1] / this.data.canvas.height;
+                // Norm x and y values and prevent webgl coordinate interpolation
+                this.mouse.x = (Math.floor(event.coordinate[0]) + 0.5) / this.data.canvas.width;
+                this.mouse.y = (Math.floor(event.coordinate[1]) + 0.5) / this.data.canvas.height;
 
                 if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
                     this.renderHandler.render(this.mouse);
@@ -203,6 +214,7 @@
                     this.markerIsActive = false;
                     return;
                 }
+                //Todo hide markerVectorLayer (setVisible)
                 this.markerIsActive = true;
             },
             updateHistogram() {
@@ -237,7 +249,6 @@
         z-index: 800;
         width: 100%;
     }
-
 
     .marker {
         margin-left: 50px;
