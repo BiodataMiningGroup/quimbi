@@ -115,7 +115,6 @@
 
             },
             drawSpectrum(transform) {
-
                 let scaleX = transform.rescaleX(this.x);
                 let scaleY = transform.rescaleY(this.y);
 
@@ -131,10 +130,9 @@
                 this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 
-                // Init lastpX/Y
-                let lastpX = 0;
-                let lastpY = this.canvasHeight;
+
                 // Loop over all normed y values and draw them to their corresponding x values
+
 
                 // Draw points if zoom factor of translation is bigger than this.zoomFactorPoints
                 // and value is not zero
@@ -154,7 +152,12 @@
                 }
 
 
-                //Draw line between current and the point before
+                // Draw line between current and the point before
+                // Init lastpX/Y for the loop
+                let lastpX = 0;
+                let lastpY = this.canvasHeight;
+
+                // Put beginPath() and stroke() outside forEach to reduce lags from drawing
                 this.ctx.beginPath();
                 this.normedYValues.forEach((point, index) => {
                     const px = scaleX(index);
@@ -172,6 +175,7 @@
                     lastpY = py;
                     lastpX = px;
                 });
+
                 this.ctx.stroke();
 
             },
