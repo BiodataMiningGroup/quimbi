@@ -45,17 +45,15 @@
                     index += 3;
                     drawnumber--;console.log();
                 }
-                document.getElementById('wrapper-top').style = "height: " +  256 - Math.floor(this.bounds[1] * 256) + "px";
+                // If no scaling is applied, set height op top wrapper to zero
+                if(this.scaleFactor === 1) {
+                    document.getElementById('wrapper-top').style = "height: 0px";
+                } else {
+                    document.getElementById('wrapper-top').style = "height: " +  (256 - Math.floor(this.bounds[1] * 256)) + "px";
+                }
                 document.getElementById('wrapper-bottom').style = "height: " +  Math.floor(this.bounds[0] * 256) + "px";
                 document.getElementById('colorscale').style = "transform: scaleY(" + this.scaleFactor + "); transform-origin:top;";
-                //document.getElementById('wrapper-bottom').style = "bottom: -" + Math.floor(this.bounds[0] * 256) + "px";
-
-
             },
-            transformScale() {
-                //console.log(this.$refs.canvas);
-
-            }
         }
     }
 

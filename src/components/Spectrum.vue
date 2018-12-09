@@ -21,7 +21,7 @@
                 svgChart: {},
                 spectrumMargin: {
                     bottom: 30,
-                    left: 40,
+                    left: 45,
                     top: 20,
                     right: 30
                 },
