@@ -15,3 +15,8 @@ html {
 body {
     color: #e8e8e8;
 }
+
+.yaxis .tick line {
+    stroke: grey;
+    stroke-opacity: 0.3;
+}

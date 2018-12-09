@@ -15,8 +15,8 @@
         },
         watch: {
             histogram() {
-                    this.redrawHistogram();
-                    console.log(this.histogram);
+                this.redrawHistogram();
+
             }
         },
         mounted() {
@@ -31,11 +31,11 @@
                 let maximum = Math.max.apply(0, this.histogram);
                 let drawNumber = this.histogram.length;
                 let widthCoefficient = width / maximum;
-                while(drawNumber) {
+                while (drawNumber) {
                     this.ctx.fillRect(
                         width,
                         this.histogram.length - drawNumber--,
-                        -1* this.histogram[drawNumber] * widthCoefficient,
+                        -1 * this.histogram[drawNumber] * widthCoefficient,
                         1
                     );
                 }

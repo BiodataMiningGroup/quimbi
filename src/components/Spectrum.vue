@@ -41,11 +41,13 @@
             }
         },
         mounted() {
+
             this.initCanvas();
             this.drawSpectrum(d3.zoomIdentity);
 
         },
         methods: {
+
             initCanvas() {
                 let margin = {
                     bottom: 30,
@@ -54,7 +56,6 @@
                     right: 10
 
                 };
-
 
                 this.spectrumAxes = document.getElementById('spectrum-axes');
                 this.canvasWidth = document.getElementById('spectrum-axes').offsetWidth - margin.left - margin.right;
@@ -83,7 +84,6 @@
                 this.xValues.forEach((val, i) => {
                     this.tickXValues[i] = i;
                 });
-                console.log(this.tickValues);
 
                 this.x = d3.scaleLinear()
                     .domain([0, this.xValues.length - 1])
@@ -96,10 +96,11 @@
                 // Workaround to use channel name labels in tickFormat
                 let xVars = this.xValues;
                 // Init Axis
-                this.xAxis = d3.axisBottom(this.x).tickFormat(function (d, i) {
+                this.xAxis = d3.axisBottom(this.x).tickPadding(10).tickFormat(function (d, i) {
                     return xVars[i];
                 });
-                this.yAxis = d3.axisLeft(this.y);
+                this.yAxis = d3.axisLeft(this.y).tickPadding(13).ticks(4).tickSizeInner(-this.canvasWidth);
+
 
                 this.gxAxis = svgChart.append('g')
                     .attr('transform', `translate(0, ${this.canvasHeight})`)
@@ -107,13 +108,13 @@
                     .call(this.xAxis);
 
                 this.gyAxis = svgChart.append('g')
-                    .attr("class", "axisy")
+                    .attr("class", "yaxis")
                     .call(this.yAxis);
 
                 this.canvas.call(this.zoomSpectrum());
 
-
             },
+
             drawSpectrum(transform) {
                 let scaleX = transform.rescaleX(this.x);
                 let scaleY = transform.rescaleY(this.y);
@@ -130,9 +131,7 @@
                 this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 
-
                 // Loop over all normed y values and draw them to their corresponding x values
-
 
                 // Draw points if zoom factor of translation is bigger than this.zoomFactorPoints
                 // and value is not zero
@@ -186,6 +185,7 @@
                 this.drawSpectrum(d3.zoomTransform(this.canvas.node()));
 
             },
+
             zoomSpectrum() {
                 return d3.zoom().scaleExtent([1, 100]).translateExtent([[0, 0], [this.canvasWidth, this.canvasHeight]]).extent([[0, 0], [this.canvasWidth, this.canvasHeight]])
                     .on('zoom', () => {
@@ -195,11 +195,12 @@
                         this.ctx.restore();
                     });
             },
+
             normYValues() {
                 let maxY = this.findMaxYValue();
                 this.normedYValues = this.yValues.map(val => val / maxY * 100);
-                console.log(this.normedYValues);
             },
+
             findMaxYValue() {
                 let maxValue = 0;
                 this.yValues.forEach(val => {
