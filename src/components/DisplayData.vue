@@ -72,7 +72,10 @@
                 markerIsActive: false,
                 viewMode: 'similarity',
                 colormapvalues: {},
-                marker: {}
+                markerFeature: {},
+                markerLayer: {},
+                markerStyle: {},
+                markerBorderStyle: {}
             }
         },
         created() {
@@ -85,12 +88,11 @@
         mounted() {
             // Create map view after html template has loaded
             this.createMap();
-            // Todo remove me
-            //window.glmvilib.finish();
             // Draw Color-Scale
             this.$refs.scaleCanvas.redrawScale();
         },
         methods: {
+
             createMap() {
                 let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
                 let projection = new Projection({
@@ -98,29 +100,6 @@
                     units: 'pixels',
                     extent: extent,
                 });
-
-                let vectorSource = new VectorSource({
-                    features: []
-                });
-
-                let markerStyle = new Style({
-                    image: new Circle({
-                        radius: 10,
-                        fill: new Fill({
-                            color: 'black'
-                        })
-                    })
-                });
-
-
-                this.marker = new Feature(new Point([0,0]));
-
-                let markerVectorLayer = new VectorLayer({
-                    source: vectorSource,
-                    style: markerStyle
-                });
-
-                vectorSource.addFeature(this.marker);
 
                 this.map = new Map({
                     target: 'map',
@@ -141,9 +120,10 @@
                         extent: extent,
                     })
                 });
-                this.map.addLayer(markerVectorLayer);
-                this.map.getView().fit(extent);
 
+                this.map.getView().fit(extent);
+                this.createMarker();
+                this.map.addLayer(this.markerLayer);
 
                 // Set values for the Intensity Histogram and Color-Scale
                 this.histogramData = this.renderHandler.intensityHistogram.histogram;
@@ -153,6 +133,42 @@
                 this.updateView();
 
             },
+
+            createMarker() {
+                // Create marker for click event
+                let vectorSource = new VectorSource({
+                    features: []
+                });
+
+                this.markerStyle = new Style({
+                    image: new Circle({
+                        radius: 4,
+                        fill: new Fill({
+                            color: 'white'
+                        })
+                    })
+                });
+
+                this.markerBorderStyle = new Style({
+                    image: new Circle({
+                        radius: 6,
+                        fill: new Fill({
+                            color: 'black'
+                        })
+                    })
+                });
+
+                this.markerFeature = new Feature(new Point([0, 0]));
+
+                this.markerLayer = new VectorLayer({
+                    source: vectorSource,
+                    style: [this.markerBorderStyle, this.markerStyle]
+                });
+                vectorSource.addFeature(this.markerFeature);
+                // Hide marker
+                this.markerLayer.setVisible(false);
+            },
+
             updateView() {
                 // Render image to show it before user moves the mouse
                 this.renderHandler.render(this.mouse);
@@ -169,7 +185,16 @@
                 // Add event listener for single click and mouse movement
                 this.map.on('singleclick', this.updateOnMouseClick);
                 this.map.on('pointermove', this.updateOnMouseMove);
+
+                // Add event listener for marker scaling
+                this.map.on('moveend', () => {
+                    let zoomLevel = this.map.getView().getZoom();
+                    this.markerStyle.getImage(0).setRadius(zoomLevel + 4);
+                    this.markerBorderStyle.getImage(1).setRadius(zoomLevel + 6);
+
+                });
             },
+
             updateOnMouseMove(event) {
                 if (!this.markerIsActive) {
                     // Update if there is a certain time interval (in ms) between movements
@@ -181,10 +206,13 @@
                 }
 
             },
+
             updateOnMouseClick(event) {
-                this.marker.getGeometry().setCoordinates([(Math.floor(event.coordinate[0]) + 0.5),
+                // Set Marker position
+                this.markerFeature.getGeometry().setCoordinates([(Math.floor(event.coordinate[0]) + 0.5),
                     (Math.floor(event.coordinate[1]) + 0.5)]);
                 if (!this.markerIsActive) {
+                    this.markerLayer.setVisible(true);
                     this.markerIsActive = true;
                 }
                 this.updateMousePosition(event);
@@ -193,9 +221,9 @@
                 glmvilib.render.apply(null, ['selection-info']);
                 this.renderHandler.framebuffer.updateSpectrum();
                 this.$refs.spectrum.redrawSpectrum();
-                //console.log(this.renderHandler.framebuffer.spectrumValues);
 
             },
+
             // Updates relative mouse position and rerenders the map
             updateMousePosition(event) {
                 // Norm x and y values and prevent webgl coordinate interpolation
@@ -208,13 +236,14 @@
                     this.updateHistogram();
                 }
             },
+
             toggleMarker() {
                 // Deactivate Marker
                 if (this.markerIsActive) {
                     this.markerIsActive = false;
+                    this.markerLayer.setVisible(false);
                     return;
                 }
-                //Todo hide markerVectorLayer (setVisible)
                 this.markerIsActive = true;
             },
             updateHistogram() {
@@ -236,6 +265,7 @@
         background-color: #1f1f1f;
         height: 65vh;
         min-height: 300px;
+        cursor: crosshair;
     }
 
     #spectrum {
