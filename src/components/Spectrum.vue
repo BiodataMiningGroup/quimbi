@@ -18,6 +18,13 @@
             return {
                 data: [],
                 canvas: {},
+                svgChart: {},
+                spectrumMargin: {
+                    bottom: 30,
+                    left: 40,
+                    top: 20,
+                    right: 30
+                },
                 custom: {},
                 dataExample: [],
                 ctx: {},
@@ -49,42 +56,24 @@
         methods: {
 
             initCanvas() {
-                let margin = {
-                    bottom: 30,
-                    left: 60,
-                    top: 10,
-                    right: 10
 
-                };
-
-                this.spectrumAxes = document.getElementById('spectrum-axes');
-                this.canvasWidth = document.getElementById('spectrum-axes').offsetWidth - margin.left - margin.right;
-                this.canvasHeight = document.getElementById('spectrum-axes').offsetHeight - margin.bottom - margin.top;
-
-                this.svgWidth = document.getElementById('spectrum-axes').offsetWidth;
-                this.svgHeight = document.getElementById('spectrum-axes').offsetHeight;
+                this.doDomCalculations();
 
                 // Init Canvas
                 this.canvas = d3.select('#spectrum-canvas')
                     .attr('width', this.canvasWidth).attr('height', this.canvasHeight)
-                    .style('margin-left', margin.left + 'px')
-                    .style('margin-top', margin.top + 'px');
+                    .style('margin-left', this.spectrumMargin.left + 'px')
+                    .style('margin-top', this.spectrumMargin.top + 'px');
 
                 // Init SVG
-                const svgChart = d3.select('#spectrum-axes').append('svg:svg')
+                this.svgChart = d3.select('#spectrum-axes').append('svg:svg')
                     .attr('width', this.svgWidth)
                     .attr('height', this.svgHeight)
                     .attr('class', 'svg-plot')
                     .append('g')
-                    .attr('transform', `translate(${margin.left}, ${margin.top})`);
+                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
-                this.ctx = this.canvas.node().getContext('2d');
-
-                // Init Scales
-                this.xValues.forEach((val, i) => {
-                    this.tickXValues[i] = i;
-                });
-
+                // Set axis
                 this.x = d3.scaleLinear()
                     .domain([0, this.xValues.length - 1])
                     .range([0, this.canvasWidth]);
@@ -102,16 +91,20 @@
                 this.yAxis = d3.axisLeft(this.y).tickPadding(13).ticks(4).tickSizeInner(-this.canvasWidth);
 
 
-                this.gxAxis = svgChart.append('g')
+                // Set axis groups
+                this.gxAxis = this.svgChart.append('g')
                     .attr('transform', `translate(0, ${this.canvasHeight})`)
                     .attr("class", "axisx")
                     .call(this.xAxis);
 
-                this.gyAxis = svgChart.append('g')
+                this.gyAxis = this.svgChart.append('g')
                     .attr("class", "yaxis")
                     .call(this.yAxis);
-
+                this.ctx = this.canvas.node().getContext('2d');
                 this.canvas.call(this.zoomSpectrum());
+
+                // Resize spectrum if window size changes
+                window.addEventListener('resize', this.fitToScreen);
 
             },
 
@@ -209,6 +202,44 @@
                     }
                 });
                 return maxValue;
+            },
+
+            fitToScreen() {
+
+                this.doDomCalculations();
+
+                this.canvas
+                    .attr('width', this.canvasWidth).attr('height', this.canvasHeight)
+                    .style('margin-left', this.spectrumMargin.left + 'px')
+                    .style('margin-top', this.spectrumMargin.top + 'px');
+
+                this.svgChart
+                    .attr('width', this.svgWidth)
+                    .attr('height', this.svgHeight)
+                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+
+
+                this.x.range([0, this.canvasWidth]);
+                this.y.range([this.canvasHeight, 0]);
+
+                this.yAxis.tickSizeInner(-this.canvasWidth);
+
+                this.gxAxis
+                    .attr('transform', `translate(0, ${this.canvasHeight})`)
+                    .call(this.xAxis);
+
+                this.gyAxis
+                    .call(this.yAxis);
+                this.redrawSpectrum();
+            },
+
+            doDomCalculations() {
+                this.spectrumAxes = document.getElementById('spectrum-axes');
+                this.canvasWidth = document.getElementById('spectrum-axes').offsetWidth - this.spectrumMargin.left - this.spectrumMargin.right;
+                this.canvasHeight = document.getElementById('spectrum-axes').offsetHeight - this.spectrumMargin.bottom - this.spectrumMargin.top;
+                this.svgWidth = document.getElementById('spectrum-axes').offsetWidth;
+                this.svgHeight = document.getElementById('spectrum-axes').offsetHeight;
+
             }
         }
     }
