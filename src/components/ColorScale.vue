@@ -31,6 +31,9 @@
         mounted() {
         },
         methods: {
+            /**
+             * Draws the color scale with scale factor to the colorscale canvas and positions it correctly with css
+             */
             redrawScale() {
                 this.scaleFactor = this.bounds[1] - this.bounds[0] || 1;
                 this.ctx = document.getElementById('colorscale').getContext("2d");
@@ -39,19 +42,20 @@
                 this.ctx.clearRect(0, 0, width, height);
                 let drawnumber = height;
                 let index = 0;
-                while(drawnumber) {
-                    this.ctx.fillStyle = "rgb(" + this.colormapvalues[index] + "," + this.colormapvalues[index + 1] +  "," + this.colormapvalues[index + 2] + ")";
+                // Draw colored lines
+                while (drawnumber) {
+                    this.ctx.fillStyle = "rgb(" + this.colormapvalues[index] + "," + this.colormapvalues[index + 1] + "," + this.colormapvalues[index + 2] + ")";
                     this.ctx.fillRect(0, drawnumber, 30, 1);
                     index += 3;
-                    drawnumber--;console.log();
+                    drawnumber--;
                 }
                 // If no scaling is applied, set height op top wrapper to zero
-                if(this.scaleFactor === 1) {
+                if (this.scaleFactor === 1) {
                     document.getElementById('wrapper-top').style = "height: 0px";
                 } else {
-                    document.getElementById('wrapper-top').style = "height: " +  (256 - Math.floor(this.bounds[1] * 256)) + "px";
+                    document.getElementById('wrapper-top').style = "height: " + (256 - Math.floor(this.bounds[1] * 256)) + "px";
                 }
-                document.getElementById('wrapper-bottom').style = "height: " +  Math.floor(this.bounds[0] * 256) + "px";
+                document.getElementById('wrapper-bottom').style = "height: " + Math.floor(this.bounds[0] * 256) + "px";
                 document.getElementById('colorscale').style = "transform: scaleY(" + this.scaleFactor + "); transform-origin:top;";
             },
         }
@@ -83,8 +87,9 @@
         padding: 0;
         border-bottom: grey dotted 1px;
     }
+
     #wrapper-bottom {
-        background-color:black;
+        background-color: black;
         margin: 0;
         padding: 0;
         width: 30px;

@@ -1,9 +1,13 @@
+/**
+ * Shader Program to add a colormap to the greycolored distance map
+ */
 export default class ColorMap {
 
+    /**
+     * @param framebuffer
+     */
     constructor(framebuffer) {
         this._colorMapTextureR = null;
-        this._colorMask = [0, 0, 0];
-        this._colorMaskLocation = null;
         this.id = 'color-map';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/color-map.glsl.frag';
@@ -12,6 +16,13 @@ export default class ColorMap {
 
     }
 
+    /**
+     * Init Method for glmvilib
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     setUp(gl, program, assets, helpers) {
 
         helpers.useInternalVertexPositions(program);
@@ -19,24 +30,16 @@ export default class ColorMap {
 
         this._colorMapTextureR = helpers.newTexture('colorMapTextureR');
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, this.getColorMapValues());
-
         gl.uniform1i(gl.getUniformLocation(program, 'u_color_map_r'), 1);
-
-        //setUpColorMapTexture(gl, assets, helpers);
-
-        this._colorMaskLocation = gl.getUniformLocation(program, 'u_color_mask');
     }
 
+    /**
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     callback(gl, program, assets, helpers) {
-        /* Todo old - working
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, assets.textures.distanceTexture);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureR);
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
-        /*
-        /* Todo fix*/
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, assets.textures.rgbColorLensTexture);
         gl.activeTexture(gl.TEXTURE1);
@@ -46,10 +49,20 @@ export default class ColorMap {
 
     }
 
+    /**
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     postCallback (gl, program, assets, helpers) {
         this.framebuffer.updateColors();
     }
 
+    /**
+     * Holds and returns the colormap. The 4 rgba values of the 256 colors are are written one after another.
+     * @returns {Uint8Array}
+     */
     getColorMapValues() {
         return new Uint8Array(
             [

@@ -1,5 +1,15 @@
+/**
+ * Shader Program to recolor min distance to 1 and max distance to 0 for a given distance map
+ */
 export default class ColorLens {
 
+    /**
+     *
+     * @param intensityHistogram
+     * @param width
+     * @param height
+     * @param framebuffer
+     */
     constructor(intensityHistogram, width, height, framebuffer) {
         this.id = 'color-lens';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
@@ -12,6 +22,13 @@ export default class ColorLens {
         this.framebuffer = framebuffer;
     }
 
+    /**
+     * Init Method for glmvilib
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     setUp(gl, program, assets, helpers) {
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
@@ -29,22 +46,21 @@ export default class ColorLens {
         this._channelBoundsLocation = gl.getUniformLocation(program, 'u_channel_bounds_r');
     }
 
+    /**
+     *
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     callback(gl, program, assets, helpers) {
         gl.activeTexture(gl.TEXTURE0);
-        //Todo ??
         gl.bindTexture(gl.TEXTURE_2D, assets.textures.distanceTexture);
 
         let _channelBounds = this.intensityHistogram.bounds;
-        //console.log(_channelBounds);
         gl.uniform2f(this._channelBoundsLocation, _channelBounds[0], _channelBounds[1]);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.rgbColorLens);
     }
-/*
-    postCallback (gl, program, assets, helpers) {
-        this.framebuffer.updateIntensities();
-        this.intensityHistogram.updateHistogram();
 
-    }
-*/
 }

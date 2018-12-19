@@ -22,6 +22,10 @@
         mounted() {
         },
         methods: {
+            /**
+             * Draws the histogram on a canvas element with a fixed width of 40 and a height equivalent to
+             * the number of colors in the color map (256)
+             */
             redrawHistogram() {
                 this.ctx = document.getElementById('histogram').getContext("2d");
                 let width = 40;

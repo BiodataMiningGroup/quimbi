@@ -24,7 +24,10 @@
             }
         },
         methods: {
-            // Gets called when data was initialized by the InitData component
+            /**
+             * Gets called when data was initialized by the InitData component
+             * @param data
+             */
             onFinishedInit(data) {
                 this.showInitData = false;
                 this.showDisplayData = true;

@@ -1,5 +1,14 @@
+/**
+ * Helper class getting and holding calculated data from the glmvilib
+ */
 export default class FrameBuffer {
 
+    /**
+     *
+     * @param selectionInfoTextureDimension
+     * @param width
+     * @param height
+     */
     constructor(selectionInfoTextureDimension, width, height) {
         this.width = width;
         this.height = height;
@@ -9,20 +18,31 @@ export default class FrameBuffer {
         this.spectrumValues = new Uint8Array(this.selectionInfoTextureDimension * this.selectionInfoTextureDimension * 4);
     }
 
-    // Called by shader program to updated the intensities
+    /**
+     * Called by shader program to updated the intensities
+     */
     updateIntensities() {
         window.glmvilib.getPixels(0, 0, this.width, this.height, this.intensities);
     }
 
-    // Todo needed?
+    /**
+     * Called by ColorMap shader program to update colors
+     */
     updateColors() {
         glmvilib.getPixels(0, 0, this.width, this.height, this.colors);
     }
 
+    /**
+     * Called in DisplayData when pixel is clicked to get spectrum data
+     */
     updateSpectrum() {
-        window.glmvilib.getPixels(0, 0, this.selectionInfoTextureDimension, this.selectionInfoTextureDimension, this.spectrumValues);
+        glmvilib.getPixels(0, 0, this.selectionInfoTextureDimension, this.selectionInfoTextureDimension, this.spectrumValues);
     }
 
+    /**
+     * Getter to get Itensities in the ItensityHistogram
+     * @returns {Uint8Array}
+     */
     getIntensities() {
         return this.intensities;
     }

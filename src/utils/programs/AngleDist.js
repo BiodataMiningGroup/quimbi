@@ -1,7 +1,15 @@
-
-
+/**
+ * Shader Program to calculate the distance map for a given pixel with the angledistance
+ */
 export default class AngleDist {
 
+    /**
+     *
+     * @param framebuffer
+     * @param intensityHistogram
+     * @param canvasWidth
+     * @param canvasHeight
+     */
     constructor(framebuffer, intensityHistogram, canvasWidth, canvasHeight) {
         this.id = 'angle-dist';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
@@ -11,16 +19,28 @@ export default class AngleDist {
         this.mouseY = 0;
         this.width = canvasWidth;
         this.height = canvasHeight;
-        this.framebuffer = framebuffer;
 
+        // Add helper classes
+        this.framebuffer = framebuffer;
         this.intensityHistogram = intensityHistogram;
     }
 
+    /**
+     * Sets current mouse position
+     * @param mouseX
+     * @param mouseY
+     */
     updateMouse(mouseX, mouseY) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
     }
 
+    /**
+     *
+     * @param gl
+     * @param assets
+     * @param helpers
+     */
     setUpDistanceTexture(gl, assets, helpers) {
         if(typeof(assets.framebuffers.distances) === 'undefined') {
             assets.framebuffers.distances = gl.createFramebuffer();
@@ -31,9 +51,15 @@ export default class AngleDist {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
     }
 
+    /**
+     *
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     setUp(gl, program, assets, helpers) {
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
@@ -44,31 +70,31 @@ export default class AngleDist {
 
         assets._mousePosition = gl.getUniformLocation(program, 'u_mouse_position');
         this.setUpDistanceTexture(gl, assets, helpers);
-
-        // Todo do i need this right now?
-        //this._channelMaskTexture = this.setUpChannelMask(gl, program, assets, helpers);
-        // Todo soll raus
-        //this._regionMaskTexture = setUpRegionMask(gl, program, assets, helpers);
     }
 
+    /**
+     *
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     callback(gl, program, assets, helpers) {
         gl.uniform2f(assets._mousePosition, this.mouseX, this.mouseY);
         helpers.bindInternalTextures();
-        //gl.activeTexture(gl.TEXTURE0);
-        //Todo where does _channelMaskTexture come from, do i need it right now?
-        //gl.bindTexture(gl.TEXTURE_2D, _channelMaskTexture);
-        //gl.activeTexture(gl.TEXTURE1);
-        // Todo Call setUpDistanceTexture and:
-        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
     }
 
+    /**
+     *
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     postCallback (gl, program, assets, helpers) {
         this.framebuffer.updateIntensities();
         this.intensityHistogram.updateHistogram();
-
-
     }
-
 
 }

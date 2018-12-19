@@ -1,6 +1,13 @@
-// Todo add description here
+/**
+ * Helper class to update the histogram data for the color values from all pixels
+ * and sets the bounds being used in the ColorLens shader and color scale indicator
+ */
 export default class IntensityHistogram {
 
+    /**
+     *
+     * @param framebuffer
+     */
     constructor(framebuffer) {
         this.histogram = new Array(256);
         this.framebuffer = framebuffer;
@@ -8,12 +15,16 @@ export default class IntensityHistogram {
         this.bounds = [0, 0];
     }
 
-    // Sets all values to zero
+    /**
+     * Sets all values to zero
+     */
     resetHistogram() {
         this.histogram.fill(0);
     }
 
-    // Find lowest and highest value in the histogram and norm it between 0 and 1
+    /**
+     * Find lowest and highest value in the histogram and norm it between 0 and 1
+     */
     updateBounds() {
 
         for (let i = 0; i < this.histogram.length; i++) {
@@ -30,7 +41,10 @@ export default class IntensityHistogram {
         }
     }
 
-    // Updates the Histogram for the color values of the current pixels displayed on the screen
+    /**
+     * Updates the Histogram for the color values displayed the current pixels
+     * @returns {Array|any[]}
+     */
     updateHistogram() {
         this.resetHistogram();
         let intensities = this.framebuffer.getIntensities();

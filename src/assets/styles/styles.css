@@ -1,8 +1,9 @@
+/* Let document fit screen and set dark background color */
 html {
     height: 100%;
     background-color: #1F1F1F;
 }
-
+/* Styles for openlayer zooming buttons */
 .ol-control button {
     background-color: rgba(96, 96, 96, 0.5) !important;
 }
@@ -12,10 +13,12 @@ html {
     border-color: #131313;
 }
 
+/* Text color being used */
 body {
     color: #e8e8e8;
 }
 
+/* Styling for spectrum y-axis horizontale lines */
 .yaxis .tick line {
     stroke: grey;
     stroke-opacity: 0.3;

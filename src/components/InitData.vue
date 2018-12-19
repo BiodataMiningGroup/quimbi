@@ -53,7 +53,9 @@
             }
         },
         watch: {
-            // Loads glmvlib if all images are loaded
+            /**
+             *  Loads glmvlib if all images are loaded
+             **/
             counter() {
                 this.progressBar = Math.round((this.counter / this.data.files.length * 100));
                 if (this.counter === this.data.files.length) {
@@ -148,9 +150,13 @@
 
             },
 
+            /**
+             * Inits the glmbilib with parsed data
+             */
             initGlmvlib() {
                 try {
                     window.glmvilib.init(
+                        // Canvas element for openlayers
                         this.data.canvas,
                         {
                             width: this.data.dataWidth,
@@ -160,20 +166,17 @@
                         }
                     );
 
+                    // Write tiles row major into textures
                     window.glmvilib.storeTiles(this.data.images);
                     this.loading = false;
 
+                    // Emit finish message to switch to switch component
                     this.$emit('finish', this.data)
-                    // Todo shader.getActive()
-                    // Todo glmvilib.render.apply(null, [a,b,c])
-                    // Todo start with angledist shader, Programm.coffee,
-                    // services/shader.coffee : createProgramms(), getActive()
-                    // renderer.coffee: update() glmvilib.render(shader.getActive())
-                    // glmbilib.render('angle-dist');s
 
+                    // Never happens, but better be save than sorry
                 } catch (error) {
-                    // Todo show error on gui
                     console.log(error);
+                    // Kill the library to release memory
                     window.glmvilib.finish();
                 }
             }
@@ -216,11 +219,9 @@
     }
 
     h1 {
-        font-family: Helvetica,sans-serif;
+        font-family: Helvetica, sans-serif;
         font-weight: bold;
         font-size: 1.7em;
     }
-
-
 
 </style>

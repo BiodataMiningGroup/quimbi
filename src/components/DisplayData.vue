@@ -26,10 +26,12 @@
 </template>
 
 <script>
+    // Child Compontents
     import Histogram from './Histogram.vue'
     import Spectrum from './Spectrum.vue'
     import ColorScale from './ColorScale.vue'
 
+    // OpenLayers
     import Map from '../../node_modules/ol/Map';
     import View from '../../node_modules/ol/View';
     import Feature from '../../node_modules/ol/Feature';
@@ -43,6 +45,7 @@
     import Style from '../../node_modules/ol/style/Style';
     import Projection from 'node_modules/ol/proj/Projection';
     import {getCenter} from 'node_modules/ol/extent';
+
 
     import RenderHandler from '../utils/RenderHandler.js';
 
@@ -78,6 +81,10 @@
                 markerBorderStyle: {}
             }
         },
+        /**
+         * Called before screen is rendered. Inits the Renderhandler,
+         * retrievs colormap array and bounds for the colormap scale
+         */
         created() {
             // Initialize shader
             this.renderHandler = new RenderHandler(this.data);
@@ -85,14 +92,22 @@
             this.colormapvalues = this.renderHandler.colorMap.getColorMapValues();
             this.bounds = this.renderHandler.intensityHistogram.bounds;
         },
+        /**
+         * Called after created(), when dom elements are accessible
+         */
         mounted() {
             // Create map view after html template has loaded
             this.createMap();
             // Draw Color-Scale
             this.$refs.scaleCanvas.redrawScale();
         },
+
         methods: {
 
+            /**
+             * Created the openlayers map with the glmvilib canvas as layer source, adds hidden marker for
+             * pixel selection and calls updateView() to watch for mouse movement
+             */
             createMap() {
                 let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
                 let projection = new Projection({
@@ -125,21 +140,21 @@
                 this.createMarker();
                 this.map.addLayer(this.markerLayer);
 
-                // Set values for the Intensity Histogram and Color-Scale
-                this.histogramData = this.renderHandler.intensityHistogram.histogram;
-                this.bounds = this.renderHandler.intensityHistogram.bounds;
-
                 // Render and update image on mouse movement
                 this.updateView();
 
             },
 
+            /**
+             * Helper to create the marker which gets visible by clicking on a pixel
+             */
             createMarker() {
                 // Create marker for click event
                 let vectorSource = new VectorSource({
                     features: []
                 });
 
+                // Inner white circle
                 this.markerStyle = new Style({
                     image: new Circle({
                         radius: 4,
@@ -149,6 +164,7 @@
                     })
                 });
 
+                // Outer black circle to create border effect around the white circle
                 this.markerBorderStyle = new Style({
                     image: new Circle({
                         radius: 6,
@@ -165,12 +181,15 @@
                     style: [this.markerBorderStyle, this.markerStyle]
                 });
                 vectorSource.addFeature(this.markerFeature);
-                // Hide marker
+                // Initially hide marker
                 this.markerLayer.setVisible(false);
             },
 
+            /**
+             * Adds event listener for map interaction
+             */
             updateView() {
-                // Render image to show it before user moves the mouse
+                // Render image once to show something before the mouse is being moved
                 this.renderHandler.render(this.mouse);
                 this.map.render();
 
@@ -195,6 +214,11 @@
                 });
             },
 
+            /**
+             * Called on free mouse movement. Adds small delay between mouse movement events to prevent lag
+             * caused by too much rendering
+             * @param event
+             */
             updateOnMouseMove(event) {
                 if (!this.markerIsActive) {
                     // Update if there is a certain time interval (in ms) between movements
@@ -207,6 +231,10 @@
 
             },
 
+            /**
+             * Sets marker if mouse is clicked, activates button in toolbar, rerenders the image and
+             * gets values for the spectrum view
+             **/
             updateOnMouseClick(event) {
                 // Set Marker position
                 this.markerFeature.getGeometry().setCoordinates([(Math.floor(event.coordinate[0]) + 0.5),
@@ -216,7 +244,7 @@
                     this.markerIsActive = true;
                 }
                 this.updateMousePosition(event);
-                // Todo wohin damit?
+                // Todo refactor please
                 this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
                 glmvilib.render.apply(null, ['selection-info']);
                 this.renderHandler.framebuffer.updateSpectrum();
@@ -224,7 +252,10 @@
 
             },
 
-            // Updates relative mouse position and rerenders the map
+            /**
+             * Sets relative mouse position and rerenders the map, histogram and color scale
+             * @param event
+             */
             updateMousePosition(event) {
                 // Norm x and y values and prevent webgl coordinate interpolation
                 this.mouse.x = (Math.floor(event.coordinate[0]) + 0.5) / this.data.canvas.width;
@@ -237,6 +268,9 @@
                 }
             },
 
+            /**
+             * Well, toggles the marker on map and toolbar
+             */
             toggleMarker() {
                 // Deactivate Marker
                 if (this.markerIsActive) {
@@ -246,6 +280,10 @@
                 }
                 this.markerIsActive = true;
             },
+
+            /**
+             * Called to update the histogram and color scale in the ui
+             */
             updateHistogram() {
                 this.$refs.histogram.redrawHistogram();
                 this.$refs.scaleCanvas.redrawScale();

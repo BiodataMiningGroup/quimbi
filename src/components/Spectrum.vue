@@ -43,19 +43,21 @@
                 clearedXValues: [],
                 lineColor: '#e8e8e8',
                 tickXValues: [],
-                // Zooom Factor of Spectrum when Points get visible
+                // Zoom Factor of Spectrum when Points get visible
                 zoomFactorPoints: 2
             }
         },
+        /**
+         * Created the graph and draw it once without values not zoomed
+         */
         mounted() {
-
-            this.initCanvas();
+            this.initGraph();
             this.drawSpectrum(d3.zoomIdentity);
 
         },
         methods: {
 
-            initCanvas() {
+            initGraph() {
 
                 this.doDomCalculations();
 
@@ -101,6 +103,8 @@
                     .attr("class", "yaxis")
                     .call(this.yAxis);
                 this.ctx = this.canvas.node().getContext('2d');
+
+                // Add event listener for user interaction
                 this.canvas.call(this.zoomSpectrum());
 
                 // Resize spectrum if window size changes
@@ -172,6 +176,9 @@
 
             },
 
+            /**
+             * Draws spectrum when user zooms or moves the graph
+             */
             redrawSpectrum() {
                 this.normYValues();
                 // Redraw spectrum with current zoom
@@ -179,6 +186,9 @@
 
             },
 
+            /**
+             * Called on user interaction
+             */
             zoomSpectrum() {
                 return d3.zoom().scaleExtent([1, 100]).translateExtent([[0, 0], [this.canvasWidth, this.canvasHeight]]).extent([[0, 0], [this.canvasWidth, this.canvasHeight]])
                     .on('zoom', () => {
@@ -189,11 +199,18 @@
                     });
             },
 
+            /**
+             * Norms the intensity values which are 0 to 255 to relative intensity values between 0 and 100
+             */
             normYValues() {
                 let maxY = this.findMaxYValue();
                 this.normedYValues = this.yValues.map(val => val / maxY * 100);
             },
 
+            /**
+             * Helper to find highest value for norming
+             * @returns {number}
+             */
             findMaxYValue() {
                 let maxValue = 0;
                 this.yValues.forEach(val => {
@@ -204,6 +221,10 @@
                 return maxValue;
             },
 
+            /**
+             * Makes graph responsive.
+             * Recalculates the graph dom objects to fit screen, if it is rescaled by the user.
+             */
             fitToScreen() {
 
                 this.doDomCalculations();
@@ -233,6 +254,9 @@
                 this.redrawSpectrum();
             },
 
+            /**
+             * Updates dom elements to current values, before new screen rescale
+             */
             doDomCalculations() {
                 this.spectrumAxes = document.getElementById('spectrum-axes');
                 this.canvasWidth = document.getElementById('spectrum-axes').offsetWidth - this.spectrumMargin.left - this.spectrumMargin.right;
@@ -256,6 +280,5 @@
     #spectrum-canvas {
         position: absolute;
     }
-
 
 </style>
