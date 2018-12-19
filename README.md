@@ -3,10 +3,20 @@ quimbi
 
 Quick exploration tool for multivariate bioimages
 
-## Set up
+## Installation
 
 To run the project you need `node` and `npm` . Clone this repository, run `npm install` and then `npm run build` to build the project.
+The bundled project is saved into the `dist` folder.
 
-For developement you can simply use the build in server with `npm run start:dev` to build changed files on the fly (except index.html).
+## Usage
+### Development
+To start developing enter `npm run start:dev`. This starts a node based webpack development server at `localhost:8080` with live reload. Note: if you make 
+changes to static files like the index.html or you edit the webpack config file, you need to
+restart the server to see changes.
+### Production
+To start the tool for production, go to the  `dist/index.html`. In this folder you have to start a webserver for example 
+the build-in from php with `php -S localhost:8000`. You can then access the app in your browser
+with the url `http://localhost:8000`
 
-To start the tool, open `localhost:8080` in a browser for if you use the build in server or open `dist/index.html` in a browser either locally or from a webserver.
+## Data files
+It's important to place your data files in a folder called `data` in quimbis root directory: `quimbi/data`
