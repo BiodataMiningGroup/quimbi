@@ -70,7 +70,7 @@
                     y: 0
                 },
                 histogramData: [],
-                bounds: {},
+                bounds: [],
                 colorMapData: {},
                 markerIsActive: false,
                 viewMode: 'similarity',
@@ -90,6 +90,7 @@
             this.renderHandler = new RenderHandler(this.data);
             this.renderHandler.createShader();
             this.colormapvalues = this.renderHandler.colorMap.getColorMapValues();
+            this.histogramData = this.renderHandler.intensityHistogram.histogram;
             this.bounds = this.renderHandler.intensityHistogram.bounds;
         },
         /**
