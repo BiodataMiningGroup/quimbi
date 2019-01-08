@@ -180,7 +180,7 @@
              * Draws spectrum when user zooms or moves the graph
              */
             redrawSpectrum() {
-                this.normYValues();
+                this.normedYValues = this.getNormedYValues();
                 // Redraw spectrum with current zoom
                 this.drawSpectrum(d3.zoomTransform(this.canvas.node()));
 
@@ -202,23 +202,10 @@
             /**
              * Norms the intensity values which are 0 to 255 to relative intensity values between 0 and 100
              */
-            normYValues() {
-                let maxY = this.findMaxYValue();
-                this.normedYValues = this.yValues.map(val => val / maxY * 100);
-            },
+            getNormedYValues() {
+                let maxY = Math.max.apply(null, this.yValues);
 
-            /**
-             * Helper to find highest value for norming
-             * @returns {number}
-             */
-            findMaxYValue() {
-                let maxValue = 0;
-                this.yValues.forEach(val => {
-                    if (val > maxValue) {
-                        maxValue = val;
-                    }
-                });
-                return maxValue;
+                return Array.from(this.yValues).map(val => val / maxY * 100);
             },
 
             /**

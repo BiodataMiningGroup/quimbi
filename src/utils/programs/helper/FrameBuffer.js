@@ -46,5 +46,4 @@ export default class FrameBuffer {
     getIntensities() {
         return this.intensities;
     }
-
 }
