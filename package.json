@@ -27,6 +27,6 @@
   },
   "scripts": {
     "start:dev": "webpack-dev-server --hot",
-    "build": "webpack -p && ln -sf ../data dist/data",
+    "build": "webpack -p && ln -sf ../data dist/data"
   }
 }
