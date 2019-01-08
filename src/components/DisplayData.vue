@@ -1,6 +1,6 @@
 <template>
-    <section class="section display is-marginless is-paddingless">
-        <div class="level" id="toolbar">
+    <section class="main">
+        <div class="toolbar level">
             <div class="level-item has-text-centered">
                 <div class="buttons has-addons">
                     <a class="button" v-bind:class="[viewMode === 'similarity' ? 'is-light' : 'is-dark']">similarity</a>
@@ -11,16 +11,26 @@
                 </div>
             </div>
         </div>
-        <div class="container is-fluid is-marginless is-paddingless" id="map-view">
-            <div id="additionals">
-                <Histogram ref="histogram" :histogram="histogramData"></Histogram>
-                <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
+        <div class="map-container">
+            <div class="map-overlay">
+                <Histogram
+                    ref="histogram"
+                    :histogram="histogramData"
+                    ></Histogram>
+                <ColorScale
+                    ref="scaleCanvas"
+                    :bounds="bounds"
+                    :colormapvalues="colormapvalues"
+                    ></ColorScale>
             </div>
-            <div id="map"></div>
+            <div ref="map" class="map"></div>
         </div>
-        <div class="container is-fluid is-marginless" id="spectrum">
-            <Spectrum ref="spectrum" :xValues="data.channelNames"
-                      :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>
+        <div class="spectrum-container" id="spectrum">
+            <Spectrum
+                ref="spectrum"
+                :xValues="data.channelNames"
+                :yValues="renderHandler.framebuffer.spectrumValues"
+                ></Spectrum>
         </div>
     </section>
 </template>
@@ -118,7 +128,7 @@
                 });
 
                 this.map = new Map({
-                    target: 'map',
+                    target: this.$refs.map,
                     layers: [
                         new ImageLayer({
                             source: new ImageSource({
@@ -158,7 +168,7 @@
                 // Inner white circle
                 this.markerStyle = new Style({
                     image: new Circle({
-                        radius: 4,
+                        radius: 6,
                         fill: new Fill({
                             color: 'white'
                         })
@@ -168,7 +178,7 @@
                 // Outer black circle to create border effect around the white circle
                 this.markerBorderStyle = new Style({
                     image: new Circle({
-                        radius: 6,
+                        radius: 8,
                         fill: new Fill({
                             color: 'black'
                         })
@@ -205,14 +215,6 @@
                 // Add event listener for single click and mouse movement
                 this.map.on('singleclick', this.updateOnMouseClick);
                 this.map.on('pointermove', this.updateOnMouseMove);
-
-                // Add event listener for marker scaling
-                this.map.on('moveend', () => {
-                    let zoomLevel = this.map.getView().getZoom();
-                    this.markerStyle.getImage(0).setRadius(zoomLevel + 4);
-                    this.markerBorderStyle.getImage(1).setRadius(zoomLevel + 6);
-
-                });
             },
 
             /**
@@ -296,34 +298,39 @@
 
 <style scoped>
 
-    #map-view {
-    }
-
-    #map {
+    .main {
+        display: flex;
+        height: 100%;
         width: 100%;
-        background-color: #1f1f1f;
-        height: 65vh;
-        min-height: 300px;
-        cursor: crosshair;
+        flex-flow: column;
     }
 
-    #spectrum {
-        height: 35vh;
+    .map-container {
+        background-color: #1f1f1f;
+        height: 65%;
+        position: relative;
+    }
+
+    .spectrum-container {
+        height: 35%;
+        position: relative;
         background-color: #353535;
     }
 
-    #toolbar {
+    .map {
+        height: 100%;
+        width: 100%;
+        cursor: crosshair;
+    }
+
+    .toolbar {
         position: absolute;
         top: 5px;
         z-index: 800;
         width: 100%;
     }
 
-    .marker {
-        margin-left: 50px;
-    }
-
-    #additionals {
+    .map-overlay {
         display: flex;
         position: absolute;
         z-index: 700;

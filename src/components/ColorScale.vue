@@ -4,7 +4,6 @@
         <canvas class="canvas" ref="canvas"></canvas>
         <div class="wrapper-bottom" ref="wrapperBottom"></div>
     </div>
-
 </template>
 
 <script>
@@ -19,37 +18,30 @@
                 type: Array,
                 required: true,
             }
-        }
-
-        ,
-        data() {
-            return {
-                scaleFactor: 1,
-            }
         },
         methods: {
             /**
              * Draws the color scale with scale factor to the colorscale canvas and positions it correctly with css
              */
             redrawScale() {
-                this.scaleFactor = this.bounds[1] - this.bounds[0] || 1;
+                let scaleFactor = this.bounds[1] - this.bounds[0] || 1;
                 this.ctx = this.$refs.canvas.getContext("2d");
                 let height = 0;
                 // If no scaling is applied, set height op top wrapper to zero
-                if (this.scaleFactor === 1 || this.bounds[1] === 1) {
+                if (scaleFactor === 1 || this.bounds[1] === 1) {
                     this.$refs.wrapperTop.style = "display: none;";
                 } else {
                     height = (1 - this.bounds[1]) * 100;
                     this.$refs.wrapperTop.style = "height: " + height + "%";
                 }
 
-                if (this.scaleFactor === 1 || this.bounds[0] === 0) {
+                if (scaleFactor === 1 || this.bounds[0] === 0) {
                     this.$refs.wrapperBottom.style = "display: none;";
                 } else {
                     height = this.bounds[0] * 100;
                     this.$refs.wrapperBottom.style = "height: " + height + "%";
                 }
-                height = this.scaleFactor * 100;
+                height = scaleFactor * 100;
                 this.$refs.canvas.style = "height: " + height + "%;";
             },
 
@@ -86,6 +78,7 @@
 
     .canvas {
         width: 100%;
+        height: 100%;
     }
 
     .wrapper-top {

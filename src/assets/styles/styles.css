@@ -4,13 +4,9 @@ html {
     background-color: #1F1F1F;
 }
 /* Styles for openlayer zooming buttons */
-.ol-control button {
-    background-color: rgba(96, 96, 96, 0.5) !important;
-}
 
 .ol-control {
     z-index: 900;
-    border-color: #131313;
 }
 
 /* Text color being used */

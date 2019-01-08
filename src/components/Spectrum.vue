@@ -1,8 +1,6 @@
 <template>
-    <div id="spectrum-wrapper">
-        <div id="spectrum-axes">
-            <canvas id="spectrum-canvas"></canvas>
-        </div>
+    <div id="spectrum-axes">
+        <canvas id="spectrum-canvas"></canvas>
     </div>
 </template>
 
@@ -19,6 +17,7 @@
                 data: [],
                 canvas: {},
                 svgChart: {},
+                svgGroup: {},
                 spectrumMargin: {
                     bottom: 30,
                     left: 45,
@@ -71,8 +70,9 @@
                 this.svgChart = d3.select('#spectrum-axes').append('svg:svg')
                     .attr('width', this.svgWidth)
                     .attr('height', this.svgHeight)
-                    .attr('class', 'svg-plot')
-                    .append('g')
+                    .attr('class', 'svg-plot');
+
+                this.svgGroup = this.svgChart.append('g')
                     .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
                 // Set axis
@@ -94,12 +94,12 @@
 
 
                 // Set axis groups
-                this.gxAxis = this.svgChart.append('g')
+                this.gxAxis = this.svgGroup.append('g')
                     .attr('transform', `translate(0, ${this.canvasHeight})`)
                     .attr("class", "axisx")
                     .call(this.xAxis);
 
-                this.gyAxis = this.svgChart.append('g')
+                this.gyAxis = this.svgGroup.append('g')
                     .attr("class", "yaxis")
                     .call(this.yAxis);
                 this.ctx = this.canvas.node().getContext('2d');
@@ -223,9 +223,9 @@
 
                 this.svgChart
                     .attr('width', this.svgWidth)
-                    .attr('height', this.svgHeight)
-                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+                    .attr('height', this.svgHeight);
 
+                this.svgGroup.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
                 this.x.range([0, this.canvasWidth]);
                 this.y.range([this.canvasHeight, 0]);
@@ -259,12 +259,13 @@
 
 <style scoped>
     #spectrum-axes {
-        width: 100%;
         height: 100%;
-        position: absolute;
+        display: block;
     }
 
     #spectrum-canvas {
+        top: 0;
+        left: 0;
         position: absolute;
     }
 

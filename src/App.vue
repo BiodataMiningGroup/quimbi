@@ -40,4 +40,8 @@
 <style>
     @import '~bulma/css/bulma.min.css';
     @import '~@fortawesome/fontawesome-free/css/all.css';
+
+    #app {
+        height: 100%;
+    }
 </style>
