@@ -43,7 +43,7 @@
                 lineColor: '#e8e8e8',
                 tickXValues: [],
                 // Zoom Factor of Spectrum when Points get visible
-                zoomFactorPoints: 2
+                zoomFactorPoints: 15
             }
         },
         /**
@@ -141,7 +141,7 @@
 
                             // Draw point
                             this.ctx.fillStyle = this.lineColor;
-                            this.ctx.arc(px, py, 0.2 * transform.k, 0, 2 * Math.PI, true);
+                            this.ctx.arc(px, py, 3, 0, 2 * Math.PI, true);
                             this.ctx.fill();
                         }
                     });
