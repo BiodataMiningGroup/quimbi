@@ -25,6 +25,7 @@
             </div>
             <div ref="map" class="map"></div>
         </div>
+        <p>Christian: hier Spectrum.vue</p>
         <div class="spectrum-container" id="spectrum">
             <Spectrum
                 ref="spectrum"
