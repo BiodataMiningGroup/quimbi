@@ -15,10 +15,9 @@
 			<Histogram ref="histogram" :histogram="histogramData"></Histogram>
 			<ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
 		</div>
-		<div ref="map" class="map"></div>
-	</div>
-	<div id="mymap">
-		<MyMap ref="mymap" :data="data"></MyMap>
+		<div id="mymap">
+			<MyMap ref="mymap" :initData="data"></MyMap>
+		</div>
 	</div>
 	<div class="spectrum-container" id="spectrum">
 		<Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>

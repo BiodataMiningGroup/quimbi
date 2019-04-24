@@ -1,7 +1,5 @@
 <template>
-<div id="mymap-test" class="map">
-	<p>Test</p>
-</div>
+<div ref="mymap" id="mymap-test" class="map"></div>
 </template>
 
 <script>
@@ -21,14 +19,27 @@ import {
 	getCenter
 } from 'node_modules/ol/extent';
 
+import RenderHandler from '../utils/RenderHandler.js';
+
 export default {
 	props: [
-		'data'
+		'initData'
 	],
 	data() {
 		return {
-			mymap: undefined
+			data: this.initData,
+			mymap: undefined,
+			renderHandler: undefined,
+			mouse: {
+				x: 0,
+				y: 0
+			}
 		}
+	},
+	created() {
+		// Initialize shader
+		this.renderHandler = new RenderHandler(this.data);
+		this.renderHandler.createShader();
 	},
 	mounted() {
 		// Create map view after html template has loaded
@@ -69,7 +80,22 @@ export default {
 
 			this.mymap.getView().fit(extent);
 			this.mymap.render();
-		}
+
+			this.updateView();
+		},
+
+		updateView() {
+				this.renderHandler.render(this.mouse);
+                this.mymap.render();
+
+                // Prevent image smoothing on mouse movement
+                this.mymap.on('precompose', function (evt) {
+                    evt.context.imageSmoothingEnabled = false;
+                    evt.context.webkitImageSmoothingEnabled = false;
+                    evt.context.mozImageSmoothingEnabled = false;
+                    evt.context.msImageSmoothingEnabled = false;
+                });
+            },
 	}
 }
 </script>
