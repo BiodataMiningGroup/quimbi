@@ -16,7 +16,8 @@
 			<ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
 		</div>
 		<div id="mymap">
-			<MyMap ref="mymap" :initData="data"></MyMap>
+			<MyMap ref="mymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:MouseClick="updateOnMouseClick($event)">
+			</MyMap>
 		</div>
 	</div>
 	<div class="spectrum-container" id="spectrum">
@@ -101,14 +102,11 @@ export default {
 	 * Called after created(), when dom elements are accessible
 	 */
 	mounted() {
-		// Create map view after html template has loaded
-		//this.createMap();
 		// Draw Color-Scale
 		this.$refs.scaleCanvas.redrawScale();
 	},
 
 	methods: {
-
 		/**
 		 * Created the openlayers map with the glmvilib canvas as layer source, adds hidden marker for
 		 * pixel selection and calls updateView() to watch for mouse movement
