@@ -75,51 +75,17 @@ export default {
 			});
 
 			this.mymap.getView().fit(extent);
-			this.createMarker();
-			this.mymap.addLayer(this.markerLayer);
+			//this.createMarker();
+			//this.mymap.addLayer(this.markerLayer);
 
 			this.updateView();
 		},
+
 		/**
-		 * Helper to create the marker which gets visible by clicking on a pixel
+		 * Adds event listener for map interaction
 		 */
-		createMarker() {
-			// Create marker for click event
-			let vectorSource = new VectorSource({
-				features: []
-			});
-
-			// Inner white circle
-			this.markerStyle = new Style({
-				image: new Circle({
-					radius: 6,
-					fill: new Fill({
-						color: 'white'
-					})
-				})
-			});
-
-			// Outer black circle to create border effect around the white circle
-			this.markerBorderStyle = new Style({
-				image: new Circle({
-					radius: 8,
-					fill: new Fill({
-						color: 'black'
-					})
-				})
-			});
-
-			this.markerFeature = new Feature(new Point([0, 0]));
-
-			this.markerLayer = new VectorLayer({
-				source: vectorSource,
-				style: [this.markerBorderStyle, this.markerStyle]
-			});
-			vectorSource.addFeature(this.markerFeature);
-			// Initially hide marker
-			this.markerLayer.setVisible(false);
-		},
 		updateView() {
+			// Render image once to show something before the mouse is being moved
 			//renders the map
 			this.renderHandler.render(this.mouse);
 			this.mymap.render();
@@ -132,6 +98,7 @@ export default {
 				evt.context.msImageSmoothingEnabled = false;
 			});
 
+			// Add event listener for single click and mouse movement
 			this.mymap.on('pointermove', this.notifyMouseMove);
 			this.mymap.on('singleclick', this.notifyMouseClick);
 

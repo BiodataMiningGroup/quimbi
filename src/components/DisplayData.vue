@@ -104,55 +104,12 @@ export default {
 	mounted() {
 		// Draw Color-Scale
 		this.$refs.scaleCanvas.redrawScale();
-	},
-
-	methods: {
-		/**
-		 * Created the openlayers map with the glmvilib canvas as layer source, adds hidden marker for
-		 * pixel selection and calls updateView() to watch for mouse movement
-		 */
-		/*
-		createMap() {
-		let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
-		let projection = new Projection({
-			code: 'pixel-projection',
-			units: 'pixels',
-			extent: extent,
-		});
-
-		this.map = new Map({
-			target: this.$refs.map,
-			layers: [
-				new ImageLayer({
-					source: new ImageSource({
-						canvas: this.data.canvas,
-						projection: projection,
-						imageExtent: extent,
-					}),
-				}),
-			],
-			view: this.view = new View({
-				projection: projection,
-				center: getCenter(extent),
-				resolution: 1,
-				zoomFactor: 2,
-				extent: extent,
-			})
-		});
-
-		this.map.getView().fit(extent);
 		this.createMarker();
-		this.map.addLayer(this.markerLayer);
-
-		// Render and update image on mouse movement
-		this.updateView();
-
 	},
-  */
+	methods: {
 		/**
 		 * Helper to create the marker which gets visible by clicking on a pixel
 		 */
-		/*
 		createMarker() {
 			// Create marker for click event
 			let vectorSource = new VectorSource({
@@ -188,30 +145,8 @@ export default {
 			vectorSource.addFeature(this.markerFeature);
 			// Initially hide marker
 			this.markerLayer.setVisible(false);
+			this.$refs.mymap.addLayer(this.markerLayer);
 		},
-    */
-		/**
-		 * Adds event listener for map interaction
-		 */
-		/*
-		updateView() {
-			// Render image once to show something before the mouse is being moved
-			this.renderHandler.render(this.mouse);
-			//this.map.render();
-
-			// Prevent image smoothing on mouse movement
-      this.map.on('precompose', function(evt) {
-				evt.context.imageSmoothingEnabled = false;
-				evt.context.webkitImageSmoothingEnabled = false;
-				evt.context.mozImageSmoothingEnabled = false;
-				evt.context.msImageSmoothingEnabled = false;
-			});
-
-			// Add event listener for single click and mouse movement
-			this.map.on('singleclick', this.updateOnMouseClick);
-			this.map.on('pointermove', this.updateOnMouseMove);
-		},
-    */
 
 		/**
 		 * Called on free mouse movement. Adds small delay between mouse movement events to prevent lag
@@ -227,7 +162,6 @@ export default {
 					this.timeStampBefore = event.originalEvent.timeStamp;
 				}
 			}
-
 		},
 
 		/**
@@ -263,7 +197,6 @@ export default {
 
 			if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
 				this.renderHandler.render(this.mouse);
-				//this.map.render();
 				this.updateHistogram();
 			}
 		},
