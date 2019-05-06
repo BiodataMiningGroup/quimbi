@@ -40,6 +40,7 @@ export default {
 	mounted() {
 		// Create map view after html template has loaded
 		this.createMap();
+		this.$emit("setMap", this.mymap);
 	},
 	methods: {
 		/**

@@ -16,7 +16,7 @@
 			<ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
 		</div>
 		<div id="mymap">
-			<MyMap ref="mymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:MouseClick="updateOnMouseClick($event)">
+			<MyMap ref="mymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:MouseClick="updateOnMouseClick($event)" v-on:setMap="setMap($event)">
 			</MyMap>
 		</div>
 	</div>
@@ -145,7 +145,7 @@ export default {
 			vectorSource.addFeature(this.markerFeature);
 			// Initially hide marker
 			this.markerLayer.setVisible(false);
-			this.$refs.mymap.addLayer(this.markerLayer);
+			this.map.addLayer(this.markerLayer);
 		},
 
 		/**
@@ -197,6 +197,7 @@ export default {
 
 			if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
 				this.renderHandler.render(this.mouse);
+				this.map.render();
 				this.updateHistogram();
 			}
 		},
@@ -220,6 +221,10 @@ export default {
 		updateHistogram() {
 			this.$refs.histogram.redrawHistogram();
 			this.$refs.scaleCanvas.redrawScale();
+		},
+
+		setMap(map) {
+			this.map = map;
 		}
 
 	}
