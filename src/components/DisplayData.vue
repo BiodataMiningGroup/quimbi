@@ -15,9 +15,9 @@
 			<Histogram ref="histogram" :histogram="histogramData"></Histogram>
 			<ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
 		</div>
-		<div id="mymap">
-			<MyMap ref="mymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:MouseClick="updateOnMouseClick($event)" v-on:setMap="setMap($event)">
-			</MyMap>
+		<div id="intensitymap">
+			<IntensityMap ref="intensitymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:MouseClick="updateOnMouseClick($event)" v-on:setMap="setMap($event)">
+			</IntensityMap>
 		</div>
 	</div>
 	<div class="spectrum-container" id="spectrum">
@@ -31,7 +31,7 @@
 import Histogram from './Histogram.vue'
 import Spectrum from './Spectrum.vue'
 import ColorScale from './ColorScale.vue'
-import MyMap from './MyMap.vue'
+import IntensityMap from './IntensityMap.vue'
 
 // OpenLayers
 import Map from '../../node_modules/ol/Map';
@@ -62,7 +62,7 @@ export default {
 		Histogram,
 		ColorScale,
 		Spectrum,
-		MyMap
+		IntensityMap
 	},
 	data() {
 		return {

@@ -1,6 +1,6 @@
 <template>
 <div id="spectrum-axes">
-	<canvas id="spectrum-canvas"></canvas>
+	<canvas v-on:click="pointer($event)" id="spectrum-canvas"></canvas>
 </div>
 </template>
 
@@ -168,8 +168,25 @@ export default {
 				this.ctx.lineTo(px, py);
 				this.ctx.strokeStyle = 'white';
 
+				//draw red circles representing the data points
+    		//this.ctx.fillStyle = 'red';
+				//this.ctx.fillRect(px-5, py-5, 10, 10);
+
 				lastpY = py;
 				lastpX = px;
+
+
+				this.svgGroup.selectAll("circle")
+					.data(this.xValues)
+					.enter().append("circle")
+					.attr("class", "circle")
+					.attr("cx", px)
+					.attr("cy", py)
+					.attr("r", 4)
+					.style("fill", "purple")
+					.on("click", function(d) {
+							console.log(comment)
+					});
 			});
 
 			this.ctx.stroke();
@@ -257,7 +274,19 @@ export default {
 			this.svgWidth = document.getElementById('spectrum-axes').offsetWidth;
 			this.svgHeight = document.getElementById('spectrum-axes').offsetHeight;
 
-		}
+		},
+		//trying to draw pointers for each position clicked failed
+		pointer(event) {
+			console.log("draw pointer");
+			this.canvas
+        .append("use")
+        .attr("href", "#pointer")
+        .attr("x", event.clientX)
+        .attr("y", event.clientY)
+        .attr("fill", "#039BE5")
+        .attr("stroke", "#039BE5")
+        .attr("stroke-width", "1px");
+				}
 	}
 }
 </script>
