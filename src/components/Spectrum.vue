@@ -1,6 +1,6 @@
 <template>
 <div id="spectrum-axes">
-	<canvas v-on:click="pointer($event)" id="spectrum-canvas"></canvas>
+	<canvas id="spectrum-canvas"></canvas>
 </div>
 </template>
 
@@ -43,7 +43,9 @@ export default {
 			lineColor: '#e8e8e8',
 			tickXValues: [],
 			// Zoom Factor of Spectrum when Points get visible
-			zoomFactorPoints: 15
+			zoomFactorPoints: 15,
+			//actually create accessible data points
+			dataPoints: []
 		}
 	},
 	/**
@@ -59,7 +61,6 @@ export default {
 		initGraph() {
 
 			this.doDomCalculations();
-
 			// Init Canvas
 			this.canvas = d3.select('#spectrum-canvas')
 				.attr('width', this.canvasWidth).attr('height', this.canvasHeight)
@@ -127,6 +128,8 @@ export default {
 			this.gyAxis.call(this.yAxis.scale(scaleY));
 			this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
+			/*
+			IS THIS PART NECESSARY?? DOESN'T SEEM TO BE???
 
 			// Loop over all normed y values and draw them to their corresponding x values
 
@@ -146,7 +149,12 @@ export default {
 					}
 				});
 			}
+			*/
 
+			this.dataPoints = this.normedYValues.map((s, i) => ({
+				yValue: this.normedYValues[i],
+				xValue: this.xValues[i]
+			}));
 
 			// Draw line between current and the point before
 			// Init lastpX/Y for the loop
@@ -164,32 +172,50 @@ export default {
 				} else {
 					this.ctx.moveTo(lastpX, lastpY);
 				}
+				this.dataPoints[index].px = px;
+				this.dataPoints[index].py = py;
 
 				this.ctx.lineTo(px, py);
 				this.ctx.strokeStyle = 'white';
 
-				//draw red circles representing the data points
-    		//this.ctx.fillStyle = 'red';
-				//this.ctx.fillRect(px-5, py-5, 10, 10);
-
 				lastpY = py;
 				lastpX = px;
-
-
-				this.svgGroup.selectAll("circle")
-					.data(this.xValues)
-					.enter().append("circle")
-					.attr("class", "circle")
-					.attr("cx", px)
-					.attr("cy", py)
-					.attr("r", 4)
-					.style("fill", "purple")
-					.on("click", function(d) {
-							console.log(comment)
-					});
 			});
 
 			this.ctx.stroke();
+
+
+			/*
+			CREATING CLICKABLE CIRCLES AT EACH DATA POINT
+			TODOS:
+			CHECK WHY ONLY PARTIALLY CLICKABLE
+			ADD FUNCTION FOR UPDATING THE POSITIONS OF THE CIRCLES DEPENDING ON ZOOM
+				AND MAP CLICKING
+			*/
+			var circles = this.svgGroup.selectAll("circle")
+				.data(this.dataPoints)
+				.enter().append("circle")
+				.attr("class", "circle")
+				.on("click", function(d) {
+					console.log(d.xValue)
+				})
+
+
+			var circleAttributes = circles
+				.attr("cx", function(d) {
+					return d.px;
+				})
+				.attr("cy", function(d) {
+					return d.py;
+				})
+				.attr("r", 5)
+				.attr("x_value", function(d) {
+					return d.xValue;
+				})
+				.attr("y_value", function(d) {
+					return d.yValue;
+				})
+				.attr("fill", "teal")
 
 		},
 
@@ -227,7 +253,6 @@ export default {
 		 */
 		getNormedYValues() {
 			let maxY = Math.max.apply(null, this.yValues);
-
 			return Array.from(this.yValues).map(val => val / maxY * 100);
 		},
 
@@ -274,19 +299,7 @@ export default {
 			this.svgWidth = document.getElementById('spectrum-axes').offsetWidth;
 			this.svgHeight = document.getElementById('spectrum-axes').offsetHeight;
 
-		},
-		//trying to draw pointers for each position clicked failed
-		pointer(event) {
-			console.log("draw pointer");
-			this.canvas
-        .append("use")
-        .attr("href", "#pointer")
-        .attr("x", event.clientX)
-        .attr("y", event.clientY)
-        .attr("fill", "#039BE5")
-        .attr("stroke", "#039BE5")
-        .attr("stroke-width", "1px");
-				}
+		}
 	}
 }
 </script>
