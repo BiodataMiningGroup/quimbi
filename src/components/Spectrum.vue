@@ -192,16 +192,20 @@ export default {
 			ADD FUNCTION FOR UPDATING THE POSITIONS OF THE CIRCLES DEPENDING ON ZOOM
 				AND MAP CLICKING
 			*/
-			var circles = this.svgGroup.selectAll("circle")
-				.data(this.dataPoints)
+			let circles = this.svgGroup.selectAll("circle")
+				.data(this.dataPoints);
+
+			circles.exit().remove();
+
+			circles
 				.enter().append("circle")
 				.attr("class", "circle")
+				.merge(circles)
 				.on("click", function(d) {
 					console.log(d.xValue)
-				})
+				});
 
-
-			var circleAttributes = circles
+			let circleAttributes = circles
 				.attr("cx", function(d) {
 					return d.px;
 				})
@@ -215,7 +219,7 @@ export default {
 				.attr("y_value", function(d) {
 					return d.yValue;
 				})
-				.attr("fill", "teal")
+				.attr("fill", "teal");
 
 		},
 
