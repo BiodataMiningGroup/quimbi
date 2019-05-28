@@ -71,8 +71,9 @@ export default {
 
 			// Init SVG
 			this.svgChart = d3.select('#spectrum-axes').append('svg:svg')
-				.style('opasity', "0")
+				//.style('opasity', "1")
 				.style('position','absolute')
+				.style('z-index', '2')
 				.attr('width', this.svgWidth)
 				.attr('height', this.svgHeight)
 				.attr('class', 'svg-plot');
@@ -84,7 +85,7 @@ export default {
 			this.svgPoints = d3.select('.svg-plot').append('svg')
 				.style('position','absolute')
 				.style('z-index', '2')
-				.style('opasity', "0")
+				//.style('opasity', "1")
 				.attr('width', this.canvasWidth)
 				.attr('height', this.canvasHeight)
 				.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
