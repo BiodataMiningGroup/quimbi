@@ -18,6 +18,7 @@ export default {
 			canvas: {},
 			svgChart: {},
 			svgGroup: {},
+			svgPoints: {},
 			spectrumMargin: {
 				bottom: 30,
 				left: 45,
@@ -63,17 +64,29 @@ export default {
 			this.doDomCalculations();
 			// Init Canvas
 			this.canvas = d3.select('#spectrum-canvas')
-				.attr('width', this.canvasWidth).attr('height', this.canvasHeight)
+				.attr('width', this.canvasWidth)
+				.attr('height', this.canvasHeight)
 				.style('margin-left', this.spectrumMargin.left + 'px')
 				.style('margin-top', this.spectrumMargin.top + 'px');
 
 			// Init SVG
 			this.svgChart = d3.select('#spectrum-axes').append('svg:svg')
+				.style('opasity', "0")
+				.style('position','absolute')
 				.attr('width', this.svgWidth)
 				.attr('height', this.svgHeight)
 				.attr('class', 'svg-plot');
 
 			this.svgGroup = this.svgChart.append('g')
+				.style('position','absolute')
+				.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+
+			this.svgPoints = d3.select('.svg-plot').append('svg')
+				.style('position','absolute')
+				.style('z-index', '2')
+				.style('opasity', "0")
+				.attr('width', this.canvasWidth)
+				.attr('height', this.canvasHeight)
 				.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
 			// Set axis
@@ -112,7 +125,6 @@ export default {
 			window.addEventListener('resize', this.fitToScreen);
 
 		},
-
 		drawSpectrum(transform) {
 			let scaleX = transform.rescaleX(this.x);
 			let scaleY = transform.rescaleY(this.y);
@@ -151,11 +163,8 @@ export default {
 			}
 			*/
 
-			this.dataPoints = this.normedYValues.map((s, i) => ({
-				yValue: this.normedYValues[i],
-				xValue: this.xValues[i]
-			}));
-
+			let dataPoints = [];
+			let i=0;
 			// Draw line between current and the point before
 			// Init lastpX/Y for the loop
 			let lastpX = 0;
@@ -172,18 +181,20 @@ export default {
 				} else {
 					this.ctx.moveTo(lastpX, lastpY);
 				}
-				this.dataPoints[index].px = px;
-				this.dataPoints[index].py = py;
-
+				dataPoints.push({});
+				dataPoints[i].xValue = this.xValues[index];
+				dataPoints[i].normyValue = this.normedYValues[index];
+				dataPoints[i].px = px;
+				dataPoints[i].py = py;
+				i+=1;
 				this.ctx.lineTo(px, py);
 				this.ctx.strokeStyle = 'white';
 
 				lastpY = py;
 				lastpX = px;
 			});
-
+			//console.log("dataPoints", dataPoints);
 			this.ctx.stroke();
-
 
 			/*
 			CREATING CLICKABLE CIRCLES AT EACH DATA POINT
@@ -192,8 +203,8 @@ export default {
 			ADD FUNCTION FOR UPDATING THE POSITIONS OF THE CIRCLES DEPENDING ON ZOOM
 				AND MAP CLICKING
 			*/
-			let circles = this.svgGroup.selectAll("circle")
-				.data(this.dataPoints);
+			let circles = this.svgPoints.selectAll("circle")
+				.data(dataPoints);
 
 			circles.exit().remove();
 
@@ -206,6 +217,7 @@ export default {
 				});
 
 			let circleAttributes = circles
+				.attr("z-index", 2)
 				.attr("cx", function(d) {
 					return d.px;
 				})
@@ -219,8 +231,7 @@ export default {
 				.attr("y_value", function(d) {
 					return d.yValue;
 				})
-				.attr("fill", "teal");
-
+				.attr("fill", "red");
 		},
 
 		/**
@@ -257,7 +268,8 @@ export default {
 		 */
 		getNormedYValues() {
 			let maxY = Math.max.apply(null, this.yValues);
-			return Array.from(this.yValues).map(val => val / maxY * 100);
+			let tmp_array = this.yValues.slice(0, this.xValues.length);
+			return Array.from(tmp_array).map(val => val / maxY * 100);
 		},
 
 		/**
@@ -269,15 +281,25 @@ export default {
 			this.doDomCalculations();
 
 			this.canvas
-				.attr('width', this.canvasWidth).attr('height', this.canvasHeight)
+				.attr('width', this.canvasWidth)
+				.attr('height', this.canvasHeight)
 				.style('margin-left', this.spectrumMargin.left + 'px')
 				.style('margin-top', this.spectrumMargin.top + 'px');
 
 			this.svgChart
 				.attr('width', this.svgWidth)
-				.attr('height', this.svgHeight);
+				.attr('height', this.svgHeight)
+				.style('margin-left', this.spectrumMargin.left + 'px')
+				.style('margin-top', this.spectrumMargin.top + 'px');
+
+				this.svgPoints = d3.select('.svg-plot').append('svg')
+					.attr('width', this.canvasWidth)
+					.attr('height', this.canvasHeight)
+					.style('margin-left', this.spectrumMargin.left + 'px')
+					.style('margin-top', this.spectrumMargin.top + 'px');
 
 			this.svgGroup.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+
 
 			this.x.range([0, this.canvasWidth]);
 			this.y.range([this.canvasHeight, 0]);
@@ -312,11 +334,19 @@ export default {
 #spectrum-axes {
 	height: 100%;
 	display: block;
+	z-index: 1;
 }
 
 #spectrum-canvas {
 	top: 0;
 	left: 0;
 	position: absolute;
+	z-index: 1;
 }
+.circle{
+top: 0;
+left: 0;
+position: absolute;
+}
+
 </style>
