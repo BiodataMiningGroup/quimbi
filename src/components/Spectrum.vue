@@ -18,7 +18,7 @@ export default {
 			canvas: {},
 			svgChart: {},
 			svgGroup: {},
-			svgPoints: {},
+			//svgPoints: {},
 			spectrumMargin: {
 				bottom: 30,
 				left: 45,
@@ -46,7 +46,8 @@ export default {
 			// Zoom Factor of Spectrum when Points get visible
 			zoomFactorPoints: 15,
 			//actually create accessible data points
-			dataPoints: []
+			dataPoints: [],
+			qdtree: {}
 		}
 	},
 	/**
@@ -71,9 +72,8 @@ export default {
 
 			// Init SVG
 			this.svgChart = d3.select('#spectrum-axes').append('svg:svg')
-				//.style('opasity', "1")
 				.style('position','absolute')
-				.style('z-index', '2')
+				//.style('z-index', '2')
 				.attr('width', this.svgWidth)
 				.attr('height', this.svgHeight)
 				.attr('class', 'svg-plot');
@@ -82,13 +82,15 @@ export default {
 				.style('position','absolute')
 				.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
+			/*
+			//Extra SVG for the datapoint layer
 			this.svgPoints = d3.select('.svg-plot').append('svg')
 				.style('position','absolute')
-				.style('z-index', '2')
-				//.style('opasity', "1")
+				//.style('z-index', '2')
 				.attr('width', this.canvasWidth)
 				.attr('height', this.canvasHeight)
 				.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+			*/
 
 			// Set axis
 			this.x = d3.scaleLinear()
@@ -197,13 +199,46 @@ export default {
 			//console.log("dataPoints", dataPoints);
 			this.ctx.stroke();
 
+			//adding quadtree and dataPoints to the canvas
+			this.qdtree = d3.quadtree()
+ 				.extent([[0, 0], [this.canvasWidth, this.canvasHeight]])
+				.addAll(dataPoints);
+
+			dataPoints.forEach((p,i) => {
+				this.ctx.beginPath();
+				this.ctx.arc(p.px, p.py, 2, 0, 2 * Math.PI);
+				this.ctx.fillStyle = "teal";
+				this.ctx.fill();
+			});
+			let chartArea = d3.select("body").append("div")
+			  .style("left", this.spectrumMargin.left + "px")
+			  .style("top", this.spectrumMargin.top + "px");
+
+			let highlight = chartArea.append("svg")
+		  .attr("width", this.canvasWidth)
+		  .attr("height", this.canvasHeight)
+		    .append("circle")
+      		.attr("r", 7)
+      		.classed("hidden", true);
+				//TODO FEHLER
+			this.canvas.on("mousemove",function(){
+				let mouse = d3.mouse(this),
+					closest = this.qdtree.find([x.invert(mouse[0]), y.invert(mouse[1])]);
+				highlight.attr("cx", x(closest[0]))
+					.attr("cy", y(closest[1]));
+			});
+
+			this.canvas.on("mouseover",function(){
+				highlight.classed("hidden", false);
+			});
+
+			this.canvas.on("mouseout",function(){
+				highlight.classed("hidden", true);
+			});
+
+
 			/*
-			CREATING CLICKABLE CIRCLES AT EACH DATA POINT
-			TODOS:
-			CHECK WHY ONLY PARTIALLY CLICKABLE
-			ADD FUNCTION FOR UPDATING THE POSITIONS OF THE CIRCLES DEPENDING ON ZOOM
-				AND MAP CLICKING
-			*/
+			//add circles containing the information of each datapoint
 			let circles = this.svgPoints.selectAll("circle")
 				.data(dataPoints);
 
@@ -233,6 +268,7 @@ export default {
 					return d.yValue;
 				})
 				.attr("fill", "red");
+			*/
 		},
 
 		/**
@@ -292,13 +328,13 @@ export default {
 				.attr('height', this.svgHeight)
 				.style('margin-left', this.spectrumMargin.left + 'px')
 				.style('margin-top', this.spectrumMargin.top + 'px');
-
-				this.svgPoints = d3.select('.svg-plot').append('svg')
-					.attr('width', this.canvasWidth)
-					.attr('height', this.canvasHeight)
-					.style('margin-left', this.spectrumMargin.left + 'px')
-					.style('margin-top', this.spectrumMargin.top + 'px');
-
+			/*
+			this.svgPoints = d3.select('.svg-plot').append('svg')
+				.attr('width', this.canvasWidth)
+				.attr('height', this.canvasHeight)
+				.style('margin-left', this.spectrumMargin.left + 'px')
+				.style('margin-top', this.spectrumMargin.top + 'px');
+			*/
 			this.svgGroup.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
 
