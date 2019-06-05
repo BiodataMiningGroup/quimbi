@@ -128,6 +128,8 @@ export default {
 
 		},
 		drawSpectrum(transform) {
+			let that = this;
+
 			let scaleX = transform.rescaleX(this.x);
 			let scaleY = transform.rescaleY(this.y);
 
@@ -203,10 +205,12 @@ export default {
 
 			this.qdtree
 				.x(function(d){return d.px;})
-				.y(function(d){return d.py;})
+				.y(function(d){return that.canvasHeight;})
  				.extent([[0, 0], [this.canvasWidth, this.canvasHeight]])
 				.addAll(dataPoints);
 
+			console.log(dataPoints)
+			console.log(this.qdtree);
 			console.log(this.qdtree.data);
 
 			dataPoints.forEach((p,i) => {
@@ -219,18 +223,20 @@ export default {
 			  .style("left", this.spectrumMargin.left + 5)
 			  .style("top", this.spectrumMargin.top + 5);
 
-			let highlight = chartArea.append("svg")
-		  .attr("width", this.canvasWidth)
-		  .attr("height", this.canvasHeight)
-		    .append("circle")
-      		.attr("r", 7)
-      		.classed("hidden", true);
+			/*let highlight = chartArea.append("svg")
+				.attr("width", this.canvasWidth)
+				.attr("height", this.canvasHeight)
+				.append("circle")
+				.attr("r", 7)
+				.classed("hidden", true);*/
 				//TODO FEHLER
+			
 			this.canvas.on("mousemove",function(){
-				let mouse = d3.mouse(this),
-					closest = this.qdtree.find([mouse[0]), mouse[1])]);
-				highlight.attr("cx", x(closest[0]))
-					.attr("cy", y(closest[1]));
+				let mouse = d3.mouse(this);
+				let closest = that.qdtree.find(mouse[0], mouse[1]);
+				console.log(that.qdtree)
+				console.log(that.qdtree.find(mouse[0], mouse[1]))
+				highlight.attr("cx", closest[0]).attr("cy", closest[1]);
 			});
 			this.canvas.on("mouseover",function(){
 				highlight.classed("hidden", false);
