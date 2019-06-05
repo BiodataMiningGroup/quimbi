@@ -56,12 +56,11 @@ export default {
 	mounted() {
 		this.initGraph();
 		this.drawSpectrum(d3.zoomIdentity);
-
 	},
 	methods: {
 
 		initGraph() {
-
+			this.qdtree = d3.quadtree();
 			this.doDomCalculations();
 			// Init Canvas
 			this.canvas = d3.select('#spectrum-canvas')
@@ -135,7 +134,7 @@ export default {
 			this.gxAxis.call(this.xAxis.scale(scaleX).tickFormat((d, e, target) => {
 				// has bug when the scale is too big
 				if (Math.floor(d) === d3.format(".1f")(d)) {
-					return this.xValues[Math.floor(d)]
+					return this.xValues[Math.floor(d)];
 				}
 				return this.xValues[d];
 
@@ -200,9 +199,15 @@ export default {
 			this.ctx.stroke();
 
 			//adding quadtree and dataPoints to the canvas
-			this.qdtree = d3.quadtree()
+			//this.qdtree.removeAll(dataPoints);
+
+			this.qdtree
+				.x(function(d){return d.px;})
+				.y(function(d){return d.py;})
  				.extent([[0, 0], [this.canvasWidth, this.canvasHeight]])
 				.addAll(dataPoints);
+
+			console.log(this.qdtree.data);
 
 			dataPoints.forEach((p,i) => {
 				this.ctx.beginPath();
@@ -211,8 +216,8 @@ export default {
 				this.ctx.fill();
 			});
 			let chartArea = d3.select("body").append("div")
-			  .style("left", this.spectrumMargin.left + "px")
-			  .style("top", this.spectrumMargin.top + "px");
+			  .style("left", this.spectrumMargin.left + 5)
+			  .style("top", this.spectrumMargin.top + 5);
 
 			let highlight = chartArea.append("svg")
 		  .attr("width", this.canvasWidth)
@@ -223,11 +228,10 @@ export default {
 				//TODO FEHLER
 			this.canvas.on("mousemove",function(){
 				let mouse = d3.mouse(this),
-					closest = this.qdtree.find([x.invert(mouse[0]), y.invert(mouse[1])]);
+					closest = this.qdtree.find([mouse[0]), mouse[1])]);
 				highlight.attr("cx", x(closest[0]))
 					.attr("cy", y(closest[1]));
 			});
-
 			this.canvas.on("mouseover",function(){
 				highlight.classed("hidden", false);
 			});
