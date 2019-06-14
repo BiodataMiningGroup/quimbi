@@ -248,9 +248,9 @@ export default {
                     this.ctx.fill();
                 });
 
-                this.canvas.on("mousemove", function(){
-                  let mouse = d3.mouse(this);
-                  that.createAnnotation(mouse);
+                this.canvas.on("mousemove", function() {
+                    let mouse = d3.mouse(this);
+                    that.createAnnotation(mouse);
                 });
             },
 
@@ -258,6 +258,8 @@ export default {
              * Creates a svg layer containing annotations for the closest datapoint in the spectrum
              */
             createAnnotation(mouse) {
+                //
+                let annotation_spacing = 20;
                 //get the position of the nearest datapoint in the quadtree (the spectrum)
                 let closest = this.qdtree.find(mouse[0], mouse[1]);
                 let annotation_text = 'xValue: ' + closest["xValue"] + '\n' + 'yValue: ' + closest["normyValue"];
@@ -271,9 +273,9 @@ export default {
                         radius: 10,
                     },
                     x: closest["px"],
-                    y: closest["py"],
+                    y: closest["py"] + annotation_spacing,
                     dx: 50,
-                    dy: 50,
+                    ny: 40,
                     color: "teal",
                     type: d3annotate.annotationCalloutCircle
                 }];
@@ -282,17 +284,14 @@ export default {
 
                 //create the annotation with the above specifications
                 let makeAnnotations = d3annotate.annotation()
-                    .notePadding(15)
                     .annotations(annotations);
 
                 //add svg plane containing the annotation behind/below the spectrum canvas
                 d3.select('.svg-plot').append('svg')
                     .attr("class", "annotation-group")
                     .attr('width', this.canvasWidth)
-                    .attr('height', this.canvasHeight)
-                    .style('margin-left', this.spectrumMargin.left + 'px')
-                    .style('margin-top', this.spectrumMargin.top + 'px')
-                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`)
+                    .attr('height', this.canvasHeight + annotation_spacing)
+                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top-annotation_spacing})`)
                     .call(makeAnnotations);
             },
 
