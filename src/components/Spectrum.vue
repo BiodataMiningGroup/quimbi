@@ -248,41 +248,54 @@ export default {
                     this.ctx.fill();
                 });
 
-                this.canvas.on("mousemove", function() {
-                    let mouse = d3.mouse(this);
-                    let closest = that.qdtree.find(mouse[0], mouse[1]);
-                    let annotation_text = 'xValue: ' + closest["xValue"] + '\n' + 'yValue: ' + closest["normyValue"];
-                    let annotations = [{
-                        note: {
-                            label: annotation_text,
-                            wrapSplitter: '\n'
-                        },
-                        subject: {
-                            radius: 10,
-                        },
-                        x: closest["px"],
-                        y: closest["py"],
-                        dx: 50,
-                        dy: 50,
-                        color: "teal"
-                    }];
-                    d3.select(".annotation-group").remove();
-
-                    let makeAnnotations = d3annotate.annotation()
-                        .notePadding(15)
-                        .type(d3annotate.annotationCalloutCircle)
-                        .annotations(annotations);
-
-                    d3.select('.svg-plot').append('svg')
-                        .attr("class", "annotation-group")
-                        .attr('width', that.canvasWidth)
-                        .attr('height', that.canvasHeight)
-                        .style('margin-left', that.spectrumMargin.left + 'px')
-                        .style('margin-top', that.spectrumMargin.top + 'px')
-                        .attr('transform', `translate(${that.spectrumMargin.left}, ${that.spectrumMargin.top})`)
-                        .call(makeAnnotations);
+                this.canvas.on("mousemove", function(){
+                  let mouse = d3.mouse(this);
+                  that.createAnnotation(mouse);
                 });
             },
+
+            /**
+             * Creates a svg layer containing annotations for the closest datapoint in the spectrum
+             */
+            createAnnotation(mouse) {
+                //get the position of the nearest datapoint in the quadtree (the spectrum)
+                let closest = this.qdtree.find(mouse[0], mouse[1]);
+                let annotation_text = 'xValue: ' + closest["xValue"] + '\n' + 'yValue: ' + closest["normyValue"];
+                let annotations = [{
+                    note: {
+                        label: annotation_text,
+                        //create a newline whenever you read this symbol
+                        wrapSplitter: '\n'
+                    },
+                    subject: {
+                        radius: 10,
+                    },
+                    x: closest["px"],
+                    y: closest["py"],
+                    dx: 50,
+                    dy: 50,
+                    color: "teal",
+                    type: d3annotate.annotationCalloutCircle
+                }];
+                //remove previous annotation s.th. only one annotation at a time is visible
+                d3.select(".annotation-group").remove();
+
+                //create the annotation with the above specifications
+                let makeAnnotations = d3annotate.annotation()
+                    .notePadding(15)
+                    .annotations(annotations);
+
+                //add svg plane containing the annotation behind/below the spectrum canvas
+                d3.select('.svg-plot').append('svg')
+                    .attr("class", "annotation-group")
+                    .attr('width', this.canvasWidth)
+                    .attr('height', this.canvasHeight)
+                    .style('margin-left', this.spectrumMargin.left + 'px')
+                    .style('margin-top', this.spectrumMargin.top + 'px')
+                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`)
+                    .call(makeAnnotations);
+            },
+
 
             /**
              * Draws spectrum when user zooms or moves the graph
