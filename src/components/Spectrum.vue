@@ -251,22 +251,20 @@ export default {
                 this.canvas.on("mousemove", function() {
                     let mouse = d3.mouse(this);
                     let closest = that.qdtree.find(mouse[0], mouse[1]);
-                    console.log(closest["xValue"], closest["normyValue"]);
-                    let annotation_text = 'xValue: ' + closest["xValue"] + '\t' + 'yValue: ' + closest["normyValue"];
-                    console.log(annotation_text);
+                    let annotation_text = 'xValue: ' + closest["xValue"] + '\n' + 'yValue: ' + closest["normyValue"];
                     let annotations = [{
                         note: {
                             label: annotation_text,
-                            wrap: 190
+                            wrapSplitter: '\n'
                         },
                         subject: {
                             radius: 10,
                         },
                         x: closest["px"],
                         y: closest["py"],
-                        dy: closest["normyValue"],
-                        dx: closest["xValue"],
-
+                        dx: 50,
+                        dy: 50,
+                        color: "teal"
                     }];
                     d3.select(".annotation-group").remove();
 
@@ -277,41 +275,13 @@ export default {
 
                     d3.select('.svg-plot').append('svg')
                         .attr("class", "annotation-group")
+                        .attr('width', that.canvasWidth)
+                        .attr('height', that.canvasHeight)
+                        .style('margin-left', that.spectrumMargin.left + 'px')
+                        .style('margin-top', that.spectrumMargin.top + 'px')
+                        .attr('transform', `translate(${that.spectrumMargin.left}, ${that.spectrumMargin.top})`)
                         .call(makeAnnotations);
                 });
-
-                /*
-                //add circles containing the information of each datapoint
-                let circles = this.svgPoints.selectAll("circle")
-                	.data(dataPoints);
-
-                circles.exit().remove();
-
-                circles
-                	.enter().append("circle")
-                	.attr("class", "circle")
-                	.merge(circles)
-                	.on("click", function(d) {
-                		console.log(d.xValue)
-                	});
-
-                let circleAttributes = circles
-                	.attr("z-index", 2)
-                	.attr("cx", function(d) {
-                		return d.px;
-                	})
-                	.attr("cy", function(d) {
-                		return d.py;
-                	})
-                	.attr("r", 5)
-                	.attr("x_value", function(d) {
-                		return d.xValue;
-                	})
-                	.attr("y_value", function(d) {
-                		return d.yValue;
-                	})
-                	.attr("fill", "red");
-                */
             },
 
             /**
