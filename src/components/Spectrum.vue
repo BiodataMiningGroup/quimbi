@@ -262,6 +262,10 @@ export default {
                 let annotation_spacing = 20;
                 //get the position of the nearest datapoint in the quadtree (the spectrum)
                 let closest = this.qdtree.find(mouse[0], mouse[1]);
+                if (typeof closest === 'undefined' || typeof closest["py"] === 'undefined'){
+                  d3.select(".annotation-group").remove();
+                  return;
+                }
                 let annotation_text = 'xValue: ' + closest["xValue"] + '\n' + 'yValue: ' + closest["normyValue"];
                 let annotations = [{
                     note: {
