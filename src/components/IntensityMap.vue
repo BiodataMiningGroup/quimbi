@@ -108,7 +108,7 @@ export default {
 			this.$emit('MouseMove', event);
 		},
 		notifyMouseClick(event) {
-			this.$emit('MouseClick', event);
+			this.$emit('mouseclick', event);
 		}
 	}
 }

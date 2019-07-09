@@ -12,21 +12,21 @@
 		</div>
 	</div>
 -->
-	<div class="map-container">
 	<div class="interesting-regions">
-		<SpectrumROI ref="roi"></SpectrumROI>
+		<SpectrumROI ref="roi" :spectralValues="spectralROIs"></SpectrumROI>
 	</div>
+	<div class="map-container">
 		<div class="map-overlay">
 			<Histogram ref="histogram" :histogram="histogramData"></Histogram>
 			<ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
 		</div>
 		<div>
-			<IntensityMap ref="intensitymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:MouseClick="updateOnMouseClick($event)" v-on:setMap="setMap($event)">
+			<IntensityMap ref="intensitymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:setMap="setMap($event)">
 			</IntensityMap>
 		</div>
 	</div>
 	<div class="spectrum-container" id="spectrum">
-		<Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>
+		<Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues" :spectralROIs="spectralROIs" v-on:specROIupdated="updateSpectralROIs($event)"></Spectrum>
 	</div>
 </section>
  </template>
@@ -90,7 +90,8 @@ export default {
 			markerFeature: {},
 			markerLayer: {},
 			markerStyle: {},
-			markerBorderStyle: {}
+			markerBorderStyle: {},
+			spectralROIs: []
 		}
 	},
 	/**
@@ -114,6 +115,9 @@ export default {
 		this.createMarker();
 	},
 	methods: {
+		updateSpectralROIs(updatedSpectralROI){
+			this.spectralROIs = updatedSpectralROI;
+		},
 		/**
 		 * Helper to create the marker which gets visible by clicking on a pixel
 		 */

@@ -24,7 +24,7 @@
 <template>
 
 <div id="spectrum-axes">
-    <canvas id="spectrum-canvas"></canvas>
+    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="createAnnotation" @mouseover="setCanvasFocus" id="spectrum-canvas" tabindex='1'></canvas>
 </div>
 
 </template>
@@ -37,7 +37,8 @@ import * as d3annotate from '../../node_modules/d3-svg-annotation';
 export default {
     props: [
         'xValues',
-        'yValues'
+        'yValues',
+        'spectralROIs'
     ],
     data() {
         return {
@@ -74,7 +75,8 @@ export default {
             zoomFactorPoints: 15,
             //actually create accessible data points
             dataPoints: [],
-            qdtree: {}
+            qdtree: {},
+            interestingSpectrals: []
         }
     },
     /**
@@ -83,6 +85,11 @@ export default {
     mounted() {
         this.initGraph();
         this.drawSpectrum(d3.zoomIdentity);
+        document.getElementById('spectrum-canvas').addEventListener('keyup', (e) => {
+            if (e.key == 'Shift') {
+                this.add2spectralROIs();
+            }
+        }, false);
     },
     methods: {
 
@@ -91,6 +98,7 @@ export default {
                 this.doDomCalculations();
                 // Init Canvas
                 this.canvas = d3.select('#spectrum-canvas')
+                    .on('mouseup', this.clearMousePressed)
                     .attr('width', this.canvasWidth)
                     .attr('height', this.canvasHeight)
                     .style('margin-left', this.spectrumMargin.left + 'px')
@@ -240,31 +248,29 @@ export default {
                         [this.canvasWidth, this.canvasHeight]
                     ])
                     .addAll(this.dataPoints);
-
+                /**
+                 * draw the datapoint circles onto the canvas
+                 */
                 this.dataPoints.forEach((p, i) => {
                     this.ctx.beginPath();
                     this.ctx.arc(p.px, p.py, 2, 0, 2 * Math.PI);
                     this.ctx.fillStyle = "teal";
                     this.ctx.fill();
                 });
-
-                this.canvas.on("mousemove", function() {
-                    let mouse = d3.mouse(this);
-                    that.createAnnotation(mouse);
-                });
             },
 
             /**
              * Creates a svg layer containing annotations for the closest datapoint in the spectrum
              */
-            createAnnotation(mouse) {
-                //
+            createAnnotation(event) {
+                let mouse = [event.offsetX, event.offsetY];
                 let annotation_spacing = 20;
+
                 //get the position of the nearest datapoint in the quadtree (the spectrum)
                 let closest = this.qdtree.find(mouse[0], mouse[1]);
-                if (typeof closest === 'undefined' || typeof closest["py"] === 'undefined'){
-                  d3.select(".annotation-group").remove();
-                  return;
+                if (typeof closest === 'undefined' || typeof closest["py"] === 'undefined') {
+                    d3.select(".annotation-group").remove();
+                    return;
                 }
                 let annotation_text = 'xValue: ' + closest["xValue"] + '\n' + 'yValue: ' + closest["normyValue"];
                 let annotations = [{
@@ -288,6 +294,7 @@ export default {
 
                 //create the annotation with the above specifications
                 let makeAnnotations = d3annotate.annotation()
+                    .editMode(false)
                     .annotations(annotations);
 
                 //add svg plane containing the annotation behind/below the spectrum canvas
@@ -297,6 +304,38 @@ export default {
                     .attr('height', this.canvasHeight + annotation_spacing)
                     .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top-annotation_spacing})`)
                     .call(makeAnnotations);
+            },
+            /**
+             * adding a newly selected region of spectral values to the overall interesting regions array.
+             */
+            add2spectralROIs() {
+                this.spectralROIs.push(this.interestingSpectrals);
+                this.$emit('specROIupdated', this.spectralROIs);
+                this.interestingSpectrals = [];
+
+            },
+            /**
+             * updating the temporary interestingSpectrals array - meaning that either a new element is added or removed, depending on if the selected region on the spectral-canvas is increased or decreased.
+             */
+            updateInterestingSpectrals(event) {
+                let mouse = [event.offsetX, event.offsetY];
+                //get the position of the nearest datapoint in the quadtree (the spectrum)
+                let closest = this.qdtree.find(mouse[0], mouse[1]);
+                let interSpecLen = this.interestingSpectrals.length;
+                if (interSpecLen == 0 || closest != this.interestingSpectrals[interSpecLen - 1]) {
+                    if (closest == this.interestingSpectrals[interSpecLen - 2]) {
+                        this.interestingSpectrals.length -= 1;
+                    } else {
+                        this.interestingSpectrals.push(closest);
+                    }
+                }
+            },
+
+            /**
+             * setting the spectrum-canvas focussed s.th. it will recognize key events.
+             */
+            setCanvasFocus() {
+                document.getElementById('spectrum-canvas').focus();
             },
 
 

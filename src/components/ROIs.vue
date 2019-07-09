@@ -1,61 +1,114 @@
 <style>
-  .v-sidebar-menu {
-    height: 65%;
-  }
+
+.v-sidebar-menu {
+    height: 65% !important;
+}
+
 </style>
 
 <template>
 
-<sidebar-menu :menu="menu" />
+<sidebar-menu :collapsed="true" @item-click="onItemClick" :menu="menu" />
 
 </template>
 
 <script>
 
 export default {
+    props: [
+        'spectralValues',
+        'mapValues'
+    ],
     data() {
         return {
             menu: [{
                 header: true,
                 title: 'Interesting Regions',
-                // component: componentName
-                visibleOnCollapse: false
-                    // class: ''
-                    // attributes: {}
+                visibleOnCollapse: false,
             }, {
-                href: '/',
-                title: 'Dashboard',
-                icon: 'fa fa-user',
-                /*
-                // custom icon
+                title: 'spectral regions',
+                attributes: {
+                    id: "spectralRegions",
+                },
                 icon: {
                     element: 'span',
                     class: 'fa fa-user',
-                    attributes: {}
-                    text: ''
-                }
-                */
-                // disabled: true
-                // class: ''
-                // attributes: {}
-                // alias: '/path'
-                /*
-                badge: {
-                    text: 'new',
-                    class: 'default-badge'
-                    // attributes: {}
-                    // element: 'span'
-                }
-                */
-            }, {
-                title: 'Charts',
-                icon: 'fa fa-chart-area',
+                    attributes: {},
+                    text: '',
+                },
                 child: [{
-                    href: '/charts/sublink',
-                    title: 'Sub Link',
-                }]
-            }]
+                    title: '',
+                    attributes: {
+                        id: "spectralChild",
+                    },
+                }],
+            }, {
+                title: 'map regions',
+                attributes: {
+                    id: "mapRegions",
+                },
+                icon: {
+                    element: 'span',
+                    class: 'fa fa-user',
+                    attributes: {},
+                    text: '',
+                },
+                child: [{
+                    title: '',
+                    attributes: {
+                        id: "mapChild",
+                    },
+                }],
+            }],
         }
+    },
+    watch: {
+        //function to watch for changes in spectrumValues in order to recalculate the sidebar 
+        'spectralValues': function() {
+
+        }
+
+    },
+    methods: {
+        onItemClick(event, item) {
+                switch (item.attributes["id"]) {
+                    case "spectralRegions":
+                        item.child.length = 0;
+                        this.appendSpectralValues(item);
+                        break;
+                    case "mapRegions":
+                        this.appendMapValues(item);
+                        break;
+                }
+            },
+
+            appendSpectralValues(item) {
+                if (item.child.length >= this.spectralValues.length) {
+                    return;
+                }
+                for (let i = 0; i < this.spectralValues.length; i++) {
+                    let range = this.spectralValues[i][0].xValue + ' - ' + this.spectralValues[i][this.spectralValues[i].length - 1].xValue;
+                    item.child.push({
+                        title: range,
+                        attributes: {
+                            id: i,
+                        }
+                    });
+                }
+            },
+            appendMapValues(item) {
+                if (item.child.length > this.mapValues.length) {
+                    return;
+                }
+                for (let i = 0; i < this.mapValues.length; i++) {
+                    item.child.push({
+                        title: this.mapValues[i],
+                        attributes: {
+                            id: i,
+                        }
+                    });
+                }
+            }
     }
 }
 
