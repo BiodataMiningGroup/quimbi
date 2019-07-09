@@ -274,8 +274,8 @@ export default {
                     },
                     x: closest["px"],
                     y: closest["py"] + annotation_spacing,
-                    dx: 50,
-                    ny: 40,
+                    dx: 100,
+                    ny: 100,
                     color: "teal",
                     type: d3annotate.annotationCalloutCircle
                 }];
