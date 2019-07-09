@@ -1,5 +1,6 @@
 <template>
 <section class="main">
+<!--
 	<div class="toolbar level">
 		<div class="level-item has-text-centered">
 			<div class="buttons has-addons">
@@ -10,12 +11,16 @@
 			</div>
 		</div>
 	</div>
+-->
 	<div class="map-container">
+	<div class="interesting-regions">
+		<SpectrumROI ref="roi"></SpectrumROI>
+	</div>
 		<div class="map-overlay">
 			<Histogram ref="histogram" :histogram="histogramData"></Histogram>
 			<ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
 		</div>
-		<div id="intensitymap">
+		<div>
 			<IntensityMap ref="intensitymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:MouseClick="updateOnMouseClick($event)" v-on:setMap="setMap($event)">
 			</IntensityMap>
 		</div>
@@ -24,7 +29,7 @@
 		<Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>
 	</div>
 </section>
-</template>
+ </template>
 
 <script>
 // Child Compontents
@@ -32,6 +37,7 @@ import Histogram from './Histogram.vue'
 import Spectrum from './Spectrum.vue'
 import ColorScale from './ColorScale.vue'
 import IntensityMap from './IntensityMap.vue'
+import SpectrumROI from './ROIs.vue'
 
 // OpenLayers
 import Map from '../../node_modules/ol/Map';
@@ -62,7 +68,8 @@ export default {
 		Histogram,
 		ColorScale,
 		Spectrum,
-		IntensityMap
+		IntensityMap,
+		SpectrumROI
 	},
 	data() {
 		return {

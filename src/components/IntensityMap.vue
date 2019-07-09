@@ -1,5 +1,5 @@
 <template>
-<div ref="intensitymap" id="intensitymap-test" class="map"></div>
+<div ref="intensitymap" id="intensitymap" class="map"></div>
 </template>
 
 <script>
