@@ -24,7 +24,7 @@
 <template>
 
 <div id="spectrum-axes">
-    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="createAnnotation" @mouseover="setCanvasFocus" id="spectrum-canvas" tabindex='1'></canvas>
+    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="createAnnotation" @mouseover="setCanvasFocus" @mouseout="clearCanvasFocus" id="spectrum-canvas" tabindex='1'></canvas>
 </div>
 
 </template>
@@ -276,16 +276,18 @@ export default {
                 let annotations = [{
                     note: {
                         label: annotation_text,
+                        bgPadding: 20,
                         //create a newline whenever you read this symbol
-                        wrapSplitter: '\n'
+                        wrapSplitter: '\n',
                     },
                     subject: {
                         radius: 10,
                     },
                     x: closest["px"],
                     y: closest["py"] + annotation_spacing,
-                    dx: 50,
-                    ny: 40,
+                    className: "show-bg",
+                    dx: 10,
+                    ny: 45,
                     color: "teal",
                     type: d3annotate.annotationCalloutCircle
                 }];
@@ -337,7 +339,12 @@ export default {
             setCanvasFocus() {
                 document.getElementById('spectrum-canvas').focus();
             },
-
+            /**
+             * clears the spectrum-canvas focussed s.th. it won't recognize key events.
+             */
+            clearCanvasFocus(){
+              document.getElementById('spectrum-canvas').blur();
+            },
 
             /**
              * Draws spectrum when user zooms or moves the graph

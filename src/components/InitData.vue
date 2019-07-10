@@ -168,9 +168,13 @@ export default {
 				// Write tiles row major into textures
 				window.glmvilib.storeTiles(this.data.images);
 				this.loading = false;
-				console.log(this.data);
+
+
+
 				// Emit finish message to switch to switch component
 				this.$emit('finish', this.data)
+
+				// Angeblich hier das Mittelwert-Spektrum berechnen, kann ich mir aber nicht vorstellen
 
 				// Never happens, but better be save than sorry
 			} catch (error) {
