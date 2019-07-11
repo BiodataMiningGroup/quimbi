@@ -21,7 +21,7 @@
 			<ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
 		</div>
 		<div>
-			<IntensityMap ref="intensitymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:setMap="setMap($event)">
+			<IntensityMap ref="intensitymap" :initData="data" :renderHand="renderHandler" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:finishedMap="setMap($event)">
 			</IntensityMap>
 		</div>
 	</div>
