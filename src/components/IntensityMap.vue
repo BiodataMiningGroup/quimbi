@@ -20,11 +20,10 @@
     <form class="form-inline">
         <label>Geometry type </label>
         <select v-on:change="resetInteraction" v-model="selectedGeometry">
-            <option value="">None</option>
+            <option>None</option>
             <option>Point</option>
             <option>Polygon</option>
             <option>Circle</option>
-            <option>Square</option>
         </select>
     </form>
     <div ref="intensitymap" id="intensitymap" class="map">
@@ -57,6 +56,11 @@ import {
     OSM, Vector as VectorSource
 }
 from '../../node_modules/ol/source.js';
+import Polygon from '../../node_modules/ol/geom/Polygon';
+import {
+    unByKey
+}
+from '../../node_modules/ol/Observable.js';
 import Style from '../../node_modules/ol/style/Style';
 import Projection from 'node_modules/ol/proj/Projection';
 import {
@@ -83,7 +87,7 @@ export default {
             canvas: undefined,
             canvasWidth: undefined,
             canvasHeight: undefined,
-            selectedGeometry: '',
+            selectedGeometry: 'None',
             source: undefined,
             vector: undefined,
             draw: undefined
@@ -159,9 +163,32 @@ export default {
                 if (value !== 'None') {
                     this.draw = new Draw({
                         source: this.source,
-                        type: this.selectedGeometry
+                        type: value
                     });
                     this.intensitymap.addInteraction(this.draw);
+                    let listener;
+                    this.draw.on('drawstart',
+                        function(evt) {
+                            // set sketch
+                            let sketch = evt.feature;
+
+                            listener = sketch.getGeometry().on('change', function(evt) {
+                                let geom = evt.target;
+                                if (geom.getType() === "Polygon") {
+                                    console.log(geom.getCoordinates());
+                                } else if (geom.getType() === "Circle") {
+                                    console.log(geom.getCenter(), geom.getRadius());
+                                } else if (geom.getType() === "Point") {
+                                    console.log(geom.getCoordinates());
+                                }
+                            });
+                        }, this);
+
+                    this.draw.on('drawend',
+                        function() {
+                            unByKey(listener);
+                        }, this);
+
                 }
             },
             resetInteraction() {
@@ -253,7 +280,7 @@ export default {
                 this.intensitymap.on('precompose', function(evt) {
                     evt.context.imageSmoothingEnabled = false;
                     evt.context.webkitImageSmoothingEnabled = false;
-                    evt.context.mozImageSmoothingEnabled = false;
+                    //evt.context.mozImageSmoothingEnabled = false;
                     evt.context.msImageSmoothingEnabled = false;
                 });
 

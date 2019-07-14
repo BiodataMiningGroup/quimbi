@@ -86,7 +86,7 @@ export default {
         this.initGraph();
         this.drawSpectrum(d3.zoomIdentity);
         document.getElementById('spectrum-canvas').addEventListener('keyup', (e) => {
-            if (e.key == 'Shift') {
+            if (e.key == 'Shift' && this.interestingSpectrals.length > 1) {
                 this.add2spectralROIs();
             }
         }, false);
@@ -311,6 +311,29 @@ export default {
              * adding a newly selected region of spectral values to the overall interesting regions array.
              */
             add2spectralROIs() {
+                let start = {};
+                let end = {};
+                if (this.interestingSpectrals[0].xValue < this.interestingSpectrals[this.interestingSpectrals.length-1].xValue){
+                  start = this.interestingSpectrals[0];
+                  end = this.interestingSpectrals[this.interestingSpectrals.length-1];
+                }
+                else{
+                start = this.interestingSpectrals[this.interestingSpectrals.length-1];
+                  end = this.interestingSpectrals[0];
+                }
+
+                let regionId = this.interestingSpectrals[0].xValue + '-' + this.interestingSpectrals[this.interestingSpectrals.length-1].xValue;
+                d3.select('.svg-plot').append('svg:rect')
+                  .attr('fill', "white")
+                  .style('position', 'absolute')
+                  .style('opacity', 0.25)
+                  .attr("id", regionId)
+                  .attr('height', this.canvasHeight)
+                  .attr('y', 0)
+                  .attr('width', end.px-start.px)
+                  .attr('x', start.px)
+                  .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+
                 this.spectralROIs.push(this.interestingSpectrals);
                 this.$emit('specROIupdated', this.spectralROIs);
                 this.interestingSpectrals = [];
@@ -389,7 +412,6 @@ export default {
              * Recalculates the graph dom objects to fit screen, if it is rescaled by the user.
              */
             fitToScreen() {
-
                 this.doDomCalculations();
 
                 this.canvas
@@ -403,13 +425,13 @@ export default {
                     .attr('height', this.svgHeight)
                     .style('margin-left', this.spectrumMargin.left + 'px')
                     .style('margin-top', this.spectrumMargin.top + 'px');
-                /*
+
                 this.svgPoints = d3.select('.svg-plot').append('svg')
                 	.attr('width', this.canvasWidth)
                 	.attr('height', this.canvasHeight)
                 	.style('margin-left', this.spectrumMargin.left + 'px')
                 	.style('margin-top', this.spectrumMargin.top + 'px');
-                */
+
                 this.svgGroup.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
 

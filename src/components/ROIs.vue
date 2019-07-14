@@ -63,7 +63,7 @@ export default {
         }
     },
     watch: {
-        //function to watch for changes in spectrumValues in order to recalculate the sidebar 
+        //function to watch for changes in spectrumValues in order to recalculate the sidebar
         'spectralValues': function() {
             let item = this._data.menu.filter((item) => {
                 if(item.title === "spectral regions"){
@@ -72,7 +72,6 @@ export default {
             })[0];
             item.child.length = 0;
             this.appendSpectralValues(item);
-            console.log("watcher");
         }
 
     },
