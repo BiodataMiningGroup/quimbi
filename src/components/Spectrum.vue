@@ -46,7 +46,7 @@ export default {
             canvas: {},
             svgChart: {},
             svgGroup: {},
-            //svgPoints: {},
+            svgSquares: {},
             spectrumMargin: {
                 bottom: 30,
                 left: 45,
@@ -76,7 +76,8 @@ export default {
             //actually create accessible data points
             dataPoints: [],
             qdtree: {},
-            interestingSpectrals: []
+            interestingSpectrals: [],
+            zoomFactor: 1
         }
     },
     /**
@@ -116,15 +117,14 @@ export default {
                     .style('position', 'absolute')
                     .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
-                /*
-                //Extra SVG for the datapoint layer
-                this.svgPoints = d3.select('.svg-plot').append('svg')
-                	.style('position','absolute')
-                	//.style('z-index', '2')
-                	.attr('width', this.canvasWidth)
-                	.attr('height', this.canvasHeight)
-                	.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
-                */
+
+                //Extra SVG for the selected regions layer
+                this.svgSquares = d3.select('.svg-plot').append('svg')
+                    .style('position', 'absolute')
+                    .attr('width', this.canvasWidth)
+                    .attr('height', this.canvasHeight)
+                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+
 
                 // Set axis
                 this.x = d3.scaleLinear()
@@ -311,28 +311,19 @@ export default {
              * adding a newly selected region of spectral values to the overall interesting regions array.
              */
             add2spectralROIs() {
-                let start = {};
-                let end = {};
-                if (this.interestingSpectrals[0].xValue < this.interestingSpectrals[this.interestingSpectrals.length-1].xValue){
-                  start = this.interestingSpectrals[0];
-                  end = this.interestingSpectrals[this.interestingSpectrals.length-1];
+                if (this.interestingSpectrals[0].xValue > this.interestingSpectrals[this.interestingSpectrals.length - 1].xValue) {
+                    this.interestingSpectrals = this.interestingSpectrals.reverse();
                 }
-                else{
-                start = this.interestingSpectrals[this.interestingSpectrals.length-1];
-                  end = this.interestingSpectrals[0];
-                }
-
-                let regionId = this.interestingSpectrals[0].xValue + '-' + this.interestingSpectrals[this.interestingSpectrals.length-1].xValue;
-                d3.select('.svg-plot').append('svg:rect')
-                  .attr('fill', "white")
-                  .style('position', 'absolute')
-                  .style('opacity', 0.25)
-                  .attr("id", regionId)
-                  .attr('height', this.canvasHeight)
-                  .attr('y', 0)
-                  .attr('width', end.px-start.px)
-                  .attr('x', start.px)
-                  .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
+                let regionId = this.interestingSpectrals[0].xValue + '-' + this.interestingSpectrals[this.interestingSpectrals.length - 1].xValue;
+                this.svgSquares.append('rect')
+                    .attr('fill', "white")
+                    .style('position', 'absolute')
+                    .style('opacity', 0.25)
+                    .attr("id", regionId)
+                    .attr('height', this.canvasHeight)
+                    .attr('y', 0)
+                    .attr('width', (this.interestingSpectrals[this.interestingSpectrals.length - 1].px - this.interestingSpectrals[0].px))
+                    .attr('x', this.interestingSpectrals[0].px);
 
                 this.spectralROIs.push(this.interestingSpectrals);
                 this.$emit('specROIupdated', this.spectralROIs);
@@ -357,6 +348,38 @@ export default {
             },
 
             /**
+             * Recalculates the position of the selected region boxes and redraws them.
+             */
+            redrawSelectedRegions(transform) {
+                let regions = this.svgSquares.selectAll('rect')
+                    .data(this.spectralROIs);
+
+                regions.remove();
+
+                let indexArray = [];
+                let scaleX = transform.rescaleX(this.x);
+                let that = this;
+                this.normedYValues.forEach((point, index) => {
+                    indexArray[that.xValues[index]] = scaleX(index);
+                });
+                regions.enter().append('rect')
+                    .attr('fill', "white")
+                    .style('position', 'absolute')
+                    .style('opacity', 0.25)
+                    .attr("id", function(d) {
+                        return d[0].xValue + '-' + d[d.length - 1].xValue;
+                    })
+                    .attr('height', this.canvasHeight)
+                    .attr('y', 0)
+                    .attr('width', function(d) {
+                        return (indexArray[d[d.length - 1].xValue] - indexArray[d[0].xValue]);
+                    })
+                    .attr('x', function(d) {
+                        return indexArray[d[0].xValue];
+                    })
+            },
+
+            /**
              * setting the spectrum-canvas focussed s.th. it will recognize key events.
              */
             setCanvasFocus() {
@@ -365,8 +388,8 @@ export default {
             /**
              * clears the spectrum-canvas focussed s.th. it won't recognize key events.
              */
-            clearCanvasFocus(){
-              document.getElementById('spectrum-canvas').blur();
+            clearCanvasFocus() {
+                document.getElementById('spectrum-canvas').blur();
             },
 
             /**
@@ -392,8 +415,10 @@ export default {
                     ])
                     .on('zoom', () => {
                         let transform = d3.event.transform;
+                        this.zoomFactor = transform.k;
                         this.ctx.save();
                         this.drawSpectrum(transform);
+                        this.redrawSelectedRegions(transform);
                         this.ctx.restore();
                     });
             },
@@ -427,10 +452,10 @@ export default {
                     .style('margin-top', this.spectrumMargin.top + 'px');
 
                 this.svgPoints = d3.select('.svg-plot').append('svg')
-                	.attr('width', this.canvasWidth)
-                	.attr('height', this.canvasHeight)
-                	.style('margin-left', this.spectrumMargin.left + 'px')
-                	.style('margin-top', this.spectrumMargin.top + 'px');
+                    .attr('width', this.canvasWidth)
+                    .attr('height', this.canvasHeight)
+                    .style('margin-left', this.spectrumMargin.left + 'px')
+                    .style('margin-top', this.spectrumMargin.top + 'px');
 
                 this.svgGroup.attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top})`);
 
