@@ -106,10 +106,7 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from '../../node_modules/ol/source/Vector';
 import Style from '../../node_modules/ol/style/Style';
 import Projection from 'node_modules/ol/proj/Projection';
-import {
-    getCenter
-}
-from 'node_modules/ol/extent';
+
 
 
 import RenderHandler from '../utils/RenderHandler.js';

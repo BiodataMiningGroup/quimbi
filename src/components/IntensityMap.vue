@@ -2,7 +2,7 @@
 
 .map {
     height: 100%;
-    width: 100%;
+    width: auto;
     cursor: crosshair;
 }
 
@@ -37,7 +37,6 @@
 <script>
 
 import * as d3 from '../../node_modules/d3/dist/d3';
-import lasso from '../utils/lasso.js';
 
 import Map from '../../node_modules/ol/Map';
 import View from '../../node_modules/ol/View';
@@ -94,9 +93,13 @@ export default {
         }
     },
     mounted() {
+        /**
+         * this.source and this.vector create a new layer for saving drawings on the intensitymap
+         */
         this.source = new VectorSource({
             wrapX: false
         });
+
         this.vector = new VectorLayer({
             source: this.source
         });
@@ -107,13 +110,6 @@ export default {
             this.canvas.focus();
         }, false);
 
-        /*
-         * this.canvas.addEventListener('keydown', (e) => {
-         *    if (e.key == 'Control') {
-         *        this.addLasso();
-         *    }
-         * }, false);
-         */
         this.$emit("finishedMap", this.intensitymap);
     },
     methods: {
@@ -125,9 +121,14 @@ export default {
                 let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
                 let projection = new Projection({
                     code: 'pixel-projection',
-                    units: 'pixels',
+                    units: 'tile-pixels',
                     extent: extent,
                 });
+                this.view = new View({
+                    projection: projection,
+                    resolution: 1,
+                    zoom: 1
+                })
 
                 this.intensitymap = new Map({
                     layers: [
@@ -137,33 +138,35 @@ export default {
                                 projection: projection,
                                 imageExtent: extent,
                             }),
+                            extent: extent
                         }),
-                        this.vector
+                        //this.vector
                     ],
-                    target: this.$refs.intensitymap,
-                    view: this.view = new View({
-                        projection: projection,
-                        center: getCenter(extent),
-                        resolution: 1,
-                        zoomFactor: 2,
-                        extent: extent,
-                    })
+                    target: 'intensitymap',
+                    view: this.view
                 });
                 this.intensitymap.getView().fit(extent);
 
-                //this.createMarker();
-                //this.intensitymap.addLayer(this.markerLayer);
-
                 this.updateView();
-                // get the OpenLayers sizes of the canvas - which for some reason differ from the html ones (but ehh)
-                [this.canvasWidth, this.canvasHeight] = this.intensitymap.getSize();
+
+                /*
+                 * // get the OpenLayers sizes of the canvas - which for some reason differ from the html ones (but ehh)
+                 * [this.canvasWidth, this.canvasHeight] = this.intensitymap.getSize();
+                 */
             },
             addInteraction() {
                 let value = this.selectedGeometry;
                 if (value !== 'None') {
                     this.draw = new Draw({
                         source: this.source,
-                        type: value
+                        type: value,
+                        condition: function(e) {
+                            if (e.pointerEvent.buttons === 1) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
                     });
                     this.intensitymap.addInteraction(this.draw);
                     let listener;
@@ -171,22 +174,11 @@ export default {
                         function(evt) {
                             // set sketch
                             let sketch = evt.feature;
-
-                            listener = sketch.getGeometry().on('change', function(evt) {
-                                let geom = evt.target;
-                                if (geom.getType() === "Polygon") {
-                                    console.log(geom.getCoordinates());
-                                } else if (geom.getType() === "Circle") {
-                                    console.log(geom.getCenter(), geom.getRadius());
-                                } else if (geom.getType() === "Point") {
-                                    console.log(geom.getCoordinates());
-                                }
-                            });
                         }, this);
 
                     this.draw.on('drawend',
-                        function() {
-                            unByKey(listener);
+                        function(evt) {
+                            console.log(evt.target.sketchCoords_);
                         }, this);
 
                 }
@@ -210,63 +202,6 @@ export default {
                 }
                 this.canvas.tabIndex = '2';
             },
-
-            /*
-             *  handleLassoEnd(lassoPolygon) {
-             *  const selectedPoints = points.filter(d => {
-             *  // note we have to undo any transforms done to the x and y to match with the
-             *  // coordinate system in the svg.
-             *       const x = d.x + padding.left;
-             *       const y = d.y + padding.top;
-             *
-             *        return d3.polygonContains(lassoPolygon, [x, y]);
-             *    });
-             *
-             *    updateSelectedPoints(selectedPoints);
-             * },
-             *
-             * // reset selected points when starting a new polygon
-             * handleLassoStart(lassoPolygon) {
-             *    this.updateSelectedPoints([]);
-             *  },
-             *
-             * // when we have selected points, update the colors and redraw
-             * updateSelectedPoints(selectedPoints) {
-             *    // if no selected points, reset to all tomato
-             *    if (!selectedPoints.length) {
-             *      // reset all
-             *        points.forEach(d => {
-             *            d.color = 'tomato';
-             *        });
-             *
-             *        // otherwise gray out selected and color selected black
-             *    } else {
-             *        points.forEach(d => {
-             *            d.color = '#eee';
-             *        });
-             *        selectedPoints.forEach(d => {
-             *            d.color = '#000';
-             *        });
-             *    }
-             * },
-             * addLasso() {
-             *    const interactionSvg = d3.select('#intensitymap')
-             *        .append('svg')
-             *        .attr('width', this.canvasWidth)
-             *        .attr('height', this.canvasHeight)
-             *        .style('position', 'absolute')
-             *        .style('top', 0)
-             *        .style('left', 0);
-             *
-             *    // attach lasso to interaction SVG
-             *    const lassoInstance = lasso()
-             *        .on('end', this.handleLassoEnd)
-             *        .on('start', this.handleLassoStart);
-             *
-             *    interactionSvg.call(lassoInstance);
-             * },
-             */
-
             /**
              * Adds event listener for map interaction
              */
@@ -279,9 +214,13 @@ export default {
                 // Prevent image smoothing on mouse movement
                 this.intensitymap.on('precompose', function(evt) {
                     evt.context.imageSmoothingEnabled = false;
-                    evt.context.webkitImageSmoothingEnabled = false;
-                    //evt.context.mozImageSmoothingEnabled = false;
-                    evt.context.msImageSmoothingEnabled = false;
+                    /*
+                     * Should be deprecated.
+                     *
+                     * evt.context.webkitImageSmoothingEnabled = false;
+                     * evt.context.mozImageSmoothingEnabled = false;
+                     * evt.context.msImageSmoothingEnabled = false;
+                     */
                 });
 
                 let that = this;

@@ -27,7 +27,6 @@ export default class RenderHandler {
         this.colorMap = new ColorMap(this.framebuffer);
         this.selectionInfo = new SelectionInfo(this.framebuffer, this.selectionInfoTextureDimension, data.dataWidth, data.dataHeight);
       //this.renderChannel = new RenderChannel(this.framebuffer);
-
     }
 
     /**
