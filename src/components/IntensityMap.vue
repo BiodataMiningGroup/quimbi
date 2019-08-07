@@ -1,7 +1,7 @@
 <style scoped>
 
 .map {
-    height: 100%;
+    height: 65vh;
     width: auto;
     cursor: crosshair;
 }
@@ -72,13 +72,13 @@ import RenderHandler from '../utils/RenderHandler.js';
 export default {
     props: [
         'initData',
-        'renderHand'
+        'renderHandler',
+        'mapROIs'
     ],
     data() {
         return {
             data: this.initData,
             intensitymap: undefined,
-            renderHandler: this.renderHand,
             mouse: {
                 x: 0,
                 y: 0
@@ -140,7 +140,7 @@ export default {
                             }),
                             extent: extent
                         }),
-                        //this.vector
+                        this.vector
                     ],
                     target: 'intensitymap',
                     view: this.view
@@ -170,6 +170,7 @@ export default {
                     });
                     this.intensitymap.addInteraction(this.draw);
                     let listener;
+                    let that = this;
                     this.draw.on('drawstart',
                         function(evt) {
                             // set sketch
@@ -178,9 +179,21 @@ export default {
 
                     this.draw.on('drawend',
                         function(evt) {
-                            console.log(evt.target.sketchCoords_);
+                            let tmpCoords = evt.feature.getGeometry().getCoordinates()[0];
+                            let tmpCoord;
+                            let coords = [];
+                            for (let i = 0; i < tmpCoords.length; i++) {
+                                tmpCoord = [Math.round(tmpCoords[i][0]), Math.round(tmpCoords[i][1])];
+                                coords.push(tmpCoord);
+                            }
+                            let roiObject = {
+                                type: value,
+                                coords: coords
+                            };
+                            //evt.target.sketchLineCoords_
+                            that.mapROIs.push(roiObject);
+                            that.createMask(roiObject);
                         }, this);
-
                 }
             },
             resetInteraction() {
@@ -202,6 +215,54 @@ export default {
                 }
                 this.canvas.tabIndex = '2';
             },
+            createMask(polygon) {
+                let maskCoords = this.intensitymap.getView().calculateExtent();
+                maskCoords = maskCoords.map(x => {
+                    return Math.round(x)
+                });
+                console.log("maskCoords", maskCoords);
+                let polMaxX = Math.max.apply(null, polygon["coords"].map(function(value, index) {
+                    return value[0];
+                }));
+                let polMinX = Math.min.apply(null, polygon["coords"].map(function(value, index) {
+                    return value[0];
+                }));
+                let polMaxY = Math.max.apply(null, polygon["coords"].map(function(value, index) {
+                    return value[1];
+                }));
+                let polMinY = Math.min.apply(null, polygon["coords"].map(function(value, index) {
+                    return value[1];
+                }));
+
+                let mask = new Array((Math.abs(maskCoords[0]) + Math.abs(maskCoords[2])) * (Math.abs(maskCoords[1]) + Math.abs(maskCoords[3]))).fill(0);
+                console.log("mask", mask);
+                let offsetLeftX = polMinX - maskCoords[0];
+                if (offsetLeftX < 0) {
+                    offsetLeftX = 0;
+                }
+                let offsetBottomY = polMinY - maskCoords[1];
+                if (offsetBottomY < 0) {
+                    offsetBottomY = 0;
+                }
+                let offsetRightX = polMaxX + offsetLeftX;
+                if (offsetRightX > maskCoords[2] + offsetLeftX) {
+                    offsetRightX = maskCoords[2] + offsetLeftX;
+                }
+                let offsetTopY = polMaxY + offsetBottomY;
+                if (offsetTopY > maskCoords[3] + offsetBottomY) {
+                    offsetTopY = maskCoords[3] + offsetBottomY;
+                }
+                console.log(offsetBottomY, offsetTopY);
+                console.log(offsetLeftX, offsetRightX);
+                for (let i = offsetBottomY; i < offsetTopY; i++) {
+                    for (let j = offsetLeftX; j < offsetRightX; j++) {
+                        mask[j + i * (Math.abs(maskCoords[0]) + Math.abs(maskCoords[2]))] = 1;
+                    }
+
+                }
+                console.log(mask);
+            },
+
             /**
              * Adds event listener for map interaction
              */
