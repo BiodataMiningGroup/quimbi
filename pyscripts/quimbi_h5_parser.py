@@ -15,7 +15,7 @@ data = file.get(key)
 
 coordinates = np.array(data.index.tolist())[:, 0:2]
 # Due to confusions in x and y in the current hdf5 format coordinates
-coordinates = np.array([(coord[1], coord[0]) for coord in coordinates]).astype(int)
+coordinates = np.array([(coord[1], coord[0]) for coord in coordinates]).astype(float).astype(int)
 minimum = coordinates.min(axis=0)
 maximum = coordinates.max(axis=0)
 dimensions = (maximum - minimum + 1)
