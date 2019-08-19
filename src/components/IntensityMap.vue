@@ -27,7 +27,6 @@
         </select>
     </form>
     <div ref="intensitymap" id="intensitymap" class="map">
-
     </div>
 
 </div>
@@ -84,11 +83,11 @@ export default {
                 y: 0
             },
             canvas: undefined,
-            canvasWidth: undefined,
-            canvasHeight: undefined,
+            backupCanvas: undefined,
             selectedGeometry: 'None',
             source: undefined,
-            vector: undefined,
+            selectionLayer: undefined,
+            mapLayer: undefined,
             draw: undefined
         }
     },
@@ -99,18 +98,23 @@ export default {
         this.source = new VectorSource({
             wrapX: false
         });
-
-        this.vector = new VectorLayer({
-            source: this.source
+        this.selectionLayer = new VectorLayer({
+            source: this.source,
+            name: "DrawLayer"
         });
+
         // Create map view after html template has loaded
         this.createMap();
         this.makeCanvasAdressable();
         this.canvas.addEventListener('mouseover', (e) => {
             this.canvas.focus();
         }, false);
-
         this.$emit("finishedMap", this.intensitymap);
+        /*let that = this;
+        this.intensitymap.once('postrender', function(event) {
+            that.createBackup();
+        });
+        */
     },
     methods: {
         /**
@@ -128,31 +132,40 @@ export default {
                     projection: projection,
                     resolution: 1,
                     zoom: 1
-                })
+                });
+                this.mapLayer = new ImageLayer({
+                    source: new ImageSource({
+                        canvas: this.data.canvas,
+                        projection: projection,
+                        imageExtent: extent,
+                    }),
+                    extent: extent,
+                    name: "BaseMap"
+                });
 
                 this.intensitymap = new Map({
                     layers: [
-                        new ImageLayer({
-                            source: new ImageSource({
-                                canvas: this.data.canvas,
-                                projection: projection,
-                                imageExtent: extent,
-                            }),
-                            extent: extent
-                        }),
-                        this.vector
+                        this.mapLayer,
+                        this.selectionLayer
                     ],
                     target: 'intensitymap',
                     view: this.view
                 });
                 this.intensitymap.getView().fit(extent);
-
                 this.updateView();
-
                 /*
-                 * // get the OpenLayers sizes of the canvas - which for some reason differ from the html ones (but ehh)
-                 * [this.canvasWidth, this.canvasHeight] = this.intensitymap.getSize();
-                 */
+                let that = this;
+                let layersToRemove = [];
+                this.intensitymap.getLayers().forEach(function(layer) {
+                    if (layer.get('name') != undefined && layer.get('name') === 'BaseMap') {
+                        layersToRemove.push(layer);
+                    }
+                });
+                let len = layersToRemove.length;
+                for (let i = 0; i < len; i++) {
+                    this.intensitymap.removeLayer(layersToRemove[i]);
+                }
+                */
             },
             addInteraction() {
                 let value = this.selectedGeometry;
@@ -192,7 +205,8 @@ export default {
                             };
                             //evt.target.sketchLineCoords_
                             that.mapROIs.push(roiObject);
-                            that.createMask(roiObject);
+                            //that.createMask(roiObject);
+
                         }, this);
                 }
             },
@@ -295,6 +309,18 @@ export default {
                     that.$emit('mouseclick', event);
                 });
             },
+            createBackup() {
+                this.backupCanvas = document.createElement('canvas');
+                this.backupCanvas.id = "BackupCanvas";
+                this.backupCanvas.style.zIndex = -1;
+                this.backupCanvas.style.position = "absolute";
+                this.backupCanvas.style.top = this.canvas.offsetTop;
+                this.backupCanvas.width = this.canvas.width;
+                this.backupCanvas.height = this.canvas.height;
+                let backupCtx = this.backupCanvas.getContext('2d');
+                backupCtx.drawImage(this.canvas, 0, 0);
+                this.canvas.after(this.backupCanvas);
+            }
     }
 }
 
