@@ -1,9 +1,23 @@
 <style scoped>
 
 .map {
+    position: absolute;
     height: 65vh;
     width: auto;
     cursor: crosshair;
+    z-index: 0;
+}
+
+.selection {
+    position: absolute;
+    height: 65vh;
+    width: auto;
+    cursor: crosshair;
+    z-index: 1;
+}
+
+.wrapper {
+    position: relative;
 }
 
 .form-inline {
@@ -26,9 +40,12 @@
             <option>Circle</option>
         </select>
     </form>
-    <div ref="intensitymap" id="intensitymap" class="map">
+    <div class="wrapper">
+        <div ref="intensitymap" id="intensitymap" class="map">
+        </div>
+        <div ref="selectionmap" id="selectionmap" class="selection">
+        </div>
     </div>
-
 </div>
 
 </template>
@@ -78,15 +95,16 @@ export default {
         return {
             data: this.initData,
             intensitymap: undefined,
+            selectionmap: undefined,
             mouse: {
                 x: 0,
                 y: 0
             },
-            canvas: undefined,
-            backupCanvas: undefined,
+            intensityCanvas: undefined,
+            selectionCanvas: undefined,
             selectedGeometry: 'None',
-            source: undefined,
             selectionLayer: undefined,
+            vectorSource: undefined,
             mapLayer: undefined,
             draw: undefined
         }
@@ -95,26 +113,16 @@ export default {
         /**
          * this.source and this.vector create a new layer for saving drawings on the intensitymap
          */
-        this.source = new VectorSource({
+        this.vectorSource = new VectorSource({
             wrapX: false
         });
-        this.selectionLayer = new VectorLayer({
-            source: this.source,
-            name: "DrawLayer"
-        });
-
         // Create map view after html template has loaded
         this.createMap();
         this.makeCanvasAdressable();
-        this.canvas.addEventListener('mouseover', (e) => {
-            this.canvas.focus();
+        this.intensityCanvas.addEventListener('mouseover', (e) => {
+            this.intensityCanvas.focus();
         }, false);
         this.$emit("finishedMap", this.intensitymap);
-        /*let that = this;
-        this.intensitymap.once('postrender', function(event) {
-            that.createBackup();
-        });
-        */
     },
     methods: {
         /**
@@ -142,36 +150,33 @@ export default {
                     extent: extent,
                     name: "BaseMap"
                 });
-
+                this.selectionLayer = new VectorLayer({
+                    source: this.vectorSource,
+                    name: "DrawLayer"
+                });
                 this.intensitymap = new Map({
                     layers: [
-                        this.mapLayer,
-                        this.selectionLayer
+                        this.mapLayer
                     ],
                     target: 'intensitymap',
                     view: this.view
                 });
-                this.intensitymap.getView().fit(extent);
-                this.updateView();
-                /*
-                let that = this;
-                let layersToRemove = [];
-                this.intensitymap.getLayers().forEach(function(layer) {
-                    if (layer.get('name') != undefined && layer.get('name') === 'BaseMap') {
-                        layersToRemove.push(layer);
-                    }
+                this.selectionmap = new Map({
+                    layers: [
+                        this.selectionLayer
+                    ],
+                    target: 'selectionmap',
+                    view: this.view
                 });
-                let len = layersToRemove.length;
-                for (let i = 0; i < len; i++) {
-                    this.intensitymap.removeLayer(layersToRemove[i]);
-                }
-                */
+                this.intensitymap.getView().fit(extent);
+                this.selectionmap.getView().fit(extent);
+                this.updateView();
             },
             addInteraction() {
                 let value = this.selectedGeometry;
                 if (value !== 'None') {
                     this.draw = new Draw({
-                        source: this.source,
+                        source: this.vectorSource,
                         type: value,
                         condition: function(e) {
                             if (e.pointerEvent.buttons === 1) {
@@ -181,7 +186,7 @@ export default {
                             }
                         }
                     });
-                    this.intensitymap.addInteraction(this.draw);
+                    this.selectionmap.addInteraction(this.draw);
                     let listener;
                     let that = this;
                     this.draw.on('drawstart',
@@ -203,123 +208,47 @@ export default {
                                 type: value,
                                 coords: coords
                             };
-                            //evt.target.sketchLineCoords_
                             that.mapROIs.push(roiObject);
-                            //that.createMask(roiObject);
-
                         }, this);
                 }
             },
             resetInteraction() {
-                this.intensitymap.removeInteraction(this.draw);
+                this.selectionmap.removeInteraction(this.draw);
                 this.addInteraction();
             },
-
-
-
             /*
              * sets this.canvas to the intensitymap canvas for easier handling.
              */
             makeCanvasAdressable() {
-                let olUnselectable = document.getElementsByClassName("ol-unselectable");
-                for (let i = 0; i < olUnselectable.length; i++) {
-                    if (olUnselectable[i].tagName == "CANVAS") {
-                        this.canvas = olUnselectable[i];
-                    };
-                }
-                this.canvas.tabIndex = '2';
+                this.intensityCanvas = document.getElementById("intensitymap").getElementsByTagName("CANVAS")[0];
+                this.selectionCanvas = document.getElementById("selectionmap").getElementsByTagName("CANVAS")[0];
+                this.intensityCanvas.tabIndex = '2';
             },
-            createMask(polygon) {
-                let maskCoords = this.intensitymap.getView().calculateExtent();
-                maskCoords = maskCoords.map(x => {
-                    return Math.round(x)
-                });
-                console.log("maskCoords", maskCoords);
-                let polMaxX = Math.max.apply(null, polygon["coords"].map(function(value, index) {
-                    return value[0];
-                }));
-                let polMinX = Math.min.apply(null, polygon["coords"].map(function(value, index) {
-                    return value[0];
-                }));
-                let polMaxY = Math.max.apply(null, polygon["coords"].map(function(value, index) {
-                    return value[1];
-                }));
-                let polMinY = Math.min.apply(null, polygon["coords"].map(function(value, index) {
-                    return value[1];
-                }));
-
-                let mask = new Array((Math.abs(maskCoords[0]) + Math.abs(maskCoords[2])) * (Math.abs(maskCoords[1]) + Math.abs(maskCoords[3]))).fill(0);
-                console.log("mask", mask);
-                let offsetLeftX = polMinX - maskCoords[0];
-                if (offsetLeftX < 0) {
-                    offsetLeftX = 0;
-                }
-                let offsetBottomY = polMinY - maskCoords[1];
-                if (offsetBottomY < 0) {
-                    offsetBottomY = 0;
-                }
-                let offsetRightX = polMaxX + offsetLeftX;
-                if (offsetRightX > maskCoords[2] + offsetLeftX) {
-                    offsetRightX = maskCoords[2] + offsetLeftX;
-                }
-                let offsetTopY = polMaxY + offsetBottomY;
-                if (offsetTopY > maskCoords[3] + offsetBottomY) {
-                    offsetTopY = maskCoords[3] + offsetBottomY;
-                }
-                console.log(offsetBottomY, offsetTopY);
-                console.log(offsetLeftX, offsetRightX);
-                for (let i = offsetBottomY; i < offsetTopY; i++) {
-                    for (let j = offsetLeftX; j < offsetRightX; j++) {
-                        mask[j + i * (Math.abs(maskCoords[0]) + Math.abs(maskCoords[2]))] = 1;
-                    }
-
-                }
-                console.log(mask);
-            },
-
             /**
              * Adds event listener for map interaction
              */
             updateView() {
                 // Render image once to show something before the mouse is being moved
-                //renders the map
+                // renders the map
                 this.renderHandler.render(this.mouse);
                 this.intensitymap.render();
+                this.selectionmap.render();
 
                 // Prevent image smoothing on mouse movement
                 this.intensitymap.on('precompose', function(evt) {
                     evt.context.imageSmoothingEnabled = false;
-                    /*
-                     * Should be deprecated.
-                     *
-                     * evt.context.webkitImageSmoothingEnabled = false;
-                     * evt.context.mozImageSmoothingEnabled = false;
-                     * evt.context.msImageSmoothingEnabled = false;
-                     */
                 });
-
+                this.selectionmap.on('precompose', function(evt) {
+                    evt.context.imageSmoothingEnabled = false;
+                });
                 let that = this;
                 // Add event listener for single click and mouse movement
-                this.intensitymap.on('pointermove', function(event) {
-                    //if (event.originalEvent.shiftKey) {
+                this.selectionmap.on('pointermove', function(event) {
                     that.$emit('MouseMove', event);
-                    //}
                 });
-                this.intensitymap.on('singleclick', function(event) {
+                this.selectionmap.on('singleclick', function(event) {
                     that.$emit('mouseclick', event);
                 });
-            },
-            createBackup() {
-                this.backupCanvas = document.createElement('canvas');
-                this.backupCanvas.id = "BackupCanvas";
-                this.backupCanvas.style.zIndex = -1;
-                this.backupCanvas.style.position = "absolute";
-                this.backupCanvas.style.top = this.canvas.offsetTop;
-                this.backupCanvas.width = this.canvas.width;
-                this.backupCanvas.height = this.canvas.height;
-                let backupCtx = this.backupCanvas.getContext('2d');
-                backupCtx.drawImage(this.canvas, 0, 0);
-                this.canvas.after(this.backupCanvas);
             }
     }
 }
