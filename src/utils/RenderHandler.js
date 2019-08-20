@@ -26,7 +26,7 @@ export default class RenderHandler {
         this.colorLens = new ColorLens(this.intensityHistogram, data.canvas.width, data.canvas.height, this.framebuffer);
         this.colorMap = new ColorMap(this.framebuffer);
         this.selectionInfo = new SelectionInfo(this.framebuffer, this.selectionInfoTextureDimension, data.dataWidth, data.dataHeight);
-      //this.renderChannel = new RenderChannel(this.framebuffer);
+        this.renderChannel = new RenderChannel(this.framebuffer);
     }
 
     /**
@@ -50,4 +50,11 @@ export default class RenderHandler {
         window.glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
     }
     /*TODO: If mouse in spectrum element use renderchannel*/
+
+    updateRegionMask(mask) {
+  		this.angleDist.updateRegionMask(mask);
+  		//renderMeanRanges.updateRegionMask(mask);
+  		//return this.renderChannel.updateRegionMask(mask);
+  	};
+
 }

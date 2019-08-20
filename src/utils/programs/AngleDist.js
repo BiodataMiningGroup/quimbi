@@ -19,11 +19,12 @@ export default class AngleDist {
         this.mouseY = 0;
         this.width = canvasWidth;
         this.height = canvasHeight;
+        this._regionMaskTexture = null;
 
         // Add helper classes
         this.framebuffer = framebuffer;
         this.intensityHistogram = intensityHistogram;
-    }
+    };
 
     /**
      * Sets current mouse position
@@ -33,7 +34,7 @@ export default class AngleDist {
     updateMouse(mouseX, mouseY) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
-    }
+    };
 
     /**
      *
@@ -51,7 +52,21 @@ export default class AngleDist {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    }
+    };
+
+    setUpRegionMask (gl, program, assets, helpers) {
+    		let regionMaskTexture = null;
+    		gl.uniform1i(gl.getUniformLocation(program, 'u_region_mask'), 1);
+    		// check if texture already exists
+    		if (!(regionMaskTexture = assets.textures.regionMaskTexture)) {
+    			regionMaskTexture = helpers.newTexture('regionMaskTexture');
+    			// same dimensions as distance texture
+    			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+    				this.width, this.height,
+    				0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    		}
+        return regionMaskTexture;
+    };
 
     /**
      *
@@ -70,7 +85,10 @@ export default class AngleDist {
 
         assets._mousePosition = gl.getUniformLocation(program, 'u_mouse_position');
         this.setUpDistanceTexture(gl, assets, helpers);
-    }
+
+
+        this._regionMaskTexture = this.setUpRegionMask(gl, program, assets, helpers);
+    };
 
     /**
      *
@@ -83,7 +101,7 @@ export default class AngleDist {
         gl.uniform2f(assets._mousePosition, this.mouseX, this.mouseY);
         helpers.bindInternalTextures();
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
-    }
+    };
 
     /**
      *
@@ -95,6 +113,13 @@ export default class AngleDist {
     postCallback (gl, program, assets, helpers) {
         this.framebuffer.updateIntensities();
         this.intensityHistogram.updateHistogram();
-    }
+    };
 
+    updateRegionMask (gl, mask, texture) {
+  		gl.activeTexture(gl.TEXTURE1);
+  		gl.bindTexture(gl.TEXTURE_2D, texture);
+  		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask);
+  		this._regionMaskTexture = gl.bindTexture(gl.TEXTURE_2D, null);
+	};
 }

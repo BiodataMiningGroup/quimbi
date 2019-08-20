@@ -209,6 +209,7 @@ export default {
                                 coords: coords
                             };
                             that.mapROIs.push(roiObject);
+                            that.renderHandler.updateRegionMask(that.selectionCanvas);
                         }, this);
                 }
             },
