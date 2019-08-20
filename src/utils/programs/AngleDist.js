@@ -20,7 +20,7 @@ export default class AngleDist {
         this.width = canvasWidth;
         this.height = canvasHeight;
         this._regionMaskTexture = null;
-
+        this._gl = null;
         // Add helper classes
         this.framebuffer = framebuffer;
         this.intensityHistogram = intensityHistogram;
@@ -80,6 +80,8 @@ export default class AngleDist {
         helpers.useInternalTexturePositions(program);
         helpers.useInternalTextures(program);
 
+        this._gl = gl;
+
         let normalization = gl.getUniformLocation(program, 'u_normalization');
         gl.uniform1f(normalization, 1 / this.maxAngleDist);
 
@@ -100,6 +102,8 @@ export default class AngleDist {
     callback(gl, program, assets, helpers) {
         gl.uniform2f(assets._mousePosition, this.mouseX, this.mouseY);
         helpers.bindInternalTextures();
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
     };
 
@@ -115,11 +119,11 @@ export default class AngleDist {
         this.intensityHistogram.updateHistogram();
     };
 
-    updateRegionMask (gl, mask, texture) {
-  		gl.activeTexture(gl.TEXTURE1);
-  		gl.bindTexture(gl.TEXTURE_2D, texture);
-  		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask);
-  		this._regionMaskTexture = gl.bindTexture(gl.TEXTURE_2D, null);
+    updateRegionMask (mask) {
+  		this._gl.activeTexture(this._gl.TEXTURE1);
+  		this._gl.bindTexture(this._gl.TEXTURE_2D, this._regionMaskTexture);
+  		this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, true);
+  		this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, mask);
+  		this._regionMaskTexture = this._gl.bindTexture(this._gl.TEXTURE_2D, null);
 	};
 }
