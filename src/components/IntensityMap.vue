@@ -95,13 +95,11 @@ export default {
         return {
             data: this.initData,
             intensitymap: undefined,
-            selectionmap: undefined,
             mouse: {
                 x: 0,
                 y: 0
             },
             intensityCanvas: undefined,
-            selectionCanvas: undefined,
             selectedGeometry: 'None',
             selectionLayer: undefined,
             vectorSource: undefined,
@@ -156,20 +154,14 @@ export default {
                 });
                 this.intensitymap = new Map({
                     layers: [
-                        this.mapLayer
+                        this.mapLayer,
+                        this.selectionLayer
                     ],
                     target: 'intensitymap',
                     view: this.view
                 });
-                this.selectionmap = new Map({
-                    layers: [
-                        this.selectionLayer
-                    ],
-                    target: 'selectionmap',
-                    view: this.view
-                });
+
                 this.intensitymap.getView().fit(extent);
-                this.selectionmap.getView().fit(extent);
                 this.updateView();
             },
             addInteraction() {
@@ -186,7 +178,7 @@ export default {
                             }
                         }
                     });
-                    this.selectionmap.addInteraction(this.draw);
+                    this.intensitymap.addInteraction(this.draw);
                     let listener;
                     let that = this;
                     this.draw.on('drawstart',
@@ -209,12 +201,12 @@ export default {
                                 coords: coords
                             };
                             that.mapROIs.push(roiObject);
-                            that.renderHandler.updateRegionMask(that.selectionCanvas);
+                            //that.renderHandler.updateRegionMask();
                         }, this);
                 }
             },
             resetInteraction() {
-                this.selectionmap.removeInteraction(this.draw);
+                this.intensitymap.removeInteraction(this.draw);
                 this.addInteraction();
             },
             /*
@@ -222,7 +214,6 @@ export default {
              */
             makeCanvasAdressable() {
                 this.intensityCanvas = document.getElementById("intensitymap").getElementsByTagName("CANVAS")[0];
-                this.selectionCanvas = document.getElementById("selectionmap").getElementsByTagName("CANVAS")[0];
                 this.intensityCanvas.tabIndex = '2';
             },
             /**
@@ -233,21 +224,17 @@ export default {
                 // renders the map
                 this.renderHandler.render(this.mouse);
                 this.intensitymap.render();
-                this.selectionmap.render();
 
                 // Prevent image smoothing on mouse movement
                 this.intensitymap.on('precompose', function(evt) {
                     evt.context.imageSmoothingEnabled = false;
                 });
-                this.selectionmap.on('precompose', function(evt) {
-                    evt.context.imageSmoothingEnabled = false;
-                });
                 let that = this;
                 // Add event listener for single click and mouse movement
-                this.selectionmap.on('pointermove', function(event) {
+                this.intensitymap.on('pointermove', function(event) {
                     that.$emit('MouseMove', event);
                 });
-                this.selectionmap.on('singleclick', function(event) {
+                this.intensitymap.on('singleclick', function(event) {
                     that.$emit('mouseclick', event);
                 });
             }
