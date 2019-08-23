@@ -73,7 +73,7 @@
             <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
         </div>
         <div>
-            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :mapROIs="mapROIs" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:finishedMap="setMap($event)">
+            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :mapROIs="mapROIs" :mapROIs2Draw="mapROIs2Draw" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:finishedMap="setMap($event)">
             </IntensityMap>
         </div>
     </div>
@@ -144,7 +144,8 @@ export default {
             markerStyle: {},
             markerBorderStyle: {},
             spectralROIs: [],
-            mapROIs: []
+            mapROIs: [],
+            mapROIs2Draw: []
         }
     },
     /**

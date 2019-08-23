@@ -5,6 +5,7 @@ import FrameBuffer from './programs/helper/FrameBuffer.js';
 import IntensitiyHistogram from './programs/helper/IntensityHistogram';
 import SelectionInfo from './programs/SelectionInfo';
 import RenderChannel from './programs/RenderChannel';
+import RenderMeanRanges from './programs/RenderMeanRanges.js';
 
 /**
  * The RenderHandler sets up all Shader Programs and calls the glmvilib to render given shaders
@@ -27,6 +28,7 @@ export default class RenderHandler {
         this.colorMap = new ColorMap(this.framebuffer);
         this.selectionInfo = new SelectionInfo(this.framebuffer, this.selectionInfoTextureDimension, data.dataWidth, data.dataHeight);
         this.renderChannel = new RenderChannel(this.framebuffer);
+
     }
 
     /**
@@ -37,7 +39,7 @@ export default class RenderHandler {
         window.glmvilib.addProgram(this.colorLens);
         window.glmvilib.addProgram(this.colorMap);
         window.glmvilib.addProgram(this.selectionInfo);
-        //window.glmvilib.addProgram(this.renderChannel);
+        window.glmvilib.addProgram(this.renderChannel);
     }
 
     /**
@@ -51,10 +53,11 @@ export default class RenderHandler {
     }
     /*TODO: If mouse in spectrum element use renderchannel*/
 
+
     updateRegionMask(mask) {
   		this.angleDist.updateRegionMask(mask);
   		//renderMeanRanges.updateRegionMask(mask);
-  		//return this.renderChannel.updateRegionMask(mask);
+  		return this.renderChannel.updateRegionMask(mask);
   	};
 
 }

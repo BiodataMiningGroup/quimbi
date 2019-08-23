@@ -40,12 +40,7 @@
             <option>Circle</option>
         </select>
     </form>
-    <div class="wrapper">
-        <div ref="intensitymap" id="intensitymap" class="map">
-        </div>
-        <div ref="selectionmap" id="selectionmap" class="selection">
-        </div>
-    </div>
+    <div ref="intensitymap" id="intensitymap" class="map"/>
 </div>
 
 </template>
@@ -89,7 +84,8 @@ export default {
     props: [
         'initData',
         'renderHandler',
-        'mapROIs'
+        'mapROIs',
+        'mapROIs2Draw'
     ],
     data() {
         return {
@@ -104,22 +100,26 @@ export default {
             selectionLayer: undefined,
             vectorSource: undefined,
             mapLayer: undefined,
+            maskCanvas: undefined,
+            maskCtx: undefined,
             draw: undefined
         }
     },
     mounted() {
         /**
-         * this.source and this.vector create a new layer for saving drawings on the intensitymap
+         * this.vector create a new layer for saving drawings on the intensitymap
          */
         this.vectorSource = new VectorSource({
             wrapX: false
         });
         // Create map view after html template has loaded
         this.createMap();
+
         this.makeCanvasAdressable();
         this.intensityCanvas.addEventListener('mouseover', (e) => {
             this.intensityCanvas.focus();
         }, false);
+        this.createMaskCanvas();
         this.$emit("finishedMap", this.intensitymap);
     },
     methods: {
@@ -132,7 +132,7 @@ export default {
                 let projection = new Projection({
                     code: 'pixel-projection',
                     units: 'tile-pixels',
-                    extent: extent,
+                    extent: extent
                 });
                 this.view = new View({
                     projection: projection,
@@ -143,7 +143,7 @@ export default {
                     source: new ImageSource({
                         canvas: this.data.canvas,
                         projection: projection,
-                        imageExtent: extent,
+                        imageExtent: extent
                     }),
                     extent: extent,
                     name: "BaseMap"
@@ -196,12 +196,16 @@ export default {
                                 tmpCoord = [Math.round(tmpCoords[i][0]), Math.round(tmpCoords[i][1])];
                                 coords.push(tmpCoord);
                             }
+
                             let roiObject = {
                                 type: value,
                                 coords: coords
                             };
+                            that.mapROIs2Draw.push(roiObject);
                             that.mapROIs.push(roiObject);
-                            //that.renderHandler.updateRegionMask();
+                            that.drawMaskCanvas();
+
+                            that.renderHandler.updateRegionMask(that.maskCanvas);
                         }, this);
                 }
             },
@@ -237,6 +241,31 @@ export default {
                 this.intensitymap.on('singleclick', function(event) {
                     that.$emit('mouseclick', event);
                 });
+            },
+            createMaskCanvas() {
+                this.maskCanvas = document.createElement('canvas');
+                this.maskCanvas.width = this.data.canvas.width;
+                this.maskCanvas.height = this.data.canvas.height;
+                this.maskCtx = this.maskCanvas.getContext('2d');
+                this.maskCtx.fillStyle = 'rgba(0, 0, 0, 1)';
+                this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+            },
+            clearMaskCanvas() {
+                this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+            },
+            drawMaskCanvas() {
+                if (this.mapROIs2Draw.length === 0) {
+                    this.clearMaskCanvas();
+                } else {
+                    for (let i = 0; i < this.mapROIs2Draw.length; i++) {
+                        this.maskCtx.beginPath();
+                        for (let j = 0; j < this.mapROIs2Draw[i].length; j++) {
+                            this.maskCtx.moveTo(this.mapROIs2Draw[i].coords[j][0], this.mapROIs2Draw[i].coords[j][1]);
+                        }
+                        this.maskCtx.closePath();
+                        this.maskCtx.fill();
+                    }
+                }
             }
     }
 }
