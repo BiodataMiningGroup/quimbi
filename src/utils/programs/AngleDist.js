@@ -124,6 +124,6 @@ export default class AngleDist {
   		this._gl.bindTexture(this._gl.TEXTURE_2D, this._regionMaskTexture);
   		this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, true);
   		this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, mask);
-  		this._regionMaskTexture = this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+        this._gl.bindTexture(this._gl.TEXTURE_2D, null);
 	};
 }

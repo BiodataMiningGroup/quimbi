@@ -50,7 +50,7 @@
 <template>
 
 <section class="main">
-    <!--
+    
     <div class="toolbar level">
         <div class="level-item has-text-centered">
             <div class="buttons has-addons">
@@ -63,7 +63,6 @@
             </div>
         </div>
     </div>
-		-->
     <div class="interesting-regions">
         <SpectrumROI ref="roi" :spectralValues="spectralROIs"></SpectrumROI>
     </div>

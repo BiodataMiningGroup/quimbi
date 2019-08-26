@@ -204,7 +204,6 @@ export default {
                             that.mapROIs2Draw.push(roiObject);
                             that.mapROIs.push(roiObject);
                             that.drawMaskCanvas();
-
                             that.renderHandler.updateRegionMask(that.maskCanvas);
                         }, this);
                 }
@@ -259,10 +258,15 @@ export default {
                 } else {
                     for (let i = 0; i < this.mapROIs2Draw.length; i++) {
                         this.maskCtx.beginPath();
-                        for (let j = 0; j < this.mapROIs2Draw[i].length; j++) {
-                            this.maskCtx.moveTo(this.mapROIs2Draw[i].coords[j][0], this.mapROIs2Draw[i].coords[j][1]);
+                        //this.maskCtx.lineWidth = "2";
+                        //this.maskCtx.strokeStyle = "blue";
+                        this.maskCtx.moveTo(this.mapROIs2Draw[i].coords[0][0], this.mapROIs2Draw[i].coords[0][1]);
+                        for (let j = 1; j < this.mapROIs2Draw[i].coords.length; j++) {
+                            this.maskCtx.lineTo(this.mapROIs2Draw[i].coords[j][0], this.mapROIs2Draw[i].coords[j][1]);
                         }
                         this.maskCtx.closePath();
+                        //this.maskCtx.stroke();
+                        this.maskCtx.fillStyle = 'rgba(255, 255, 255, 1)';
                         this.maskCtx.fill();
                     }
                 }
