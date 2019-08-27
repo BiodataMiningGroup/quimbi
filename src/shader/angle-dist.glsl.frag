@@ -9,7 +9,7 @@ uniform float u_normalization;
 //uniform float u_inv_channel_mask_dimension;
 
 //uniform sampler2D u_channel_mask;
-//uniform sampler2D u_region_mask;
+uniform sampler2D u_region_mask;
 
 const vec4 ONES = vec4(1);
 const vec4 ZEROS = vec4(0);
@@ -18,12 +18,12 @@ const vec4 ZEROS = vec4(0);
 
 void main() {
 	// if masked by the region mask, don't do anything
-	/*
+
 	if (texture2D(u_region_mask, v_texture_position).a == 0.0) {
 		gl_FragColor = ZEROS;
 		return;
 	}
-	*/
+
 
 	// angle between the two vectors
 	// <A,B> = ||A|| * ||B|| * cos(angle)
