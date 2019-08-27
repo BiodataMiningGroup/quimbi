@@ -15,7 +15,7 @@ data = file.get(key)
 
 coordinates = np.array(data.index.tolist())[:, 0:2]
 # Due to confusions in x and y in the current hdf5 format coordinates
-coordinates = np.array([(coord[1], coord[0]) for coord in coordinates]).astype(int)
+coordinates = np.array([(coord[1], coord[0]) for coord in coordinates]).astype(float).astype(int)
 minimum = coordinates.min(axis=0)
 maximum = coordinates.max(axis=0)
 dimensions = (maximum - minimum + 1)
@@ -51,7 +51,7 @@ for channel in data:
    filename.append(str(channel))
 
    if image_channel_index == 3 or current_channel_index == last_channel_index:
-      png_image = (image - global_min) / global_max * 255
+      png_image = np.round((image - global_min) / global_max * 255)
       name = '{}/{}/{}.png'.format(out_path, dataset_name, '-'.join(filename))
       Image.fromarray(png_image.astype(np.uint8)).save(name)
       with open(os.path.join(out_path, dataset_name) + ".txt", "a") as txt:
