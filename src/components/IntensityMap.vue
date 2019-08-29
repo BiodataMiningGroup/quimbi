@@ -1,4 +1,4 @@
-<style scoped>
+<style>
 
 .map {
     position: absolute;
@@ -6,24 +6,24 @@
     width: auto;
     cursor: crosshair;
     z-index: 0;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, 0%)
 }
 
-.selection {
-    position: absolute;
-    height: 65vh;
-    width: auto;
-    cursor: crosshair;
-    z-index: 1;
+.ol-zoom {
+    top: auto;
+    bottom: .5em;
+    left: 50%;
+    transform: scale(1) rotate(90deg);
 }
 
-.wrapper {
-    position: relative;
+.ol-zoom-out {
+    transform: scale(1) rotate(-90deg);
 }
 
-.form-inline {
-    margin: auto;
-    width: 60%;
-    padding: 10px;
+.ol-zoom .ol-zoom-in {
+    transform: scale(1) rotate(-90deg);
 }
 
 </style>
@@ -31,16 +31,7 @@
 <template>
 
 <div>
-    <form class="form-inline">
-        <label>Geometry type </label>
-        <select v-on:change="resetInteraction" v-model="selectedGeometry">
-            <option>None</option>
-            <option>Point</option>
-            <option>Polygon</option>
-            <option>Circle</option>
-        </select>
-    </form>
-    <div ref="intensitymap" id="intensitymap" class="map"/>
+    <div ref="intensitymap" id="intensitymap" class="map" />
 </div>
 
 </template>
@@ -84,9 +75,13 @@ export default {
     props: [
         'initData',
         'renderHandler',
-        'mapROIs',
-        'mapROIs2Draw'
+        'selectedGeometry'
     ],
+    watch: {
+        selectedGeometry() {
+            this.resetInteraction();
+        }
+    },
     data() {
         return {
             data: this.initData,
@@ -96,13 +91,13 @@ export default {
                 y: 0
             },
             intensityCanvas: undefined,
-            selectedGeometry: 'None',
             selectionLayer: undefined,
             vectorSource: undefined,
             mapLayer: undefined,
             maskCanvas: undefined,
             maskCtx: undefined,
-            draw: undefined
+            draw: undefined,
+            mapROIs: []
         }
     },
     mounted() {
@@ -161,7 +156,6 @@ export default {
                     target: 'intensitymap',
                     view: this.view
                 });
-
                 this.intensitymap.getView().fit(extent);
                 this.updateView();
             },
@@ -200,10 +194,13 @@ export default {
 
                             let roiObject = {
                                 type: value,
-                                coords: coords
+                                coords: coords,
+                                visible: true
                             };
-                            that.mapROIs2Draw.push(roiObject);
                             that.mapROIs.push(roiObject);
+                            //communication with ROIs.vue
+                            EventBus.$emit('addMapROI', that.mapROIs);
+                            
                             that.drawMaskCanvas();
                             that.renderHandler.updateRegionMask(that.maskCanvas);
                         }, this);
@@ -254,21 +251,25 @@ export default {
                 this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
             },
             drawMaskCanvas() {
-                if (this.mapROIs2Draw.length === 0) {
+                if (this.mapROIs.length === 0 || this.mapROIs.filter(roiObject => {
+                        return roiObject.visible === true
+                    }).length === 0) {
                     this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
                 } else {
                     this.clearMaskCanvas();
-                    for (let i = 0; i < this.mapROIs2Draw.length; i++) {
-                        this.maskCtx.beginPath();
-                        //this.maskCtx.lineWidth = "2";
-                        //this.maskCtx.strokeStyle = "blue";
-                        this.maskCtx.moveTo(this.mapROIs2Draw[i].coords[0][0], this.maskCanvas.height - this.mapROIs2Draw[i].coords[0][1]);
-                        for (let j = 1; j < this.mapROIs2Draw[i].coords.length; j++) {
-                            this.maskCtx.lineTo(this.mapROIs2Draw[i].coords[j][0], this.maskCanvas.height - this.mapROIs2Draw[i].coords[j][1]);
+                    for (let i = 0; i < this.mapROIs.length; i++) {
+                        if (this.mapROIs[i].visible === true) {
+                            this.maskCtx.beginPath();
+                            //this.maskCtx.lineWidth = "2";
+                            //this.maskCtx.strokeStyle = "blue";
+                            this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
+                            for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
+                                this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
+                            }
+                            this.maskCtx.closePath();
+                            //this.maskCtx.stroke();
+                            this.maskCtx.fill();
                         }
-                        this.maskCtx.closePath();
-                        //this.maskCtx.stroke();
-                        this.maskCtx.fill();
                     }
                 }
             }

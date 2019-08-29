@@ -17,10 +17,10 @@
 export default {
     props: [
         'spectralValues',
-        'mapValues'
     ],
     data() {
         return {
+            mapROIs: null,
             menu: [{
                 header: true,
                 title: 'Interesting Regions',
@@ -66,15 +66,34 @@ export default {
         //function to watch for changes in spectrumValues in order to recalculate the sidebar
         'spectralValues': function() {
             let item = this._data.menu.filter((item) => {
-                if(item.title === "spectral regions"){
+                if (item.title === "spectral regions") {
                     return item;
                 }
             })[0];
             item.child.length = 0;
             this.appendSpectralValues(item);
+        },
+        //function to watch for changes in mapROIs in order to recalculate the sidebar
+        'mapROIs': function() {
+            let item = this._data.menu.filter((item) => {
+                if (item.title === "map regions") {
+                    return item;
+                }
+            })[0];
+            item.child.length = 0;
+            this.appendMapROIs(item);
         }
 
     },
+    mounted() {
+        let that = this;
+        //communication with IntensityMap.vue
+        EventBus.$on('addMapROI', mapROIs => {
+            that.mapROIs = mapROIs;
+            that.mapROIs[0].visible = false;
+        });
+    },
+
     methods: {
         onItemClick(event, item) {
                 switch (item.attributes["id"]) {
@@ -83,7 +102,8 @@ export default {
                         this.appendSpectralValues(item);
                         break;
                     case "mapRegions":
-                        this.appendMapValues(item);
+                        item.child.length = 0;
+                        this.appendMapROIs(item);
                         break;
                 }
             },
@@ -97,21 +117,53 @@ export default {
                     item.child.push({
                         title: range,
                         attributes: {
-                            id: i,
-                        }
+                            id: "spectral" + i,
+                        },
+                        icon: {
+                            class: 'fa fa-eye',
+                        },
+                        badge: {
+                            class: 'fa fa-trash',
+                            element: 'button',
+                        },
                     });
                 }
             },
-            appendMapValues(item) {
-                if (item.child.length > this.mapValues.length) {
+            appendMapROIs(item) {
+                if (item.child.length > this.mapROIs.length) {
                     return;
                 }
-                for (let i = 0; i < this.mapValues.length; i++) {
+                for (let i = 0; i < this.mapROIs.length; i++) {
                     item.child.push({
-                        title: this.mapValues[i],
+                        title: "Region " + i,
                         attributes: {
-                            id: i,
-                        }
+                            id: "region" + i,
+                        },
+                        icon: {
+                            class: 'fa fa-eye',
+                        },
+                        badge: {
+                            class: 'fa fa-trash',
+                            element: 'button',
+                        },
+                        /*
+                        child: [{
+                            title: 'show',
+                            badge: {
+                                element: 'button',
+                                class: 'fa fa-eye',
+
+                            },
+                            hiddenOnCollapse: false
+                        }, {
+                            title: 'remove',
+                            badge: {
+                                element: 'button',
+                                class: 'fa fa-trash',
+                            },
+                            hiddenOnCollapse: false
+                        }],
+                        */
                     });
                 }
             }

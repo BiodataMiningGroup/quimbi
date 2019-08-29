@@ -19,12 +19,6 @@
     background-color: #353535;
 }
 
-.map {
-    height: 100%;
-    width: 100%;
-    cursor: crosshair;
-}
-
 .toolbar {
     position: absolute;
     top: 5px;
@@ -45,20 +39,37 @@
     border-radius: 10px;
 }
 
+
+
+select {
+    font-size: 1em;
+    padding: 0.2em;
+    font-family: sans-serif;
+}
+
 </style>
 
 <template>
 
 <section class="main">
-    
+<!--
+-->
     <div class="toolbar level">
         <div class="level-item has-text-centered">
+            <form class="fas">
+                <label>Selection geometry</label>
+                <select v-model="selectedGeometry">
+                    <option>None</option>
+                    <option>Polygon</option>
+                </select>
+
+            </form>
             <div class="buttons has-addons">
-
-				<a class="button" v-on:click="viewMode='similarity'" v-bind:class="[viewMode === 'similarity' ? 'is-light' : 'is-dark']">similarity</a>
-				<a class="button" v-on:click="viewMode='mean'" v-bind:class="[viewMode === 'mean' ? 'is-light' : 'is-dark']">mean</a>
-				<a class="button" v-on:click="viewMode='direct'" v-bind:class="[viewMode === 'direct' ? 'is-light' : 'is-dark']">direct</a>
-
+                <!--
+        				<a class="button" v-on:click="viewMode='similarity'" v-bind:class="[viewMode === 'similarity' ? 'is-light' : 'is-dark']">similarity</a>
+        				<a class="button" v-on:click="viewMode='mean'" v-bind:class="[viewMode === 'mean' ? 'is-light' : 'is-dark']">mean</a>
+        				<a class="button" v-on:click="viewMode='direct'" v-bind:class="[viewMode === 'direct' ? 'is-light' : 'is-dark']">direct</a>
+                -->
                 <a class="button" v-bind:class="[markerIsActive ? 'is-light' : 'is-dark']" @click="toggleMarker"><i class="fas fa-map-marker-alt"></i></a>
             </div>
         </div>
@@ -72,7 +83,7 @@
             <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
         </div>
         <div>
-            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :mapROIs="mapROIs" :mapROIs2Draw="mapROIs2Draw" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:finishedMap="setMap($event)">
+            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:finishedMap="setMap($event)">
             </IntensityMap>
         </div>
     </div>
@@ -144,7 +155,8 @@ export default {
             markerBorderStyle: {},
             spectralROIs: [],
             mapROIs: [],
-            mapROIs2Draw: []
+            mapROIs2Draw: [],
+            selectedGeometry: 'None'
         }
     },
     /**
