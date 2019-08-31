@@ -110,7 +110,6 @@ export default {
                             this.appendMapROIs(item);
                             break;
                     };
-                    console.log(item);
                 },
 
                 appendspectralROIs(item) {
@@ -118,7 +117,7 @@ export default {
                         return;
                     }
                     for (let i = 0; i < this.spectralROIs.length; i++) {
-                        let range = this.spectralROIs[i][0].xValue + ' - ' + this.spectralROIs[i][this.spectralROIs[i].length - 1].xValue;
+                        let range = this.spectralROIs[i].id;
                         item.child.push({
                             title: range,
                             attributes: {

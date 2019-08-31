@@ -106,7 +106,6 @@ export default class AngleDist {
 
         this._regionMaskTexture = this.setUpRegionMask(gl, program, assets, helpers);
         this._channelMaskTexture = this.setUpChannelMask(gl, program, assets, helpers);
-        console.log(this._channelMaskTexture);
     };
 
     /**

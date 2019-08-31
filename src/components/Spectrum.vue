@@ -38,7 +38,8 @@ export default {
     props: [
         'xValues',
         'yValues',
-
+        'channelTextureDimension',
+        'renderHandler'
     ],
     data() {
         return {
@@ -76,15 +77,22 @@ export default {
             //actually create accessible data points
             dataPoints: [],
             qdtree: {},
+            // holds the temporary spectrum range during the selection phase
             interestingSpectrals: [],
+            // holds all selected spectrals
+            spectralROIs: [],
             zoomFactor: 1,
-            spectralROIs: []
+            channelMask: undefined,
+            xValueIndexMap: []
         }
     },
     /**
      * Created the graph and draw it once without values not zoomed
      */
     mounted() {
+        this.channelMask = new Uint8Array(this.channelTextureDimension *
+            this.channelTextureDimension * 4
+        );
         this.initGraph();
         this.drawSpectrum(d3.zoomIdentity);
         document.getElementById('spectrum-canvas').addEventListener('keyup', (e) => {
@@ -92,6 +100,11 @@ export default {
                 this.add2spectralROIs();
             }
         }, false);
+        this.xValues.forEach((point, index) => {
+          this.xValueIndexMap[point] = index;
+        });
+
+
     },
     methods: {
 
@@ -308,6 +321,41 @@ export default {
                     .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top-annotation_spacing})`)
                     .call(makeAnnotations);
             },
+
+            updateChannelMaskWith() {
+                let channel = this.xValues.length;
+
+                // number of active channels of the channel mask
+                let activeChannels = 0;
+
+                if (this.spectralROIs.length !== 0 && this.spectralROIs.filter(roiObject => {
+                        return roiObject.visible === true
+                    }).length !== 0) {
+                    // clear mask
+                    while (channel--) {
+                        this.channelMask[channel] = 0;
+                    }
+                    for (let i = 0; i < this.spectralROIs.length; i++) {
+                        if (this.spectralROIs[i].visible == true) {
+                            let offset = this.spectralROIs[i].range;
+                            activeChannels += offset;
+                            while (offset--) {
+                                this.channelMask[this.xValueIndexMap[this.spectralROIs[i].id[0]] + offset] = 255;
+                            }
+                        }
+                    }
+
+                } else {
+                    activeChannels = channel;
+                    while (channel--) {
+                        this.channelMask[channel] = 255;
+                    }
+                }
+                console.log(this.channelMask);
+                console.log(activeChannels);
+                this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
+            },
+
             /**
              * adding a newly selected region of spectral values to the overall interesting regions array.
              */
@@ -315,7 +363,13 @@ export default {
                 if (this.interestingSpectrals[0].xValue > this.interestingSpectrals[this.interestingSpectrals.length - 1].xValue) {
                     this.interestingSpectrals = this.interestingSpectrals.reverse();
                 }
-                let regionId = this.interestingSpectrals[0].xValue + '-' + this.interestingSpectrals[this.interestingSpectrals.length - 1].xValue;
+                let regionId = [this.interestingSpectrals[0].xValue, this.interestingSpectrals[this.interestingSpectrals.length - 1].xValue];
+                this.spectralROIs.push({
+                    pxs: [this.interestingSpectrals[0].px, this.interestingSpectrals[this.interestingSpectrals.length - 1].px],
+                    id: regionId,
+                    visible: true,
+                    range: (this.xValueIndexMap[regionId[1]]-this.xValueIndexMap[regionId[0]])+1
+                });
                 this.svgSquares.append('rect')
                     .attr('fill', "white")
                     .style('position', 'absolute')
@@ -326,11 +380,11 @@ export default {
                     .attr('width', (this.interestingSpectrals[this.interestingSpectrals.length - 1].px - this.interestingSpectrals[0].px))
                     .attr('x', this.interestingSpectrals[0].px);
 
-                this.spectralROIs.push(this.interestingSpectrals);
-                EventBus.$emit('addSpectralROI', this.spectralROIs);
                 this.interestingSpectrals = [];
-
+                this.updateChannelMaskWith();
+                EventBus.$emit('addSpectralROI', this.spectralROIs);
             },
+
             /**
              * updating the temporary interestingSpectrals array - meaning that either a new element is added or removed, depending on if the selected region on the spectral-canvas is increased or decreased.
              */
@@ -354,9 +408,7 @@ export default {
             redrawSelectedRegions(transform) {
                 let regions = this.svgSquares.selectAll('rect')
                     .data(this.spectralROIs);
-
                 regions.remove();
-
                 let indexArray = [];
                 let scaleX = transform.rescaleX(this.x);
                 let that = this;
@@ -364,19 +416,22 @@ export default {
                     indexArray[that.xValues[index]] = scaleX(index);
                 });
                 regions.enter().append('rect')
+                    .filter(function(d) {
+                        return d.visible === true
+                    })
                     .attr('fill', "white")
                     .style('position', 'absolute')
                     .style('opacity', 0.25)
                     .attr("id", function(d) {
-                        return d[0].xValue + '-' + d[d.length - 1].xValue;
+                        return d.id;
                     })
                     .attr('height', this.canvasHeight)
                     .attr('y', 0)
                     .attr('width', function(d) {
-                        return (indexArray[d[d.length - 1].xValue] - indexArray[d[0].xValue]);
+                        return (indexArray[d.id[1]] - indexArray[d.id[0]]);
                     })
                     .attr('x', function(d) {
-                        return indexArray[d[0].xValue];
+                        return indexArray[d.id[0]];
                     })
             },
 
@@ -485,7 +540,7 @@ export default {
                 this.svgWidth = document.getElementById('spectrum-axes').offsetWidth;
                 this.svgHeight = document.getElementById('spectrum-axes').offsetHeight;
 
-            }
+            },
     }
 }
 

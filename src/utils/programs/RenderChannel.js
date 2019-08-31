@@ -12,8 +12,17 @@ export default class RenderChannel {
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/render-channel.glsl.frag';
         this._gl = null;
+        this._tile = null;
+        this._channelMask = null;
+        this._regionMaskTexture = null;
+        this._channel = 0;
+
+        this._mask = [0, 0, 0, 0];
 
         this.framebuffer = framebuffer;
+
+        this.width = this.framebuffer.width;
+        this.height = this.framebuffer.height;
     }
 
     /**
@@ -27,6 +36,14 @@ export default class RenderChannel {
 
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
+        helpers.useInternalTextures(program);
+
+        this._tile = gl.getUniformLocation(program, 'u_tile');
+        this._channelMask = gl.getUniformLocation(program, 'u_channel_mask');
+
+        this.setUpDistanceTexture(gl, assets, helpers);
+
+        this._regionMaskTexture = this.setUpRegionMask(gl, program, assets, helpers);
 
         this._gl = gl;
 
@@ -36,20 +53,54 @@ export default class RenderChannel {
     }
 
     /**
+     *
+     * @param gl
+     * @param assets
+     * @param helpers
+     */
+    setUpDistanceTexture(gl, assets, helpers) {
+      sharedFcts.setUpDistanceTexture(gl,assets,helpers, this.width, this.height);
+    };
+
+    /**
+     *
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
+    setUpRegionMask (gl, program, assets, helpers) {
+      return sharedFcts.setUpRegionMask (gl, program, assets, helpers, this.width, this.height);
+    };
+
+    /**
+     * @param mask
+     */
+    updateRegionMask (mask) {
+      sharedFcts.updateRegionMask(this._gl, mask, this._regionMaskTexture);
+    };
+
+    updateChannel(channel) {
+				this._channel = channel;
+				this._mask[0] = (this._mask[1] = (this._mask[2] = (this._mask[3] = 0)));
+				return this._mask[channel % 4] = 1;
+			};
+
+
+    /**
      * @param gl
      * @param program
      * @param assets
      * @param helpers
      */
     callback(gl, program, assets, helpers) {
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, assets.textures.rgbColorLensTexture);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureR);
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
-
-    }
+      helpers.bindInternalTextures();
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, _regionMaskTexture);
+      gl.uniform1f(_tile, Math.floor(_channel / 4));
+      gl.uniform4f(_channelMask, _mask[0], _mask[1], _mask[2], _mask[3]);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
+    };
 
     /**
      * Holds and returns the colormap. The 3 rgb values of the 256 colors are are written one after another.
