@@ -23,10 +23,10 @@ export default class RenderHandler {
         this.intensityHistogram = new IntensitiyHistogram(this.framebuffer);
 
         // Init Shader
-        this.angleDist = new AngleDist(this.framebuffer, this.intensityHistogram, data.canvas.width, data.canvas.height);
-        this.colorLens = new ColorLens(this.intensityHistogram, data.canvas.width, data.canvas.height, this.framebuffer);
+        this.angleDist = new AngleDist(this.framebuffer, this.intensityHistogram);
+        this.colorLens = new ColorLens(this.intensityHistogram, this.framebuffer);
         this.colorMap = new ColorMap(this.framebuffer);
-        this.selectionInfo = new SelectionInfo(this.framebuffer, this.selectionInfoTextureDimension, data.dataWidth, data.dataHeight);
+        this.selectionInfo = new SelectionInfo(this.framebuffer, this.selectionInfoTextureDimension);
         //this.renderChannel = new RenderChannel(this.framebuffer);
         //this.renderMeanRanges = new RenderMeanRanges(this.framebuffer);
 
@@ -60,6 +60,11 @@ export default class RenderHandler {
           this.angleDist.updateRegionMask(mask);
   		//this.renderMeanRanges.updateRegionMask(mask);
   		//this.renderChannel.updateRegionMask(mask);
-  	};
+  	}
+
+    updateChannelMask(mask, activeChannels) {
+  		this.angleDist.updateChannelMask(mask, activeChannels);
+  		//this.renderMeanRanges.updateChannelMask(mask, activeChannels);
+  	}
 
 }

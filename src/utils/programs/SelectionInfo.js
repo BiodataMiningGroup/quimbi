@@ -8,15 +8,15 @@ export default class SelectionInfo {
      * @param width
      * @param height
      */
-    constructor(framebuffer, textureDimension, width, height) {
+    constructor(framebuffer, textureDimension) {
         this.framebuffer = framebuffer;
         this.mousePosition = null;
         this.id = 'selection-info';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/selection-info.glsl.frag';
 
-        this.width = width;
-        this.height = height;
+        this.width = this.framebuffer.width;
+        this.height = this.framebuffer.height;
 
         this.textureDimension = textureDimension;
 

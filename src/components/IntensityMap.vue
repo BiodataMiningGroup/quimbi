@@ -200,7 +200,7 @@ export default {
                             that.mapROIs.push(roiObject);
                             //communication with ROIs.vue
                             EventBus.$emit('addMapROI', that.mapROIs);
-                            
+
                             that.drawMaskCanvas();
                             that.renderHandler.updateRegionMask(that.maskCanvas);
                         }, this);

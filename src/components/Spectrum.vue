@@ -38,7 +38,7 @@ export default {
     props: [
         'xValues',
         'yValues',
-        'spectralROIs'
+
     ],
     data() {
         return {
@@ -77,7 +77,8 @@ export default {
             dataPoints: [],
             qdtree: {},
             interestingSpectrals: [],
-            zoomFactor: 1
+            zoomFactor: 1,
+            spectralROIs: []
         }
     },
     /**
@@ -326,7 +327,7 @@ export default {
                     .attr('x', this.interestingSpectrals[0].px);
 
                 this.spectralROIs.push(this.interestingSpectrals);
-                this.$emit('specROIupdated', this.spectralROIs);
+                EventBus.$emit('addSpectralROI', this.spectralROIs);
                 this.interestingSpectrals = [];
 
             },

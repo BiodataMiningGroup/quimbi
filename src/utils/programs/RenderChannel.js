@@ -1,3 +1,4 @@
+import * as sharedFcts from './helper/sharedRenderFunctions.js';
 /**
  * TODO Comment
  */
@@ -10,7 +11,6 @@ export default class RenderChannel {
         this.id = 'render-channel';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/render-channel.glsl.frag';
-        this._regionMaskTexture = null;
         this._gl = null;
 
         this.framebuffer = framebuffer;
@@ -29,7 +29,6 @@ export default class RenderChannel {
         helpers.useInternalTexturePositions(program);
 
         this._gl = gl;
-        this._regionMaskTexture = this.setUpRegionMask(gl, program, assets, helpers);
 
         this._colorMapTextureR = helpers.newTexture('colorMapTextureR');
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, this.getColorMapValues());
@@ -51,27 +50,6 @@ export default class RenderChannel {
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
 
     }
-    setUpRegionMask (gl, program, assets, helpers) {
-        let regionMaskTexture = null;
-        gl.uniform1i(gl.getUniformLocation(program, 'u_region_mask'), 1);
-        // check if texture already exists
-        if (!(regionMaskTexture = assets.textures.regionMaskTexture)) {
-          regionMaskTexture = helpers.newTexture('regionMaskTexture');
-          // same dimensions as distance texture
-          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-            this.width, this.height,
-            0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        }
-        return regionMaskTexture;
-    };
-
-    updateRegionMask (mask) {
-      this._gl.activeTexture(this._gl.TEXTURE1);
-      this._gl.bindTexture(this._gl.TEXTURE_2D, this._regionMaskTexture);
-      this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, true);
-      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, mask);
-      this._regionMaskTexture = this._gl.bindTexture(this._gl.TEXTURE_2D, null);
-    };
 
     /**
      * Holds and returns the colormap. The 3 rgb values of the 256 colors are are written one after another.

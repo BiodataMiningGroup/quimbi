@@ -1,3 +1,4 @@
+import * as sharedFcts from './helper/sharedRenderFunctions.js';
 
 export default class RenderMeanRanges {
 

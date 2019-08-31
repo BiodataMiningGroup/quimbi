@@ -39,8 +39,6 @@
     border-radius: 10px;
 }
 
-
-
 select {
     font-size: 1em;
     padding: 0.2em;
@@ -52,7 +50,7 @@ select {
 <template>
 
 <section class="main">
-<!--
+    <!--
 -->
     <div class="toolbar level">
         <div class="level-item has-text-centered">
@@ -75,7 +73,7 @@ select {
         </div>
     </div>
     <div class="interesting-regions">
-        <SpectrumROI ref="roi" :spectralValues="spectralROIs"></SpectrumROI>
+        <RegionsOfInterest ref="roi"></RegionsOfInterest>
     </div>
     <div class="map-container">
         <div class="map-overlay">
@@ -83,12 +81,12 @@ select {
             <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
         </div>
         <div>
-            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" v-on:MouseMove="updateOnMouseMove($event)" v-on:mouseclick="updateOnMouseClick($event)" v-on:finishedMap="setMap($event)">
+            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" @MouseMove="updateOnMouseMove($event)" @mouseclick="updateOnMouseClick($event)" @finishedMap="setMap($event)">
             </IntensityMap>
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues" :spectralROIs="spectralROIs" v-on:specROIupdated="updateSpectralROIs($event)"></Spectrum>
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues"></Spectrum>
     </div>
 </section>
 
@@ -101,7 +99,7 @@ import Histogram from './Histogram.vue'
 import Spectrum from './Spectrum.vue'
 import ColorScale from './ColorScale.vue'
 import IntensityMap from './IntensityMap.vue'
-import SpectrumROI from './ROIs.vue'
+import RegionsOfInterest from './ROIs.vue'
 
 // OpenLayers
 import Map from '../../node_modules/ol/Map';
@@ -131,7 +129,7 @@ export default {
         ColorScale,
         Spectrum,
         IntensityMap,
-        SpectrumROI
+        RegionsOfInterest
     },
     data() {
         return {

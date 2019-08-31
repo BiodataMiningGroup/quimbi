@@ -1,3 +1,4 @@
+import * as sharedFcts from './helper/sharedRenderFunctions.js';
 /**
  * Shader Program to calculate the distance map for a given pixel with the angledistance
  */
@@ -10,20 +11,23 @@ export default class AngleDist {
      * @param canvasWidth
      * @param canvasHeight
      */
-    constructor(framebuffer, intensityHistogram, canvasWidth, canvasHeight) {
+    constructor(framebuffer, intensityHistogram) {
         this.id = 'angle-dist';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/angle-dist.glsl.frag';
         this.maxAngleDist = Math.PI / 2;
         this.mouseX = 0;
         this.mouseY = 0;
-        this.width = canvasWidth;
-        this.height = canvasHeight;
-        this._regionMaskTexture = null;
-        this._gl = null;
         // Add helper classes
-        this.framebuffer = framebuffer;
         this.intensityHistogram = intensityHistogram;
+        this.framebuffer = framebuffer;
+
+        this.width = this.framebuffer.width;
+        this.height = this.framebuffer.height;
+        this.channelTextureDimension = this.framebuffer.selectionInfoTextureDimension;
+        this._regionMaskTexture = null;
+        this._channelMaskTexture = null;
+        this._gl = null;
     };
 
     /**
@@ -43,29 +47,40 @@ export default class AngleDist {
      * @param helpers
      */
     setUpDistanceTexture(gl, assets, helpers) {
-        if(typeof(assets.framebuffers.distances) === 'undefined') {
-            assets.framebuffers.distances = gl.createFramebuffer();
-        }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
-        let texture = helpers.newTexture('distanceTexture');
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      sharedFcts.setUpDistanceTexture(gl,assets,helpers, this.width, this.height);
     };
 
+    /**
+     *
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
     setUpRegionMask (gl, program, assets, helpers) {
-    		let regionMaskTexture = null;
-    		gl.uniform1i(gl.getUniformLocation(program, 'u_region_mask'), 1);
-    		// check if texture already exists
-    		if (!(regionMaskTexture = assets.textures.regionMaskTexture)) {
-    			regionMaskTexture = helpers.newTexture('regionMaskTexture');
-    			// same dimensions as distance texture
-    			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-    				this.width, this.height,
-    				0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-    		}
-        return regionMaskTexture;
+      return sharedFcts.setUpRegionMask (gl, program, assets, helpers, this.width, this.height);
+    };
+
+    /**
+     * @param mask
+     */
+    updateRegionMask (mask) {
+      sharedFcts.updateRegionMask(this._gl, mask, this._regionMaskTexture);
+    };
+
+    /**
+     *
+     * @param gl
+     * @param program
+     * @param assets
+     * @param helpers
+     */
+    setUpChannelMask(gl, program, assets, helpers){
+      return sharedFcts.setUpChannelMask(gl, program, assets, helpers, this.channelTextureDimension);
+    };
+
+    updateChannelMask(mask){
+      sharedFcts.updateChannelMask(this._gl, mask, this._channelMaskTexture, this.channelTextureDimension);
     };
 
     /**
@@ -90,6 +105,8 @@ export default class AngleDist {
 
 
         this._regionMaskTexture = this.setUpRegionMask(gl, program, assets, helpers);
+        this._channelMaskTexture = this.setUpChannelMask(gl, program, assets, helpers);
+        console.log(this._channelMaskTexture);
     };
 
     /**
@@ -118,11 +135,4 @@ export default class AngleDist {
         this.framebuffer.updateIntensities();
         this.intensityHistogram.updateHistogram();
     };
-
-    updateRegionMask (mask) {
-  		this._gl.activeTexture(this._gl.TEXTURE1);
-  		this._gl.bindTexture(this._gl.TEXTURE_2D, this._regionMaskTexture);
-  		this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, mask);
-        this._gl.bindTexture(this._gl.TEXTURE_2D, null);
-	};
 }

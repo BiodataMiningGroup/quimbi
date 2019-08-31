@@ -10,16 +10,18 @@ export default class ColorLens {
      * @param height
      * @param framebuffer
      */
-    constructor(intensityHistogram, width, height, framebuffer) {
+    constructor(intensityHistogram, framebuffer) {
         this.id = 'color-lens';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/color-lens.glsl.frag';
-        this.width = width;
-        this.height = height;
-        this._channelBoundsLocation = null;
+        // Add helper classes
         this.intensityHistogram = intensityHistogram;
-        this.texture = null;
         this.framebuffer = framebuffer;
+
+        this.width = this.framebuffer.width;
+        this.height = this.framebuffer.height;
+        this._channelBoundsLocation = null;
+        this.texture = null;
     }
 
     /**
