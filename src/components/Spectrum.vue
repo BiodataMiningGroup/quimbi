@@ -103,7 +103,8 @@ export default {
         this.xValues.forEach((point, index) => {
           this.xValueIndexMap[point] = index;
         });
-
+        //call once to create an full mask
+        this.updateChannelMaskWith();
 
     },
     methods: {
