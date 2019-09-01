@@ -23,7 +23,6 @@ void main() {
 		return;
 	}
 
-
 	// angle between the two vectors
 	// <A,B> = ||A|| * ||B|| * cos(angle)
 	// => angle = acos(<A,B>/(||A||*||B||))
@@ -92,8 +91,6 @@ void main() {
 		<%=DYNAMIC_SAMPLER_QUERIES
 		sample = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_sample);
 		current = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_current);
-		//sample = texture2D(<%=SAMPLER=%>, coords_2d_sample);
-		//current = texture2D(<%=SAMPLER=%>, coords_2d_current);
 		=%>
 
 		currentLength += dot(current, current);
