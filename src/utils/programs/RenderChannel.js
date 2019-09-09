@@ -84,7 +84,7 @@ export default class RenderChannel {
 				this._channel = channel;
 				this._mask[0] = (this._mask[1] = (this._mask[2] = (this._mask[3] = 0)));
 				return this._mask[channel % 4] = 1;
-			};
+		};
 
 
     /**
