@@ -63,6 +63,8 @@ import {
 }
 from '../../node_modules/ol/Observable.js';
 import Style from '../../node_modules/ol/style/Style';
+import Stroke from '../../node_modules/ol/style/Stroke';
+
 import Projection from 'node_modules/ol/proj/Projection';
 import {
     getCenter
@@ -146,6 +148,15 @@ export default {
                 });
                 this.selectionLayer = new VectorLayer({
                     source: this.vectorSource,
+                    style: new Style({
+                        fill: new Fill({
+                            color: 'rgba(0, 0, 0, 0)',
+                        }),
+                        stroke: new Stroke({
+                            color: '#3399CC',
+                            width: 3
+                        }),
+                    }),
                     name: "DrawLayer"
                 });
                 this.intensitymap = new Map({
@@ -165,6 +176,15 @@ export default {
                     this.draw = new Draw({
                         source: this.vectorSource,
                         type: value,
+                        style: new Style({
+                            fill: new Fill({
+                                color: 'rgba(0, 0, 0, 0)',
+                            }),
+                            stroke: new Stroke({
+                                color: '#3399CC',
+                                width: 3
+                            }),
+                        }),
                         condition: function(e) {
                             if (e.pointerEvent.buttons === 1) {
                                 return true;
