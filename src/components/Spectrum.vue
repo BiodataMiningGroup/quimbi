@@ -277,14 +277,10 @@ export default {
 
             onMouseMove(event) {
                 this.createAnnotation(event);
-                console.log(this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
-                        roiObject.visible === false
-                    }))
                 if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
                         roiObject.visible === false
                     })) {
                     if (this.renderedDirectChannel === this.directChannel){
-                      console.log("uhu");
                       this.renderedDirectChannel = this.directChannel;
                       this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
                       glmvilib.render.apply(null, ['render-channel','rgb-selection', 'color-lens', 'color-map'])

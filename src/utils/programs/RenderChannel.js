@@ -97,8 +97,8 @@ export default class RenderChannel {
       helpers.bindInternalTextures();
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
-      gl.uniform1f(_tile, Math.floor(_channel / 4));
-      gl.uniform4f(_channelMask, _mask[0], _mask[1], _mask[2], _mask[3]);
+      gl.uniform1f(this._tile, Math.floor(this._channel / 4));
+      gl.uniform4f(this._channelMask, this._mask[0], this._mask[1], this._mask[2], this._mask[3]);
       gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
     };
 
