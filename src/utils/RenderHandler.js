@@ -40,8 +40,8 @@ export default class RenderHandler {
         window.glmvilib.addProgram(this.colorLens);
         window.glmvilib.addProgram(this.colorMap);
         window.glmvilib.addProgram(this.selectionInfo);
-        window.glmvilib.addProgram(this.renderChannel);
-        window.glmvilib.addProgram(this.renderMeanRanges);
+        //window.glmvilib.addProgram(this.renderChannel);
+        //window.glmvilib.addProgram(this.renderMeanRanges);
     }
 
     /**
@@ -58,13 +58,13 @@ export default class RenderHandler {
 
     updateRegionMask(mask) {
       this.angleDist.updateRegionMask(mask);
-  		this.renderMeanRanges.updateRegionMask(mask);
-  		this.renderChannel.updateRegionMask(mask);
+  		//this.renderMeanRanges.updateRegionMask(mask);
+  		//this.renderChannel.updateRegionMask(mask);
   	}
 
     updateChannelMask(mask, activeChannels) {
   		this.angleDist.updateChannelMask(mask, activeChannels);
-  		this.renderMeanRanges.updateChannelMask(mask, activeChannels);
+  		//this.renderMeanRanges.updateChannelMask(mask, activeChannels);
   	}
 
 }

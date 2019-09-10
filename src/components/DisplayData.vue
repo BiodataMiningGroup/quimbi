@@ -81,12 +81,12 @@ select {
             <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
         </div>
         <div>
-            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" @MouseMove="updateOnMouseMove($event)" @mouseclick="updateOnMouseClick($event)" @finishedMap="setMap($event)">
+            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" @MouseMove="onMapMouseMove($event)" @mouseclick="onMapMouseClick($event)" @finishedMap="setMap($event)">
             </IntensityMap>
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="renderHandler.framebuffer.spectrumValues" :channelTextureDimension="renderHandler.selectionInfoTextureDimension" :renderHandler="renderHandler"></Spectrum>
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :channelTextureDimension="renderHandler.selectionInfoTextureDimension" :renderHandler="renderHandler"></Spectrum>
     </div>
 </section>
 
@@ -149,7 +149,8 @@ export default {
             spectralROIs: [],
             mapROIs: [],
             mapROIs2Draw: [],
-            selectedGeometry: 'None'
+            selectedGeometry: 'None',
+            spectralYValues: []
         }
     },
     /**
@@ -164,6 +165,7 @@ export default {
      * Called after created(), when dom elements are accessible
      */
     mounted() {
+        this.spectralYValues = this.data.meanChannel;
         // Draw Color-Scale
         this.$refs.scaleCanvas.redrawScale();
         this.createMarker();
@@ -218,13 +220,23 @@ export default {
              * caused by too much rendering
              * @param event
              */
-            updateOnMouseMove(event) {
+            onMapMouseMove(event) {
                 if (!this.markerIsActive) {
                     // Update if there is a certain time interval (in ms) between movements
                     // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
                     if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
-                        this.updateMousePosition(event);
+                        this.updateMapMousePosition(event);
                         this.timeStampBefore = event.originalEvent.timeStamp;
+                        this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
+                        glmvilib.render.apply(null, ['selection-info']);
+                        this.renderHandler.framebuffer.updateSpectrum();
+                        if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)){
+                          this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
+                        }
+                        else{
+                          this.spectralYValues = this.data.meanChannel;
+                        }
+                        this.$refs.spectrum.redrawSpectrum();
                     }
                 }
             },
@@ -233,14 +245,14 @@ export default {
              * Sets marker if mouse is clicked, activates button in toolbar, rerenders the image and
              * gets values for the spectrum view
              **/
-            updateOnMouseClick(event) {
+            onMapMouseClick(event) {
                 // Set Marker position
                 this.markerFeature.getGeometry().setCoordinates([(Math.floor(event.coordinate[0]) + 0.5), (Math.floor(event.coordinate[1]) + 0.5)]);
                 if (!this.markerIsActive) {
                     this.markerLayer.setVisible(true);
                     this.markerIsActive = true;
                 }
-                this.updateMousePosition(event);
+                this.updateMapMousePosition(event);
                 // Todo refactor please
                 this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
                 glmvilib.render.apply(null, ['selection-info']);
@@ -253,7 +265,7 @@ export default {
              * Sets relative mouse position and rerenders the map, histogram and color scale
              * @param event
              */
-            updateMousePosition(event) {
+            updateMapMousePosition(event) {
                 // Norm x and y values and prevent webgl coordinate interpolation
                 this.mouse.x = (Math.floor(event.coordinate[0]) + 0.5) / this.data.canvas.width;
                 this.mouse.y = (Math.floor(event.coordinate[1]) + 0.5) / this.data.canvas.height;

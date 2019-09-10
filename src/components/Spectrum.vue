@@ -101,7 +101,7 @@ export default {
             }
         }, false);
         this.xValues.forEach((point, index) => {
-          this.xValueIndexMap[point] = index;
+            this.xValueIndexMap[point] = index;
         });
 
         //call once to create an full mask
@@ -370,7 +370,7 @@ export default {
                     pxs: [this.interestingSpectrals[0].px, this.interestingSpectrals[this.interestingSpectrals.length - 1].px],
                     id: regionId,
                     visible: true,
-                    range: (this.xValueIndexMap[regionId[1]]-this.xValueIndexMap[regionId[0]])+1
+                    range: (this.xValueIndexMap[regionId[1]] - this.xValueIndexMap[regionId[0]]) + 1
                 });
                 this.svgSquares.append('rect')
                     .attr('fill', "white")
@@ -448,6 +448,7 @@ export default {
              */
             clearCanvasFocus() {
                 document.getElementById('spectrum-canvas').blur();
+                d3.select(".annotation-group").remove();
             },
 
             /**
