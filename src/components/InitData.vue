@@ -136,11 +136,12 @@ export default {
                     // Split lines into array and fill the data object
                     let input = response.data.split('\n');
                     let header = input[0].split(',');
-                    let brightfieldConfigLine = input[2];
+                    /*
+                    NONSENSE THE FILE FORMAT IS DIFFERENT SINCE THERE IS NO BACKGROUND PICTURE!!!!
+                    let brightfieldConfigLine = input[1];
                     let brightfieldConfig = brightfieldConfigLine.split(',');
                     // Amount of lines for configuration and information
                     let configLength = 3;
-
                     this.data.backgroundImage = brightfieldConfig[0];
                     this.data.overlayImage = brightfieldConfig[1];
 
@@ -148,13 +149,16 @@ export default {
                     this.data.overlayScaleY = parseFloat(brightfieldConfig[3]);
                     this.data.overlayShiftX = parseFloat(brightfieldConfig[4]);
                     this.data.overlayShiftY = parseFloat(brightfieldConfig[5]);
-
+                    */
                     this.data.id = header[0];
                     this.data.base = header[1];
                     this.data.format = header[2];
                     this.data.channels = parseInt(header[3]);
+                    /*
+                    SAME ISSUE AS ABOVE! THE FILEFORMAT IS DIFFERENT!
                     this.data.imageWidth = parseInt(header[4] * this.data.overlayScaleX);
                     this.data.imageHeight = parseInt(header[5] * this.data.overlayScaleY);
+                    */
                     this.data.dataWidth = parseInt(header[4]);
                     this.data.dataHeight = parseInt(header[5]);
 
@@ -180,7 +184,7 @@ export default {
                     // Download images
                     this.data.images = new Array(this.data.files.length);
                     this.loadImages();
-
+                    console.log(this.data);
                 },
 
                 /**
