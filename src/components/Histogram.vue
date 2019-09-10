@@ -17,7 +17,6 @@ export default {
 			this.redrawHistogram();
 		}
 	},
-	mounted() {},
 	methods: {
 		/**
 		 * Draws the histogram on a canvas element with a fixed width of 40 and a height equivalent to

@@ -115,14 +115,10 @@ import VectorSource from '../../node_modules/ol/source/Vector';
 import Style from '../../node_modules/ol/style/Style';
 import Projection from 'node_modules/ol/proj/Projection';
 
-
-
-import RenderHandler from '../utils/RenderHandler.js';
-
-
 export default {
     props: [
-        'initData'
+        'initData',
+        'renderHandler'
     ],
     components: {
         Histogram,
@@ -135,7 +131,6 @@ export default {
         return {
             data: this.initData,
             map: undefined,
-            renderHandler: undefined,
             timeStampBefore: 0,
             mouse: {
                 x: 0,
@@ -158,13 +153,9 @@ export default {
         }
     },
     /**
-     * Called before screen is rendered. Inits the Renderhandler,
-     * retrievs colormap array and bounds for the colormap scale
+     * Called before screen is rendered. Retrievs colormap array and bounds for the colormap scale
      */
     created() {
-        // Initialize shader
-        this.renderHandler = new RenderHandler(this.data);
-        this.renderHandler.createShader();
         this.colormapvalues = this.renderHandler.colorMap.getColorMapValues();
         this.histogramData = this.renderHandler.intensityHistogram.histogram;
         this.bounds = this.renderHandler.intensityHistogram.bounds;

@@ -1,7 +1,7 @@
 <template>
     <div id="app">
-        <InitData v-if="showInitData" @finish="onFinishedInit"></InitData>
-        <DisplayData v-if="showDisplayData" :initData="data"></DisplayData>
+        <InitData v-if="showInitData" @InitedRenderer="onInitedRenderer" @finish="onFinishedInit"></InitData>
+        <DisplayData v-if="showDisplayData" :initData="data" :renderHandler="renderHandler"></DisplayData>
     </div>
 </template>
 
@@ -18,12 +18,17 @@
         },
         data() {
             return {
+                renderHandler: undefined,
                 data: {},
                 showInitData: true,
                 showDisplayData: false
             }
         },
         methods: {
+            onInitedRenderer(renderHandler){
+              this.renderHandler = renderHandler;
+            },
+
             /**
              * Gets called when data was initialized by the InitData component
              * @param data

@@ -103,6 +103,7 @@ export default {
         this.xValues.forEach((point, index) => {
           this.xValueIndexMap[point] = index;
         });
+
         //call once to create an full mask
         this.updateChannelMaskWith();
 
@@ -352,8 +353,8 @@ export default {
                         this.channelMask[channel] = 255;
                     }
                 }
-                console.log(this.channelMask);
-                console.log(activeChannels);
+                //console.log(this.channelMask);
+                //console.log(activeChannels);
                 this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
             },
 
@@ -382,7 +383,7 @@ export default {
                     .attr('x', this.interestingSpectrals[0].px);
 
                 this.interestingSpectrals = [];
-                this.updateChannelMaskWith();
+                //this.updateChannelMaskWith();
                 EventBus.$emit('addSpectralROI', this.spectralROIs);
             },
 
