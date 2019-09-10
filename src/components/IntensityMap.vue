@@ -271,9 +271,9 @@ export default {
                 this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
             },
             drawMaskCanvas() {
-                if (this.mapROIs.length === 0 || this.mapROIs.filter(roiObject => {
-                        return roiObject.visible === true
-                    }).length === 0) {
+                if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject => {
+                        roiObject.visible == false
+                    })) {
                     this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
                 } else {
                     this.clearMaskCanvas();

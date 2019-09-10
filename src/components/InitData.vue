@@ -245,7 +245,6 @@ export default {
                         this.data.meanChannel = this.data.meanChannel.map(function(num) {
                             return Math.round(num / counter);
                         });
-                        console.log('meanChannel', this.data.meanChannel);
 
                         // Emit finish message to switch to switch component
                         this.$emit('finish', this.data);

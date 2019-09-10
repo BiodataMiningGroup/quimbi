@@ -6,6 +6,8 @@ import IntensitiyHistogram from './programs/helper/IntensityHistogram';
 import SelectionInfo from './programs/SelectionInfo';
 import RenderChannel from './programs/RenderChannel';
 import RenderMeanRanges from './programs/RenderMeanRanges.js';
+import RGBSelection from './programs/RGBSelection.js';
+
 
 /**
  * The RenderHandler sets up all Shader Programs and calls the glmvilib to render given shaders
@@ -29,8 +31,9 @@ export default class RenderHandler {
         this.selectionInfo = new SelectionInfo(this.framebuffer, this.selectionInfoTextureDimension);
         this.renderChannel = new RenderChannel(this.framebuffer);
         this.renderMeanRanges = new RenderMeanRanges(this.framebuffer);
+        this.rgbSelection = new RGBSelection(this.framebuffer, this.intensityHistogram);
 
-    }
+    };
 
     /**
      * Add Shader to the glmvilib to render the generated webgl pixels to the canvas
@@ -40,9 +43,10 @@ export default class RenderHandler {
         window.glmvilib.addProgram(this.colorLens);
         window.glmvilib.addProgram(this.colorMap);
         window.glmvilib.addProgram(this.selectionInfo);
-        //window.glmvilib.addProgram(this.renderChannel);
-        //window.glmvilib.addProgram(this.renderMeanRanges);
-    }
+        window.glmvilib.addProgram(this.renderChannel);
+        window.glmvilib.addProgram(this.renderMeanRanges);
+        window.glmvilib.addProgram(this.rgbSelection);
+    };
 
     /**
      * Render mouse position depending image to the openlayers canvas
@@ -52,19 +56,28 @@ export default class RenderHandler {
     render(mouse) {
         this.angleDist.updateMouse(mouse.x, mouse.y);
         window.glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
-    }
+    };
     /*TODO: If mouse in spectrum element use renderchannel*/
 
 
     updateRegionMask(mask) {
       this.angleDist.updateRegionMask(mask);
-  		//this.renderMeanRanges.updateRegionMask(mask);
-  		//this.renderChannel.updateRegionMask(mask);
-  	}
+  		this.renderMeanRanges.updateRegionMask(mask);
+  		this.renderChannel.updateRegionMask(mask);
+  	};
 
     updateChannelMask(mask, activeChannels) {
   		this.angleDist.updateChannelMask(mask, activeChannels);
-  		//this.renderMeanRanges.updateChannelMask(mask, activeChannels);
-  	}
+  		this.renderMeanRanges.updateChannelMask(mask, activeChannels);
+  	};
 
+    setActiveColorMask(mask) {
+  		if (mask instanceof Array && (mask.length === 3)) {
+  			return this.rgbSelection.updateColorMask(mask);
+  		}
+  	};
+
+    updateDirectChannel(channel){
+		    this.renderChannel.updateChannel(channel);
+    };
 }

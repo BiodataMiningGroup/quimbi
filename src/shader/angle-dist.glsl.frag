@@ -61,13 +61,14 @@ void main() {
 
 	for (int i = 0; i < <%=TILES=%>; i++) {
 		tile = float(i);
+		/*
 		mask_position.s = mod(tile, u_channel_mask_dimension);
 		mask_position.t = floor(tile * u_inv_channel_mask_dimension);
 		mask_position *= u_inv_channel_mask_dimension;
 		channel_mask = texture2D(u_channel_mask, mask_position);
-
+		*/
 		// check if any channels of this tile are to be computed
-		if (dot(channel_mask, ONES) == 0.0) continue;
+		//if (dot(channel_mask, ONES) == 0.0) continue;
 
 		index_on_sampler = mod(tile, <%=TILES_PER_TEXTURE=%>);
 		column = mod(index_on_sampler, <%=TILE_COLUMNS=%>);
@@ -89,8 +90,10 @@ void main() {
 		// get rgba of the pixel to compare; filtered by the channel mask and
 		// get rgba of the position of this pixel; filtered by the channel mask
 		<%=DYNAMIC_SAMPLER_QUERIES
-		sample = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_sample);
-		current = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_current);
+		//sample = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_sample);
+		//current = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_current);
+		sample = texture2D(<%=SAMPLER=%>, coords_2d_sample);
+		current = texture2D(<%=SAMPLER=%>, coords_2d_current);
 		=%>
 
 		currentLength += dot(current, current);

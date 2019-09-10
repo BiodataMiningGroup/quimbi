@@ -24,7 +24,7 @@
 <template>
 
 <div id="spectrum-axes">
-    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="createAnnotation" @mouseover="setCanvasFocus" @mouseout="clearCanvasFocus" id="spectrum-canvas" tabindex='1'></canvas>
+    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="onMouseMove" @mouseover="setCanvasFocus" @mouseout="clearCanvasFocus" id="spectrum-canvas" tabindex='1'></canvas>
 </div>
 
 </template>
@@ -83,7 +83,11 @@ export default {
             spectralROIs: [],
             zoomFactor: 1,
             channelMask: undefined,
-            xValueIndexMap: []
+            xValueIndexMap: [],
+            passiveColorMask: [0, 0, 0],
+            activeColorMask: [0, 0, 0],
+            renderedDirectChannel: 0,
+            directChannel: 0
         }
     },
     /**
@@ -103,10 +107,6 @@ export default {
         this.xValues.forEach((point, index) => {
             this.xValueIndexMap[point] = index;
         });
-
-        //call once to create an full mask
-        this.updateChannelMaskWith();
-
     },
     methods: {
 
@@ -275,6 +275,23 @@ export default {
                 });
             },
 
+            onMouseMove(event) {
+                this.createAnnotation(event);
+                console.log(this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
+                        roiObject.visible === false
+                    }))
+                if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
+                        roiObject.visible === false
+                    })) {
+                    if (this.renderedDirectChannel === this.directChannel){
+                      console.log("uhu");
+                      this.renderedDirectChannel = this.directChannel;
+                      this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
+                      glmvilib.render.apply(null, ['render-channel','rgb-selection', 'color-lens', 'color-map'])
+                    }
+                }
+            },
+
             /**
              * Creates a svg layer containing annotations for the closest datapoint in the spectrum
              */
@@ -330,9 +347,9 @@ export default {
                 // number of active channels of the channel mask
                 let activeChannels = 0;
 
-                if (this.spectralROIs.length !== 0 && this.spectralROIs.filter(roiObject => {
-                        return roiObject.visible === true
-                    }).length !== 0) {
+                if (this.spectralROIs.length !== 0 && this.spectralROIs.every(roiObject => {
+                        roiObject.visible === true
+                    })) {
                     // clear mask
                     while (channel--) {
                         this.channelMask[channel] = 0;
@@ -353,9 +370,44 @@ export default {
                         this.channelMask[channel] = 255;
                     }
                 }
-                //console.log(this.channelMask);
-                //console.log(activeChannels);
                 this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
+            },
+            /*noch nicht fertig - ist aber nicht ganz sooo wichtig*/
+            updateDistancesChannelMask() {
+                this.updateChannelMaskWith(ranges.list);
+                tmpMousePosition = angular.copy(mouse.position);
+
+                for (let marker of Array.from(markers.getList())) {
+                    if (marker.isSet()) {
+                        clearArray(this.activeColorMask);
+                        this.activeColorMask[marker.getIndex()] = 1;
+                        this.renderHandler.setActiveColorMask(this.activeColorMask);
+                        /*überschreibt das linke durch das rechte*/
+                        angular.extend(mouse.position, marker.getPosition());
+                        glmvilib.render(...Array.from(this.renderHandler.getActive() || []));
+                    }
+                }
+                /*überschreibt das linke durch das rechte*/
+                return angular.extend(mouse.position, tmpMousePosition);
+            },
+
+            updateMeanChannelMask() {
+
+                clearArray(this.passiveColorMask);
+
+                for (let i = 0; i < this.spectralROIs[i]; i++) {
+                    this.passiveColorMask[i] = 1;
+                }
+                this.renderHandler.setpassiveColorMask(this.passiveColorMask);
+                // clears image if there are no ranges
+                glmvilib.render.apply(null, 'color-map');
+                for (let i = 0; i < this.spectralROIs[i]; i++) {
+                    this.updateChannelMaskWith();
+                    clearArray(this.activeColorMask);
+                    this.activeColorMask[i] = 1;
+                    this.renderHandler.setActiveColorMask(this.activeColorMask);
+                    glmvilib.render.apply(null, ['render-mean-ranges', 'angle-dist', 'rgb-selection', 'color-lens', 'color-map']);
+                }
             },
 
             /**
@@ -383,7 +435,6 @@ export default {
                     .attr('x', this.interestingSpectrals[0].px);
 
                 this.interestingSpectrals = [];
-                //this.updateChannelMaskWith();
                 EventBus.$emit('addSpectralROI', this.spectralROIs);
             },
 

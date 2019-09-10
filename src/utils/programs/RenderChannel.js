@@ -70,7 +70,7 @@ export default class RenderChannel {
      * @param helpers
      */
     setUpRegionMask (gl, program, assets, helpers) {
-      return sharedFcts.setUpRegionMask (gl, program, assets, helpers, this.width, this.height);
+      return sharedFcts.setUpRegionMask(gl, program, assets, helpers, this.width, this.height);
     };
 
     /**
@@ -96,7 +96,7 @@ export default class RenderChannel {
     callback(gl, program, assets, helpers) {
       helpers.bindInternalTextures();
       gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, _regionMaskTexture);
+      gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
       gl.uniform1f(_tile, Math.floor(_channel / 4));
       gl.uniform4f(_channelMask, _mask[0], _mask[1], _mask[2], _mask[3]);
       gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
