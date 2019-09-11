@@ -242,8 +242,8 @@ export default {
                         this.renderedDirectChannel = this.directChannel;
                         this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
                         glmvilib.render.apply(null, ['render-channel', 'color-lens', 'color-map']);
-                        //this.map.render();
-                        //this.updateHistogram();
+                        this.map.render();
+                        this.updateHistogram();
                     }
                 }
             },
