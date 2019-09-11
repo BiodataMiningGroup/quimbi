@@ -45,7 +45,7 @@ export default class RenderMeanRanges {
 				gl.bindTexture(gl.TEXTURE_2D, this._channelMaskTexture);
 				gl.activeTexture(gl.TEXTURE1);
 				gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
-				gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			};
 
 			/**

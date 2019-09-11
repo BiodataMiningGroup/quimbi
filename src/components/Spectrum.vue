@@ -23,8 +23,8 @@
 
 <template>
 
-<div id="spectrum-axes">
-    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="onMouseMove" @mouseover="setCanvasFocus" @mouseout="clearCanvasFocus" id="spectrum-canvas" tabindex='1'></canvas>
+<div  id="spectrum-axes">
+    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="onMouseMove"  @mouseleave="clearCanvasFocus" @mouseover="onMouseOver" id="spectrum-canvas" tabindex='1'></canvas>
 </div>
 
 </template>
@@ -40,7 +40,9 @@ export default {
         'yValues',
         'channelTextureDimension',
         'renderHandler',
-        'map'
+        'map',
+        'spectralROIs',
+        'xValueIndexMap'
     ],
     data() {
         return {
@@ -81,10 +83,8 @@ export default {
             // holds the temporary spectrum range during the selection phase
             interestingSpectrals: [],
             // holds all selected spectrals
-            spectralROIs: [],
             zoomFactor: 1,
             channelMask: undefined,
-            xValueIndexMap: [],
             passiveColorMask: [0, 0, 0],
             activeColorMask: [0, 0, 0],
             directColorMask: [1, 0, 0],
@@ -96,9 +96,6 @@ export default {
      * Created the graph and draw it once without values not zoomed
      */
     mounted() {
-        this.channelMask = new Uint8Array(this.channelTextureDimension *
-            this.channelTextureDimension * 4
-        );
         this.initGraph();
         this.drawSpectrum(d3.zoomIdentity);
         document.getElementById('spectrum-canvas').addEventListener('keyup', (e) => {
@@ -106,9 +103,6 @@ export default {
                 this.add2spectralROIs();
             }
         }, false);
-        this.xValues.forEach((point, index) => {
-            this.xValueIndexMap[point] = index;
-        });
     },
     methods: {
 
@@ -278,28 +272,16 @@ export default {
             },
 
             onMouseMove(event) {
-                this.createAnnotation(event);
-                if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
-                        roiObject.visible === false
-                    })) {
-                    let mouse = [event.offsetX, event.offsetY];
+                let mouse = [event.offsetX, event.offsetY];
 
-                    //get the position of the nearest datapoint in the quadtree (the spectrum)
-                    let closest = this.qdtree.find(mouse[0], mouse[1]);
-                    if (typeof closest === 'undefined' || typeof closest["py"] === 'undefined') {
-                        d3.select(".annotation-group").remove();
-                        return;
-                    }
-                    //this.renderHandler.setPassiveColorMask(this.directColorMask);
-                    this.renderHandler.setActiveColorMask(this.directColorMask);
-                    this.directChannel = this.xValueIndexMap[closest["xValue"]];
-                    if (this.renderedDirectChannel !== this.directChannel){
-                      this.renderedDirectChannel = this.directChannel;
-                      this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
-                      glmvilib.render.apply(null, ['render-channel', 'color-lens', 'color-map']);
-                      this.map.render();
-                    }
+                //get the position of the nearest datapoint in the quadtree (the spectrum)
+                let closest = this.qdtree.find(mouse[0], mouse[1]);
+                if (typeof closest === 'undefined' || typeof closest["py"] === 'undefined') {
+                    d3.select(".annotation-group").remove();
+                    return;
                 }
+                this.$emit('spectrummousemove', closest);
+                this.createAnnotation(event);
             },
 
             /**
@@ -351,74 +333,6 @@ export default {
                     .call(makeAnnotations);
             },
 
-            updateChannelMaskWith() {
-                let channel = this.xValues.length;
-
-                // number of active channels of the channel mask
-                let activeChannels = 0;
-
-                if (this.spectralROIs.length !== 0 && this.spectralROIs.every(roiObject => {
-                        roiObject.visible === true
-                    })) {
-                    // clear mask
-                    while (channel--) {
-                        this.channelMask[channel] = 0;
-                    }
-                    for (let i = 0; i < this.spectralROIs.length; i++) {
-                        if (this.spectralROIs[i].visible == true) {
-                            let offset = this.spectralROIs[i].range;
-                            activeChannels += offset;
-                            while (offset--) {
-                                this.channelMask[this.xValueIndexMap[this.spectralROIs[i].id[0]] + offset] = 255;
-                            }
-                        }
-                    }
-
-                } else {
-                    activeChannels = channel;
-                    while (channel--) {
-                        this.channelMask[channel] = 255;
-                    }
-                }
-                this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
-            },
-            /*noch nicht fertig - ist aber nicht ganz sooo wichtig*/
-            updateDistancesChannelMask() {
-                this.updateChannelMaskWith(ranges.list);
-                tmpMousePosition = angular.copy(mouse.position);
-
-                for (let marker of Array.from(markers.getList())) {
-                    if (marker.isSet()) {
-                        clearArray(this.activeColorMask);
-                        this.activeColorMask[marker.getIndex()] = 1;
-                        this.renderHandler.setActiveColorMask(this.activeColorMask);
-                        /*überschreibt das linke durch das rechte*/
-                        angular.extend(mouse.position, marker.getPosition());
-                        glmvilib.render(...Array.from(this.renderHandler.getActive() || []));
-                    }
-                }
-                /*überschreibt das linke durch das rechte*/
-                return angular.extend(mouse.position, tmpMousePosition);
-            },
-
-            updateMeanChannelMask() {
-
-                clearArray(this.passiveColorMask);
-
-                for (let i = 0; i < this.spectralROIs[i]; i++) {
-                    this.passiveColorMask[i] = 1;
-                }
-                //this.renderHandler.setpassiveColorMask(this.passiveColorMask);
-                // clears image if there are no ranges
-                glmvilib.render.apply(null, 'color-map');
-                for (let i = 0; i < this.spectralROIs[i]; i++) {
-                    this.updateChannelMaskWith();
-                    clearArray(this.activeColorMask);
-                    this.activeColorMask[i] = 1;
-                    this.renderHandler.setActiveColorMask(this.activeColorMask);
-                    glmvilib.render.apply(null, ['render-mean-ranges', 'angle-dist', 'rgb-selection', 'color-lens', 'color-map']);
-                }
-            },
 
             /**
              * adding a newly selected region of spectral values to the overall interesting regions array.
@@ -445,7 +359,7 @@ export default {
                     .attr('x', this.interestingSpectrals[0].px);
 
                 this.interestingSpectrals = [];
-                EventBus.$emit('addSpectralROI', this.spectralROIs);
+                this.$emit('updatespectralroi', this.spectralROIs);
             },
 
             /**
@@ -501,8 +415,9 @@ export default {
             /**
              * setting the spectrum-canvas focussed s.th. it will recognize key events.
              */
-            setCanvasFocus() {
-                document.getElementById('spectrum-canvas').focus();
+            onMouseOver(event){
+              this.$emit("spectrumenter", event);
+              document.getElementById('spectrum-canvas').focus();
             },
             /**
              * clears the spectrum-canvas focussed s.th. it won't recognize key events.

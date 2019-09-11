@@ -136,30 +136,11 @@ export default {
                     // Split lines into array and fill the data object
                     let input = response.data.split('\n');
                     let header = input[0].split(',');
-                    /*
-                    NONSENSE THE FILE FORMAT IS DIFFERENT SINCE THERE IS NO BACKGROUND PICTURE!!!!
-                    let brightfieldConfigLine = input[1];
-                    let brightfieldConfig = brightfieldConfigLine.split(',');
-                    // Amount of lines for configuration and information
-                    let configLength = 3;
-                    this.data.backgroundImage = brightfieldConfig[0];
-                    this.data.overlayImage = brightfieldConfig[1];
-
-                    this.data.overlayScaleX = parseFloat(brightfieldConfig[2]);
-                    this.data.overlayScaleY = parseFloat(brightfieldConfig[3]);
-                    this.data.overlayShiftX = parseFloat(brightfieldConfig[4]);
-                    this.data.overlayShiftY = parseFloat(brightfieldConfig[5]);
-                    */
                     let configLength = 3;
                     this.data.id = header[0];
                     this.data.base = header[1];
                     this.data.format = header[2];
                     this.data.channels = parseInt(header[3]);
-                    /*
-                    SAME ISSUE AS ABOVE! THE FILEFORMAT IS DIFFERENT!
-                    this.data.imageWidth = parseInt(header[4] * this.data.overlayScaleX);
-                    this.data.imageHeight = parseInt(header[5] * this.data.overlayScaleY);
-                    */
                     this.data.dataWidth = parseInt(header[4]);
                     this.data.dataHeight = parseInt(header[5]);
 
@@ -226,7 +207,7 @@ export default {
                         // Initialize shader
                         this.renderHandler = new RenderHandler(this.data);
                         this.renderHandler.createShader();
-                        this.$emit('InitedRenderer', this.renderHandler);
+                        this.$emit('initedRenderer', this.renderHandler);
 
 
                         this.data.meanChannel = Array(this.renderHandler.framebuffer.spectrumValues.length).fill(0);

@@ -8,16 +8,18 @@
 
 <template>
 
-<sidebar-menu id="sidebar" :collapsed="true" @item-click="onItemClick" :menu="menu" />
+<sidebar-menu id="sidebar" :collapsed="true" @item-click="onItemClick" :menu="menu"/>
 
 </template>
 
 <script>
 
 export default {
+    props: [
+        'spectralROIs',
+    ],
     data() {
             return {
-                spectralROIs: null,
                 mapROIs: null,
                 menu: [{
                     header: true,

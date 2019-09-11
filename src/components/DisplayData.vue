@@ -73,7 +73,7 @@ select {
         </div>
     </div>
     <div class="interesting-regions">
-        <RegionsOfInterest ref="roi"></RegionsOfInterest>
+        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs"></RegionsOfInterest>
     </div>
     <div class="map-container">
         <div class="map-overlay">
@@ -81,12 +81,13 @@ select {
             <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
         </div>
         <div>
-            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" @MouseMove="onMapMouseMove($event)" @mouseclick="onMapMouseClick($event)" @finishedMap="setMap($event)">
+            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" @mapMouseMove="onMapMouseMove($event)" @mapMouseClick="onMapMouseClick($event)" @finishedMap="setMap($event)" @mapleave="onLeaveMap($event)">
             </IntensityMap>
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :channelTextureDimension="renderHandler.selectionInfoTextureDimension" :renderHandler="renderHandler" :map="map"></Spectrum>
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :channelTextureDimension="renderHandler.selectionInfoTextureDimension" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap"
+        @updatespectralroi="onUpdateSpectralROI" @spectrummousemove="onSpectrumMouseMove" @spectrumenter="onSpectrumEnter"></Spectrum>
     </div>
 </section>
 
@@ -150,13 +151,21 @@ export default {
             mapROIs: [],
             mapROIs2Draw: [],
             selectedGeometry: 'None',
-            spectralYValues: []
+            spectralYValues: [],
+            channelMask: undefined,
+            xValueIndexMap: [],
+            passiveColorMask: [0, 0, 0],
+            activeColorMask: [0, 0, 0],
+            directColorMask: [1, 0, 0],
+            renderedDirectChannel: 0,
+            directChannel: 0
         }
     },
     /**
      * Called before screen is rendered. Retrievs colormap array and bounds for the colormap scale
      */
     created() {
+        this.spectralYValues = this.data.meanChannel;
         this.colormapvalues = this.renderHandler.colorMap.getColorMapValues();
         this.histogramData = this.renderHandler.intensityHistogram.histogram;
         this.bounds = this.renderHandler.intensityHistogram.bounds;
@@ -165,12 +174,20 @@ export default {
      * Called after created(), when dom elements are accessible
      */
     mounted() {
-        this.spectralYValues = this.data.meanChannel;
+        this.updateHistogram();
+
         // Draw Color-Scale
         this.$refs.scaleCanvas.redrawScale();
         this.createMarker();
+        this.channelMask = new Uint8Array(this.channelTextureDimension *
+            this.channelTextureDimension * 4
+        );
+        this.data.channelNames.forEach((point, index) => {
+            this.xValueIndexMap[point] = index;
+        });
     },
     methods: {
+
         updateSpectralROIs(updatedSpectralROI) {
                 this.spectralROIs = updatedSpectralROI;
             },
@@ -215,6 +232,28 @@ export default {
                 this.map.addLayer(this.markerLayer);
             },
 
+            onSpectrumMouseMove(closest) {
+                if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
+                        roiObject.visible === false
+                    })) {
+                    this.renderHandler.setActiveColorMask(this.directColorMask);
+                    this.directChannel = this.xValueIndexMap[closest["xValue"]];
+                    if (this.renderedDirectChannel !== this.directChannel) {
+                        this.renderedDirectChannel = this.directChannel;
+                        this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
+                        glmvilib.render.apply(null, ['render-channel', 'color-lens', 'color-map']);
+                        this.map.render();
+                        this.updateHistogram();
+                    }
+                }
+            },
+
+            onUpdateSpectralROI(spectralROIs) {
+                this.spectralROIs = spectralROIs;
+                this.updateMeanChannelMask();
+
+            },
+
             /**
              * Called on free mouse movement. Adds small delay between mouse movement events to prevent lag
              * caused by too much rendering
@@ -224,20 +263,30 @@ export default {
                 if (!this.markerIsActive) {
                     // Update if there is a certain time interval (in ms) between movements
                     // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
-                    if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
+                    //if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
                         this.updateMapMousePosition(event);
                         this.timeStampBefore = event.originalEvent.timeStamp;
                         this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
                         glmvilib.render.apply(null, ['selection-info']);
                         this.renderHandler.framebuffer.updateSpectrum();
-                        if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)){
-                          this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
-                        }
-                        else{
-                          this.spectralYValues = this.data.meanChannel;
+                        if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                            this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
+                        } else {
+                            this.spectralYValues = this.data.meanChannel;
                         }
                         this.$refs.spectrum.redrawSpectrum();
-                    }
+                    //}
+                }
+            },
+
+            onLeaveMap(event) {
+                if (!this.markerIsActive) {
+                    this.spectralYValues = this.data.meanChannel;
+                }
+            },
+            onSpectrumEnter(event) {
+                if (!this.markerIsActive) {
+                    this.spectralYValues = this.data.meanChannel;
                 }
             },
 
@@ -300,7 +349,77 @@ export default {
 
             setMap(map) {
                 this.map = map;
-            }
+            },
+
+            updateChannelMaskWith() {
+                let channel = this.data.channelNames.length;
+
+                // number of active channels of the channel mask
+                let activeChannels = 0;
+
+                if (this.spectralROIs.length !== 0 && this.spectralROIs.every(roiObject => {
+                        roiObject.visible === true
+                    })) {
+                    // clear mask
+                    while (channel--) {
+                        this.channelMask[channel] = 0;
+                    }
+                    for (let i = 0; i < this.spectralROIs.length; i++) {
+                        if (this.spectralROIs[i].visible == true) {
+                            let offset = this.spectralROIs[i].range;
+                            activeChannels += offset;
+                            while (offset--) {
+                                this.channelMask[this.xValueIndexMap[this.spectralROIs[i].id[0]] + offset] = 255;
+                            }
+                        }
+                    }
+
+                } else {
+                    activeChannels = channel;
+                    while (channel--) {
+                        this.channelMask[channel] = 255;
+                    }
+                }
+                this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
+            },
+            /*noch nicht fertig - ist aber nicht ganz sooo wichtig*/
+            updateDistancesChannelMask() {
+                this.updateChannelMaskWith(ranges.list);
+                tmpMousePosition = angular.copy(mouse.position);
+
+                for (let marker of Array.from(markers.getList())) {
+                    if (marker.isSet()) {
+                        clearArray(this.activeColorMask);
+                        this.activeColorMask[marker.getIndex()] = 1;
+                        this.renderHandler.setActiveColorMask(this.activeColorMask);
+                        /*überschreibt das linke durch das rechte*/
+                        angular.extend(mouse.position, marker.getPosition());
+                        glmvilib.render(...Array.from(this.renderHandler.getActive() || []));
+                    }
+                }
+                /*überschreibt das linke durch das rechte*/
+                return angular.extend(mouse.position, tmpMousePosition);
+            },
+
+            updateMeanChannelMask() {
+                this.passiveColorMask = new Array(this.passiveColorMask.length).fill(0);
+                for (let i = 0; i < this.spectralROIs.length; i++) {
+                    this.passiveColorMask[i] = 1;
+                }
+                //this.renderHandler.setpassiveColorMask(this.passiveColorMask);
+                // clears image if there are no ranges
+                glmvilib.render.apply(null, ['color-map']);
+                for (let i = 0; i < this.spectralROIs.length; i++) {
+                    this.updateChannelMaskWith();
+                    this.activeColorMask = new Array(this.activeColorMask.length).fill(0);
+                    this.activeColorMask[i] = 1;
+                    this.renderHandler.setActiveColorMask(this.activeColorMask);
+                    glmvilib.render.apply(null, ['render-mean-ranges', 'color-lens', 'color-map']);
+                }
+                this.map.render();
+                this.updateHistogram();
+                console.log("Pizza")
+            },
 
     }
 }

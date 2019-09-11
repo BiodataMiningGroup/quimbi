@@ -116,6 +116,9 @@ export default {
         this.intensityCanvas.addEventListener('mouseover', (e) => {
             this.intensityCanvas.focus();
         }, false);
+        this.intensityCanvas.addEventListener('mouseleave', (e) =>{
+          this.$emit("mapleave", e);
+        }, false);
         this.createMaskCanvas();
         this.renderHandler.updateRegionMask(this.maskCanvas);
         this.$emit("finishedMap", this.intensitymap);
@@ -253,10 +256,10 @@ export default {
                 let that = this;
                 // Add event listener for single click and mouse movement
                 this.intensitymap.on('pointermove', function(event) {
-                    that.$emit('MouseMove', event);
+                    that.$emit('mapMouseMove', event);
                 });
                 this.intensitymap.on('singleclick', function(event) {
-                    that.$emit('mouseclick', event);
+                    that.$emit('mapMouseClick', event);
                 });
             },
             createMaskCanvas() {

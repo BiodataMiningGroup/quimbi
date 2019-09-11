@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <InitData v-if="showInitData" @InitedRenderer="onInitedRenderer" @finish="onFinishedInit"></InitData>
+        <InitData v-if="showInitData" @initedRenderer="onInitedRenderer" @finish="onFinishedInit"></InitData>
         <DisplayData v-if="showDisplayData" :initData="data" :renderHandler="renderHandler"></DisplayData>
     </div>
 </template>
