@@ -39,7 +39,8 @@ export default {
         'xValues',
         'yValues',
         'channelTextureDimension',
-        'renderHandler'
+        'renderHandler',
+        'map'
     ],
     data() {
         return {
@@ -295,7 +296,8 @@ export default {
                     if (this.renderedDirectChannel !== this.directChannel){
                       this.renderedDirectChannel = this.directChannel;
                       this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
-                      glmvilib.render.apply(null, ['render-channel','rgb-selection', 'color-lens', 'color-map']);
+                      glmvilib.render.apply(null, ['render-channel', 'color-lens', 'color-map']);
+                      this.map.render();
                     }
                 }
             },

@@ -7,7 +7,6 @@ import SelectionInfo from './programs/SelectionInfo';
 import RenderChannel from './programs/RenderChannel';
 import RenderMeanRanges from './programs/RenderMeanRanges.js';
 import RGBSelection from './programs/RGBSelection.js';
-import SpaceFillDisplay from './programs/SpaceFillDisplay.js';
 
 
 
@@ -31,10 +30,9 @@ export default class RenderHandler {
         this.colorLens = new ColorLens(this.intensityHistogram, this.framebuffer);
         this.colorMap = new ColorMap(this.framebuffer);
         this.selectionInfo = new SelectionInfo(this.framebuffer, this.selectionInfoTextureDimension);
-        this.renderChannel = new RenderChannel(this.framebuffer);
+        this.renderChannel = new RenderChannel(this.framebuffer, this.intensityHistogram);
         this.renderMeanRanges = new RenderMeanRanges(this.framebuffer);
         this.rgbSelection = new RGBSelection(this.framebuffer, this.intensityHistogram);
-        this.spaceFillDisplay = new SpaceFillDisplay(this.framebuffer);
 
     };
 
@@ -49,7 +47,6 @@ export default class RenderHandler {
         window.glmvilib.addProgram(this.renderChannel);
         window.glmvilib.addProgram(this.renderMeanRanges);
         window.glmvilib.addProgram(this.rgbSelection);
-        window.glmvilib.addProgram(this.spaceFillDisplay);
 
     };
 
@@ -94,7 +91,7 @@ export default class RenderHandler {
     updateDirectChannel(channel){
 		    this.renderChannel.updateChannel(channel);
     };
-    
+
     updateColorMask(){
       this.colorMap.updateColorMaps();
     }

@@ -86,7 +86,7 @@ select {
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :channelTextureDimension="renderHandler.selectionInfoTextureDimension" :renderHandler="renderHandler"></Spectrum>
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :channelTextureDimension="renderHandler.selectionInfoTextureDimension" :renderHandler="renderHandler" :map="map"></Spectrum>
     </div>
 </section>
 
