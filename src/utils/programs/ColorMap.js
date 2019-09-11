@@ -1,3 +1,4 @@
+import * as sharedFcts from './helper/sharedRenderFunctions.js';
 /**
  * Shader Program to add a colormap to the greycolored distance map
  */
@@ -7,7 +8,11 @@ export default class ColorMap {
      * @param framebuffer
      */
     constructor(framebuffer) {
+        //this._gl = null;
         this._colorMapTextureR = null;
+        //this._colorMapTextureG = null;
+        //this._colorMask = [0, 0, 0];
+		    //this._colorMaskLocation = null;
         this.id = 'color-map';
         this.vertexShaderUrl = 'shader/display-rectangle.glsl.vert';
         this.fragmentShaderUrl = 'shader/color-map.glsl.frag';
@@ -24,15 +29,28 @@ export default class ColorMap {
      * @param helpers
      */
     setUp(gl, program, assets, helpers) {
-
+        //this._gl = gl;
         helpers.useInternalVertexPositions(program);
         helpers.useInternalTexturePositions(program);
+        //let rgbColorLens = gl.getUniformLocation(program, 'u_rgb_color_lens');
+			  //gl.uniform1i(rgbColorLens, 0);
 
         this._colorMapTextureR = helpers.newTexture('colorMapTextureR');
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, this.getColorMapValues());
-        gl.uniform1i(gl.getUniformLocation(program, 'u_color_map_r'), 1);
-    }
+        //this._colorMapTextureG = helpers.newTexture('colorMapTextureG');
+        //gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, this.getColorMapValues());
 
+        gl.uniform1i(gl.getUniformLocation(program, 'u_color_map_r'), 1);
+        //gl.uniform1i(gl.getUniformLocation(program, 'u_color_map_g'), 2);
+
+        //this.setUpColorMapTexture(gl, assets, helpers);
+        //this._colorMaskLocation = gl.getUniformLocation(program, 'u_color_mask');
+      }
+      /*
+      setUpColorMapTexture(gl, assets, helpers, width, height){
+        sharedFcts.setUpColorMapTexture(gl, assets, helpers, width, height);
+      }
+      */
     /**
      * @param gl
      * @param program
@@ -44,11 +62,36 @@ export default class ColorMap {
         gl.bindTexture(gl.TEXTURE_2D, assets.textures.rgbColorLensTexture);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureR);
+        //gl.activeTexture(gl.TEXTURE2);
+			  //gl.bindTexture(gl.TEXTURE_2D, this._colorMapTextureG);
+
+			  //gl.uniform3f(this._colorMaskLocation, this._colorMask[0], this._colorMask[1], this._colorMask[2]);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.colorMapTexture);
 
     }
+    /*
+    postCallback(gl, program, assets, helpers){
+			this.framebuffer.updateSpectrum();
+    }
+    updateColorMaps(maps){
+			this._gl.activeTexture(this._gl.TEXTURE0);
+			this._gl.bindTexture(this._gl.TEXTURE_2D, this._colorMapTextureR);
+			if (maps[0]){
+        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGB, 256, 1, 0, this._gl.RGB, this._gl.UNSIGNED_BYTE, maps[0]);
+      }
+			this._gl.bindTexture(this._gl.TEXTURE_2D, this._colorMapTextureG);
+			if (maps[1]){
+        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGB, 256, 1, 0, this._gl.RGB, this._gl.UNSIGNED_BYTE, maps[1]);
+      }
+    }
 
+    updateColorMask(mask){
+      this._colorMask[0] = mask[0];
+  		this._colorMask[1] = mask[1];
+  		this._colorMask[2] = mask[2];
+    }
+    */
     /**
      * Holds and returns the colormap. The 3 rgb values of the 256 colors are are written one after another.
      * @returns {Uint8Array}

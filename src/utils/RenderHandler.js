@@ -7,6 +7,8 @@ import SelectionInfo from './programs/SelectionInfo';
 import RenderChannel from './programs/RenderChannel';
 import RenderMeanRanges from './programs/RenderMeanRanges.js';
 import RGBSelection from './programs/RGBSelection.js';
+import SpaceFillDisplay from './programs/SpaceFillDisplay.js';
+
 
 
 /**
@@ -32,6 +34,7 @@ export default class RenderHandler {
         this.renderChannel = new RenderChannel(this.framebuffer);
         this.renderMeanRanges = new RenderMeanRanges(this.framebuffer);
         this.rgbSelection = new RGBSelection(this.framebuffer, this.intensityHistogram);
+        this.spaceFillDisplay = new SpaceFillDisplay(this.framebuffer);
 
     };
 
@@ -46,6 +49,8 @@ export default class RenderHandler {
         window.glmvilib.addProgram(this.renderChannel);
         window.glmvilib.addProgram(this.renderMeanRanges);
         window.glmvilib.addProgram(this.rgbSelection);
+        window.glmvilib.addProgram(this.spaceFillDisplay);
+
     };
 
     /**
@@ -73,11 +78,23 @@ export default class RenderHandler {
 
     setActiveColorMask(mask) {
   		if (mask instanceof Array && (mask.length === 3)) {
-  			return this.rgbSelection.updateColorMask(mask);
+  			this.rgbSelection.updateColorMask(mask);
   		}
   	};
+
+    setPassiveColorMask(mask){
+      /*
+  		if (mask instanceof Array && (mask.length === 3)){
+        this.colorMap.updateColorMask(mask);
+      }
+      */
+    };
+
 
     updateDirectChannel(channel){
 		    this.renderChannel.updateChannel(channel);
     };
+    updateColorMask(){
+      //this.colorMap.updateColorMaps();
+    }
 }

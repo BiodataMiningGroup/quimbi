@@ -95,6 +95,7 @@ export default class RenderChannel {
      */
     callback(gl, program, assets, helpers) {
       helpers.bindInternalTextures();
+      
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
       gl.uniform1f(this._tile, Math.floor(this._channel / 4));

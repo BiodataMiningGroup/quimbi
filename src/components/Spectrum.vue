@@ -86,6 +86,7 @@ export default {
             xValueIndexMap: [],
             passiveColorMask: [0, 0, 0],
             activeColorMask: [0, 0, 0],
+            directColorMask: [1, 0, 0],
             renderedDirectChannel: 0,
             directChannel: 0
         }
@@ -280,10 +281,21 @@ export default {
                 if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
                         roiObject.visible === false
                     })) {
-                    if (this.renderedDirectChannel === this.directChannel){
+                    let mouse = [event.offsetX, event.offsetY];
+
+                    //get the position of the nearest datapoint in the quadtree (the spectrum)
+                    let closest = this.qdtree.find(mouse[0], mouse[1]);
+                    if (typeof closest === 'undefined' || typeof closest["py"] === 'undefined') {
+                        d3.select(".annotation-group").remove();
+                        return;
+                    }
+                    this.renderHandler.setPassiveColorMask(this.directColorMask);
+                    this.renderHandler.setActiveColorMask(this.directColorMask);
+                    this.directChannel = this.xValueIndexMap[closest["xValue"]];
+                    if (this.renderedDirectChannel !== this.directChannel){
                       this.renderedDirectChannel = this.directChannel;
                       this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
-                      glmvilib.render.apply(null, ['render-channel','rgb-selection', 'color-lens', 'color-map'])
+                      glmvilib.render.apply(null, ['render-channel','rgb-selection', 'color-lens', 'color-map']);
                     }
                 }
             },

@@ -150,6 +150,7 @@ export default {
                     this.data.overlayShiftX = parseFloat(brightfieldConfig[4]);
                     this.data.overlayShiftY = parseFloat(brightfieldConfig[5]);
                     */
+                    let configLength = 3;
                     this.data.id = header[0];
                     this.data.base = header[1];
                     this.data.format = header[2];
@@ -167,7 +168,6 @@ export default {
                     this.data.files = [];
                     input.forEach((inputLine, key) => {
                         if (key >= configLength && inputLine !== '') {
-
                             this.data.files.push(inputLine);
 
                             inputLine.split('-').forEach((item) => {
@@ -184,7 +184,6 @@ export default {
                     // Download images
                     this.data.images = new Array(this.data.files.length);
                     this.loadImages();
-                    console.log(this.data);
                 },
 
                 /**
