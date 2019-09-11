@@ -59,8 +59,8 @@ export function updateChannelMask(gl, mask, texture, channelTextureDimension) {
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, channelTextureDimension,
-      channelTextureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, mask);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, channelTextureDimension, channelTextureDimension, 0, gl.RGBA, gl.UNSIGNED_BYTE, mask);
+  console.log("channelTextureDimension", channelTextureDimension);
   gl.bindTexture(gl.TEXTURE_2D, null);
 };
 

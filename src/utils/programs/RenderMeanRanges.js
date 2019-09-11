@@ -15,7 +15,7 @@ export default class RenderMeanRanges {
 
 			this._gl = null;
 
-			this.framebuffer = framebuffer
+			this.framebuffer = framebuffer;
 
 			this.channelTextureDimension = this.framebuffer.selectionInfoTextureDimension;
 			this.width = this.framebuffer.width;
@@ -45,7 +45,7 @@ export default class RenderMeanRanges {
 				gl.bindTexture(gl.TEXTURE_2D, this._channelMaskTexture);
 				gl.activeTexture(gl.TEXTURE1);
 				gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
-				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
 			};
 
 			/**
@@ -72,7 +72,7 @@ export default class RenderMeanRanges {
 
 			updateChannelMask(mask, activeChannels) {
 				this._activeChannels = activeChannels;
-				sharedFcts.updateChannelMask(this._gl, mask, this._channelMaskTexture);
+				sharedFcts.updateChannelMask(this._gl, mask, this._channelMaskTexture, this.channelTextureDimension);
 			};
 
 			/**

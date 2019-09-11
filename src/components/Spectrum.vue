@@ -38,7 +38,6 @@ export default {
     props: [
         'xValues',
         'yValues',
-        'channelTextureDimension',
         'renderHandler',
         'map',
         'spectralROIs',
@@ -84,12 +83,6 @@ export default {
             interestingSpectrals: [],
             // holds all selected spectrals
             zoomFactor: 1,
-            channelMask: undefined,
-            passiveColorMask: [0, 0, 0],
-            activeColorMask: [0, 0, 0],
-            directColorMask: [1, 0, 0],
-            renderedDirectChannel: 0,
-            directChannel: 0
         }
     },
     /**
@@ -464,7 +457,8 @@ export default {
             getNormedYValues() {
                 let maxY = Math.max.apply(null, this.yValues);
                 let tmp_array = this.yValues.slice(0, this.xValues.length);
-                return Array.from(tmp_array).map(val => val / maxY * 100);
+                return this.yValues.map(val => val / maxY * 100);
+                //return Array.from(tmp_array).map(val => val / maxY * 100);
             },
 
             /**

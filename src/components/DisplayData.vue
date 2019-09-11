@@ -86,7 +86,7 @@ select {
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :channelTextureDimension="renderHandler.selectionInfoTextureDimension" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap"
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues"  :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap"
         @updatespectralroi="onUpdateSpectralROI" @spectrummousemove="onSpectrumMouseMove" @spectrumenter="onSpectrumEnter"></Spectrum>
     </div>
 </section>
@@ -179,8 +179,8 @@ export default {
         // Draw Color-Scale
         this.$refs.scaleCanvas.redrawScale();
         this.createMarker();
-        this.channelMask = new Uint8Array(this.channelTextureDimension *
-            this.channelTextureDimension * 4
+        this.channelMask = new Uint8Array(this.renderHandler.selectionInfoTextureDimension *
+            this.renderHandler.selectionInfoTextureDimension * 4
         );
         this.data.channelNames.forEach((point, index) => {
             this.xValueIndexMap[point] = index;
@@ -242,8 +242,8 @@ export default {
                         this.renderedDirectChannel = this.directChannel;
                         this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
                         glmvilib.render.apply(null, ['render-channel', 'color-lens', 'color-map']);
-                        this.map.render();
-                        this.updateHistogram();
+                        //this.map.render();
+                        //this.updateHistogram();
                     }
                 }
             },
@@ -353,21 +353,21 @@ export default {
 
             updateChannelMaskWith() {
                 let channel = this.data.channelNames.length;
-
                 // number of active channels of the channel mask
                 let activeChannels = 0;
-
-                if (this.spectralROIs.length !== 0 && this.spectralROIs.every(roiObject => {
+                if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
                         roiObject.visible === true
-                    })) {
+                    )) {
                     // clear mask
                     while (channel--) {
                         this.channelMask[channel] = 0;
                     }
                     for (let i = 0; i < this.spectralROIs.length; i++) {
                         if (this.spectralROIs[i].visible == true) {
+
                             let offset = this.spectralROIs[i].range;
                             activeChannels += offset;
+
                             while (offset--) {
                                 this.channelMask[this.xValueIndexMap[this.spectralROIs[i].id[0]] + offset] = 255;
                             }
@@ -408,17 +408,12 @@ export default {
                 }
                 //this.renderHandler.setpassiveColorMask(this.passiveColorMask);
                 // clears image if there are no ranges
-                glmvilib.render.apply(null, ['color-map']);
-                for (let i = 0; i < this.spectralROIs.length; i++) {
-                    this.updateChannelMaskWith();
-                    this.activeColorMask = new Array(this.activeColorMask.length).fill(0);
-                    this.activeColorMask[i] = 1;
-                    this.renderHandler.setActiveColorMask(this.activeColorMask);
-                    glmvilib.render.apply(null, ['render-mean-ranges', 'color-lens', 'color-map']);
-                }
+                //glmvilib.render.apply(null, ['color-map']);
+
+                this.updateChannelMaskWith();
+                glmvilib.render.apply(null, ['render-mean-ranges', 'color-lens', 'color-map']);
                 this.map.render();
                 this.updateHistogram();
-                console.log("Pizza")
             },
 
     }
