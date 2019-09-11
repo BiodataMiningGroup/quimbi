@@ -289,7 +289,7 @@ export default {
                         d3.select(".annotation-group").remove();
                         return;
                     }
-                    this.renderHandler.setPassiveColorMask(this.directColorMask);
+                    //this.renderHandler.setPassiveColorMask(this.directColorMask);
                     this.renderHandler.setActiveColorMask(this.directColorMask);
                     this.directChannel = this.xValueIndexMap[closest["xValue"]];
                     if (this.renderedDirectChannel !== this.directChannel){
@@ -406,7 +406,7 @@ export default {
                 for (let i = 0; i < this.spectralROIs[i]; i++) {
                     this.passiveColorMask[i] = 1;
                 }
-                this.renderHandler.setpassiveColorMask(this.passiveColorMask);
+                //this.renderHandler.setpassiveColorMask(this.passiveColorMask);
                 // clears image if there are no ranges
                 glmvilib.render.apply(null, 'color-map');
                 for (let i = 0; i < this.spectralROIs[i]; i++) {

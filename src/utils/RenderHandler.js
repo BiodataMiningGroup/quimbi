@@ -83,18 +83,19 @@ export default class RenderHandler {
   	};
 
     setPassiveColorMask(mask){
-      /*
+
   		if (mask instanceof Array && (mask.length === 3)){
         this.colorMap.updateColorMask(mask);
       }
-      */
+
     };
 
 
     updateDirectChannel(channel){
 		    this.renderChannel.updateChannel(channel);
     };
+    
     updateColorMask(){
-      //this.colorMap.updateColorMaps();
+      this.colorMap.updateColorMaps();
     }
 }
