@@ -282,11 +282,13 @@ export default {
             onLeaveMap(event) {
                 if (!this.markerIsActive) {
                     this.spectralYValues = this.data.meanChannel;
+                    this.$refs.spectrum.redrawSpectrum();
                 }
             },
             onSpectrumEnter(event) {
                 if (!this.markerIsActive) {
                     this.spectralYValues = this.data.meanChannel;
+                    this.$refs.spectrum.redrawSpectrum();
                 }
             },
 
