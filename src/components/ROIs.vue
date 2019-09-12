@@ -1,14 +1,74 @@
 <style>
 
-.v-sidebar-menu {
-    height: 65% !important;
+.vs-sidebar {
+    height: 65vh !important;
+}
+
+.vs-sidebar--background {
+  height: auto !important;
+  width: auto !important;
+}
+
+.header-sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+.header-sidebar h4 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.header-sidebar h4 > button {
+    margin-left: 10px;
+}
+
+.footer-sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.footer-sidebar > button {
+    border: 0px solid rgba(0, 0, 0, 0) !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.07) !important;
+    border-radius: 0px !important;
 }
 
 </style>
 
 <template>
 
-<sidebar-menu id="sidebar" :collapsed="true" @item-click="onItemClick" :menu="menu"/>
+<div id="sidebar">
+    <vs-sidebar :reduce="reduce" :reduce-not-hover-expand="notExpand" parent="body" default-index="1" color="success" class="sidebarx" spacer v-model="active">
+
+        <div class="header-sidebar" slot="header">
+            <p>Interesting Regions</p>
+        </div>
+        <vs-sidebar-group open title="Map Regions">
+            <vs-sidebar-item index="1" icon="menu">
+                Toggle Sidebar
+            </vs-sidebar-item>
+        </vs-sidebar-group>
+        <vs-divider/>
+        <vs-sidebar-group open title="Spectral Regions">
+            <vs-sidebar-item index="1" icon="menu">
+                Toggle Sidebar
+            </vs-sidebar-item>
+        </vs-sidebar-group>
+
+        <div class="footer-sidebar" slot="footer">
+            <vs-button icon="settings" color="primary" type="border"></vs-button>
+        </div>
+
+    </vs-sidebar>
+</div>
 
 </template>
 
@@ -19,158 +79,56 @@ export default {
         'spectralROIs',
     ],
     data() {
-            return {
-                mapROIs: null,
-                menu: [{
-                    header: true,
-                    title: 'Interesting Regions',
-                    hiddenOnCollapse: true,
-                }, {
-                    component: "spectralRegions",
-                    title: 'spectral regions',
+        return {
+            mapROIs: null,
+            active: true,
+            notExpand: false,
+            reduce: true,
+            /*
+            menu: [{
+                header: true,
+                title: 'Interesting Regions',
+                hiddenOnCollapse: true,
+            }, {
+                component: "spectralRegions",
+                title: 'spectral regions',
+                attributes: {
+                    id: "spectralRegions",
+                },
+                icon: {
+                    element: 'span',
+                    class: 'fa fa-chart-area',
+                    attributes: {},
+                    text: '',
+                },
+                child: [{
+                    title: '',
                     attributes: {
-                        id: "spectralRegions",
+                        id: "spectralChild",
                     },
-                    icon: {
-                        element: 'span',
-                        class: 'fa fa-chart-area',
-                        attributes: {},
-                        text: '',
-                    },
-                    child: [{
-                        title: '',
-                        attributes: {
-                            id: "spectralChild",
-                        },
-                    }],
-                }, {
-                    component: "mapRegions",
-                    title: 'map regions',
-                    attributes: {
-                        id: "mapRegions",
-                    },
-                    icon: {
-                        element: 'span',
-                        class: 'fa fa-draw-polygon',
-                        attributes: {},
-                        text: '',
-                    },
-                    child: [{
-                        title: '',
-                        attributes: {
-                            id: "mapChild",
-                        },
-                    }],
                 }],
-            }
-        },
-        watch: {
-            //function to watch for changes in spectrumValues in order to recalculate the sidebar
-            'spectralROIs': function() {
-                let item = this._data.menu.filter((item) => {
-                    if (item.title === "spectral regions") {
-                        return item;
-                    }
-                })[0];
-                item.child.length = 0;
-                this.appendspectralROIs(item);
-            },
-            //function to watch for changes in mapROIs in order to recalculate the sidebar
-            'mapROIs': function() {
-                let item = this._data.menu.filter((item) => {
-                    if (item.title === "map regions") {
-                        return item;
-                    }
-                })[0];
-                item.child.length = 0;
-                this.appendMapROIs(item);
-            }
-
-        },
-        mounted() {
-            let that = this;
-            //Todo add communication to both .vue
-            //communication from IntensityMap.vue
-            EventBus.$on('addMapROI', mapROIs => {
-                that.mapROIs = mapROIs;
-            });
-            //communication from Spectrum.vue
-            EventBus.$on('addSpectralROI', spectralROIs => {
-                that.spectralROIs = spectralROIs;
-            });
-        },
-
-        methods: {
-            onItemClick(event, item) {
-                    switch (item.attributes["id"]) {
-                        case "spectralRegions":
-                            item.child.length = 0;
-                            this.appendspectralROIs(item);
-                            break;
-                        case "mapRegions":
-                            item.child.length = 0;
-                            this.appendMapROIs(item);
-                            break;
-                    };
+            }, {
+                component: "mapRegions",
+                title: 'map regions',
+                attributes: {
+                    id: "mapRegions",
                 },
-
-                appendspectralROIs(item) {
-                    if (item.child.length >= this.spectralROIs.length) {
-                        return;
-                    }
-                    for (let i = 0; i < this.spectralROIs.length; i++) {
-                        let range = this.spectralROIs[i].id;
-                        item.child.push({
-                            title: range,
-                            attributes: {
-                                id: "spectral" + i,
-                            },
-                            icon: {
-                                class: 'fa fa-eye',
-                            },
-                            badge: {
-                                class: 'fa fa-trash',
-                                element: 'button',
-                            },
-                        });
-                    }
+                icon: {
+                    element: 'span',
+                    class: 'fa fa-draw-polygon',
+                    attributes: {},
+                    text: '',
                 },
-                appendMapROIs(item) {
-                    if (item.child.length > this.mapROIs.length) {
-                        return;
-                    }
-                    for (let i = 0; i < this.mapROIs.length; i++) {
-                        item.child.push({
-                            title: "region " + i,
-                            attributes: {
-                                id: "region" + i,
-                            },
-                            /*
-                            icon: {
-                                class: 'fa fa-eye',
-                            },
-                            badge: {
-                                class: 'fa fa-trash',
-                                element: 'button',
-                            },
-                            */
-                            child: [{
-                                title: 'show',
-                                badge: {
-                                    element: 'button',
-                                    class: 'fa fa-eye',
-                                },
-                            }, {
-                                title: 'remove',
-                                badge: {
-                                    element: 'button',
-                                    class: 'fa fa-trash',
-                                },
-                            }],
-                        });
-                    }
-                }
+                child: [{
+                    title: '',
+                    attributes: {
+                        id: "mapChild",
+                    },
+                }],
+            }], */
         }
+    },
+
 }
 
 </script>

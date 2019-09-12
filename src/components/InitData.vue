@@ -9,7 +9,7 @@
     margin-top: 20px;
 }
 
-.path {
+.alt_path {
     width: 30vw;
     min-width: 350px;
 }
@@ -54,7 +54,7 @@ h1 {
                 <div class="field">
                     <div class="control has-text-centered">
                         <label class="label has-text-centered">Datei:</label>
-                        <input v-model="filePath" type="text" class="input is-full path">
+                        <input v-model="filePath" type="text" class="input is-full alt_path">
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@ h1 {
             <div class="level-item has-text-centered">
                 <div>
                     <p class="progress-label">Lade Daten ...</p>
-                    <progress class="progress path is-medium is-info" :value="progressBar" max="100"></progress>
+                    <progress class="progress alt_path is-medium is-info" :value="progressBar" max="100"></progress>
                 </div>
             </div>
         </div>
