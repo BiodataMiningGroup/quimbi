@@ -48,9 +48,7 @@ export function setUpRegionMask(gl, program, assets, helpers, width, height) {
   if (!(regionMaskTexture = assets.textures.regionMaskTexture)) {
     regionMaskTexture = helpers.newTexture('regionMaskTexture');
     // same dimensions as distance texture
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-      width, height,
-      0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
   }
   return regionMaskTexture;
 };

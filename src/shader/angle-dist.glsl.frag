@@ -61,7 +61,6 @@ void main() {
 
 	for (int i = 0; i < <%=TILES=%>; i++) {
 		tile = float(i);
-
 		mask_position.s = mod(tile, u_channel_mask_dimension);
 		mask_position.t = floor(tile * u_inv_channel_mask_dimension);
 		mask_position *= u_inv_channel_mask_dimension;
@@ -92,8 +91,6 @@ void main() {
 		<%=DYNAMIC_SAMPLER_QUERIES
 		sample = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_sample);
 		current = channel_mask * texture2D(<%=SAMPLER=%>, coords_2d_current);
-		//sample = texture2D(<%=SAMPLER=%>, coords_2d_sample);
-		//current = texture2D(<%=SAMPLER=%>, coords_2d_current);
 		=%>
 
 		currentLength += dot(current, current);

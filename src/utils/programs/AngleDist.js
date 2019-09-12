@@ -118,9 +118,16 @@ export default class AngleDist {
     callback(gl, program, assets, helpers) {
         gl.uniform2f(assets._mousePosition, this.mouseX, this.mouseY);
         helpers.bindInternalTextures();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this._channelMaskTexture);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
         gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
+        /*
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this._regionMaskTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, assets.framebuffers.distances);
+        */
     };
 
     /**
@@ -134,4 +141,5 @@ export default class AngleDist {
         this.framebuffer.updateIntensities();
         this.intensityHistogram.updateHistogram();
     };
+
 }

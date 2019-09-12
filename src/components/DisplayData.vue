@@ -82,8 +82,7 @@ select {
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap" @updatespectralroi="onUpdateSpectralROI" @spectrummousemove="onSpectrumMouseMove"
-        @spectrumenter="onSpectrumEnter"></Spectrum>
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap" @updatespectralroi="onUpdateSpectralROI" @spectrummousemove="onSpectrumMouseMove"></Spectrum>
     </div>
 </section>
 
@@ -150,8 +149,6 @@ export default {
             spectralYValues: [],
             channelMask: undefined,
             xValueIndexMap: [],
-            passiveColorMask: [0, 0, 0],
-            activeColorMask: [0, 0, 0],
             directColorMask: [1, 0, 0],
             renderedDirectChannel: 0,
             directChannel: 0
@@ -161,6 +158,11 @@ export default {
      * Called before screen is rendered. Retrievs colormap array and bounds for the colormap scale
      */
     created() {
+        this.channelMask = new Uint8Array(this.renderHandler.selectionInfoTextureDimension *
+            this.renderHandler.selectionInfoTextureDimension * 4
+        ).fill(255);
+        this.renderHandler.updateChannelMask(this.channelMask, this.data.channelNames.length);
+
         this.spectralYValues = this.data.meanChannel;
         this.colormapvalues = this.renderHandler.colorMap.getColorMapValues();
         this.histogramData = this.renderHandler.intensityHistogram.histogram;
@@ -232,7 +234,6 @@ export default {
                 if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
                         roiObject.visible === false
                     })) {
-                    this.renderHandler.setActiveColorMask(this.directColorMask);
                     this.directChannel = this.xValueIndexMap[closest["xValue"]];
                     if (this.renderedDirectChannel !== this.directChannel) {
                         this.renderedDirectChannel = this.directChannel;
@@ -260,11 +261,12 @@ export default {
                     if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
                             roiObject.visible === true
                         )) {
-                          this.updateMapMousePosition(event);
-                          this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
-                          glmvilib.render.apply(null, ['selection-info']);
-                          this.updateDistancesChannelMask();
-                        } else {
+                        this.updateDistancesChannelMask();
+                        this.updateMapMousePosition(event);
+                        this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
+                        glmvilib.render.apply(null, ['selection-info']);
+                        this.renderHandler.framebuffer.updateSpectrum();
+                    } else {
 
                         // Update if there is a certain time interval (in ms) between movements
                         // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
@@ -286,12 +288,6 @@ export default {
             },
 
             onLeaveMap(event) {
-                if (!this.markerIsActive) {
-                    this.spectralYValues = this.data.meanChannel;
-                    this.$refs.spectrum.redrawSpectrum();
-                }
-            },
-            onSpectrumEnter(event) {
                 if (!this.markerIsActive) {
                     this.spectralYValues = this.data.meanChannel;
                     this.$refs.spectrum.redrawSpectrum();
@@ -405,14 +401,6 @@ export default {
             },
 
             updateMeanChannelMask() {
-                //this.passiveColorMask = new Array(this.passiveColorMask.length).fill(0);
-                //for (let i = 0; i < this.spectralROIs.length; i++) {
-                //    this.passiveColorMask[i] = 1;
-                //}
-                //this.renderHandler.setpassiveColorMask(this.passiveColorMask);
-                // clears image if there are no ranges
-                //glmvilib.render.apply(null, ['color-map']);
-
                 this.updateChannelMaskWith();
                 glmvilib.render.apply(null, ['render-mean-ranges', 'color-lens', 'color-map']);
                 this.map.render();

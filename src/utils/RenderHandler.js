@@ -73,21 +73,6 @@ export default class RenderHandler {
   		this.renderMeanRanges.updateChannelMask(mask, activeChannels);
   	};
 
-    setActiveColorMask(mask) {
-  		if (mask instanceof Array && (mask.length === 3)) {
-  			this.rgbSelection.updateColorMask(mask);
-  		}
-  	};
-
-    setPassiveColorMask(mask){
-
-  		if (mask instanceof Array && (mask.length === 3)){
-        this.colorMap.updateColorMask(mask);
-      }
-
-    };
-
-
     updateDirectChannel(channel){
 		    this.renderChannel.updateChannel(channel);
     };
