@@ -52,21 +52,21 @@
             <p>Interesting Regions</p>
         </div>
         <vs-sidebar-group open title="Map Regions">
-            <vs-sidebar-item index="1" icon="menu">
+            <vs-sidebar-item v-for="mapROI in mapROIs"  icon="menu">
                 Toggle Sidebar
             </vs-sidebar-item>
         </vs-sidebar-group>
         <vs-divider/>
         <vs-sidebar-group open title="Spectral Regions">
-            <vs-sidebar-item index="1" icon="menu">
+            <vs-sidebar-item v-for="spectralROI in spectralROIs" icon="menu">
                 Toggle Sidebar
             </vs-sidebar-item>
         </vs-sidebar-group>
-
+        <!--
         <div class="footer-sidebar" slot="footer">
             <vs-button icon="settings" color="primary" type="border"></vs-button>
         </div>
-
+        -->
     </vs-sidebar>
 </div>
 
