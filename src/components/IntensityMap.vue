@@ -82,6 +82,12 @@ export default {
     watch: {
         selectedGeometry() {
             this.resetInteraction();
+            if (this.selectedGeometry == "Polygon") {
+                console.log('remove');
+                this.intensitymap.removeEventListener('click', this.sendClick);
+            } else {
+                this.intensitymap.addEventListener('click', this.sendClick);
+            }
         }
     },
     data() {
@@ -116,187 +122,191 @@ export default {
         this.intensityCanvas.addEventListener('mouseover', (e) => {
             this.intensityCanvas.focus();
         }, false);
-        this.intensityCanvas.addEventListener('mouseleave', (e) =>{
-          this.$emit("mapleave", e);
+        this.intensityCanvas.addEventListener('mouseleave', (e) => {
+            this.$emit("mapleave", e);
         }, false);
-        this.createMaskCanvas();
-        this.renderHandler.updateRegionMask(this.maskCanvas);
-        this.$emit("finishedMap", this.intensitymap);
-    },
-    methods: {
-        /**
-         * Created the openlayers intensitymap with the glmvilib canvas as layer source, adds hidden marker for
-         * pixel selection and calls updateView() to watch for mouse movement
-         */
-        createMap() {
-                let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
-                let projection = new Projection({
-                    code: 'pixel-projection',
-                    units: 'tile-pixels',
-                    extent: extent
-                });
-                this.view = new View({
-                    projection: projection,
-                    resolution: 1,
-                    zoom: 1
-                });
-                this.mapLayer = new ImageLayer({
-                    source: new ImageSource({
-                        canvas: this.data.canvas,
-                        projection: projection,
-                        imageExtent: extent
-                    }),
-                    extent: extent,
-                    name: "BaseMap"
-                });
-                this.selectionLayer = new VectorLayer({
-                    source: this.vectorSource,
-                    style: new Style({
-                        fill: new Fill({
-                            color: 'rgba(0, 0, 0, 0)',
-                        }),
-                        stroke: new Stroke({
-                            color: '#3399CC',
-                            width: 3
-                        }),
-                    }),
-                    name: "DrawLayer"
-                });
-                this.intensitymap = new Map({
-                    layers: [
-                        this.mapLayer,
-                        this.selectionLayer
-                    ],
-                    target: 'intensitymap',
-                    view: this.view
-                });
-                this.intensitymap.getView().fit(extent);
-                this.updateView();
+
+        this.intensitymap.addEventListener('click', this.sendClick);
+
+                this.createMaskCanvas(); this.renderHandler.updateRegionMask(this.maskCanvas); this.$emit("finishedMap", this.intensitymap);
             },
-            addInteraction() {
-                let value = this.selectedGeometry;
-                if (value !== 'None') {
-                    this.draw = new Draw({
-                        source: this.vectorSource,
-                        type: value,
-                        style: new Style({
-                            fill: new Fill({
-                                color: 'rgba(0, 0, 0, 0)',
-                            }),
-                            stroke: new Stroke({
-                                color: '#3399CC',
-                                width: 3
-                            }),
-                        }),
-                        condition: function(e) {
-                            if (e.pointerEvent.buttons === 1) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
-                    });
-                    this.intensitymap.addInteraction(this.draw);
-                    let listener;
-                    let that = this;
-                    this.draw.on('drawstart',
-                        function(evt) {
-                            // set sketch
-                            let sketch = evt.feature;
-                        }, this);
+            methods: {
+                sendClick(event) {
+                        this.$emit('mapMouseClick', event);
+                    },
 
-                    this.draw.on('drawend',
-                        function(evt) {
-                            let tmpCoords = evt.feature.getGeometry().getCoordinates()[0];
-                            let tmpCoord;
-                            let coords = [];
-                            for (let i = 0; i < tmpCoords.length; i++) {
-                                tmpCoord = [Math.round(tmpCoords[i][0]), Math.round(tmpCoords[i][1])];
-                                coords.push(tmpCoord);
-                            }
-
-                            let roiObject = {
+                    /**
+                     * Created the openlayers intensitymap with the glmvilib canvas as layer source, adds hidden marker for
+                     * pixel selection and calls updateView() to watch for mouse movement
+                     */
+                    createMap() {
+                        let extent = [0, 0, this.data.canvas.width, this.data.canvas.height];
+                        let projection = new Projection({
+                            code: 'pixel-projection',
+                            units: 'tile-pixels',
+                            extent: extent
+                        });
+                        this.view = new View({
+                            projection: projection,
+                            resolution: 1,
+                            zoom: 1
+                        });
+                        this.mapLayer = new ImageLayer({
+                            source: new ImageSource({
+                                canvas: this.data.canvas,
+                                projection: projection,
+                                imageExtent: extent
+                            }),
+                            extent: extent,
+                            name: "BaseMap"
+                        });
+                        this.selectionLayer = new VectorLayer({
+                            source: this.vectorSource,
+                            style: new Style({
+                                fill: new Fill({
+                                    color: 'rgba(0, 0, 0, 0)',
+                                }),
+                                stroke: new Stroke({
+                                    color: '#3399CC',
+                                    width: 3
+                                }),
+                            }),
+                            name: "DrawLayer"
+                        });
+                        this.intensitymap = new Map({
+                            layers: [
+                                this.mapLayer,
+                                this.selectionLayer
+                            ],
+                            target: 'intensitymap',
+                            view: this.view
+                        });
+                        this.intensitymap.getView().fit(extent);
+                        this.updateView();
+                    },
+                    addInteraction() {
+                        let value = this.selectedGeometry;
+                        if (value !== 'None') {
+                            this.draw = new Draw({
+                                source: this.vectorSource,
                                 type: value,
-                                coords: coords,
-                                visible: true
-                            };
-                            that.mapROIs.push(roiObject);
-                            //communication with ROIs.vue
-                            EventBus.$emit('addMapROI', that.mapROIs);
+                                style: new Style({
+                                    fill: new Fill({
+                                        color: 'rgba(0, 0, 0, 0)',
+                                    }),
+                                    stroke: new Stroke({
+                                        color: '#3399CC',
+                                        width: 3
+                                    }),
+                                }),
+                                condition: function(e) {
+                                    if (e.pointerEvent.buttons === 1) {
+                                        return true;
+                                    } else {
+                                        return false;
+                                    }
+                                }
+                            });
+                            this.intensitymap.addInteraction(this.draw);
+                            let listener;
+                            let that = this;
+                            this.draw.on('drawstart',
+                                function(evt) {
+                                    // set sketch
+                                    let sketch = evt.feature;
+                                }, this);
 
-                            that.drawMaskCanvas();
-                            that.renderHandler.updateRegionMask(that.maskCanvas);
-                        }, this);
-                }
-            },
-            resetInteraction() {
-                this.intensitymap.removeInteraction(this.draw);
-                this.addInteraction();
-            },
-            /*
-             * sets this.canvas to the intensitymap canvas for easier handling.
-             */
-            makeCanvasAdressable() {
-                this.intensityCanvas = document.getElementById("intensitymap").getElementsByTagName("CANVAS")[0];
-                this.intensityCanvas.tabIndex = '2';
-            },
-            /**
-             * Adds event listener for map interaction
-             */
-            updateView() {
-                // Render image once to show something before the mouse is being moved
-                // renders the map
-                this.renderHandler.render(this.mouse);
-                this.intensitymap.render();
+                            this.draw.on('drawend',
+                                function(evt) {
+                                    let tmpCoords = evt.feature.getGeometry().getCoordinates()[0];
+                                    let tmpCoord;
+                                    let coords = [];
+                                    for (let i = 0; i < tmpCoords.length; i++) {
+                                        tmpCoord = [Math.round(tmpCoords[i][0]), Math.round(tmpCoords[i][1])];
+                                        coords.push(tmpCoord);
+                                    };
 
-                // Prevent image smoothing on mouse movement
-                this.intensitymap.on('precompose', function(evt) {
-                    evt.context.imageSmoothingEnabled = false;
-                });
-                let that = this;
-                // Add event listener for single click and mouse movement
-                this.intensitymap.on('pointermove', function(event) {
-                    that.$emit('mapMouseMove', event);
-                });
-                this.intensitymap.on('singleclick', function(event) {
-                    that.$emit('mapMouseClick', event);
-                });
-            },
-            createMaskCanvas() {
-                this.maskCanvas = document.createElement('canvas');
-                this.maskCanvas.width = this.data.canvas.width;
-                this.maskCanvas.height = this.data.canvas.height;
-                this.maskCtx = this.maskCanvas.getContext('2d');
-                this.maskCtx.fillStyle = 'rgba(0, 0, 0, 1)';
-                this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-            },
-            clearMaskCanvas() {
-                this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-            },
-            drawMaskCanvas() {
-                if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject => {
-                        roiObject.visible == false
-                    })) {
-                    this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-                } else {
-                    this.clearMaskCanvas();
-                    for (let i = 0; i < this.mapROIs.length; i++) {
-                        if (this.mapROIs[i].visible === true) {
-                            this.maskCtx.beginPath();
-                            //this.maskCtx.lineWidth = "2";
-                            //this.maskCtx.strokeStyle = "blue";
-                            this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
-                            for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
-                                this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
+                                    let roiObject = {
+                                        type: value,
+                                        coords: coords,
+                                        visible: true
+                                    };
+                                    that.mapROIs.push(roiObject);
+                                    //communication with ROIs.vue
+                                    EventBus.$emit('addMapROI', that.mapROIs);
+
+                                    that.drawMaskCanvas();
+                                    that.renderHandler.updateRegionMask(that.maskCanvas);
+                                }, this);
+                        }
+                    },
+                    resetInteraction() {
+                        this.intensitymap.removeInteraction(this.draw);
+                        this.addInteraction();
+                    },
+                    /*
+                     * sets this.canvas to the intensitymap canvas for easier handling.
+                     */
+                    makeCanvasAdressable() {
+                        this.intensityCanvas = document.getElementById("intensitymap").getElementsByTagName("CANVAS")[0];
+                        this.intensityCanvas.tabIndex = '2';
+                    },
+                    /**
+                     * Adds event listener for map interaction
+                     */
+                    updateView() {
+                        // Render image once to show something before the mouse is being moved
+                        // renders the map
+                        this.renderHandler.render(this.mouse);
+                        this.intensitymap.render();
+
+                        // Prevent image smoothing on mouse movement
+                        this.intensitymap.on('precompose', function(evt) {
+                            evt.context.imageSmoothingEnabled = false;
+                        });
+                        let that = this;
+                        // Add event listener for single click and mouse movement
+                        this.intensitymap.on('pointermove', function(event) {
+                            that.$emit('mapMouseMove', event);
+                        });
+
+
+                    },
+                    createMaskCanvas() {
+                        this.maskCanvas = document.createElement('canvas');
+                        this.maskCanvas.width = this.data.canvas.width;
+                        this.maskCanvas.height = this.data.canvas.height;
+                        this.maskCtx = this.maskCanvas.getContext('2d');
+                        this.maskCtx.fillStyle = 'rgba(0, 0, 0, 1)';
+                        this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+                    },
+                    clearMaskCanvas() {
+                        this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+                    },
+                    drawMaskCanvas() {
+                        if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject => {
+                                roiObject.visible == false
+                            })) {
+                            this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+                        } else {
+                            this.clearMaskCanvas();
+                            for (let i = 0; i < this.mapROIs.length; i++) {
+                                if (this.mapROIs[i].visible === true) {
+                                    this.maskCtx.beginPath();
+                                    //this.maskCtx.lineWidth = "2";
+                                    //this.maskCtx.strokeStyle = "blue";
+                                    this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
+                                    for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
+                                        this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
+                                    }
+                                    this.maskCtx.closePath();
+                                    //this.maskCtx.stroke();
+                                    this.maskCtx.fill();
+                                }
                             }
-                            this.maskCtx.closePath();
-                            //this.maskCtx.stroke();
-                            this.maskCtx.fill();
                         }
                     }
-                }
             }
     }
-}
 
 </script>

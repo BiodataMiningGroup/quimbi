@@ -63,11 +63,7 @@ select {
 
             </form>
             <div class="buttons has-addons">
-                <!--
-        				<a class="button" v-on:click="viewMode='similarity'" v-bind:class="[viewMode === 'similarity' ? 'is-light' : 'is-dark']">similarity</a>
-        				<a class="button" v-on:click="viewMode='mean'" v-bind:class="[viewMode === 'mean' ? 'is-light' : 'is-dark']">mean</a>
-        				<a class="button" v-on:click="viewMode='direct'" v-bind:class="[viewMode === 'direct' ? 'is-light' : 'is-dark']">direct</a>
-                -->
+                <a class="button" v-bind:class="[lockIsActive ? 'is-light' : 'is-dark']" @click="toggleLock"><i v-bind:class="[lockIsActive ? 'fas fa-lock' : 'fas fa-lock-open']"></i></a>
                 <a class="button" v-bind:class="[markerIsActive ? 'is-light' : 'is-dark']" @click="toggleMarker"><i class="fas fa-map-marker-alt"></i></a>
             </div>
         </div>
@@ -86,8 +82,8 @@ select {
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues"  :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap"
-        @updatespectralroi="onUpdateSpectralROI" @spectrummousemove="onSpectrumMouseMove" @spectrumenter="onSpectrumEnter"></Spectrum>
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap" @updatespectralroi="onUpdateSpectralROI" @spectrummousemove="onSpectrumMouseMove"
+        @spectrumenter="onSpectrumEnter"></Spectrum>
     </div>
 </section>
 
@@ -141,7 +137,7 @@ export default {
             bounds: [],
             colorMapData: {},
             markerIsActive: false,
-            viewMode: 'similarity',
+            lockIsActive: false,
             colormapvalues: {},
             markerFeature: {},
             markerLayer: {},
@@ -260,22 +256,32 @@ export default {
              * @param event
              */
             onMapMouseMove(event) {
-                if (!this.markerIsActive) {
-                    // Update if there is a certain time interval (in ms) between movements
-                    // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
-                    //if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
-                        this.updateMapMousePosition(event);
-                        this.timeStampBefore = event.originalEvent.timeStamp;
-                        this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
-                        glmvilib.render.apply(null, ['selection-info']);
-                        this.renderHandler.framebuffer.updateSpectrum();
-                        if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
-                            this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
+                if (!this.markerIsActive && !this.lockIsActive) {
+                    if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
+                            roiObject.visible === true
+                        )) {
+                          this.updateMapMousePosition(event);
+                          this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
+                          glmvilib.render.apply(null, ['selection-info']);
+                          this.updateDistancesChannelMask();
                         } else {
-                            this.spectralYValues = this.data.meanChannel;
+
+                        // Update if there is a certain time interval (in ms) between movements
+                        // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
+                        if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
+                            this.updateMapMousePosition(event);
+                            this.timeStampBefore = event.originalEvent.timeStamp;
+                            this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
+                            glmvilib.render.apply(null, ['selection-info']);
+                            this.renderHandler.framebuffer.updateSpectrum();
+                            if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
+                            } else {
+                                this.spectralYValues = this.data.meanChannel;
+                            }
+                            this.$refs.spectrum.redrawSpectrum();
                         }
-                        this.$refs.spectrum.redrawSpectrum();
-                    //}
+                    }
                 }
             },
 
@@ -340,6 +346,13 @@ export default {
                 }
                 this.markerIsActive = true;
             },
+            toggleLock() {
+                if (this.lockIsActive) {
+                    this.lockIsActive = false;
+                    return;
+                }
+                this.lockIsActive = true;
+            },
 
             /**
              * Called to update the histogram and color scale in the ui
@@ -384,30 +397,18 @@ export default {
                 }
                 this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
             },
-            /*noch nicht fertig - ist aber nicht ganz sooo wichtig*/
             updateDistancesChannelMask() {
-                this.updateChannelMaskWith(ranges.list);
-                tmpMousePosition = angular.copy(mouse.position);
-
-                for (let marker of Array.from(markers.getList())) {
-                    if (marker.isSet()) {
-                        clearArray(this.activeColorMask);
-                        this.activeColorMask[marker.getIndex()] = 1;
-                        this.renderHandler.setActiveColorMask(this.activeColorMask);
-                        /*überschreibt das linke durch das rechte*/
-                        angular.extend(mouse.position, marker.getPosition());
-                        glmvilib.render(...Array.from(this.renderHandler.getActive() || []));
-                    }
-                }
-                /*überschreibt das linke durch das rechte*/
-                return angular.extend(mouse.position, tmpMousePosition);
+                this.updateChannelMaskWith();
+                glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
+                this.map.render();
+                this.updateHistogram();
             },
 
             updateMeanChannelMask() {
-                this.passiveColorMask = new Array(this.passiveColorMask.length).fill(0);
-                for (let i = 0; i < this.spectralROIs.length; i++) {
-                    this.passiveColorMask[i] = 1;
-                }
+                //this.passiveColorMask = new Array(this.passiveColorMask.length).fill(0);
+                //for (let i = 0; i < this.spectralROIs.length; i++) {
+                //    this.passiveColorMask[i] = 1;
+                //}
                 //this.renderHandler.setpassiveColorMask(this.passiveColorMask);
                 // clears image if there are no ranges
                 //glmvilib.render.apply(null, ['color-map']);
