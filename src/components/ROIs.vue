@@ -5,8 +5,8 @@
 }
 
 .vs-sidebar--background {
-  height: auto !important;
-  width: auto !important;
+    height: auto !important;
+    width: auto !important;
 }
 
 .header-sidebar {
@@ -52,20 +52,27 @@
             <p>Interesting Regions</p>
         </div>
         <vs-sidebar-group open title="Application">
-        <vs-sidebar-item index="1" icon-pack="fa" icon="fa-cog" @click="reduce=!reduce">
-         Toggle Sidebar 
-        </vs-sidebar-item>
-        </vs-sidebar-group>
-        <vs-sidebar-group open title="Map Regions">
-            <vs-sidebar-item v-for="mapROI in mapROIs"  icon="menu">
+            <vs-sidebar-item index="1" icon-pack="fa" icon="fa-cog" @click="reduce=!reduce">
                 Toggle Sidebar
             </vs-sidebar-item>
         </vs-sidebar-group>
         <vs-divider/>
+        <vs-sidebar-group open title="Map Regions">
+            <div v-for="(mapROI, index) in mapROIs">
+                <vs-sidebar-group close :title="'Region' + index">
+                    <vs-button icon-pack="fa" icon="fa-eye" color="danger" type="flat" @click="visibilityArea(mapROI.coords.toString())">show</vs-button>
+                    <vs-button icon-pack="fa" icon="fa-trash" color="danger" type="flat" @click="removeArea(mapROI.coords.toString())">remove</vs-button>
+                </vs-sidebar-group>
+            </div>
+        </vs-sidebar-group>
+        <vs-divider/>
         <vs-sidebar-group open title="Spectral Regions">
-            <vs-sidebar-item v-for="spectralROI in spectralROIs" icon="menu">
-                Toggle Sidebar
-            </vs-sidebar-item>
+            <div v-for="spectralROI in spectralROIs">
+                <vs-sidebar-group close :title="spectralROI.id[0] + '-' + spectralROI.id[1]">
+                    <vs-button icon-pack="fa" icon="fa-eye" color="danger" type="flat" @click="visibilitySpectrum(spectralROI.id.toString())">show</vs-button>
+                    <vs-button icon-pack="fa" icon="fa-trash" color="danger" type="flat" @click="removeSpectrum(spectralROI.id.toString())">remove</vs-button>
+                </vs-sidebar-group>
+            </div>
         </vs-sidebar-group>
         <!--
         <div class="footer-sidebar" slot="footer">
@@ -82,56 +89,28 @@
 export default {
     props: [
         'spectralROIs',
+        'mapROIs'
     ],
     data() {
         return {
-            mapROIs: null,
             active: true,
             notExpand: false,
             reduce: true,
-            /*
-            menu: [{
-                header: true,
-                title: 'Interesting Regions',
-                hiddenOnCollapse: true,
-            }, {
-                component: "spectralRegions",
-                title: 'spectral regions',
-                attributes: {
-                    id: "spectralRegions",
-                },
-                icon: {
-                    element: 'span',
-                    class: 'fa fa-chart-area',
-                    attributes: {},
-                    text: '',
-                },
-                child: [{
-                    title: '',
-                    attributes: {
-                        id: "spectralChild",
-                    },
-                }],
-            }, {
-                component: "mapRegions",
-                title: 'map regions',
-                attributes: {
-                    id: "mapRegions",
-                },
-                icon: {
-                    element: 'span',
-                    class: 'fa fa-draw-polygon',
-                    attributes: {},
-                    text: '',
-                },
-                child: [{
-                    title: '',
-                    attributes: {
-                        id: "mapChild",
-                    },
-                }],
-            }], */
         }
+    },
+    methods: {
+        removeSpectrum(id) {
+
+            },
+            visibilitySpectrum(id) {
+
+            },
+            removeArea(id) {
+
+            },
+             visibilityArea(id) {
+
+            },
     },
 
 }

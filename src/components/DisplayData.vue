@@ -69,7 +69,7 @@ select {
         </div>
     </div>
     <div class="interesting-regions">
-        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs"></RegionsOfInterest>
+        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs" :mapROIs="mapROIs"></RegionsOfInterest>
     </div>
     <div class="map-container">
         <div class="map-overlay">
@@ -77,7 +77,8 @@ select {
             <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
         </div>
         <div>
-            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :selectedGeometry="selectedGeometry" @mapMouseMove="onMapMouseMove($event)" @mapMouseClick="onMapMouseClick($event)" @finishedMap="setMap($event)" @mapleave="onLeaveMap($event)">
+            <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :mapROIs="mapROIs" :selectedGeometry="selectedGeometry" @mapmousemove="onMapMouseMove($event)" @mapmouseclick="onMapMouseClick($event)" @finishedmap="setMap($event)" @mapleave="onLeaveMap($event)"
+            @updatemaproi="onUpdateMapROI">
             </IntensityMap>
         </div>
     </div>
@@ -144,7 +145,6 @@ export default {
             markerBorderStyle: {},
             spectralROIs: [],
             mapROIs: [],
-            mapROIs2Draw: [],
             selectedGeometry: 'None',
             spectralYValues: [],
             channelMask: undefined,
@@ -188,6 +188,9 @@ export default {
 
         updateSpectralROIs(updatedSpectralROI) {
                 this.spectralROIs = updatedSpectralROI;
+            },
+            updateMapROIs(updatedMapROI) {
+                this.mapROIs = updatedMapROI;
             },
             /**
              * Helper to create the marker which gets visible by clicking on a pixel
@@ -248,7 +251,9 @@ export default {
             onUpdateSpectralROI(spectralROIs) {
                 this.spectralROIs = spectralROIs;
                 this.updateMeanChannelMask();
-
+            },
+            onUpdateMapROI(mapROIs) {
+                this.mapROIs = mapROIs;
             },
 
             /**

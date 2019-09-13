@@ -23,8 +23,8 @@
 
 <template>
 
-<div  id="spectrum-axes">
-    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="onMouseMove"  @mouseleave="clearCanvasFocus" @mouseover="onMouseOver" id="spectrum-canvas" tabindex='1'></canvas>
+<div id="spectrum-axes">
+    <canvas @mousemove.shift="updateInterestingSpectrals" @mousemove="onMouseMove" @mouseleave="clearCanvasFocus" @mouseover="onMouseOver" id="spectrum-canvas" tabindex='1'></canvas>
 </div>
 
 </template>
@@ -408,9 +408,9 @@ export default {
             /**
              * setting the spectrum-canvas focussed s.th. it will recognize key events.
              */
-            onMouseOver(event){
-              this.$emit("spectrumenter", event);
-              document.getElementById('spectrum-canvas').focus();
+            onMouseOver(event) {
+                this.$emit("spectrumenter", event);
+                document.getElementById('spectrum-canvas').focus();
             },
             /**
              * clears the spectrum-canvas focussed s.th. it won't recognize key events.
