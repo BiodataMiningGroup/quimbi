@@ -85,6 +85,12 @@ export default {
             zoomFactor: 1,
         }
     },
+    watch: {
+        spectralROIs() {
+            this.redrawSelectedRegions(d3.zoomTransform(this.canvas));
+            console.log(this.spectralROIs);
+        }
+    },
     /**
      * Created the graph and draw it once without values not zoomed
      */
@@ -93,7 +99,8 @@ export default {
         this.drawSpectrum(d3.zoomIdentity);
         document.getElementById('spectrum-canvas').addEventListener('keyup', (e) => {
             if (e.key == 'Shift' && this.interestingSpectrals.length > 1) {
-                this.add2spectralROIs();
+                //this.add2spectralROIs();
+                this.addSpectralROI();
             }
         }, false);
     },
@@ -186,29 +193,6 @@ export default {
 
                 this.qdtree.removeAll(this.dataPoints);
                 this.dataPoints = [];
-
-                /*
-                IS THIS PART NECESSARY?? DOESN'T SEEM TO BE???
-
-                // Loop over all normed y values and draw them to their corresponding x values
-
-                // Draw points if zoom factor of translation is bigger than this.zoomFactorPoints
-                // and value is not zero
-                if (transform.k >= this.zoomFactorPoints) {
-                	this.normedYValues.forEach((point, index) => {
-                		if (point > 0) {
-                			this.ctx.beginPath();
-                			const px = scaleX(index);
-                			const py = scaleY(point);
-
-                			// Draw point
-                			this.ctx.fillStyle = this.lineColor;
-                			this.ctx.arc(px, py, 3, 0, 2 * Math.PI, true);
-                			this.ctx.fill();
-                		}
-                	});
-                }
-                */
                 let i = 0;
                 // Draw line between current and the point before
                 // Init lastpX/Y for the loop
@@ -325,22 +309,21 @@ export default {
                     .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top-annotation_spacing})`)
                     .call(makeAnnotations);
             },
-
-
             /**
              * adding a newly selected region of spectral values to the overall interesting regions array.
              */
-            add2spectralROIs() {
+            addSpectralROI() {
                 if (this.interestingSpectrals[0].xValue > this.interestingSpectrals[this.interestingSpectrals.length - 1].xValue) {
                     this.interestingSpectrals = this.interestingSpectrals.reverse();
                 }
                 let regionId = [this.interestingSpectrals[0].xValue, this.interestingSpectrals[this.interestingSpectrals.length - 1].xValue];
-                this.spectralROIs.push({
+                this.$emit("addspectrum", {
                     pxs: [this.interestingSpectrals[0].px, this.interestingSpectrals[this.interestingSpectrals.length - 1].px],
                     id: regionId,
                     visible: true,
                     range: (this.xValueIndexMap[regionId[1]] - this.xValueIndexMap[regionId[0]]) + 1
                 });
+                /*
                 this.svgSquares.append('rect')
                     .attr('fill', "white")
                     .style('position', 'absolute')
@@ -350,9 +333,8 @@ export default {
                     .attr('y', 0)
                     .attr('width', (this.interestingSpectrals[this.interestingSpectrals.length - 1].px - this.interestingSpectrals[0].px))
                     .attr('x', this.interestingSpectrals[0].px);
-
+                */
                 this.interestingSpectrals = [];
-                this.$emit('updatespectralroi', this.spectralROIs);
             },
 
             /**

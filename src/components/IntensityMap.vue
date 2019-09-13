@@ -101,8 +101,7 @@ export default {
             selectionLayer: undefined,
             vectorSource: undefined,
             mapLayer: undefined,
-            maskCanvas: undefined,
-            maskCtx: undefined,
+
             draw: undefined,
             mapROIs: []
         }
@@ -127,8 +126,6 @@ export default {
 
         this.intensitymap.addEventListener('click', this.sendClick);
 
-        this.createMaskCanvas();
-        this.renderHandler.updateRegionMask(this.maskCanvas);
         this.$emit("finishedmap", this.intensitymap);
     },
     methods: {
@@ -232,12 +229,7 @@ export default {
                                 coords: coords,
                                 visible: true
                             };
-                            that.mapROIs.push(roiObject);
-                            //communication with ROIs.vue
-                            this.$emit('updatemaproi', that.mapROIs);
-
-                            that.drawMaskCanvas();
-                            that.renderHandler.updateRegionMask(that.maskCanvas);
+                            that.$emit('addarea', roiObject);
                         }, this);
                 }
             },
@@ -273,40 +265,7 @@ export default {
 
 
             },
-            createMaskCanvas() {
-                this.maskCanvas = document.createElement('canvas');
-                this.maskCanvas.width = this.data.canvas.width;
-                this.maskCanvas.height = this.data.canvas.height;
-                this.maskCtx = this.maskCanvas.getContext('2d');
-                this.maskCtx.fillStyle = 'rgba(0, 0, 0, 1)';
-                this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-            },
-            clearMaskCanvas() {
-                this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-            },
-            drawMaskCanvas() {
-                if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject => {
-                        roiObject.visible == false
-                    })) {
-                    this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-                } else {
-                    this.clearMaskCanvas();
-                    for (let i = 0; i < this.mapROIs.length; i++) {
-                        if (this.mapROIs[i].visible === true) {
-                            this.maskCtx.beginPath();
-                            //this.maskCtx.lineWidth = "2";
-                            //this.maskCtx.strokeStyle = "blue";
-                            this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
-                            for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
-                                this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
-                            }
-                            this.maskCtx.closePath();
-                            //this.maskCtx.stroke();
-                            this.maskCtx.fill();
-                        }
-                    }
-                }
-            }
+
     }
 }
 

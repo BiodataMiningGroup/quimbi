@@ -69,7 +69,7 @@ select {
         </div>
     </div>
     <div class="interesting-regions">
-        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs" :mapROIs="mapROIs"></RegionsOfInterest>
+        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs" :mapROIs="mapROIs" @removespectrum="onRemoveSpectrumROI" @visibilityspectrum="onVisibilitySpectrumROI" @removeArea="onRemoveMapROI" @visibilityarea="onVisibilityMapROI"></RegionsOfInterest>
     </div>
     <div class="map-container">
         <div class="map-overlay">
@@ -78,12 +78,12 @@ select {
         </div>
         <div>
             <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :mapROIs="mapROIs" :selectedGeometry="selectedGeometry" @mapmousemove="onMapMouseMove($event)" @mapmouseclick="onMapMouseClick($event)" @finishedmap="setMap($event)" @mapleave="onLeaveMap($event)"
-            @updatemaproi="onUpdateMapROI">
+            @addarea="onAddMapROI">
             </IntensityMap>
         </div>
     </div>
     <div class="spectrum-container" id="spectrum">
-        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap" @updatespectralroi="onUpdateSpectralROI" @spectrummousemove="onSpectrumMouseMove"></Spectrum>
+        <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap" @addspectrum="onAddSpectrumROI" @spectrummousemove="onSpectrumMouseMove"></Spectrum>
     </div>
 </section>
 
@@ -147,6 +147,8 @@ export default {
             mapROIs: [],
             selectedGeometry: 'None',
             spectralYValues: [],
+            maskCanvas: undefined,
+            maskCtx: undefined,
             channelMask: undefined,
             xValueIndexMap: [],
             directColorMask: [1, 0, 0],
@@ -158,6 +160,8 @@ export default {
      * Called before screen is rendered. Retrievs colormap array and bounds for the colormap scale
      */
     created() {
+        this.createMaskCanvas();
+        this.renderHandler.updateRegionMask(this.maskCanvas);
         this.channelMask = new Uint8Array(this.renderHandler.selectionInfoTextureDimension *
             this.renderHandler.selectionInfoTextureDimension * 4
         ).fill(255);
@@ -185,12 +189,36 @@ export default {
         });
     },
     methods: {
-
-        updateSpectralROIs(updatedSpectralROI) {
-                this.spectralROIs = updatedSpectralROI;
+        onRemoveSpectrumROI(id) {
+                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
+                if (index > -1) {
+                    this.spectralROIs.splice(index, 1);
+                }
             },
-            updateMapROIs(updatedMapROI) {
-                this.mapROIs = updatedMapROI;
+            onVisibilitySpectrumROI(id) {
+                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
+                this.spectralROIs[index].visible = !this.spectralROIs[index].visible;
+            },
+            onRemoveMapROI(id) {
+                let index = this.mapROIs.findIndex(mapROI => mapROI.id == id);
+                if (index > -1) {
+                    this.mapROIs.splice(index, 1);
+                }
+                this.renderHandler.updateRegionMask(this.maskCanvas);
+            },
+            onVisibilityMapROI(id) {
+                let index = this.mapROIs.findIndex(mapROI => mapROI.id == id);
+                this.mapROIs[index].visible = !this.mapROIs[index].visible;
+                this.renderHandler.updateRegionMask(this.maskCanvas);
+            },
+
+            onAddMapROI(mapROI) {
+                this.mapROIs.push(mapROI);
+                this.drawMaskCanvas();
+                this.renderHandler.updateRegionMask(this.maskCanvas);
+            },
+            onAddSpectrumROI(spectralROI) {
+                this.spectralROIs.push(spectralROI);
             },
             /**
              * Helper to create the marker which gets visible by clicking on a pixel
@@ -411,7 +439,40 @@ export default {
                 this.map.render();
                 this.updateHistogram();
             },
-
+            createMaskCanvas() {
+                this.maskCanvas = document.createElement('canvas');
+                this.maskCanvas.width = this.data.canvas.width;
+                this.maskCanvas.height = this.data.canvas.height;
+                this.maskCtx = this.maskCanvas.getContext('2d');
+                this.maskCtx.fillStyle = 'rgba(0, 0, 0, 1)';
+                this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+            },
+            clearMaskCanvas() {
+                this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+            },
+            drawMaskCanvas() {
+                if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject => {
+                        roiObject.visible == false
+                    })) {
+                    this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+                } else {
+                    this.clearMaskCanvas();
+                    for (let i = 0; i < this.mapROIs.length; i++) {
+                        if (this.mapROIs[i].visible === true) {
+                            this.maskCtx.beginPath();
+                            //this.maskCtx.lineWidth = "2";
+                            //this.maskCtx.strokeStyle = "blue";
+                            this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
+                            for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
+                                this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
+                            }
+                            this.maskCtx.closePath();
+                            //this.maskCtx.stroke();
+                            this.maskCtx.fill();
+                        }
+                    }
+                }
+            }
     }
 }
 

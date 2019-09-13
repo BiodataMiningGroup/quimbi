@@ -59,7 +59,7 @@
         <vs-divider/>
         <vs-sidebar-group open title="Map Regions">
             <div v-for="(mapROI, index) in mapROIs">
-                <vs-sidebar-group close :title="'Region' + index">
+                <vs-sidebar-group close :title="'Region ' + index">
                     <vs-button icon-pack="fa" icon="fa-eye" color="danger" type="flat" @click="visibilityArea(mapROI.coords.toString())">show</vs-button>
                     <vs-button icon-pack="fa" icon="fa-trash" color="danger" type="flat" @click="removeArea(mapROI.coords.toString())">remove</vs-button>
                 </vs-sidebar-group>
@@ -100,18 +100,22 @@ export default {
     },
     methods: {
         removeSpectrum(id) {
-
+                this.$emit("removespectrum", id);
+                this.spectralROIs.filter(function(spectralROI, index, arr) {
+                    return spectralROI.id != id;
+                })
             },
             visibilitySpectrum(id) {
-
+                this.$emit("visibilityspectrum", id);
             },
             removeArea(id) {
+                this.$emit("removearea", id);
+            },
+            visibilityArea(id) {
+                this.$emit("visibilityarea", id);
 
             },
-             visibilityArea(id) {
-
-            },
-    },
+    }
 
 }
 
