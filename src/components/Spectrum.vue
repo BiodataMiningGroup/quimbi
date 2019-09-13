@@ -323,17 +323,6 @@ export default {
                     visible: true,
                     range: (this.xValueIndexMap[regionId[1]] - this.xValueIndexMap[regionId[0]]) + 1
                 });
-                /*
-                this.svgSquares.append('rect')
-                    .attr('fill', "white")
-                    .style('position', 'absolute')
-                    .style('opacity', 0.25)
-                    .attr("id", regionId)
-                    .attr('height', this.canvasHeight)
-                    .attr('y', 0)
-                    .attr('width', (this.interestingSpectrals[this.interestingSpectrals.length - 1].px - this.interestingSpectrals[0].px))
-                    .attr('x', this.interestingSpectrals[0].px);
-                */
                 this.interestingSpectrals = [];
             },
 

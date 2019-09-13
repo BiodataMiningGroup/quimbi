@@ -47,15 +47,9 @@
 
 <div id="sidebar">
     <vs-sidebar :reduce="reduce" :reduce-not-hover-expand="notExpand" parent="body" default-index="1" color="success" class="sidebarx" spacer v-model="active">
-
         <div class="header-sidebar" slot="header">
             <p>Interesting Regions</p>
         </div>
-        <vs-sidebar-group open title="Application">
-            <vs-sidebar-item index="1" icon-pack="fa" icon="fa-cog" @click="reduce=!reduce">
-                Toggle Sidebar
-            </vs-sidebar-item>
-        </vs-sidebar-group>
         <vs-divider/>
         <vs-sidebar-group open title="Map Regions">
             <div v-for="(mapROI, index) in mapROIs">
@@ -74,11 +68,6 @@
                 </vs-sidebar-group>
             </div>
         </vs-sidebar-group>
-        <!--
-        <div class="footer-sidebar" slot="footer">
-            <vs-button icon="settings" color="primary" type="border"></vs-button>
-        </div>
-        -->
     </vs-sidebar>
 </div>
 
