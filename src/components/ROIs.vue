@@ -51,6 +51,11 @@
         <div class="header-sidebar" slot="header">
             <p>Interesting Regions</p>
         </div>
+        <vs-sidebar-group open title="Application">
+        <vs-sidebar-item index="1" icon-pack="fa" icon="fa-cog" @click="reduce=!reduce">
+         Toggle Sidebar 
+        </vs-sidebar-item>
+        </vs-sidebar-group>
         <vs-sidebar-group open title="Map Regions">
             <vs-sidebar-item v-for="mapROI in mapROIs"  icon="menu">
                 Toggle Sidebar
