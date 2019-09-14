@@ -112,6 +112,8 @@ import VectorSource from '../../node_modules/ol/source/Vector';
 import Style from '../../node_modules/ol/style/Style';
 import Projection from 'node_modules/ol/proj/Projection';
 
+import * as d3 from '../../node_modules/d3/dist/d3';
+
 export default {
     props: [
         'initData',
@@ -194,10 +196,14 @@ export default {
                 if (index > -1) {
                     this.spectralROIs.splice(index, 1);
                 }
+                this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
+
             },
             onVisibilitySpectrumROI(id) {
                 let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
                 this.spectralROIs[index].visible = !this.spectralROIs[index].visible;
+                this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
+
             },
             onRemoveMapROI(id) {
                 let index = this.mapROIs.findIndex(mapROI => mapROI.id == id);
