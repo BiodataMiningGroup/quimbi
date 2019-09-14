@@ -69,7 +69,7 @@ select {
         </div>
     </div>
     <div class="interesting-regions">
-        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs" :mapROIs="mapROIs" @removespectrum="onRemoveSpectrumROI" @visibilityspectrum="onVisibilitySpectrumROI" @removeArea="onRemoveMapROI" @visibilityarea="onVisibilityMapROI"></RegionsOfInterest>
+        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs" :mapROIs="mapROIs" @removespectrum="onRemoveSpectrumROI" @visibilityspectrum="onVisibilitySpectrumROI" @removearea="onRemoveMapROI" @visibilityarea="onVisibilityMapROI"></RegionsOfInterest>
     </div>
     <div class="map-container">
         <div class="map-overlay">
@@ -206,16 +206,22 @@ export default {
 
             },
             onRemoveMapROI(id) {
-                let index = this.mapROIs.findIndex(mapROI => mapROI.id == id);
+                let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
                 if (index > -1) {
+                    this.$refs.intensitymap.updateMapRegions("remove", this.mapROIs[index]);
                     this.mapROIs.splice(index, 1);
+                    this.drawMaskCanvas();
+                    this.renderHandler.updateRegionMask(this.maskCanvas);
                 }
-                this.renderHandler.updateRegionMask(this.maskCanvas);
             },
             onVisibilityMapROI(id) {
-                let index = this.mapROIs.findIndex(mapROI => mapROI.id == id);
-                this.mapROIs[index].visible = !this.mapROIs[index].visible;
-                this.renderHandler.updateRegionMask(this.maskCanvas);
+                let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
+                if (index > -1) {
+                    this.mapROIs[index].visible = !this.mapROIs[index].visible;
+                    this.$refs.intensitymap.updateMapRegions("visibility", this.mapROIs[index]);
+                    this.drawMaskCanvas();
+                    this.renderHandler.updateRegionMask(this.maskCanvas);
+                }
             },
 
             onAddMapROI(mapROI) {
@@ -457,23 +463,20 @@ export default {
                 this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
             },
             drawMaskCanvas() {
-                if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject => {
+                if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject =>
                         roiObject.visible == false
-                    })) {
+                    )) {
                     this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
                 } else {
                     this.clearMaskCanvas();
                     for (let i = 0; i < this.mapROIs.length; i++) {
                         if (this.mapROIs[i].visible === true) {
                             this.maskCtx.beginPath();
-                            //this.maskCtx.lineWidth = "2";
-                            //this.maskCtx.strokeStyle = "blue";
                             this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
                             for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
                                 this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
                             }
                             this.maskCtx.closePath();
-                            //this.maskCtx.stroke();
                             this.maskCtx.fill();
                         }
                     }

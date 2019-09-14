@@ -88,11 +88,6 @@ export default {
             } else {
                 this.intensitymap.addEventListener('click', this.sendClick);
             }
-        },
-        mapROIs(){
-          //this.vectorSource.clear();
-          //redraw all visible mapROIs 
-          console.log(this.vectorSource.getFeatures()[0].values_.geometry.flatCoordinates);
         }
     },
     data() {
@@ -120,6 +115,7 @@ export default {
         });
         // Create map view after html template has loaded
         this.createMap();
+        this.intensitymap.render();
 
         this.makeCanvasAdressable();
         this.intensityCanvas.addEventListener('mouseover', (e) => {
@@ -136,6 +132,17 @@ export default {
     methods: {
         sendClick(event) {
                 this.$emit('mapmouseclick', event);
+            },
+
+            arraysEqual(arr1, arr2) {
+                if (arr1.length !== arr2.length)
+                    return false;
+                for (var i = arr1.length; i--;) {
+                    if (arr1[i] !== arr2[i])
+                        return false;
+                }
+
+                return true;
             },
 
             /**
@@ -270,7 +277,28 @@ export default {
 
 
             },
+            updateMapRegions(mode, mapROI) {
+                //redraw all visible mapROIs
+                let flatcoords = mapROI.coords.flat();
+                let featurescoords = this.vectorSource.getFeatures().map(feature => feature.values_.geometry.flatCoordinates.map(coord => Math.round(coord)));
+                let that = this;
+                let index = featurescoords.findIndex(featurecoords => that.arraysEqual(featurecoords, flatcoords));
+                if (index > -1) {
+                    if (mode == "remove") {
+                        this.vectorSource.removeFeature(this.vectorSource.getFeatures()[index]);
+                    } else if (mode == "visibility") {
+                        console.log(this.vectorSource.getFeatures()[index])
+                        if (mapROI.visible == true) {
+                            this.vectorSource.getFeatures()[index].setStyle(null);
+                        } else {
+                            this.vectorSource.getFeatures()[index].setStyle(new Style({}));
+                        }
+                        this.vectorSource.refresh();
 
+                    }
+
+                }
+            }
     }
 }
 
