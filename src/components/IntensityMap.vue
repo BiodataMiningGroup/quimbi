@@ -77,7 +77,8 @@ export default {
     props: [
         'initData',
         'renderHandler',
-        'selectedGeometry'
+        'selectedGeometry',
+        'mapROIs'
     ],
     watch: {
         selectedGeometry() {
@@ -87,6 +88,11 @@ export default {
             } else {
                 this.intensitymap.addEventListener('click', this.sendClick);
             }
+        },
+        mapROIs(){
+          //this.vectorSource.clear();
+          //redraw all visible mapROIs 
+          console.log(this.vectorSource.getFeatures()[0].values_.geometry.flatCoordinates);
         }
     },
     data() {
@@ -103,7 +109,6 @@ export default {
             mapLayer: undefined,
 
             draw: undefined,
-            mapROIs: []
         }
     },
     mounted() {
