@@ -287,7 +287,6 @@ export default {
                     if (mode == "remove") {
                         this.vectorSource.removeFeature(this.vectorSource.getFeatures()[index]);
                     } else if (mode == "visibility") {
-                        console.log(this.vectorSource.getFeatures()[index])
                         if (mapROI.visible == true) {
                             this.vectorSource.getFeatures()[index].setStyle(null);
                         } else {

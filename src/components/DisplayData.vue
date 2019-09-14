@@ -197,13 +197,15 @@ export default {
                     this.spectralROIs.splice(index, 1);
                 }
                 this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
-
+                this.updateDistancesChannelMask();
+                this.updateMeanChannelMask();
             },
             onVisibilitySpectrumROI(id) {
                 let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
                 this.spectralROIs[index].visible = !this.spectralROIs[index].visible;
                 this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
-
+                this.updateDistancesChannelMask();
+                this.updateMeanChannelMask();
             },
             onRemoveMapROI(id) {
                 let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
@@ -274,9 +276,9 @@ export default {
             },
 
             onSpectrumMouseMove(closest) {
-                if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject => {
+                if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject =>
                         roiObject.visible === false
-                    })) {
+                    )) {
                     this.directChannel = this.xValueIndexMap[closest["xValue"]];
                     if (this.renderedDirectChannel !== this.directChannel) {
                         this.renderedDirectChannel = this.directChannel;

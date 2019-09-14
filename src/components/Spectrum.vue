@@ -350,8 +350,7 @@ export default {
              * Recalculates the position of the selected region boxes and redraws them.
              */
             redrawSelectedRegions(transform) {
-                this.svgSquares.selectAll('rect')
-                    .data(this.spectralROIs).remove();
+                this.svgSquares.selectAll('rect').remove();
                 let indexArray = [];
                 let scaleX = transform.rescaleX(this.x);
                 let that = this;
