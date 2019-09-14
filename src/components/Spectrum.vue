@@ -85,14 +85,6 @@ export default {
             zoomFactor: 1,
         }
     },
-    /*
-    watch: {
-        spectralROIs() {
-            this.redrawSelectedRegions(d3.zoomTransform(this.canvas));
-            console.log(this.spectralROIs);
-        }
-    },
-    */
     /**
      * Created the graph and draw it once without values not zoomed
      */
@@ -358,18 +350,18 @@ export default {
              * Recalculates the position of the selected region boxes and redraws them.
              */
             redrawSelectedRegions(transform) {
-                let regions = this.svgSquares.selectAll('rect')
-                    .data(this.spectralROIs);
-                regions.remove();
+                this.svgSquares.selectAll('rect')
+                    .data(this.spectralROIs).remove();
                 let indexArray = [];
                 let scaleX = transform.rescaleX(this.x);
                 let that = this;
                 this.normedYValues.forEach((point, index) => {
                     indexArray[that.xValues[index]] = scaleX(index);
                 });
-                regions.enter().append('rect')
+                this.svgSquares.selectAll('rect')
+                    .data(this.spectralROIs).enter().append('rect')
                     .filter(function(d) {
-                        return d.visible === true
+                        return d.visible === true;
                     })
                     .attr('fill', "white")
                     .style('position', 'absolute')

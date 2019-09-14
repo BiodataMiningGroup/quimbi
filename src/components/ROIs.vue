@@ -90,9 +90,6 @@ export default {
     methods: {
         removeSpectrum(id) {
                 this.$emit("removespectrum", id);
-                this.spectralROIs.filter(function(spectralROI, index, arr) {
-                    return spectralROI.id != id;
-                })
             },
             visibilitySpectrum(id) {
                 this.$emit("visibilityspectrum", id);
