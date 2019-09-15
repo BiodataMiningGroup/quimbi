@@ -89,7 +89,7 @@ export default {
     mounted(){
         this.setVSSidebarGroupLogo();
     },
-    updateds() {
+    updated() {
         this.setVSSidebarGroupLogo();
     },
     methods: {
