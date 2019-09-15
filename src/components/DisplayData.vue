@@ -233,6 +233,7 @@ export default {
             },
             onAddSpectrumROI(spectralROI) {
                 this.spectralROIs.push(spectralROI);
+                this.updateMeanChannelMask();
             },
             /**
              * Helper to create the marker which gets visible by clicking on a pixel
@@ -289,15 +290,6 @@ export default {
                     }
                 }
             },
-
-            onUpdateSpectralROI(spectralROIs) {
-                this.spectralROIs = spectralROIs;
-                this.updateMeanChannelMask();
-            },
-            onUpdateMapROI(mapROIs) {
-                this.mapROIs = mapROIs;
-            },
-
             /**
              * Called on free mouse movement. Adds small delay between mouse movement events to prevent lag
              * caused by too much rendering
