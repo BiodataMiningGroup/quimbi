@@ -50,8 +50,6 @@ select {
 <template>
 
 <section class="main">
-    <!--
--->
     <div class="toolbar level">
         <div class="level-item has-text-centered">
             <form class="fas">
@@ -197,14 +195,12 @@ export default {
                     this.spectralROIs.splice(index, 1);
                 }
                 this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
-                this.updateDistancesChannelMask();
                 this.updateMeanChannelMask();
             },
             onVisibilitySpectrumROI(id) {
                 let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
                 this.spectralROIs[index].visible = !this.spectralROIs[index].visible;
                 this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
-                this.updateDistancesChannelMask();
                 this.updateMeanChannelMask();
             },
             onRemoveMapROI(id) {
@@ -214,6 +210,7 @@ export default {
                     this.mapROIs.splice(index, 1);
                     this.drawMaskCanvas();
                     this.renderHandler.updateRegionMask(this.maskCanvas);
+                    this.map.render();
                 }
             },
             onVisibilityMapROI(id) {
@@ -223,6 +220,7 @@ export default {
                     this.$refs.intensitymap.updateMapRegions("visibility", this.mapROIs[index]);
                     this.drawMaskCanvas();
                     this.renderHandler.updateRegionMask(this.maskCanvas);
+                    this.map.render();
                 }
             },
 
@@ -230,6 +228,8 @@ export default {
                 this.mapROIs.push(mapROI);
                 this.drawMaskCanvas();
                 this.renderHandler.updateRegionMask(this.maskCanvas);
+                glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
+                this.map.render();
             },
             onAddSpectrumROI(spectralROI) {
                 this.spectralROIs.push(spectralROI);

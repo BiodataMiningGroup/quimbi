@@ -2,10 +2,11 @@
 
 .vs-sidebar {
     height: 65vh !important;
+    background: #353535 !important;
 }
 
 .vs-sidebar--background {
-    height: auto !important;
+    height: 65vh !important;
     width: auto !important;
 }
 
@@ -41,21 +42,30 @@
     border-radius: 0px !important;
 }
 
+<style> <style scoped> .fa {
+    font-size: 12px;
+}
+
+.button {
+    height: 22.5px;
+    width: 40px;
+}
+
 </style>
 
 <template>
 
 <vs-sidebar :reduce="reduce" :reduce-not-hover-expand="notExpand" parent="body" default-index="1" color="success" class="sidebarx" spacer v-model="active" id="sidebar">
     <div class="header-sidebar" slot="header">
-        <p>Interesting Regions</p>
+        <p>ROI</p>
     </div>
     <vs-divider icon-pack="fa" icon="fa fa-draw-polygon" position="center">Map Regions</vs-divider>
 
     <vs-sidebar-group open title="Map Regions">
         <div v-for="(mapROI, index) in mapROIs">
             <vs-sidebar-group close :title="'Region ' + index">
-                <vs-button icon-pack="fa" icon="fa-eye" color="danger" type="flat" @click="visibilityArea(mapROI.coords.toString())">show</vs-button>
-                <vs-button icon-pack="fa" icon="fa-trash" color="danger" type="flat" @click="removeArea(mapROI.coords.toString())">remove</vs-button>
+                <a class="button" color="white" type="flat" active=true @click="visibilityArea($event, mapROI.coords.toString())" @mouseover.self.prevent><i class="fa fa-eye"></i></a>
+                <button class="fa fa-trash" color="white" type="flat" @click="removeArea(mapROI.coords.toString())"></button>
             </vs-sidebar-group>
         </div>
     </vs-sidebar-group>
@@ -63,8 +73,10 @@
     <vs-sidebar-group open title="Spectral Regions">
         <div v-for="spectralROI in spectralROIs">
             <vs-sidebar-group close :title="spectralROI.id[0] + '-' + spectralROI.id[1]">
-                <vs-button icon-pack="fa" icon="fa-eye" color="danger" type="flat" @click="visibilitySpectrum(spectralROI.id.toString())">show</vs-button>
-                <vs-button icon-pack="fa" icon="fa-trash" color="danger" type="flat" @click="removeSpectrum(spectralROI.id.toString())">remove</vs-button>
+                <div class="has-addons" style="text-align:center">
+                    <a class="button" color="white" type="flat" active=true @click="visibilitySpectrum($event, spectralROI.id.toString())"><i class="fa fa-eye"></i></a>
+                    <a class="button" color="white" type="flat" active=true @click="removeSpectrum(spectralROI.id.toString())"><i class="fa fa-trash""></i></a>
+                </div>
             </vs-sidebar-group>
         </div>
     </vs-sidebar-group>
@@ -86,7 +98,7 @@ export default {
             reduce: true,
         }
     },
-    mounted(){
+    mounted() {
         this.setVSSidebarGroupLogo();
     },
     updated() {
@@ -96,13 +108,31 @@ export default {
         removeSpectrum(id) {
                 this.$emit("removespectrum", id);
             },
-            visibilitySpectrum(id) {
+            visibilitySpectrum(event, id) {
+                event.target.active = !event.target.active;
+                let element = event.currentTarget.firstChild;
+                if (event.target.active == true) {
+                    element.classList.remove('fa-eye');
+                    element.classList.add('fa-eye-slash');
+                } else {
+                    element.classList.remove('fa-eye-slash');
+                    element.classList.add('fa-eye');
+                }
                 this.$emit("visibilityspectrum", id);
             },
             removeArea(id) {
                 this.$emit("removearea", id);
             },
-            visibilityArea(id) {
+            visibilityArea(event, id) {
+                event.target.active = !event.target.active;
+                let element = event.currentTarget.firstChild;
+                if (event.target.active == true) {
+                    element.classList.remove('fa-eye');
+                    element.classList.add('fa-eye-slash');
+                } else {
+                    element.classList.remove('fa-eye-slash');
+                    element.classList.add('fa-eye');
+                }
                 this.$emit("visibilityarea", id);
 
             },

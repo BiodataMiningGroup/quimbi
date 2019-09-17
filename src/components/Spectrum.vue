@@ -90,7 +90,8 @@ export default {
      */
     mounted() {
         this.initGraph();
-        this.drawSpectrum(d3.zoomIdentity);
+
+        this.redrawSpectrum(this.yValues);
         document.getElementById('spectrum-canvas').addEventListener('keyup', (e) => {
             if (e.key == 'Shift' && this.interestingSpectrals.length > 1) {
                 //this.add2spectralROIs();
@@ -99,7 +100,6 @@ export default {
         }, false);
     },
     methods: {
-
         initGraph() {
                 this.qdtree = d3.quadtree();
                 this.doDomCalculations();
