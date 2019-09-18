@@ -2,8 +2,8 @@
 
 .map {
     position: absolute;
-    height: 65vh;
-    width: auto;
+    height: 100%;
+    width: 100%;
     cursor: crosshair;
     z-index: 0;
     left: 50%;

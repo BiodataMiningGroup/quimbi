@@ -9,7 +9,7 @@
 
 .map-container {
     background-color: #1f1f1f;
-    height: 65%;
+    height: 65vh;
     position: relative;
 }
 
