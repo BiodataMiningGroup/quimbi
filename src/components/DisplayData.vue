@@ -210,6 +210,7 @@ export default {
                     this.mapROIs.splice(index, 1);
                     this.drawMaskCanvas();
                     this.renderHandler.updateRegionMask(this.maskCanvas);
+                    glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
                     this.map.render();
                 }
             },
@@ -220,6 +221,7 @@ export default {
                     this.$refs.intensitymap.updateMapRegions("visibility", this.mapROIs[index]);
                     this.drawMaskCanvas();
                     this.renderHandler.updateRegionMask(this.maskCanvas);
+                    glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
                     this.map.render();
                 }
             },

@@ -63,16 +63,18 @@
 
     <vs-sidebar-group open title="Map Regions">
         <div v-for="(mapROI, index) in mapROIs">
-            <vs-sidebar-group close :title="'Region ' + index">
-                <a class="button" color="white" type="flat" active=true @click="visibilityArea($event, mapROI.coords.toString())" @mouseover.self.prevent><i class="fa fa-eye"></i></a>
-                <button class="fa fa-trash" color="white" type="flat" @click="removeArea(mapROI.coords.toString())"></button>
+            <vs-sidebar-group open :title="'Region ' + index">
+                <div class="has-addons" style="text-align:center">
+                    <a class="button" color="white" type="flat" active=true @click="visibilityArea($event, mapROI.coords.toString())" @mouseover.self.prevent><i class="fa fa-eye"></i></a>
+                    <a class="button" color="white" type="flat" active=true @click="removeArea(mapROI.coords.toString())"><i class="fa fa-trash""></i></a>
+                </div>
             </vs-sidebar-group>
         </div>
     </vs-sidebar-group>
     <vs-divider icon-pack="fa" icon="fa fa-chart-area" />
     <vs-sidebar-group open title="Spectral Regions">
         <div v-for="spectralROI in spectralROIs">
-            <vs-sidebar-group close :title="spectralROI.id[0] + '-' + spectralROI.id[1]">
+            <vs-sidebar-group open :title="spectralROI.id[0] + '-' + spectralROI.id[1]">
                 <div class="has-addons" style="text-align:center">
                     <a class="button" color="white" type="flat" active=true @click="visibilitySpectrum($event, spectralROI.id.toString())"><i class="fa fa-eye"></i></a>
                     <a class="button" color="white" type="flat" active=true @click="removeSpectrum(spectralROI.id.toString())"><i class="fa fa-trash""></i></a>
