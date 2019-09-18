@@ -1,12 +1,12 @@
 <style>
 
 .vs-sidebar {
-    height: 65vh !important;
+    height: 100%;
     background: #353535 !important;
 }
 
 .vs-sidebar--background {
-    height: 65vh !important;
+    height: 100%;
     width: auto !important;
 }
 
@@ -42,7 +42,8 @@
     border-radius: 0px !important;
 }
 
-<style> <style scoped> .fa {
+</style>
+<style scoped> .fa {
     font-size: 12px;
 }
 
@@ -55,7 +56,7 @@
 
 <template>
 
-<vs-sidebar :reduce="reduce" :reduce-not-hover-expand="notExpand" parent="body" default-index="1" color="success" class="sidebarx" spacer v-model="active" id="sidebar">
+<vs-sidebar :reduce="reduce" :reduce-not-hover-expand="notExpand" default-index="1" color="success" class="sidebarx" spacer v-model="active" id="sidebar">
     <div class="header-sidebar" slot="header">
         <p>ROI</p>
     </div>

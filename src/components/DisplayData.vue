@@ -21,6 +21,7 @@
 
 .toolbar {
     position: absolute;
+    left: 5px;
     top: 5px;
     z-index: 800;
     width: 100%;
@@ -39,6 +40,12 @@
     border-radius: 10px;
 }
 
+.interesting-regions {
+    position: absolute;
+    height: 65vh;
+    width: 100%;
+}
+
 select {
     font-size: 1em;
     padding: 0.2em;
@@ -49,7 +56,7 @@ select {
 
 <template>
 
-<section class="main">
+<section id="main" class="main">
     <div class="toolbar level">
         <div class="level-item has-text-centered">
             <form class="fas">
@@ -331,7 +338,6 @@ export default {
             onLeaveMap(event) {
                 if (!this.markerIsActive) {
                     this.spectralYValues = this.data.meanChannel;
-                    this.$refs.spectrum.redrawSpectrum();
                 }
             },
 
@@ -346,12 +352,6 @@ export default {
                     this.markerLayer.setVisible(true);
                     this.markerIsActive = true;
                 }
-                this.updateMapMousePosition(event);
-                // Todo refactor please
-                this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
-                glmvilib.render.apply(null, ['selection-info']);
-                this.renderHandler.framebuffer.updateSpectrum();
-                this.$refs.spectrum.redrawSpectrum();
 
             },
 
