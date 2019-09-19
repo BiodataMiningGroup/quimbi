@@ -184,7 +184,6 @@ export default {
             },
             drawSpectrum(transform) {
                 let that = this;
-                console.log("draw")
                 let scaleX = transform.rescaleX(this.x);
                 let scaleY = transform.rescaleY(this.y);
 
@@ -333,29 +332,34 @@ export default {
                     document.getElementById('selection-info').style.visibility = "hidden";
                 }
                 if (this.interestingSpectrals.length == 2) {
-                    if (this.interestingSpectrals[0].xValue > this.interestingSpectrals[1].xValue) {
-                        this.interestingSpectrals = this.interestingSpectrals.reverse();
-                    }
-                    let regionId = [this.interestingSpectrals[0].xValue, this.interestingSpectrals[1].xValue];
-                    let roiObject = {
-                        pxs: [this.interestingSpectrals[0].px, this.interestingSpectrals[1].px],
-                        id: regionId,
-                        visible: true,
-                        range: (this.xValueIndexMap[regionId[1]] - this.xValueIndexMap[regionId[0]]) + 1
-                    }
+                    if (this.interestingSpectrals[0] == this.interestingSpectrals[1]) {
+                        this.interestingSpectrals.length = 1;
+                    } else {
+                        if (this.interestingSpectrals[0].xValue > this.interestingSpectrals[1].xValue) {
+                            this.interestingSpectrals = this.interestingSpectrals.reverse();
+                        }
+                        let regionId = [this.interestingSpectrals[0].xValue, this.interestingSpectrals[1].xValue];
+                        let roiObject = {
+                            pxs: [this.interestingSpectrals[0].px, this.interestingSpectrals[1].px],
+                            id: regionId,
+                            visible: true,
+                            range: (this.xValueIndexMap[regionId[1]] - this.xValueIndexMap[regionId[0]]) + 1,
+                            active: false
+                        }
 
-                    this.$emit("addspectrum", roiObject);
+                        this.$emit("addspectrum", roiObject);
 
-                    this.svgSquares.append('rect')
-                        .attr('fill', "white")
-                        .style('position', 'absolute')
-                        .style('opacity', 0.25)
-                        .attr("id", regionId)
-                        .attr('height', this.canvasHeight)
-                        .attr('y', 0)
-                        .attr('width', (this.interestingSpectrals[1].px - this.interestingSpectrals[0].px))
-                        .attr('x', this.interestingSpectrals[0].px);
-                    this.interestingSpectrals.length = 0;
+                        this.svgSquares.append('rect')
+                            .attr('fill', "white")
+                            .style('position', 'absolute')
+                            .style('opacity', 0.25)
+                            .attr("id", regionId)
+                            .attr('height', this.canvasHeight)
+                            .attr('y', 0)
+                            .attr('width', (this.interestingSpectrals[1].px - this.interestingSpectrals[0].px))
+                            .attr('x', this.interestingSpectrals[0].px);
+                        this.interestingSpectrals.length = 0;
+                    }
                 }
 
             },
@@ -412,7 +416,6 @@ export default {
              * Draws spectrum when user zooms or moves the graph
              */
             redrawSpectrum() {
-                console.log("reddraw");
 
                 this.normedYValues = this.getNormedYValues();
                 // Redraw spectrum with current zoom
@@ -435,7 +438,6 @@ export default {
                         let transform = d3.event.transform;
                         this.zoomFactor = transform.k;
                         this.ctx.save();
-                        console.log("zoom")
                         this.drawSpectrum(transform);
                         this.redrawSelectedRegions(transform);
                         this.ctx.restore();

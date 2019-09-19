@@ -42,8 +42,7 @@
     border-radius: 0px !important;
 }
 
-</style>
-<style scoped> .fa {
+</style> <style scoped> .fa {
     font-size: 12px;
 }
 
@@ -66,7 +65,8 @@
         <div v-for="(mapROI, index) in mapROIs">
             <vs-sidebar-group open :title="'Region ' + index">
                 <div class="has-addons" style="text-align:center">
-                    <a class="button" color="white" type="flat" active=true @click="visibilityArea($event, mapROI.coords.toString())" @mouseover.self.prevent><i class="fa fa-eye"></i></a>
+                    <a class="button" color="red" type="flat" active=false @click="activationArea($event, mapROI.coords.toString())"><i class="fa fa-toggle-off"></i></a>
+                    <a class="button" color="white" type="flat" active=true @click="visibilityArea($event, mapROI.coords.toString())"><i class="fa fa-eye"></i></a>
                     <a class="button" color="white" type="flat" active=true @click="removeArea(mapROI.coords.toString())"><i class="fa fa-trash""></i></a>
                 </div>
             </vs-sidebar-group>
@@ -77,6 +77,7 @@
         <div v-for="spectralROI in spectralROIs">
             <vs-sidebar-group open :title="spectralROI.id[0] + '-' + spectralROI.id[1]">
                 <div class="has-addons" style="text-align:center">
+                    <a class="button" color="white" type="flat" active=false @click="activationSpectrum($event, spectralROI.id.toString())"><i class="fa fa-toggle-off"></i></a>
                     <a class="button" color="white" type="flat" active=true @click="visibilitySpectrum($event, spectralROI.id.toString())"><i class="fa fa-eye"></i></a>
                     <a class="button" color="white" type="flat" active=true @click="removeSpectrum(spectralROI.id.toString())"><i class="fa fa-trash""></i></a>
                 </div>
@@ -111,6 +112,18 @@ export default {
         removeSpectrum(id) {
                 this.$emit("removespectrum", id);
             },
+            activationSpectrum(event, id) {
+                event.target.active = !event.target.active;
+                let element = event.currentTarget.firstChild;
+                if (event.target.active == true) {
+                    element.classList.remove('fa-toggle-on');
+                    element.classList.add('fa-toggle-off');
+                } else {
+                    element.classList.remove('fa-toggle-off');
+                    element.classList.add('fa-toggle-on');
+                }
+                this.$emit("activationspectrum", id);
+            },
             visibilitySpectrum(event, id) {
                 event.target.active = !event.target.active;
                 let element = event.currentTarget.firstChild;
@@ -126,6 +139,19 @@ export default {
             removeArea(id) {
                 this.$emit("removearea", id);
             },
+            activationArea(event, id) {
+                event.target.active = !event.target.active;
+                let element = event.currentTarget.firstChild;
+                if (event.target.active == true) {
+                    element.classList.remove('fa-toggle-on');
+                    element.classList.add('fa-toggle-off');
+                } else {
+                    element.classList.remove('fa-toggle-off');
+                    element.classList.add('fa-toggle-on');
+                }
+                this.$emit("activationarea", id);
+            },
+
             visibilityArea(event, id) {
                 event.target.active = !event.target.active;
                 let element = event.currentTarget.firstChild;

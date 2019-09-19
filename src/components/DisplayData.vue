@@ -74,7 +74,8 @@ select {
         </div>
     </div>
     <div class="interesting-regions">
-        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs" :mapROIs="mapROIs" @removespectrum="onRemoveSpectrumROI" @visibilityspectrum="onVisibilitySpectrumROI" @removearea="onRemoveMapROI" @visibilityarea="onVisibilityMapROI"></RegionsOfInterest>
+        <RegionsOfInterest ref="roi" :spectralROIs="spectralROIs" :mapROIs="mapROIs" @removespectrum="onRemoveSpectrumROI" @visibilityspectrum="onVisibilitySpectrumROI" @removearea="onRemoveMapROI" @visibilityarea="onVisibilityMapROI" @activationarea="onActivationMapROI"
+        @activationspectrum="onActivationSpectrumROI"></RegionsOfInterest>
     </div>
     <div class="map-container">
         <div class="map-overlay">
@@ -204,11 +205,22 @@ export default {
                 this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
                 this.updateMeanChannelMask();
             },
+            onActivationSpectrumROI(id) {
+                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
+                if (index > -1) {
+                    this.spectralROIs[index].active = !this.spectralROIs[index].active;
+                }
+                if (this.lockIsActive) {
+                    this.updateMeanChannelMask();
+                }
+            },
+
             onVisibilitySpectrumROI(id) {
                 let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
-                this.spectralROIs[index].visible = !this.spectralROIs[index].visible;
-                this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
-                this.updateMeanChannelMask();
+                if (index > -1) {
+                    this.spectralROIs[index].visible = !this.spectralROIs[index].visible;
+                    this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
+                }
             },
             onRemoveMapROI(id) {
                 let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
@@ -221,15 +233,22 @@ export default {
                     this.map.render();
                 }
             },
+            onActivationMapROI(id) {
+                let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
+                if (index > -1) {
+                    this.mapROIs[index].active = !this.mapROIs[index].active;
+                }
+                this.drawMaskCanvas();
+                this.renderHandler.updateRegionMask(this.maskCanvas);
+                glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
+                this.map.render();
+            },
+
             onVisibilityMapROI(id) {
                 let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
                 if (index > -1) {
                     this.mapROIs[index].visible = !this.mapROIs[index].visible;
                     this.$refs.intensitymap.updateMapRegions("visibility", this.mapROIs[index]);
-                    this.drawMaskCanvas();
-                    this.renderHandler.updateRegionMask(this.maskCanvas);
-                    glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
-                    this.map.render();
                 }
             },
 
@@ -242,7 +261,9 @@ export default {
             },
             onAddSpectrumROI(spectralROI) {
                 this.spectralROIs.push(spectralROI);
-                this.updateMeanChannelMask();
+                if (this.lockIsActive) {
+                    this.updateMeanChannelMask();
+                }
             },
             /**
              * Helper to create the marker which gets visible by clicking on a pixel
@@ -287,7 +308,7 @@ export default {
 
             onSpectrumMouseMove(closest) {
                 if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject =>
-                        roiObject.visible === false
+                        roiObject.active === false
                     )) {
                     this.directChannel = this.xValueIndexMap[closest["xValue"]];
                     if (this.renderedDirectChannel !== this.directChannel) {
@@ -307,7 +328,7 @@ export default {
             onMapMouseMove(event) {
                 if (!this.markerIsActive && !this.lockIsActive) {
                     if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
-                            roiObject.visible === true
+                            roiObject.active === true
                         )) {
                         this.updateDistancesChannelMask();
                         this.updateMapMousePosition(event);
@@ -408,14 +429,14 @@ export default {
                 // number of active channels of the channel mask
                 let activeChannels = 0;
                 if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
-                        roiObject.visible === true
+                        roiObject.active === true
                     )) {
                     // clear mask
                     while (channel--) {
                         this.channelMask[channel] = 0;
                     }
                     for (let i = 0; i < this.spectralROIs.length; i++) {
-                        if (this.spectralROIs[i].visible == true) {
+                        if (this.spectralROIs[i].active == true) {
 
                             let offset = this.spectralROIs[i].range;
                             activeChannels += offset;
@@ -460,13 +481,13 @@ export default {
             },
             drawMaskCanvas() {
                 if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject =>
-                        roiObject.visible == false
+                        roiObject.active == false
                     )) {
                     this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
                 } else {
                     this.clearMaskCanvas();
                     for (let i = 0; i < this.mapROIs.length; i++) {
-                        if (this.mapROIs[i].visible === true) {
+                        if (this.mapROIs[i].active === true) {
                             this.maskCtx.beginPath();
                             this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
                             for (let j = 1; j < this.mapROIs[i].coords.length; j++) {

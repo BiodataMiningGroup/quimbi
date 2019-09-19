@@ -239,7 +239,8 @@ export default {
                             let roiObject = {
                                 type: value,
                                 coords: coords,
-                                visible: true
+                                visible: true,
+                                active: false
                             };
                             that.$emit('addarea', roiObject);
                         }, this);
