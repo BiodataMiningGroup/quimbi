@@ -307,9 +307,9 @@ export default {
             },
 
             onSpectrumMouseMove(closest) {
-                if (this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject =>
+                if ((this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject =>
                         roiObject.active === false
-                    )) {
+                    )) && !this.markerIsActive ) {
                     this.directChannel = this.xValueIndexMap[closest["xValue"]];
                     if (this.renderedDirectChannel !== this.directChannel) {
                         this.renderedDirectChannel = this.directChannel;
