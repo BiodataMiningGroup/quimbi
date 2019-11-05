@@ -1,0 +1,1 @@
+Bugfix for Windows: Search glmvilib.min.js in build and replace all \n with \r\n
