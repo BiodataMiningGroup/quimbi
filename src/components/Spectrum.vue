@@ -34,7 +34,7 @@
 
 <template>
 
-<div id="spectrum-axes" @keyup.ctrl="updateInterestingSpectrals" @mousemove="onMouseMove" @mouseleave="clearCanvasFocus" @mouseover="onMouseOver">
+<div id="spectrum-axes" @click="updateInterestingSpectrals" @mousemove="onMouseMove" @mouseleave="clearCanvasFocus" @mouseover="onMouseOver">
     <canvas id="spectrum-canvas" tabindex='1'></canvas>
     <p id="selection-info">
         spectral region selection activated.
