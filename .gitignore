@@ -1,6 +1,7 @@
 node_modules
 build
 dist
+data
 *.sublime-project
 *.sublime-workspace
 .idea
