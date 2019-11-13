@@ -3,6 +3,16 @@ QUIMBI
 
 A quick exploration tool for multivariate bioimages. A reference if you use QUIMBI in your own work will be available soon.
 
+## Data Creation
+To create appropriate data files use `quimbi_h5_parser.py` within the pyscripts folder.
+
+For convenience we provide an anaconda environment which can be created by `conda env create -f environment.yml` and activated with `conda activate grine`.
+
+Use `python quimbi_h5_parser.py -h` for further information about how to use the script.
+
+## Data Files
+It's important to place your data files in a folder called `data` in quimbis root directory: `quimbi/data`
+
 ## Local Version
 ### Installation
 To run the project you need `node` and `npm` . Clone this repository, run `npm install` and then `npm run build` to build the project.
@@ -35,5 +45,3 @@ The following lines will create a docker image of quimbi named quimbi_image and 
 `docker build -t quimbi_image .`
 `docker run -it -p 8080:80 --rm --name quimbi_image1 quimbi_image`
 
-## Data files
-It's important to place your data files in a folder called `data` in quimbis root directory: `quimbi/data`
