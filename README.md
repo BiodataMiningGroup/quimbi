@@ -45,3 +45,6 @@ The following lines will create a docker image of quimbi named quimbi_image and 
 `docker build -t quimbi_image .`
 `docker run -it -p 8080:80 --rm --name quimbi_image1 quimbi_image`
 
+## Live Demo
+A Github Pages live demo can be used at https://biodatamininggroup.github.io/quimbi/.
+
