@@ -1,7 +1,7 @@
-quimbi
+QUIMBI
 ======
 
-Quick exploration tool for multivariate bioimages
+A quick exploration tool for multivariate bioimages. A reference if you use QUIMBI in your own work will be available soon.
 
 ## Local Version
 ### Installation
