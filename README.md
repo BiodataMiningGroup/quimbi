@@ -10,6 +10,8 @@ For convenience we provide an anaconda environment which can be created by `cond
 
 Use `python quimbi_h5_parser.py -h` for further information about how to use the script.
 
+As the script needs the MSI data to be in HDF5 format we refer to our preprocessing pipeline [A Mad Pie](https://github.com/Kawue/amadpie/).
+
 ## Data Files
 It's important to place your data files in a folder called `data` in quimbis root directory: `quimbi/data`
 
