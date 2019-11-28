@@ -17,7 +17,7 @@ It's important to place your data files in a folder called `data` in quimbis roo
 
 ## Local Version
 ### Installation
-To run the project you need `node` and `npm` . Clone this repository, run `npm install` and then `npm run build` to build the project.
+To run the project you need `node` and `npm`. To get access to both download node.js from https://nodejs.org/en/download/ and install the correct version for your OS. Afterwards, clone this repository, use your command shell to navigate into the repository and run `npm install` and then `npm run build` to build the project.
 The bundled project is saved into the `dist` folder.
 
 ### Usage
