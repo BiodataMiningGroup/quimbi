@@ -6,7 +6,7 @@ A quick exploration tool for multivariate bioimages. A reference if you use QUIM
 ## Data Creation
 To create appropriate data files use `quimbi_h5_parser.py` within the pyscripts folder.
 
-For convenience we provide an anaconda environment which can be created by `conda env create -f environment.yml` and activated with `conda activate grine`.
+For convenience we provide an anaconda environment which can be created by `conda env create -f environment.yml` and activated with `conda activate quimbi`.
 
 Use `python quimbi_h5_parser.py -h` for further information about how to use the script.
 
