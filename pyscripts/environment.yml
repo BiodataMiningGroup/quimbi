@@ -25,7 +25,6 @@ dependencies:
   - olefile=0.46=py_0
   - openssl=1.1.1d=hfa6e2cd_0
   - pandas=0.25.3=py37he350917_0
-  - pillow=6.2.1=py37h643dfcc_0
   - pip=19.3.1=py37_0
   - pytables=3.6.1=py37h26f9782_0
   - python=3.7.3=h510b542_1
@@ -42,4 +41,6 @@ dependencies:
   - xz=5.2.4=h2fa13f4_1001
   - zlib=1.2.11=h2fa13f4_1006
   - zstd=1.4.3=hd8a0e53_0
+  - pip:
+    - pillow==6.2.1
 prefix: C:\Users\kwuellems\Anaconda3\envs\quimbi
