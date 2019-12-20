@@ -4,43 +4,40 @@ channels:
   - defaults
   - bioconda
 dependencies:
-  - blosc=1.17.0=h6538335_1
-  - bzip2=1.0.8=hfa6e2cd_1
-  - ca-certificates=2019.9.11=hecc5488_0
-  - certifi=2019.9.11=py37_0
-  - freetype=2.10.0=h563cfd7_1
-  - hdf5=1.10.5=nompi_ha405e13_1104
-  - intel-openmp=2019.4=245
-  - jpeg=9c=hfa6e2cd_1001
-  - libblas=3.8.0=14_mkl
-  - libcblas=3.8.0=14_mkl
-  - liblapack=3.8.0=14_mkl
-  - libpng=1.6.37=h7602738_0
-  - libtiff=4.1.0=h2e92f26_0
-  - lz4-c=1.8.3=he025d50_1001
-  - mkl=2019.4=245
-  - mock=3.0.5=py37_0
-  - numexpr=2.7.0=py37h6538335_0
-  - numpy=1.17.3=py37hc71023c_0
-  - olefile=0.46=py_0
-  - openssl=1.1.1d=hfa6e2cd_0
-  - pandas=0.25.3=py37he350917_0
-  - pip=19.3.1=py37_0
-  - pytables=3.6.1=py37h26f9782_0
-  - python=3.7.3=h510b542_1
-  - python-dateutil=2.8.1=py_0
-  - pytz=2019.3=py_0
-  - setuptools=41.6.0=py37_1
-  - six=1.13.0=py37_0
-  - sqlite=3.30.1=hfa6e2cd_0
-  - tk=8.6.9=hfa6e2cd_1003
-  - vc=14.1=h0510ff6_4
-  - vs2015_runtime=14.16.27012=hf0eaf9b_0
-  - wheel=0.33.6=py37_0
-  - wincertstore=0.2=py37_1003
-  - xz=5.2.4=h2fa13f4_1001
-  - zlib=1.2.11=h2fa13f4_1006
-  - zstd=1.4.3=hd8a0e53_0
+  - blosc=1.17.0
+  - bzip2=1.0.8
+  - ca-certificates=2019.9.11
+  - certifi=2019.9.11
+  - freetype=2.10.0
+  - hdf5=1.10.5
+  - intel-openmp=2019.4
+  - jpeg=9c
+  - libblas=3.8.0
+  - libcblas=3.8.0
+  - liblapack=3.8.0
+  - libpng=1.6.37
+  - libtiff=4.1.0
+  - lz4-c=1.8.3
+  - mkl=2019.4
+  - mock=3.0.5
+  - numexpr=2.7.0
+  - numpy=1.17.3
+  - olefile=0.46
+  - openssl=1.1.1d
+  - pandas=0.25.3
+  - pip=19.3.1
+  - pytables=3.6.1
+  - python=3.7.3
+  - python-dateutil=2.8.1
+  - pytz=2019.3
+  - setuptools=41.6.0
+  - six=1.13.0
+  - sqlite=3.30.1
+  - tk=8.6.9
+  - wheel=0.33.6
+  - xz=5.2.4
+  - zlib=1.2.11
+  - zstd=1.4.3
   - pip:
     - pillow==6.2.1
-prefix: C:\Users\kwuellems\Anaconda3\envs\quimbi
+#prefix: C:\Users\kwuellems\Anaconda3\envs\quimbi
