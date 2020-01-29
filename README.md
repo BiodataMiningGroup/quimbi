@@ -6,12 +6,11 @@ A quick exploration tool for multivariate bioimages. A reference if you use QUIM
 ## Data Creation
 To create appropriate data files navigate into the quimbi/pyscripts directory and call:
 `docker build -t quimbi/dataparser .`
-
-`docker run --rm quimbi/dataparser`
+`docker run -v path-to-data:/data --rm quimbi/dataparser`
 For information about the required command line parameter use `-h`.
 
 The script needs the MSI data to be in HDF5 format.
-In case of raw data we refer to our preprocessing pipeline [A Mad Pie](https://github.com/Kawue/amadpie/).
+In case of raw data we refer to our preprocessing pipeline [ProViM](https://github.com/Kawue/provim).
 In case of processed data we refer to our parser [imzML-to-HDF5-Parser](https://github.com/Kawue/imzML-to-HDF5).
 
 ## Data Files
@@ -33,7 +32,7 @@ To run the docker image enter `docker run -v $(pwd)/data:/usr/share/nginx/html/d
 at `http://localhost:$PORT`.
 
 ### Example
-The following lines will create a docker image of quimbi named quimbi_image and create/run a container of said image called quimbi_container  
+The following lines will create a docker image of quimbi named quimbi_image and creates and runs a container of said image called quimbi_container  
 `docker build -t quimbi_image .`
 
 Powershell
