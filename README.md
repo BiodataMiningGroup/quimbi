@@ -5,8 +5,11 @@ A quick exploration tool for multivariate bioimages. A reference if you use QUIM
 
 ## Data Creation
 To create appropriate data files navigate into the quimbi/pyscripts directory and call:
+
 `docker build -t quimbi/dataparser .`
+
 `docker run -v path-to-data:/data --rm quimbi/dataparser`
+
 For information about the required command line parameter use `-h`.
 
 The script needs the MSI data to be in HDF5 format.
@@ -28,8 +31,11 @@ To build the docker image you simply run `docker build -t $IMAGE_NAME .` in the 
 If you want to change anything inside quimbi you have to rerun the build and run process.
 
 ### Run
-To run the docker image enter `docker run -v $(pwd)/data:/usr/share/nginx/html/data -p $PORT:80 --rm --name $CONTAINER_NAME $IMAGE_NAME`. Afterwards quimbi is available
-at `http://localhost:$PORT`.
+To run the docker image enter
+
+`docker run -v $(pwd)/data:/usr/share/nginx/html/data -p $PORT:80 --rm --name $CONTAINER_NAME $IMAGE_NAME`.
+
+Afterwards quimbi is available at: `http://localhost:$PORT`.
 
 ### Example
 The following lines will create a docker image of quimbi named quimbi_image and creates and runs a container of said image called quimbi_container  
