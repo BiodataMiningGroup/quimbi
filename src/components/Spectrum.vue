@@ -212,17 +212,18 @@ export default {
                     const px = scaleX(index);
                     const py = scaleY(point);
                     // If first data point: start drawing from there
-                    if (index === 0) {
+                    /*if (index === 0) {
                         this.ctx.moveTo(px, py);
                     } else {
                         this.ctx.moveTo(lastpX, lastpY);
-                    }
+                    }*/
                     this.dataPoints.push({});
                     this.dataPoints[i].xValue = this.xValues[index];
                     this.dataPoints[i].normyValue = this.normedYValues[index];
                     this.dataPoints[i].px = px;
                     this.dataPoints[i].py = py;
                     i += 1;
+                    this.ctx.moveTo(px, this.canvasHeight);
                     this.ctx.lineTo(px, py);
                     this.ctx.strokeStyle = 'white';
 
@@ -291,7 +292,7 @@ export default {
                     subject: {
                         radius: 10,
                     },
-                    x: closest["px"],
+                    x: closest["px"] + this.spectrumMargin.left,
                     y: closest["py"] + annotation_spacing,
                     className: "show-bg",
                     dx: 10,
@@ -312,7 +313,6 @@ export default {
                     .attr("class", "annotation-group")
                     .attr('width', this.canvasWidth)
                     .attr('height', this.canvasHeight + annotation_spacing)
-                    .attr('transform', `translate(${this.spectrumMargin.left}, ${this.spectrumMargin.top-annotation_spacing})`)
                     .call(makeAnnotations);
             },
 
