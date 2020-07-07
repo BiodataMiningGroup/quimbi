@@ -37,7 +37,10 @@
     width: 80px;
     height: 266px;
     background-color: rgba(41, 41, 41, 0.8);
-    border-radius: 10px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 1);
+    border-radius: 5px;
 }
 
 .interesting-regions {
@@ -50,6 +53,24 @@ select {
     font-size: 1em;
     padding: 0.2em;
     font-family: sans-serif;
+}
+
+.coordinates-container {
+    display: flex;
+    position: absolute;
+    z-index: 700;
+    right: 100px;
+    top: 10px;
+    width: 90px;
+    height: 60px;
+    background-color: rgba(41, 41, 41, 0.8);
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 1);
+    border-width: 2px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding-left: 10px;
 }
 
 </style>
@@ -81,6 +102,12 @@ select {
         <div class="map-overlay">
             <Histogram ref="histogram" :histogram="histogramData"></Histogram>
             <ColorScale ref="scaleCanvas" :bounds="bounds" :colormapvalues="colormapvalues"></ColorScale>
+        </div>
+        <div class="coordinates-container">
+            <ul>
+                <li> x: {{xCoord}} </li>
+                <li> y: {{yCoord}} </li>
+            </ul>
         </div>
         <div>
             <IntensityMap ref="intensitymap" :initData="data" :renderHandler="renderHandler" :mapROIs="mapROIs" :selectedGeometry="selectedGeometry" @mapmousemove="onMapMouseMove($event)" @mapmouseclick="onMapMouseClick($event)" @finishedmap="setMap($event)" @mapleave="onLeaveMap($event)"
@@ -161,7 +188,9 @@ export default {
             xValueIndexMap: [],
             directColorMask: [1, 0, 0],
             renderedDirectChannel: 0,
-            directChannel: 0
+            directChannel: 0,
+            xCoord:0,
+            yCoord:0
         }
     },
     /**
@@ -384,7 +413,8 @@ export default {
                 // Norm x and y values and prevent webgl coordinate interpolation
                 this.mouse.x = (Math.floor(event.coordinate[0]) + 0.5) / this.data.canvas.width;
                 this.mouse.y = (Math.floor(event.coordinate[1]) + 0.5) / this.data.canvas.height;
-
+                this.xCoord = Math.floor(event.coordinate[0]);
+                this.yCoord = this.data.canvas.height - Math.ceil(event.coordinate[1]);
                 if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
                     this.renderHandler.render(this.mouse);
                     this.map.render();
