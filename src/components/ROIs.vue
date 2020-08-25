@@ -75,7 +75,7 @@
     <vs-divider icon-pack="fa" icon="fa fa-chart-area" />
     <vs-sidebar-group open title="Spectral Regions">
         <div v-for="spectralROI in spectralROIs">
-            <vs-sidebar-group open :title="spectralROI.id[0] + '-' + spectralROI.id[1]">
+            <vs-sidebar-group open :title="spectralROI.id.toString()">
                 <div class="has-addons" style="text-align:center">
                     <a class="button" color="white" type="flat" active=false @click="activationSpectrum($event, spectralROI.id.toString())"><i class="fa fa-toggle-off"></i></a>
                     <a class="button" color="white" type="flat" active=true @click="visibilitySpectrum($event, spectralROI.id.toString())"><i class="fa fa-eye"></i></a>
@@ -109,61 +109,84 @@ export default {
         this.setVSSidebarGroupLogo();
     },
     methods: {
-        removeSpectrum(id) {
+            removeSpectrum(id) {
                 this.$emit("removespectrum", id);
             },
             activationSpectrum(event, id) {
-                event.target.active = !event.target.active;
-                let element = event.currentTarget.firstChild;
-                if (event.target.active == true) {
-                    element.classList.remove('fa-toggle-on');
-                    element.classList.add('fa-toggle-off');
-                } else {
-                    element.classList.remove('fa-toggle-off');
-                    element.classList.add('fa-toggle-on');
-                }
-                this.$emit("activationspectrum", id);
+                this.spectralROIs.forEach((roi) => {
+                    let roiID = roi.id.toString();
+                    if (roiID === id) {
+                        roi.active = !roi.active;
+                        let element = event.currentTarget.firstChild;
+                        if (roi.active == true) {
+                            element.classList.remove('fa-toggle-off');
+                            element.classList.add('fa-toggle-on');
+                        } else {
+                            element.classList.remove('fa-toggle-on');
+                            element.classList.add('fa-toggle-off');
+                        }
+                        this.$emit("activationspectrum", id);
+                    }
+                });
             },
             visibilitySpectrum(event, id) {
-                event.target.active = !event.target.active;
-                let element = event.currentTarget.firstChild;
-                if (event.target.active == true) {
-                    element.classList.remove('fa-eye');
-                    element.classList.add('fa-eye-slash');
-                } else {
-                    element.classList.remove('fa-eye-slash');
-                    element.classList.add('fa-eye');
-                }
-                this.$emit("visibilityspectrum", id);
+                this.spectralROIs.forEach((roi) => {
+                    let roiID = roi.id.toString();
+                    if (roiID === id) {
+                        roi.visible = !roi.visible;
+                        let element = event.currentTarget.firstChild;
+                        if (roi.visible == true) {
+                            element.classList.remove('fa-eye-slash');
+                            element.classList.add('fa-eye');
+                        } else {
+                            element.classList.remove('fa-eye');
+                            element.classList.add('fa-eye-slash');
+                        }
+                        this.$emit("visibilityspectrum", id);        
+                    }
+                });
             },
             removeArea(id) {
                 this.$emit("removearea", id);
             },
             activationArea(event, id) {
-                event.target.active = !event.target.active;
-                let element = event.currentTarget.firstChild;
-                if (event.target.active == true) {
-                    element.classList.remove('fa-toggle-on');
-                    element.classList.add('fa-toggle-off');
-                } else {
-                    element.classList.remove('fa-toggle-off');
-                    element.classList.add('fa-toggle-on');
-                }
-                this.$emit("activationarea", id);
+                console.log(this.mapROIs)
+                console.log(id)
+                this.mapROIs.forEach((roi) => {
+                    let roiID = roi.coords.toString();
+                    if (roiID === id) {
+                        roi.active = !roi.active;
+                        let element = event.currentTarget.firstChild;
+                        if (roi.active == true) {
+                            element.classList.remove('fa-toggle-off');
+                            element.classList.add('fa-toggle-on');
+                        } else {
+                            element.classList.remove('fa-toggle-on');
+                            element.classList.add('fa-toggle-off');
+                        }
+                        this.$emit("activationarea", id);
+                    }
+                });
             },
 
             visibilityArea(event, id) {
-                event.target.active = !event.target.active;
-                let element = event.currentTarget.firstChild;
-                if (event.target.active == true) {
-                    element.classList.remove('fa-eye');
-                    element.classList.add('fa-eye-slash');
-                } else {
-                    element.classList.remove('fa-eye-slash');
-                    element.classList.add('fa-eye');
-                }
-                this.$emit("visibilityarea", id);
-
+                this.mapROIs.forEach((roi) => {
+                    let roiID = roi.coords.toString();
+                    if (roiID === id) {
+                        console.log(roi.visible)
+                        roi.visible = !roi.visible;
+                        console.log(roi.visible)
+                        let element = event.currentTarget.firstChild;
+                        if (roi.visible == true) {
+                            element.classList.remove('fa-eye-slash');
+                            element.classList.add('fa-eye');
+                        } else {
+                            element.classList.remove('fa-eye');
+                            element.classList.add('fa-eye-slash');
+                        }
+                        this.$emit("visibilityarea", id);
+                    }
+                });
             },
             setVSSidebarGroupLogo() {
                 for (let x of document.getElementById("sidebar").getElementsByClassName("vs-sidebar-group")) {

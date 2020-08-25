@@ -226,8 +226,8 @@ export default {
         });
     },
     methods: {
-        onRemoveSpectrumROI(id) {
-                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
+            onRemoveSpectrumROI(id) {
+                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
                 if (index > -1) {
                     this.spectralROIs.splice(index, 1);
                 }
@@ -235,24 +235,20 @@ export default {
                 this.updateMeanChannelMask();
             },
             onActivationSpectrumROI(id) {
-                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
-                if (index > -1) {
-                    this.spectralROIs[index].active = !this.spectralROIs[index].active;
-                }
-                if (this.lockIsActive) {
-                    this.updateMeanChannelMask();
-                }
+                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
+                //if (this.lockIsActive) {
+                this.updateMeanChannelMask();
+                //}
             },
 
             onVisibilitySpectrumROI(id) {
-                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id == id);
+                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
                 if (index > -1) {
-                    this.spectralROIs[index].visible = !this.spectralROIs[index].visible;
                     this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
                 }
             },
             onRemoveMapROI(id) {
-                let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
+                let index = this.mapROIs.findIndex(mapROI => mapROI.coords.toString() == id);
                 if (index > -1) {
                     this.$refs.intensitymap.updateMapRegions("remove", this.mapROIs[index]);
                     this.mapROIs.splice(index, 1);
@@ -263,10 +259,7 @@ export default {
                 }
             },
             onActivationMapROI(id) {
-                let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
-                if (index > -1) {
-                    this.mapROIs[index].active = !this.mapROIs[index].active;
-                }
+                let index = this.mapROIs.findIndex(mapROI => mapROI.coords.toString() == id);
                 this.drawMaskCanvas();
                 this.renderHandler.updateRegionMask(this.maskCanvas);
                 glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
@@ -276,7 +269,6 @@ export default {
             onVisibilityMapROI(id) {
                 let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
                 if (index > -1) {
-                    this.mapROIs[index].visible = !this.mapROIs[index].visible;
                     this.$refs.intensitymap.updateMapRegions("visibility", this.mapROIs[index]);
                 }
             },
@@ -290,9 +282,9 @@ export default {
             },
             onAddSpectrumROI(spectralROI) {
                 this.spectralROIs.push(spectralROI);
-                if (this.lockIsActive) {
-                    this.updateMeanChannelMask();
-                }
+                //if (this.lockIsActive) {
+                this.updateMeanChannelMask();
+                //}
             },
             /**
              * Helper to create the marker which gets visible by clicking on a pixel
@@ -458,25 +450,20 @@ export default {
                 let channel = this.data.channelNames.length;
                 // number of active channels of the channel mask
                 let activeChannels = 0;
-                if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
-                        roiObject.active === true
-                    )) {
+                if (this.spectralROIs.some(roiObject => roiObject.active === true)) {
                     // clear mask
                     while (channel--) {
                         this.channelMask[channel] = 0;
                     }
                     for (let i = 0; i < this.spectralROIs.length; i++) {
                         if (this.spectralROIs[i].active == true) {
-
-                            let offset = this.spectralROIs[i].range;
-                            activeChannels += offset;
-
+                            let offset = this.spectralROIs[i].range-1;
+                            activeChannels += offset+1;
                             while (offset--) {
                                 this.channelMask[this.xValueIndexMap[this.spectralROIs[i].id[0]] + offset] = 255;
                             }
                         }
                     }
-
                 } else {
                     activeChannels = channel;
                     while (channel--) {

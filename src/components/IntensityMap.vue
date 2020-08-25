@@ -273,7 +273,7 @@ export default {
                 let that = this;
                 // Add event listener for single click and mouse movement
                 this.intensitymap.on('pointermove', function(event) {
-                    console.log(event)
+                    //console.log(event)
                     that.$emit('mapmousemove', event);
                 });
 
