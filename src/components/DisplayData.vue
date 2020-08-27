@@ -364,10 +364,16 @@ export default {
                             this.updateMapMousePosition(event);
                             this.timeStampBefore = event.originalEvent.timeStamp;
                             this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
+                            //console.log(this.mouse.x, this.mouse.y)
                             glmvilib.render.apply(null, ['selection-info']);
-                            this.renderHandler.framebuffer.updateSpectrum();
-                            if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
-                                this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
+                            if (this.mouse.x >= 0 && this.mouse.x <= 1 && this.mouse.y >= 0 && this.mouse.y <= 1) {
+                                this.renderHandler.framebuffer.updateSpectrum();
+                                //console.log(this.renderHandler.framebuffer.spectrumValues)
+                                if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                    this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
+                                } else {
+                                    this.spectralYValues = this.data.meanChannel;
+                                }
                             } else {
                                 this.spectralYValues = this.data.meanChannel;
                             }

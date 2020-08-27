@@ -335,7 +335,7 @@ export default {
                     if (this.interestingSpectrals[0] == this.interestingSpectrals[1]) {
                         this.interestingSpectrals.length = 1;
                     } else {
-                        if (this.interestingSpectrals[0].xValue > this.interestingSpectrals[1].xValue) {
+                        if (parseFloat(this.interestingSpectrals[0].xValue) > parseFloat(this.interestingSpectrals[1].xValue)) {
                             this.interestingSpectrals = this.interestingSpectrals.reverse();
                         }
                         let regionId = [this.interestingSpectrals[0].xValue, this.interestingSpectrals[1].xValue];
