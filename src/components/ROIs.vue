@@ -150,8 +150,6 @@ export default {
                 this.$emit("removearea", id);
             },
             activationArea(event, id) {
-                console.log(this.mapROIs)
-                console.log(id)
                 this.mapROIs.forEach((roi) => {
                     let roiID = roi.coords.toString();
                     if (roiID === id) {
@@ -173,9 +171,7 @@ export default {
                 this.mapROIs.forEach((roi) => {
                     let roiID = roi.coords.toString();
                     if (roiID === id) {
-                        console.log(roi.visible)
                         roi.visible = !roi.visible;
-                        console.log(roi.visible)
                         let element = event.currentTarget.firstChild;
                         if (roi.visible == true) {
                             element.classList.remove('fa-eye-slash');

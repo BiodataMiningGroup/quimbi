@@ -147,6 +147,9 @@ import Projection from 'node_modules/ol/proj/Projection';
 
 import * as d3 from '../../node_modules/d3/dist/d3';
 
+var inside = require('point-in-polygon')
+var classifyPoint = require("robust-point-in-polygon")
+
 export default {
     props: [
         'initData',
@@ -256,6 +259,7 @@ export default {
                     this.renderHandler.updateRegionMask(this.maskCanvas);
                     glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
                     this.map.render();
+                    this.updateMeanChannel();
                 }
             },
             onActivationMapROI(id) {
@@ -264,6 +268,7 @@ export default {
                 this.renderHandler.updateRegionMask(this.maskCanvas);
                 glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
                 this.map.render();
+                this.updateMeanChannel();
             },
 
             onVisibilityMapROI(id) {
@@ -298,7 +303,7 @@ export default {
                 // Inner white circle
                 this.markerStyle = new Style({
                     image: new Circle({
-                        radius: 6,
+                        radius: 3,
                         fill: new Fill({
                             color: 'white'
                         })
@@ -308,7 +313,7 @@ export default {
                 // Outer black circle to create border effect around the white circle
                 this.markerBorderStyle = new Style({
                     image: new Circle({
-                        radius: 8,
+                        radius: 5,
                         fill: new Fill({
                             color: 'black'
                         })
@@ -357,7 +362,6 @@ export default {
                         glmvilib.render.apply(null, ['selection-info']);
                         this.renderHandler.framebuffer.updateSpectrum();
                     } else {
-
                         // Update if there is a certain time interval (in ms) between movements
                         // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
                         if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
@@ -521,8 +525,53 @@ export default {
                         }
                     }
                 }
+            },
+            updateMeanChannel() {
+                console.log(this.mapROIs)
+                this.data.meanChannel = Array(this.renderHandler.framebuffer.spectrumValues.length).fill(0);
+                let counter = 0;
+                let that = this;
+                if (this.mapROIs.some(roiObject => roiObject.active === true)) {
+                    for (let i = 0; i < this.data.dataHeight; i++) {
+                        for (let j = 0; j < this.data.dataWidth; j++) {
+                            this.mapROIs.forEach(roiObject => {
+                                if (roiObject.active === true) {
+                                    //if (classifyPoint(roiObject.coords, [j, i]) === 0 || classifyPoint(roiObject.coords, [j, i]) === -1) {
+                                    if (inside([j, i], roiObject.coords) === true) {
+                                        console.log("trigger roi")
+                                        this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
+                                        glmvilib.render.apply(null, ['selection-info']);
+                                        this.renderHandler.framebuffer.updateSpectrum();
+                                        if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                            this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
+                                                return num + that.renderHandler.framebuffer.spectrumValues[idx];
+                                            });
+                                            counter += 1;
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < this.data.dataHeight; i++) {
+                        for (let j = 0; j < this.data.dataWidth; j++) {
+                            this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
+                            glmvilib.render.apply(null, ['selection-info']);
+                            this.renderHandler.framebuffer.updateSpectrum();
+                            if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
+                                    return num + that.renderHandler.framebuffer.spectrumValues[idx];
+                                });
+                                counter += 1;
+                            }
+                        }
+                    }
+                }
+                this.data.meanChannel = this.data.meanChannel.map(function(num) {
+                    return Math.round(num / counter);
+                });
             }
     }
 }
-
 </script>

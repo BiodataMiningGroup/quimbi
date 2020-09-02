@@ -148,7 +148,7 @@ export default {
 
                 // Set axis
                 this.x = d3.scaleLinear()
-                    .domain([0, this.xValues.length - 1])
+                    .domain([-1, this.xValues.length-1])
                     .range([0, this.canvasWidth]);
                 this.y = d3.scaleLinear()
                     .domain([0, 100])
@@ -171,6 +171,7 @@ export default {
                     .call(this.xAxis);
 
                 this.gyAxis = this.svgGroup.append('g')
+                    .attr('transform', `translate(0, 0)`)
                     .attr("class", "yaxis")
                     .call(this.yAxis);
                 this.ctx = this.canvas.node().getContext('2d');

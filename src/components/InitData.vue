@@ -209,26 +209,7 @@ export default {
                         this.renderHandler.createShader();
                         this.$emit('initedRenderer', this.renderHandler);
 
-
-                        this.data.meanChannel = Array(this.renderHandler.framebuffer.spectrumValues.length).fill(0);
-                        let counter = 0;
-                        let that = this;
-                        for (let i = 0; i < this.data.dataHeight; i++) {
-                            for (let j = 0; j < this.data.dataWidth; j++) {
-                                this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
-                                glmvilib.render.apply(null, ['selection-info']);
-                                this.renderHandler.framebuffer.updateSpectrum();
-                                if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
-                                    this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
-                                        return num + that.renderHandler.framebuffer.spectrumValues[idx];
-                                    });
-                                    counter += 1;
-                                }
-                            }
-                        }
-                        this.data.meanChannel = this.data.meanChannel.map(function(num) {
-                            return Math.round(num / counter);
-                        });
+                        this.updateMeanChannel();
 
                         // Emit finish message to switch to switch component
                         this.$emit('finish', this.data);
@@ -238,6 +219,30 @@ export default {
                         // Kill the library to release memory
                         window.glmvilib.finish();
                     }
+                },
+
+                updateMeanChannel() {
+                    console.log("test")
+                    console.log(this.spatialROIs)
+                    this.data.meanChannel = Array(this.renderHandler.framebuffer.spectrumValues.length).fill(0);
+                    let counter = 0;
+                    let that = this;
+                    for (let i = 0; i < this.data.dataHeight; i++) {
+                        for (let j = 0; j < this.data.dataWidth; j++) {
+                            this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
+                            glmvilib.render.apply(null, ['selection-info']);
+                            this.renderHandler.framebuffer.updateSpectrum();
+                            if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
+                                    return num + that.renderHandler.framebuffer.spectrumValues[idx];
+                                });
+                                counter += 1;
+                            }
+                        }
+                    }
+                    this.data.meanChannel = this.data.meanChannel.map(function(num) {
+                        return Math.round(num / counter);
+                    });
                 }
 
         }
