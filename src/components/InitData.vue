@@ -88,6 +88,7 @@ h1 {
 import axios from 'axios';
 
 import RenderHandler from '../utils/RenderHandler.js';
+import * as _ from 'lodash';
 
 
 export default {
@@ -243,6 +244,7 @@ export default {
                     this.data.meanChannel = this.data.meanChannel.map(function(num) {
                         return Math.round(num / counter);
                     });
+                    this.data.allMeanChannel = _.cloneDeep(this.data.meanChannel);
                 }
 
         }

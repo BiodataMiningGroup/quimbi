@@ -73,6 +73,24 @@ select {
     padding-left: 10px;
 }
 
+#spectrum-buttons-container {
+    display: flex;
+    z-index: 700;
+    justify-content: flex-end;
+}
+
+#redrawAllMean{
+    margin: 1px;
+    width: 60px;
+    width: 55px;
+}
+
+#redrawMean{
+    margin: 1px;
+    width: 60px;
+    width: 55px;
+}
+
 </style>
 
 <template>
@@ -115,6 +133,10 @@ select {
             </IntensityMap>
         </div>
     </div>
+    <div id="spectrum-buttons-container">
+        <a id="redrawAllMean" class="button is-dark" @click="redrawAllMean"><i v-bind:class="'fas fa-chart-bar'"></i></a>
+        <a id="redrawMean" class="button" v-bind:class="[toggleRedrawMean ? 'is-light' : 'is-dark']" @click="redrawMean" :disabled="!toggleRedrawMean"><i v-bind:class="[toggleRedrawMean ? 'fas fa-sync' : 'fas fa-sync']"></i></a>
+    </div>
     <div class="spectrum-container" id="spectrum">
         <Spectrum ref="spectrum" :xValues="data.channelNames" :yValues="spectralYValues" :renderHandler="renderHandler" :map="map" :spectralROIs="spectralROIs" :xValueIndexMap="xValueIndexMap" @addspectrum="onAddSpectrumROI" @spectrummousemove="onSpectrumMouseMove"></Spectrum>
     </div>
@@ -123,6 +145,8 @@ select {
 </template>
 
 <script>
+
+//chart-bar, sync, redo, retweet, undo
 
 // Child Compontents
 import Histogram from './Histogram.vue'
@@ -146,6 +170,7 @@ import Style from '../../node_modules/ol/style/Style';
 import Projection from 'node_modules/ol/proj/Projection';
 
 import * as d3 from '../../node_modules/d3/dist/d3';
+import * as _ from 'lodash';
 
 var inside = require('point-in-polygon')
 var classifyPoint = require("robust-point-in-polygon")
@@ -176,6 +201,7 @@ export default {
             colorMapData: {},
             markerIsActive: false,
             lockIsActive: false,
+            toggleRedrawMean: false,
             colormapvalues: {},
             markerFeature: {},
             markerLayer: {},
@@ -193,7 +219,9 @@ export default {
             renderedDirectChannel: 0,
             directChannel: 0,
             xCoord:0,
-            yCoord:0
+            yCoord:0,
+            roiIDs: [],
+            roiIDsLastSync: []
         }
     },
     /**
@@ -228,350 +256,397 @@ export default {
             this.xValueIndexMap[point] = index;
         });
     },
+
+    watch: {
+        roiIDs() {
+            this.toggleRedrawMean = _.xor(this.roiIDs, this.roiIDsLastSync).length > 0 ? true : false;
+            /*if (this.roiIDs.length > 0) {
+                this.toggleRedrawMean = _.xor(this.roiIDs, this.roiIDsLastSync).length > 0 ? true : false;
+            } else {
+
+            }*/
+        }
+    },
+
     methods: {
-            onRemoveSpectrumROI(id) {
-                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
-                if (index > -1) {
-                    this.spectralROIs.splice(index, 1);
-                }
-                this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
-                this.updateMeanChannelMask();
-            },
-            onActivationSpectrumROI(id) {
-                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
-                //if (this.lockIsActive) {
-                this.updateMeanChannelMask();
-                //}
-            },
+        redrawAllMean() {
+            this.data.meanChannel = _.cloneDeep(this.data.allMeanChannel);
+            this.roiIDsLastSync = [];
+            if (this.roiIDs.length > 0) {
+                this.toggleRedrawMean = true;
+            }
+        },
 
-            onVisibilitySpectrumROI(id) {
-                let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
-                if (index > -1) {
-                    this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
-                }
-            },
-            onRemoveMapROI(id) {
-                let index = this.mapROIs.findIndex(mapROI => mapROI.coords.toString() == id);
-                if (index > -1) {
-                    this.$refs.intensitymap.updateMapRegions("remove", this.mapROIs[index]);
-                    this.mapROIs.splice(index, 1);
-                    this.drawMaskCanvas();
-                    this.renderHandler.updateRegionMask(this.maskCanvas);
-                    glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
-                    this.map.render();
-                    this.updateMeanChannel();
-                }
-            },
-            onActivationMapROI(id) {
-                let index = this.mapROIs.findIndex(mapROI => mapROI.coords.toString() == id);
-                this.drawMaskCanvas();
-                this.renderHandler.updateRegionMask(this.maskCanvas);
-                glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
-                this.map.render();
-                this.updateMeanChannel();
-            },
-
-            onVisibilityMapROI(id) {
-                let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
-                if (index > -1) {
-                    this.$refs.intensitymap.updateMapRegions("visibility", this.mapROIs[index]);
-                }
-            },
-
-            onAddMapROI(mapROI) {
-                this.mapROIs.push(mapROI);
-                this.drawMaskCanvas();
-                this.renderHandler.updateRegionMask(this.maskCanvas);
-                glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
-                this.map.render();
-            },
-            onAddSpectrumROI(spectralROI) {
-                this.spectralROIs.push(spectralROI);
-                //if (this.lockIsActive) {
-                this.updateMeanChannelMask();
-                //}
-            },
-            /**
-             * Helper to create the marker which gets visible by clicking on a pixel
-             */
-            createMarker() {
-                // Create marker for click event
-                let vectorSource = new VectorSource({
-                    features: []
-                });
-
-                // Inner white circle
-                this.markerStyle = new Style({
-                    image: new Circle({
-                        radius: 3,
-                        fill: new Fill({
-                            color: 'white'
-                        })
-                    })
-                });
-
-                // Outer black circle to create border effect around the white circle
-                this.markerBorderStyle = new Style({
-                    image: new Circle({
-                        radius: 5,
-                        fill: new Fill({
-                            color: 'black'
-                        })
-                    })
-                });
-
-                this.markerFeature = new Feature(new Point([0, 0]));
-
-                this.markerLayer = new VectorLayer({
-                    source: vectorSource,
-                    style: [this.markerBorderStyle, this.markerStyle]
-                });
-                vectorSource.addFeature(this.markerFeature);
-                // Initially hide marker
-                this.markerLayer.setVisible(false);
-                this.map.addLayer(this.markerLayer);
-            },
-
-            onSpectrumMouseMove(closest) {
-                if ((this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject =>
-                        roiObject.active === false
-                    )) && !this.markerIsActive ) {
-                    this.directChannel = this.xValueIndexMap[closest["xValue"]];
-                    if (this.renderedDirectChannel !== this.directChannel) {
-                        this.renderedDirectChannel = this.directChannel;
-                        this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
-                        glmvilib.render.apply(null, ['render-channel', 'color-lens', 'color-map']);
-                        this.map.render();
-                        this.updateHistogram();
-                    }
-                }
-            },
-            /**
-             * Called on free mouse movement. Adds small delay between mouse movement events to prevent lag
-             * caused by too much rendering
-             * @param event
-             */
-            onMapMouseMove(event) {
-                if (!this.markerIsActive && !this.lockIsActive) {
-                    if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
-                            roiObject.active === true
-                        )) {
-                        this.updateDistancesChannelMask();
-                        this.updateMapMousePosition(event);
-                        this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
-                        glmvilib.render.apply(null, ['selection-info']);
-                        this.renderHandler.framebuffer.updateSpectrum();
-                    } else {
-                        // Update if there is a certain time interval (in ms) between movements
-                        // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
-                        if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
-                            this.updateMapMousePosition(event);
-                            this.timeStampBefore = event.originalEvent.timeStamp;
-                            this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
-                            //console.log(this.mouse.x, this.mouse.y)
-                            glmvilib.render.apply(null, ['selection-info']);
-                            if (this.mouse.x >= 0 && this.mouse.x <= 1 && this.mouse.y >= 0 && this.mouse.y <= 1) {
-                                this.renderHandler.framebuffer.updateSpectrum();
-                                //console.log(this.renderHandler.framebuffer.spectrumValues)
-                                if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
-                                    this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
-                                } else {
-                                    this.spectralYValues = this.data.meanChannel;
+        redrawMean() {
+            this.data.meanChannel = Array(this.renderHandler.framebuffer.spectrumValues.length).fill(0);
+            let counter = 0;
+            let that = this;
+            if (this.mapROIs.some(roiObject => roiObject.active === true)) {
+                for (let i = 0; i < this.data.dataHeight; i++) {
+                    for (let j = 0; j < this.data.dataWidth; j++) {
+                        this.mapROIs.forEach(roiObject => {
+                            if (roiObject.active === true) {
+                                //if (classifyPoint(roiObject.coords, [j, i]) === 0 || classifyPoint(roiObject.coords, [j, i]) === -1) {
+                                if (inside([j, i], roiObject.coords) === true) {
+                                    //console.log(j, i)
+                                    this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
+                                    glmvilib.render.apply(null, ['selection-info']);
+                                    this.renderHandler.framebuffer.updateSpectrum();
+                                    if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                        this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
+                                            return num + that.renderHandler.framebuffer.spectrumValues[idx];
+                                        });
+                                        counter += 1;
+                                    }
                                 }
-                            } else {
-                                this.spectralYValues = this.data.meanChannel;
                             }
-                            this.$refs.spectrum.redrawSpectrum();
-                        }
+                        });
                     }
                 }
-            },
+            } else {
+                this.redrawAllMean();
+            }
+            this.roiIDsLastSync = _.cloneDeep(this.roiIDs);
+            this.toggleRedrawMean = false;
+        },
 
-            onLeaveMap(event) {
-                if (!this.markerIsActive) {
-                    this.spectralYValues = this.data.meanChannel;
-                }
-            },
+        onRemoveSpectrumROI(id) {
+            let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
+            if (index > -1) {
+                this.spectralROIs.splice(index, 1);
+            }
+            this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
+            this.updateMeanChannelMask();
+        },
+        onActivationSpectrumROI(id) {
+            let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
+            //if (this.lockIsActive) {
+            this.updateMeanChannelMask();
+            //}
+        },
 
-            /**
-             * Sets marker if mouse is clicked, activates button in toolbar, rerenders the image and
-             * gets values for the spectrum view
-             **/
-            onMapMouseClick(event) {
-                // Set Marker position
-                this.markerFeature.getGeometry().setCoordinates([(Math.floor(event.coordinate[0]) + 0.5), (Math.floor(event.coordinate[1]) + 0.5)]);
-                if (!this.markerIsActive) {
-                    this.markerLayer.setVisible(true);
-                    this.markerIsActive = true;
-                }
+        onVisibilitySpectrumROI(id) {
+            let index = this.spectralROIs.findIndex(spectralROI => spectralROI.id.toString() == id);
+            if (index > -1) {
+                this.$refs.spectrum.redrawSelectedRegions(d3.zoomTransform(this.$refs.spectrum.canvas));
+            }
+        },
+        onRemoveMapROI(id) {
+            let index = this.mapROIs.findIndex(mapROI => mapROI.coords.toString() == id);
+            if (index > -1) {
+                console.log(this.mapROIs)
+                let mapRoiID = this.mapROIs[index].coords.toString()
+                this.roiIDs.splice(this.roiIDs.indexOf(mapRoiID), 1);
+                this.$refs.intensitymap.updateMapRegions("remove", this.mapROIs[index]);
+                this.mapROIs.splice(index, 1);
+                this.drawMaskCanvas();
+                this.renderHandler.updateRegionMask(this.maskCanvas);
+                glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
+                this.map.render();
+                //this.updateMeanChannel();
+            }
+        },
+        onActivationMapROI(id) {
+            let index = this.mapROIs.findIndex(mapROI => mapROI.coords.toString() == id);
+            this.drawMaskCanvas();
+            this.renderHandler.updateRegionMask(this.maskCanvas);
+            glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
+            this.map.render();
+            //this.updateMeanChannel();
+            if (this.mapROIs[index].active === true) {
+                this.roiIDs.push(this.mapROIs[index].coords.toString());
+            } else {
+                this.roiIDs.splice(this.roiIDs.indexOf(this.mapROIs[index].coords.toString()), 1);
+            }
+        },
 
-            },
+        onVisibilityMapROI(id) {
+            let index = this.mapROIs.findIndex(mapROI => mapROI.coords == id);
+            if (index > -1) {
+                this.$refs.intensitymap.updateMapRegions("visibility", this.mapROIs[index]);
+            }
+        },
 
-            /**
-             * Sets relative mouse position and rerenders the map, histogram and color scale
-             * @param event
-             */
-            updateMapMousePosition(event) {
-                // Norm x and y values and prevent webgl coordinate interpolation
-                this.mouse.x = (Math.floor(event.coordinate[0]) + 0.5) / this.data.canvas.width;
-                this.mouse.y = (Math.floor(event.coordinate[1]) + 0.5) / this.data.canvas.height;
-                this.xCoord = Math.floor(event.coordinate[0]);
-                this.yCoord = this.data.canvas.height - Math.ceil(event.coordinate[1]);
-                if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
-                    this.renderHandler.render(this.mouse);
+        onAddMapROI(mapROI) {
+            this.mapROIs.push(mapROI);
+            this.drawMaskCanvas();
+            this.renderHandler.updateRegionMask(this.maskCanvas);
+            glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
+            this.map.render();
+        },
+        onAddSpectrumROI(spectralROI) {
+            this.spectralROIs.push(spectralROI);
+            //if (this.lockIsActive) {
+            this.updateMeanChannelMask();
+            //}
+        },
+        /**
+         * Helper to create the marker which gets visible by clicking on a pixel
+         */
+        createMarker() {
+            // Create marker for click event
+            let vectorSource = new VectorSource({
+                features: []
+            });
+
+            // Inner white circle
+            this.markerStyle = new Style({
+                image: new Circle({
+                    radius: 3,
+                    fill: new Fill({
+                        color: 'white'
+                    })
+                })
+            });
+
+            // Outer black circle to create border effect around the white circle
+            this.markerBorderStyle = new Style({
+                image: new Circle({
+                    radius: 5,
+                    fill: new Fill({
+                        color: 'black'
+                    })
+                })
+            });
+
+            this.markerFeature = new Feature(new Point([0, 0]));
+
+            this.markerLayer = new VectorLayer({
+                source: vectorSource,
+                style: [this.markerBorderStyle, this.markerStyle]
+            });
+            vectorSource.addFeature(this.markerFeature);
+            // Initially hide marker
+            this.markerLayer.setVisible(false);
+            this.map.addLayer(this.markerLayer);
+        },
+
+        onSpectrumMouseMove(closest) {
+            if ((this.spectralROIs.length === 0 || this.spectralROIs.every(roiObject =>
+                    roiObject.active === false
+                )) && !this.markerIsActive ) {
+                this.directChannel = this.xValueIndexMap[closest["xValue"]];
+                if (this.renderedDirectChannel !== this.directChannel) {
+                    this.renderedDirectChannel = this.directChannel;
+                    this.renderHandler.updateDirectChannel(this.renderedDirectChannel);
+                    glmvilib.render.apply(null, ['render-channel', 'color-lens', 'color-map']);
                     this.map.render();
                     this.updateHistogram();
                 }
-            },
-
-            /**
-             * Well, toggles the marker on map and toolbar
-             */
-            toggleMarker() {
-                // Deactivate Marker
-                if (this.markerIsActive) {
-                    this.markerIsActive = false;
-                    this.markerLayer.setVisible(false);
-                    return;
-                }
-                this.markerIsActive = true;
-            },
-            toggleLock() {
-                if (this.lockIsActive) {
-                    this.lockIsActive = false;
-                    return;
-                }
-                this.lockIsActive = true;
-            },
-
-            /**
-             * Called to update the histogram and color scale in the ui
-             */
-            updateHistogram() {
-                this.$refs.histogram.redrawHistogram();
-                this.$refs.scaleCanvas.redrawScale();
-            },
-
-            setMap(map) {
-                this.map = map;
-            },
-
-            updateChannelMaskWith() {
-                let channel = this.data.channelNames.length;
-                // number of active channels of the channel mask
-                let activeChannels = 0;
-                if (this.spectralROIs.some(roiObject => roiObject.active === true)) {
-                    // clear mask
-                    while (channel--) {
-                        this.channelMask[channel] = 0;
-                    }
-                    for (let i = 0; i < this.spectralROIs.length; i++) {
-                        if (this.spectralROIs[i].active == true) {
-                            let offset = this.spectralROIs[i].range-1;
-                            activeChannels += offset+1;
-                            while (offset--) {
-                                this.channelMask[this.xValueIndexMap[this.spectralROIs[i].id[0]] + offset] = 255;
-                            }
-                        }
-                    }
-                } else {
-                    activeChannels = channel;
-                    while (channel--) {
-                        this.channelMask[channel] = 255;
-                    }
-                }
-                this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
-            },
-            updateDistancesChannelMask() {
-                this.updateChannelMaskWith();
-                glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
-                this.map.render();
-                this.updateHistogram();
-            },
-
-            updateMeanChannelMask() {
-                this.updateChannelMaskWith();
-                glmvilib.render.apply(null, ['render-mean-ranges', 'color-lens', 'color-map']);
-                this.map.render();
-                this.updateHistogram();
-            },
-            createMaskCanvas() {
-                this.maskCanvas = document.createElement('canvas');
-                this.maskCanvas.width = this.data.canvas.width;
-                this.maskCanvas.height = this.data.canvas.height;
-                this.maskCtx = this.maskCanvas.getContext('2d');
-                this.maskCtx.fillStyle = 'rgba(0, 0, 0, 1)';
-                this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-            },
-            clearMaskCanvas() {
-                this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-            },
-            drawMaskCanvas() {
-                if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject =>
-                        roiObject.active == false
+            }
+        },
+        /**
+         * Called on free mouse movement. Adds small delay between mouse movement events to prevent lag
+         * caused by too much rendering
+         * @param event
+         */
+        onMapMouseMove(event) {
+            if (!this.markerIsActive && !this.lockIsActive) {
+                if (this.spectralROIs.length !== 0 && this.spectralROIs.some(roiObject =>
+                        roiObject.active === true
                     )) {
-                    this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+                    this.updateDistancesChannelMask();
+                    this.updateMapMousePosition(event);
+                    this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
+                    glmvilib.render.apply(null, ['selection-info']);
+                    this.renderHandler.framebuffer.updateSpectrum();
                 } else {
-                    this.clearMaskCanvas();
-                    for (let i = 0; i < this.mapROIs.length; i++) {
-                        if (this.mapROIs[i].active === true) {
-                            this.maskCtx.beginPath();
-                            this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
-                            for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
-                                this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
+                    // Update if there is a certain time interval (in ms) between movements
+                    // Todo Maybe change interval for larger datasets, rendering is laggy with the largest set
+                    if (event.originalEvent.timeStamp - this.timeStampBefore > 50) {
+                        this.updateMapMousePosition(event);
+                        this.timeStampBefore = event.originalEvent.timeStamp;
+                        this.renderHandler.selectionInfo.updateMouse(this.mouse.x, this.mouse.y);
+                        //console.log(this.mouse.x, this.mouse.y)
+                        glmvilib.render.apply(null, ['selection-info']);
+                        if (this.mouse.x >= 0 && this.mouse.x <= 1 && this.mouse.y >= 0 && this.mouse.y <= 1) {
+                            this.renderHandler.framebuffer.updateSpectrum();
+                            //console.log(this.renderHandler.framebuffer.spectrumValues)
+                            if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                this.spectralYValues = this.renderHandler.framebuffer.spectrumValues;
+                            } else {
+                                this.spectralYValues = this.data.meanChannel;
                             }
-                            this.maskCtx.closePath();
-                            this.maskCtx.fill();
+                        } else {
+                            this.spectralYValues = this.data.meanChannel;
+                        }
+                        this.$refs.spectrum.redrawSpectrum();
+                    }
+                }
+            }
+        },
+
+        onLeaveMap(event) {
+            if (!this.markerIsActive) {
+                this.spectralYValues = this.data.meanChannel;
+            }
+        },
+
+        /**
+         * Sets marker if mouse is clicked, activates button in toolbar, rerenders the image and
+         * gets values for the spectrum view
+         **/
+        onMapMouseClick(event) {
+            // Set Marker position
+            this.markerFeature.getGeometry().setCoordinates([(Math.floor(event.coordinate[0]) + 0.5), (Math.floor(event.coordinate[1]) + 0.5)]);
+            if (!this.markerIsActive) {
+                this.markerLayer.setVisible(true);
+                this.markerIsActive = true;
+            }
+
+        },
+
+        /**
+         * Sets relative mouse position and rerenders the map, histogram and color scale
+         * @param event
+         */
+        updateMapMousePosition(event) {
+            // Norm x and y values and prevent webgl coordinate interpolation
+            this.mouse.x = (Math.floor(event.coordinate[0]) + 0.5) / this.data.canvas.width;
+            this.mouse.y = (Math.floor(event.coordinate[1]) + 0.5) / this.data.canvas.height;
+            this.xCoord = Math.floor(event.coordinate[0]);
+            this.yCoord = this.data.canvas.height - Math.ceil(event.coordinate[1]);
+            if (this.mouse.x <= 1 && this.mouse.y <= 1 && this.mouse.x >= 0 && this.mouse.y >= 0) {
+                this.renderHandler.render(this.mouse);
+                this.map.render();
+                this.updateHistogram();
+            }
+        },
+
+        /**
+         * Well, toggles the marker on map and toolbar
+         */
+        toggleMarker() {
+            // Deactivate Marker
+            if (this.markerIsActive) {
+                this.markerIsActive = false;
+                this.markerLayer.setVisible(false);
+                return;
+            }
+            this.markerIsActive = true;
+        },
+        toggleLock() {
+            if (this.lockIsActive) {
+                this.lockIsActive = false;
+                return;
+            }
+            this.lockIsActive = true;
+        },
+
+        /**
+         * Called to update the histogram and color scale in the ui
+         */
+        updateHistogram() {
+            this.$refs.histogram.redrawHistogram();
+            this.$refs.scaleCanvas.redrawScale();
+        },
+
+        setMap(map) {
+            this.map = map;
+        },
+
+        updateChannelMaskWith() {
+            let channel = this.data.channelNames.length;
+            // number of active channels of the channel mask
+            let activeChannels = 0;
+            if (this.spectralROIs.some(roiObject => roiObject.active === true)) {
+                // clear mask
+                while (channel--) {
+                    this.channelMask[channel] = 0;
+                }
+                for (let i = 0; i < this.spectralROIs.length; i++) {
+                    if (this.spectralROIs[i].active == true) {
+                        let offset = this.spectralROIs[i].range-1;
+                        activeChannels += offset+1;
+                        while (offset--) {
+                            this.channelMask[this.xValueIndexMap[this.spectralROIs[i].id[0]] + offset] = 255;
                         }
                     }
                 }
-            },
-            updateMeanChannel() {
-                console.log(this.mapROIs)
-                this.data.meanChannel = Array(this.renderHandler.framebuffer.spectrumValues.length).fill(0);
-                let counter = 0;
-                let that = this;
-                if (this.mapROIs.some(roiObject => roiObject.active === true)) {
-                    for (let i = 0; i < this.data.dataHeight; i++) {
-                        for (let j = 0; j < this.data.dataWidth; j++) {
-                            this.mapROIs.forEach(roiObject => {
-                                if (roiObject.active === true) {
-                                    //if (classifyPoint(roiObject.coords, [j, i]) === 0 || classifyPoint(roiObject.coords, [j, i]) === -1) {
-                                    if (inside([j, i], roiObject.coords) === true) {
-                                        console.log("trigger roi")
-                                        this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
-                                        glmvilib.render.apply(null, ['selection-info']);
-                                        this.renderHandler.framebuffer.updateSpectrum();
-                                        if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
-                                            this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
-                                                return num + that.renderHandler.framebuffer.spectrumValues[idx];
-                                            });
-                                            counter += 1;
-                                        }
+            } else {
+                activeChannels = channel;
+                while (channel--) {
+                    this.channelMask[channel] = 255;
+                }
+            }
+            this.renderHandler.updateChannelMask(this.channelMask, activeChannels);
+        },
+        updateDistancesChannelMask() {
+            this.updateChannelMaskWith();
+            glmvilib.render.apply(null, ['angle-dist', 'color-lens', 'color-map']);
+            this.map.render();
+            this.updateHistogram();
+        },
+
+        updateMeanChannelMask() {
+            this.updateChannelMaskWith();
+            glmvilib.render.apply(null, ['render-mean-ranges', 'color-lens', 'color-map']);
+            this.map.render();
+            this.updateHistogram();
+        },
+        createMaskCanvas() {
+            this.maskCanvas = document.createElement('canvas');
+            this.maskCanvas.width = this.data.canvas.width;
+            this.maskCanvas.height = this.data.canvas.height;
+            this.maskCtx = this.maskCanvas.getContext('2d');
+            this.maskCtx.fillStyle = 'rgba(0, 0, 0, 1)';
+            this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+        },
+        clearMaskCanvas() {
+            this.maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+        },
+        drawMaskCanvas() {
+            if (this.mapROIs.length === 0 || this.mapROIs.every(roiObject =>
+                    roiObject.active == false
+                )) {
+                this.maskCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+            } else {
+                this.clearMaskCanvas();
+                for (let i = 0; i < this.mapROIs.length; i++) {
+                    if (this.mapROIs[i].active === true) {
+                        this.maskCtx.beginPath();
+                        this.maskCtx.moveTo(this.mapROIs[i].coords[0][0], this.maskCanvas.height - this.mapROIs[i].coords[0][1]);
+                        for (let j = 1; j < this.mapROIs[i].coords.length; j++) {
+                            this.maskCtx.lineTo(this.mapROIs[i].coords[j][0], this.maskCanvas.height - this.mapROIs[i].coords[j][1]);
+                        }
+                        this.maskCtx.closePath();
+                        this.maskCtx.fill();
+                    }
+                }
+            }
+        },
+        /*
+        updateMeanChannel() {
+            console.log(this.mapROIs)
+            this.data.meanChannel = Array(this.renderHandler.framebuffer.spectrumValues.length).fill(0);
+            let counter = 0;
+            let that = this;
+            if (this.mapROIs.some(roiObject => roiObject.active === true)) {
+                for (let i = 0; i < this.data.dataHeight; i++) {
+                    for (let j = 0; j < this.data.dataWidth; j++) {
+                        this.mapROIs.forEach(roiObject => {
+                            if (roiObject.active === true) {
+                                //if (classifyPoint(roiObject.coords, [j, i]) === 0 || classifyPoint(roiObject.coords, [j, i]) === -1) {
+                                if (inside([j, i], roiObject.coords) === true) {
+                                    console.log("trigger roi")
+                                    this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
+                                    glmvilib.render.apply(null, ['selection-info']);
+                                    this.renderHandler.framebuffer.updateSpectrum();
+                                    if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
+                                        this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
+                                            return num + that.renderHandler.framebuffer.spectrumValues[idx];
+                                        });
+                                        counter += 1;
                                     }
                                 }
-                            });
-                        }
-                    }
-                } else {
-                    for (let i = 0; i < this.data.dataHeight; i++) {
-                        for (let j = 0; j < this.data.dataWidth; j++) {
-                            this.renderHandler.selectionInfo.updateMouse(j / this.data.dataWidth, i / this.data.dataHeight);
-                            glmvilib.render.apply(null, ['selection-info']);
-                            this.renderHandler.framebuffer.updateSpectrum();
-                            if (this.renderHandler.framebuffer.spectrumValues.some(x => x != 0)) {
-                                this.data.meanChannel = this.data.meanChannel.map(function(num, idx) {
-                                    return num + that.renderHandler.framebuffer.spectrumValues[idx];
-                                });
-                                counter += 1;
                             }
-                        }
+                        });
                     }
                 }
-                this.data.meanChannel = this.data.meanChannel.map(function(num) {
-                    return Math.round(num / counter);
-                });
+            } else {
+                this.data.meanChannel = _.cloneDeep(this.data.allMeanChannel);
             }
+        }*/
     }
 }
 </script>
