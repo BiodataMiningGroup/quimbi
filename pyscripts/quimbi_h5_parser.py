@@ -49,7 +49,7 @@ def execute(in_path, out_path):
     filename.append(str(channel))
 
     if image_channel_index == 3 or current_channel_index == last_channel_index:
-        png_image = np.round((image - global_min) / global_max * 255)
+        png_image = np.round((image - global_min) / (global_max - global_min) * 255)
         name = '{}/{}/{}.png'.format(out_path, dataset_name, '-'.join(filename))
         Image.fromarray(png_image.astype(np.uint8)).save(name)
         with open(os.path.join(out_path, dataset_name) + ".txt", "a") as txt:
