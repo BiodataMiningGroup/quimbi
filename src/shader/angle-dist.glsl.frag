@@ -108,6 +108,7 @@ void main() {
 
 	// normalized with 1/(pi/2) beacuse pi/2 is the maximal possible angle
 	color = acos(color) * u_normalization;
+	color = min(1.0, max(0.0, color));
 
 	gl_FragColor = vec4(vec3(1.0 - color), 1.0);
 }
