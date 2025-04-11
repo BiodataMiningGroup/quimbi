@@ -18,15 +18,15 @@ class ZipCreator(object):
         uint8_max = np.iinfo(np.uint8).max
         global_max = data.reshape(-1).max()
         global_min = data.reshape(-1).min()
-        data = np.round((data - global_min) / (global_max - global_min) * uint8_max).astype(np.uint8)
 
         # Add missing feature channels to make shape[2] divisible by 4.
         if data.shape[2] % 4 != 0:
-            zeros = np.zeros((data.shape[0], data.shape[1], 4 - (data.shape[2] % 4)), dtype=np.uint8)
+            zeros = np.zeros((data.shape[0], data.shape[1], 4 - (data.shape[2] % 4)))
             data = np.concatenate((data, zeros), axis=2)
 
         splits = np.split(data, data.shape[2] // 4, axis=2)
         for i, split in enumerate(splits):
+            split = np.round((split - global_min) / (global_max - global_min) * uint8_max).astype(np.uint8)
             filename = '{}.png'.format(i)
             bytes_io = io.BytesIO()
             Image.fromarray(split).save(bytes_io, format='png')
@@ -36,18 +36,17 @@ class ZipCreator(object):
         uint16_max = np.iinfo(np.uint16).max
         global_max = data.reshape(-1).max()
         global_min = data.reshape(-1).min()
-        data = np.round((data - global_min) / (global_max - global_min) * uint16_max).astype(np.uint16)
 
         # Add missing feature channels to make shape[2] divisible by 2.
         if data.shape[2] % 2 != 0:
-            zeros = np.zeros((data.shape[0], data.shape[1], 2 - (data.shape[2] % 2)), dtype=np.uint16)
+            zeros = np.zeros((data.shape[0], data.shape[1], 2 - (data.shape[2] % 2)))
             data = np.concatenate((data, zeros), axis=2)
 
         splits = np.split(data, data.shape[2] // 2, axis=2)
         for i, split in enumerate(splits):
+            split = np.round((split - global_min) / (global_max - global_min) * uint16_max).astype(np.uint16)
             # Convert 2x uint16 to 4x uint8
-            buf = np.array(split, dtype=np.uint16)
-            split = np.frombuffer(buf.tobytes(), dtype=np.uint8).reshape(data.shape[0], data.shape[1], 4)
+            split = np.frombuffer(split.tobytes(), dtype=np.uint8).reshape(data.shape[0], data.shape[1], 4)
             filename = '{}.png'.format(i)
             bytes_io = io.BytesIO()
             Image.fromarray(split).save(bytes_io, format='png')
@@ -57,11 +56,11 @@ class ZipCreator(object):
         uint32_max = np.iinfo(np.uint32).max
         global_max = data.reshape(-1).max()
         global_min = data.reshape(-1).min()
-        data = np.round((data - global_min) / (global_max - global_min) * uint32_max).astype(np.uint32)
 
         for i in range(data.shape[2]):
+            split = np.round((data[:, :, i] - global_min) / (global_max - global_min) * uint32_max).astype(np.uint32)
             # Convert 1x uint32 to 4x uint8
-            split = np.frombuffer(data[:, :, i].tobytes(), dtype=np.uint8).reshape(data.shape[0], data.shape[1], 4)
+            split = np.frombuffer(split.tobytes(), dtype=np.uint8).reshape(data.shape[0], data.shape[1], 4)
             filename = '{}.png'.format(i)
             bytes_io = io.BytesIO()
             Image.fromarray(split).save(bytes_io, format='png')
