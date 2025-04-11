@@ -25,7 +25,7 @@ def execute(in_path, out_path):
       continue
     image[index[1] - minimum[0], index[0] - minimum[1]] = values
 
-  np.savez(out_path, data=image, channels=data.columns.values)
+  np.savez(out_path, data=image, channels=data.columns.values.astype(str))
 
   file.close()
 
