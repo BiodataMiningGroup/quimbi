@@ -1,8 +1,16 @@
 node_modules
-build
 dist
-*.sublime-project
-*.sublime-workspace
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
 .DS_Store
-*.log
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-*

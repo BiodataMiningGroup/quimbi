@@ -1,91 +1,123 @@
 <template>
-<div class="colorscale">
-	<div class="wrapper-top" ref="wrapperTop"></div>
-	<canvas class="canvas" ref="canvas"></canvas>
-	<div class="wrapper-bottom" ref="wrapperBottom"></div>
+<div class="color-scale">
+    <div class="fill-top" :style="fillTopStyle"></div>
+    <canvas ref="canvas" :style="canvasStyle"></canvas>
+    <div class="fill-bottom" :style="fillBottomStyle"></div>
 </div>
 </template>
 
 <script>
+import {FIRE} from '../webgl/programs/colorMaps';
+
 export default {
-	props: {
-		colormapvalues: {
-			type: Uint8Array,
-			required: true
-		},
-		bounds: {
-			type: Array,
-			required: true,
-		}
-	},
-	methods: {
-		/**
-		 * Draws the color scale with scale factor to the colorscale canvas and positions it correctly with css
-		 */
-		redrawScale() {
-			let scaleFactor = this.bounds[1] - this.bounds[0] || 1;
-			this.ctx = this.$refs.canvas.getContext("2d");
-			let height = 0;
-			// If no scaling is applied, set height op top wrapper to zero
-			if (scaleFactor === 1 || this.bounds[1] === 1) {
-				this.$refs.wrapperTop.style = "display: none;";
-			} else {
-				height = (1 - this.bounds[1]) * 100;
-				this.$refs.wrapperTop.style = "height: " + height + "%";
-			}
+    props: {
+        //
+    },
+    components: {
+        //
+    },
+    data () {
+        return {
+            absoluteHeight: 256,
+            minIntensity: 0,
+            maxIntensity: 1,
+        };
+    },
+    computed: {
+        fillTopStyle() {
+            let height = this.absoluteHeight * (1 - this.maxIntensity);
 
-			if (scaleFactor === 1 || this.bounds[0] === 0) {
-				this.$refs.wrapperBottom.style = "display: none;";
-			} else {
-				height = this.bounds[0] * 100;
-				this.$refs.wrapperBottom.style = "height: " + height + "%";
-			}
-			height = scaleFactor * 100;
-			this.$refs.canvas.style = "height: " + height + "%;";
-		},
+            if (height === 0) {
+                return 'display: none;';
+            }
 
-		initScale() {
-			let height = this.colormapvalues.length / 3;
-			this.ctx = this.$refs.canvas.getContext("2d");
-			this.$refs.canvas.width = 1;
-			this.$refs.canvas.height = height;
-			let index = 0;
-			// Draw colored lines
-			for (let i = height - 1; i >= 0; i--) {
-				index = i * 3;
-				this.ctx.fillStyle = "rgb(" + this.colormapvalues[index] + "," + this.colormapvalues[index + 1] + "," + this.colormapvalues[index + 2] + ")";
-				this.ctx.fillRect(0, height - (i + 1), 1, 1);
-			}
-		}
-	},
-	mounted() {
-		this.initScale();
-	},
-}
+            return {
+                'background-color': this.getColorScaleColor(255),
+                'border-bottom-color': this.getColorScaleColor(0),
+                height: `${height}px`,
+                display: 'block',
+            };
+        },
+        canvasStyle() {
+            let height = this.absoluteHeight * (this.maxIntensity - this.minIntensity);
+
+            return `height: ${height}px`;
+        },
+        fillBottomStyle() {
+            let height = this.absoluteHeight * this.minIntensity;
+
+            if (height === 0) {
+                return 'display: none;';
+            }
+
+            return {
+                'background-color': this.getColorScaleColor(0),
+                'border-top-color': this.getColorScaleColor(255),
+                height: `${height}px`,
+                display: 'block',
+            };
+        },
+    },
+    methods: {
+        getColorScaleColor(i) {
+            return `rgb(${FIRE[i * 3]}, ${FIRE[i * 3 + 1]}, ${FIRE[i * 3 + 2]})`;
+        },
+        updateCanvas() {
+            let width = this.canvas.width;
+            let height = this.canvas.height;
+
+            for (let i = 0; i < height; i++) {
+                this.ctx.fillStyle = this.getColorScaleColor(i);
+                this.ctx.fillRect(0, height - i, width, 1);
+            }
+        },
+        updateStretching(stats) {
+            this.minIntensity = stats.min;
+            this.maxIntensity = stats.max;
+        },
+    },
+    watch: {
+        //
+    },
+    created() {
+        //
+    },
+    mounted() {
+        this.canvas = this.$refs.canvas;
+        this.ctx = this.canvas.getContext('2d');
+        this.canvas.width = 1;
+        this.canvas.height = this.absoluteHeight;
+        this.updateCanvas();
+    },
+};
 </script>
 
+<style lang="scss" scoped>
+.color-scale {
+    width: 20px;
+    height: 256px;
+    padding: 1px;
+    background-color: $dark;
+    border-radius: 2px;
+    position: relative;
+    border: 1px solid $gray-900;
+    display: flex;
+    flex-direction: column;
 
-<style scoped>
-.colorscale {
-	display: flex;
-	flex-direction: column;
-	width: 30px;
-	height: 256px;
-	position: relative;
+    canvas {
+        width: 100%;
+        height: 100%;
+    }
+
+    .fill-top {
+        border-bottom: 1px dotted;
+        box-sizing: border-box;
+    }
+
+    .fill-bottom {
+        border-top: 1px dotted;
+        box-sizing: border-box;
+    }
 }
 
-.canvas {
-	width: 100%;
-	height: 100%;
-}
-
-.wrapper-top {
-	background-color: white;
-	border-bottom: black dotted 1px;
-}
-
-.wrapper-bottom {
-	background-color: black;
-	border-top: white dotted 1px;
-}
 </style>
