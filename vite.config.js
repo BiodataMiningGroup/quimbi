@@ -5,21 +5,8 @@ import rawLoader from 'vite-raw-plugin'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/',
-  resolve: {
-    alias: {
-      vue: '@vue/compat'
-    }
-  },
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          compatConfig: {
-            MODE: 2,
-          }
-        }
-      }
-    }),
+    vue(),
     rawLoader({fileRegex: /\.(fs|vs)$/}),
   ],
   css: {

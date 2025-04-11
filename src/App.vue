@@ -10,24 +10,10 @@
         <span></span>
     </nav>
     <div class="main">
-        <b-modal
-            ref="initModal"
-            :no-close-on-backdrop="true"
-            :no-close-on-esc="true"
-            centered header-bg-variant="dark"
-            header-text-variant="light"
-            header-border-variant="dark"
-            body-bg-variant="dark"
-            footer-bg-variant="dark"
-            footer-border-variant="dark"
-            body-text-variant="light"
-            footer-class="modal-footer-center"
-            >
-            <template #modal-header>
-                <h1 class="logo text-center w-100">
-                    QUIMBI
-                </h1>
-            </template>
+        <dialog ref="initModal" class="bg-dark text-light">
+            <h1 class="logo text-center w-100 mb-4">
+                QUIMBI
+            </h1>
             <p>
                  Quick Exploration Tool for Multivariate Bioimages (QUIMBI) is a web application that allows you to visualize and explore mass spectrometry images interactively in the browser.
             </p>
@@ -38,15 +24,16 @@
                 Select a dataset ZIP file to start the application.
             </p>
             <div v-if="error" class="alert alert-danger mt-4 mb-0" v-text="errorMessage"></div>
-            <template #modal-footer>
+
+            <div class="mt-4 text-center">
                 <div v-if="loading" class="spinner-border text-light" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-                <button v-else class="btn btn-primary btn-lg" @click="selectFile">
+                <button v-else autofocus class="btn btn-primary btn-lg" @click="selectFile">
                     Select ZIP file
                 </button>
-            </template>
-        </b-modal>
+            </div>
+        </dialog>
         <div class="main-content">
             <Visualization
                 ref="visualization"
@@ -72,7 +59,6 @@ import WebglHandler from './webgl/Handler';
 import Visualization from './components/Visualization.vue';
 import PixelVectorDisplay from './components/PixelVectorDisplay.vue';
 import {ZipReader, BlobReader, TextWriter} from "@zip.js/zip.js";
-import { BModal } from 'bootstrap-vue';
 
 const DATASET_KEYS = [
     'precision',
@@ -95,7 +81,6 @@ export default {
     components: {
         Visualization,
         PixelVectorDisplay,
-        BModal,
     },
     data() {
         return {
@@ -206,11 +191,11 @@ export default {
                 this.loading = false;
             }
 
-            this.$refs.initModal.hide();
+            this.$refs.initModal.close();
         },
     },
     mounted() {
-        this.$refs.initModal.show();
+        this.$refs.initModal.showModal();
         let dataset = new URLSearchParams(window.location.search).get('d');
         if (dataset) {
             this.loading = true;
@@ -258,7 +243,15 @@ export default {
     }
 }
 
-.modal-footer-center {
-    justify-content: center;
+dialog {
+    z-index: 10;
+    max-width: 500px;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: .3rem;
+    position: absolute;
+}
+
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.4);
 }
 </style>
