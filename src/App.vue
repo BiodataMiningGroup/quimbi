@@ -5,7 +5,7 @@
             QUIMBI
         </a>
         <span v-show="initialized" class="navbar-text text-light font-weight-bold">
-            {{dataset.name}} <small>{{dataset.width}}&times;{{dataset.height}}&times;{{dataset.features}} @ {{dataset.precision}}bit</small>
+            {{dataset.name}} <small>{{dataset.width}}&times;{{dataset.height}}&times;{{dataset.depth}} @ {{dataset.precision}}bit</small>
         </span>
         <span></span>
     </nav>
@@ -65,14 +65,13 @@ const DATASET_KEYS = [
     'name',
     'height',
     'width',
-    'features',
+    'channels',
 ];
 
 const NUMERIC_FIELDS = [
     'precision',
     'height',
     'width',
-    'features',
 ];
 
 const PRECISION_STEPS = [32, 16, 8];
@@ -142,7 +141,7 @@ export default {
             }
 
             let fileMultiplier = dataset.precision / 32;
-            let expectedFiles = Math.ceil(dataset.features * fileMultiplier);
+            let expectedFiles = Math.ceil(dataset.depth * fileMultiplier);
             let foundFiles = Object.keys(dataset.entries).length;
             if (foundFiles !== expectedFiles) {
                 throw new Error(`Wrong number of feature files. Found ${foundFiles} but expected ${expectedFiles}.`);
@@ -180,6 +179,7 @@ export default {
                 }
 
                 dataset.entries = entryMap;
+                dataset.depth = dataset.channels.length;
                 this.verifyDataset(dataset);
 
                 this.dataset = dataset;

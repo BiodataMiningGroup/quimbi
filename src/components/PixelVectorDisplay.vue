@@ -27,7 +27,7 @@ export default {
     },
     computed: {
         barHeight() {
-            return this.canvasSize[1] / this.dataset.features;
+            return this.canvasSize[1] / this.dataset.depth;
         },
         hasHoveredFeature() {
             return this.hoveredFeature !== null;
@@ -90,7 +90,7 @@ export default {
         },
         updateHoveredFeature(event) {
             let rect = event.target.getBoundingClientRect();
-            this.hoveredFeature = Math.floor(this.dataset.features * (event.clientY - rect.top) / event.target.height);
+            this.hoveredFeature = Math.floor(this.dataset.depth * (event.clientY - rect.top) / event.target.height);
         },
         resetHoveredFeature() {
             this.hoveredFeature = null;

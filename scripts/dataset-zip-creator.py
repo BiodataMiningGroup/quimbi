@@ -68,14 +68,15 @@ class ZipCreator(object):
             zip_file.writestr(filename, bytes_io.getvalue())
 
     def create(self):
-        if self.file.endswith('.npy'):
-            data = np.load(self.file)
-        else:
-            with np.load(self.file) as npz_file:
-                data = npz_file[npz_file.files[0]]
+        with np.load(self.file) as npz_file:
+            data = npz_file['data']
+            channels = npz_file['channels'].tolist()
 
         if data.ndim != 3:
             raise ValueError('The input data has an unexpected number of dimensions ({} given, 3 expected).'.format(data.ndim))
+
+        if data.shape[2] != len(channels):
+            raise ValueError('Dataset depth {} does not match channel count {}.'.format(data.shape[2], len(channels)))
 
         zip_file = ZipFile(self.out_file, 'w')
         has_overlay = self.overlay != None
@@ -84,9 +85,9 @@ class ZipCreator(object):
             'name': self.name,
             'width': data.shape[1],
             'height': data.shape[0],
-            'features': data.shape[2],
             'precision': self.precision,
             'overlay': has_overlay,
+            'channels': channels,
         }
 
         if has_overlay:
@@ -105,7 +106,7 @@ class ZipCreator(object):
         zip_file.close()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Create an IFeaLiD ZIP from an NPZ or NPY file")
+    parser = argparse.ArgumentParser(description="Create a QUIMBI ZIP from an NPZ or NPY file")
     parser.add_argument('file', type=str, help='path to the npz/npy file')
     parser.add_argument("-n", "--name", dest='name', type=str, default='', help="optional dataset name")
     parser.add_argument('-p', '--precision', dest='precision', choices=[8, 16, 32], default=8, type=int, help='bit precision to store the dataset in (default: 8)')

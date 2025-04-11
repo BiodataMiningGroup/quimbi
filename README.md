@@ -4,11 +4,11 @@ Quick Exploration Tool for Multivariate Bioimages (QUIMBI) is a web application 
 
 ## Generating a Dataset
 
-The script to generate a QUIMBI dataset ZIP file from an H5 file can be found in [`scripts/zip-creator`](scripts/zip-creator). Usage:
+The script to generate a QUIMBI dataset ZIP file from a NumPy file can be found in [`scripts/zip-creator`](scripts/zip-creator). Usage:
 
 1. Install the requirements: `pip3 install -r scripts/zip-creator/requirements.txt`
 
-2. Convert the MSI image to a H5 file
+2. Convert the MSI image to a NumPy file
 
 3. Execute the script: `python3 scripts/zip-creator/dataset-zip-creator.py <file>`
 

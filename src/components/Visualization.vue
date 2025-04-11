@@ -100,7 +100,7 @@ export default {
                 canvas: canvas,
                 width: this.dataset.width,
                 height: this.dataset.height,
-                depth: this.dataset.features,
+                depth: this.dataset.depth,
                 precision: this.dataset.precision,
                 // Reserve units for the similarity, stretch intensity, color map and pixel vector textures.
                 reservedUnits: 4,

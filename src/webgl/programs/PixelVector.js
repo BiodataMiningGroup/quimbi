@@ -8,9 +8,9 @@ export default class PixelVector extends Program {
         super(vertexShaderSource, fragmentShaderSource);
         this.width = options.width;
         this.height = options.height;
-        this.features = options.features;
+        this.depth = options.depth;
         // Dimension of a square texture that can contain all values of the pixel vector.
-        this.textureDimension = Math.ceil(Math.sqrt(Math.ceil(this.features / 4)));
+        this.textureDimension = Math.ceil(Math.sqrt(Math.ceil(this.depth / 4)));
         this.texture = null;
         this.inputTexture = null;
         this.mousePosition = [0, 0];
@@ -71,6 +71,6 @@ export default class PixelVector extends Program {
     }
 
     getPixelVector() {
-        return this.pixelVector.subarray(0, this.features);
+        return this.pixelVector.subarray(0, this.depth);
     }
 }

@@ -89,11 +89,11 @@ export default class ImageHandler {
 
     load(parallel) {
         let channelsPerImage = 32 / this.dataset.precision;
-        let imageCount = Math.ceil(this.dataset.features / channelsPerImage);
+        let imageCount = Math.ceil(this.dataset.depth / channelsPerImage);
         let imagesLoaded = 0;
 
         let imagesPerTile = this.dataset.precision / 8;
-        let tileCount = Math.ceil(this.dataset.features / 4);
+        let tileCount = Math.ceil(this.dataset.depth / 4);
         let lastTileIndex = tileCount - 1;
         let latsTileImages = imageCount % imagesPerTile;
         let tilesLoaded = 0;
