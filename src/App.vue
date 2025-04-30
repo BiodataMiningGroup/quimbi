@@ -184,6 +184,8 @@ export default {
 
                 this.dataset = dataset;
                 this.initialized = true;
+                console.log('Geladener Datensatz:', dataset);
+
             } catch (e) {
                 this.error = e;
                 return;
@@ -219,6 +221,7 @@ export default {
     }
     .main {
         display: flex;
+        flex-direction: column;
         flex: 1;
         overflow: hidden;
         position: relative;
@@ -233,14 +236,15 @@ export default {
     }
 
     .main-aside {
-        height: 100%;
-        width: 200px;
-        border-left: 1px solid $gray-900;
+        width: 100%;
+        height: 200px;
+        border-top: 1px solid $gray-900;
         position: relative;
         overflow: hidden;
         padding: 10px 0;
         box-sizing: border-box;
     }
+
 }
 
 dialog {
