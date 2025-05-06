@@ -23,6 +23,7 @@ export default {
             canvasSize: [0, 0],
             hasReference: false,
             hoveredFeature: null,
+            xAxisHeight : 20,
         };
     },
     computed: {
@@ -44,8 +45,8 @@ export default {
             this.draw();
         },
         draw() {
+            this.canvas.height = this.canvasSize[1] + this.xAxisHeight;
             this.canvas.width = this.canvasSize[0];
-            this.canvas.height = this.canvasSize[1];
 
             if (this.hoveredFeature !== null) {
                 // Bootstrap $gray-900.
@@ -61,41 +62,73 @@ export default {
         },
         drawWithoutReference() {
             this.ctx.fillStyle = 'white';
-            this.fillPath(0, 0, this.canvas.width, this.canvas.height, this.pixelVector, -1);
+            this.fillPath(0, 0 - this.xAxisHeight, this.canvas.width, this.canvas.height, this.pixelVector);
+            this.drawXAxis(this.canvas.width, this.canvas.height - this.xAxisHeight, Math.floor(this.dataset.depth / 1000), this.dataset.depth);
         },
         drawWithReference() {
             let halfHeight = this.canvas.height / 2;
             this.ctx.fillStyle = 'white';
-            this.fillPath(0, 0, this.canvas.width, halfHeight, this.pixelVector, -1);
+            this.fillPath(0, 0, this.canvas.width, halfHeight, this.pixelVector);
             // $primary color
             this.ctx.fillStyle = '#fc6600';
-            this.fillPath(0, halfHeight, this.canvas.width, halfHeight, this.referencePixelVector, 1);
+            this.fillPath(0, halfHeight, this.canvas.width, halfHeight, this.referencePixelVector);
         },
-        fillPath(startX, startY, width, height, vector, factor) {
+        fillPath(startX, startY, width, height, vector) {
+            let minBarWidth = 1;
             let barWidth = this.barWidth;
-            let barHeight = 0;
             let ctx = this.ctx;
-            ctx.beginPath();
-            ctx.moveTo(startX, startY + height);
+
             for (var i = 0; i < vector.length; i++) {
-                barHeight = height * vector[i];
-                ctx.lineTo(startX + i * barWidth, startY + height - barHeight);
-                ctx.lineTo(startX + (i + 1) * barWidth, startY + height - barHeight);
+                let barHeight = height * vector[i];
+                let x = startX + i * barWidth;
+                let actualBarWidth = barWidth >= minBarWidth ? barWidth : minBarWidth;
+
+                ctx.fillRect(x, startY + height - barHeight, actualBarWidth, barHeight);
             }
-            ctx.lineTo(startX + width, startY + height);
-            ctx.lineTo(startX, startY + height);
-            ctx.fill();
         },
         updateCanvasSize() {
             this.canvasSize = [this.$el.clientWidth, this.$el.clientHeight];
         },
         updateHoveredFeature(event) {
             let rect = event.target.getBoundingClientRect();
-            this.hoveredFeature = Math.floor(this.dataset.depth * (event.clientY - rect.top) / event.target.height);
+            this.hoveredFeature = Math.floor(this.dataset.depth * (event.clientX - rect.left) / event.target.width);
         },
         resetHoveredFeature() {
             this.hoveredFeature = null;
         },
+        drawXAxis(width, height, ticks, maxValue) {
+            const ctx = this.ctx;
+            const tickHeight = 4;
+            const fontSize = 10;
+            const startX = 0;
+            const startY = 0;
+            ctx.strokeStyle = '#aaa';
+            ctx.fillStyle = '#aaa';
+            ctx.lineWidth = 1;
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            ctx.beginPath();
+            ctx.moveTo(startX, height);
+            ctx.lineTo(startX + width, height);
+            ctx.stroke();
+
+            for (let i = 0; i <= ticks; i++) {
+                const value = Math.round(i * maxValue / ticks);
+                const x = startX + i * width / ticks;
+
+                // Tick
+                ctx.beginPath();
+                ctx.moveTo(x, height);
+                ctx.lineTo(x, height + tickHeight);
+                ctx.stroke();
+
+                // Label
+                ctx.fillText(value.toString(), x, startY + height + tickHeight + 2);
+            }
+        }
+
     },
     watch: {
         canvasSize() {
