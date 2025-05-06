@@ -36,8 +36,10 @@ export default {
     },
     methods: {
         updatePixelVector(pixelVector) {
-            this.pixelVector = pixelVector;
-            this.draw();
+            if (!this.hasReference) {
+                this.pixelVector = pixelVector;
+                this.draw();
+            }
         },
         updateReferencePixelVector(pixelVector) {
             this.referencePixelVector = pixelVector;
@@ -54,8 +56,8 @@ export default {
                 this.ctx.fillRect(this.barWidth * this.hoveredFeature, 0, this.barWidth, this.canvas.height);
             }
 
-            if (this.hasReference) {
-                this.drawWithReference();
+            if (!this.hasReference) {
+                this.drawWithoutReference();
             } else {
                 this.drawWithoutReference();
             }
