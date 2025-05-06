@@ -56,24 +56,12 @@ export default {
                 this.ctx.fillRect(this.barWidth * this.hoveredFeature, 0, this.barWidth, this.canvas.height);
             }
 
-            if (!this.hasReference) {
-                this.drawWithoutReference();
-            } else {
-                this.drawWithoutReference();
-            }
+            this.drawWithoutReference();
         },
         drawWithoutReference() {
             this.ctx.fillStyle = 'white';
             this.fillPath(0, 0 - this.xAxisHeight, this.canvas.width, this.canvas.height, this.pixelVector);
-            this.drawXAxis(this.canvas.width, this.canvas.height - this.xAxisHeight, Math.floor(this.dataset.depth / 1000), this.dataset.depth);
-        },
-        drawWithReference() {
-            let halfHeight = this.canvas.height / 2;
-            this.ctx.fillStyle = 'white';
-            this.fillPath(0, 0, this.canvas.width, halfHeight, this.pixelVector);
-            // $primary color
-            this.ctx.fillStyle = '#fc6600';
-            this.fillPath(0, halfHeight, this.canvas.width, halfHeight, this.referencePixelVector);
+            this.drawXAxis(this.canvas.width, this.canvas.height - this.xAxisHeight, 10, this.dataset.depth);
         },
         fillPath(startX, startY, width, height, vector) {
             let minBarWidth = 1;
@@ -117,7 +105,7 @@ export default {
             ctx.stroke();
 
             for (let i = 0; i <= ticks; i++) {
-                const value = Math.round(i * maxValue / ticks);
+                const index = Math.round(i * maxValue / ticks);
                 const x = startX + i * width / ticks;
 
                 // Tick
@@ -127,7 +115,12 @@ export default {
                 ctx.stroke();
 
                 // Label
-                ctx.fillText(value.toString(), x, startY + height + tickHeight + 2);
+                let label = Math.round(this.dataset.channels[index]);
+                if (i !== 0) {
+                    label = Math.round(this.dataset.channels[index - 1]);
+                }
+                console.log(i + ". label: " + label)
+                ctx.fillText(label.toString(), x, startY + height + tickHeight + 2);
             }
         }
 
@@ -137,7 +130,7 @@ export default {
             this.draw();
         },
         hoveredFeature(feature) {
-            this.draw();
+            //this.draw();
             this.$emit('hover', feature);
         },
     },
@@ -154,6 +147,7 @@ export default {
         this.$nextTick(this.updateCanvasSize);
         this.canvas.addEventListener('pointermove', this.updateHoveredFeature);
         this.canvas.addEventListener('pointerleave', this.resetHoveredFeature);
+        console.log('Channels:', this.dataset.channels);
     },
 };
 </script>
