@@ -47,7 +47,7 @@ export default {
             this.draw();
         },
         draw() {
-            this.canvas.height = this.canvasSize[1] + this.xAxisHeight;
+            this.canvas.height = this.canvasSize[1];
             this.canvas.width = this.canvasSize[0];
 
             if (this.hoveredFeature !== null) {
@@ -60,7 +60,7 @@ export default {
         },
         drawWithoutReference() {
             this.ctx.fillStyle = 'white';
-            this.fillPath(0, 0 - this.xAxisHeight, this.canvas.width, this.canvas.height, this.pixelVector);
+            this.fillPath(0, 0, this.canvas.width, this.canvas.height - this.xAxisHeight, this.pixelVector);
             this.drawXAxis(this.canvas.width, this.canvas.height - this.xAxisHeight, 10, this.dataset.depth);
         },
         fillPath(startX, startY, width, height, vector) {
