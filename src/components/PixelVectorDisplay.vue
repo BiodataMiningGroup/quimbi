@@ -24,6 +24,9 @@ export default {
             hasReference: false,
             hoveredFeature: null,
             xAxisHeight : 20,
+            yAxisHeight : 20,
+            leftPadding : 30,
+            rightPadding : 15,
         };
     },
     computed: {
@@ -36,10 +39,8 @@ export default {
     },
     methods: {
         updatePixelVector(pixelVector) {
-            if (!this.hasReference) {
-                this.pixelVector = pixelVector;
-                this.draw();
-            }
+            this.pixelVector = pixelVector;
+            this.draw();
         },
         updateReferencePixelVector(pixelVector) {
             this.referencePixelVector = pixelVector;
@@ -60,8 +61,13 @@ export default {
         },
         drawWithoutReference() {
             this.ctx.fillStyle = 'white';
-            this.fillPath(0, 0, this.canvas.width, this.canvas.height - this.xAxisHeight, this.pixelVector);
-            this.drawXAxis(this.canvas.width, this.canvas.height - this.xAxisHeight, 10, this.dataset.depth);
+            let drawHeight = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
+            let drawWidth = this.canvas.width - this.leftPadding - this.rightPadding;
+            let startX = this.leftPadding;
+            let startY = this.yAxisHeight;
+            this.fillPath(startX, startY, drawWidth, drawHeight, this.pixelVector);
+            this.drawXAxis(startX, startY, drawWidth, drawHeight, 10, this.dataset.depth);
+            this.drawYAxis(startX, startY, drawWidth,drawHeight, 4)
         },
         fillPath(startX, startY, width, height, vector) {
             let minBarWidth = 1;
@@ -86,12 +92,11 @@ export default {
         resetHoveredFeature() {
             this.hoveredFeature = null;
         },
-        drawXAxis(width, height, ticks, maxValue) {
+        drawXAxis(startX, startY, width, height, ticks, maxValue) {
             const ctx = this.ctx;
             const tickHeight = 4;
             const fontSize = 10;
-            const startX = 0;
-            const startY = 0;
+            const y = startY + height;
             ctx.strokeStyle = '#aaa';
             ctx.fillStyle = '#aaa';
             ctx.lineWidth = 1;
@@ -100,8 +105,8 @@ export default {
             ctx.textBaseline = 'top';
 
             ctx.beginPath();
-            ctx.moveTo(startX, height);
-            ctx.lineTo(startX + width, height);
+            ctx.moveTo(startX, y);
+            ctx.lineTo(startX + width, y);
             ctx.stroke();
 
             for (let i = 0; i <= ticks; i++) {
@@ -110,8 +115,8 @@ export default {
 
                 // Tick
                 ctx.beginPath();
-                ctx.moveTo(x, height);
-                ctx.lineTo(x, height + tickHeight);
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y + tickHeight);
                 ctx.stroke();
 
                 // Label
@@ -119,8 +124,39 @@ export default {
                 if (i !== 0) {
                     label = Math.round(this.dataset.channels[index - 1]);
                 }
-                console.log(i + ". label: " + label)
-                ctx.fillText(label.toString(), x, startY + height + tickHeight + 2);
+                console.log(i + ". X - label: " + label)
+                ctx.fillText(label.toString(), x, y + tickHeight + 2);
+            }
+        },
+        drawYAxis(startX, startY, width, height, ticks) {
+            const ctx = this.ctx;
+            const tickWidth = 4;
+            const fontSize = 10;
+
+            ctx.strokeStyle = '#aaa';
+            ctx.fillStyle = '#aaa';
+            ctx.lineWidth = 1;
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(startX, startY + height);
+            ctx.stroke();
+
+            for (let i = 0; i <= ticks; i++) {
+                const label = Math.round(((ticks - i) / ticks) * 100) / 100;
+                const y = startY + i * height / ticks;
+
+                // Tick
+                ctx.beginPath();
+                ctx.moveTo(startX, y);
+                ctx.lineTo(startX - tickWidth, y);
+                ctx.stroke();
+
+                console.log(i + ". Y - label: " + label)
+                ctx.fillText(label.toString(), startX - tickWidth - 2, y);
             }
         }
 
@@ -130,7 +166,7 @@ export default {
             this.draw();
         },
         hoveredFeature(feature) {
-            //this.draw();
+            this.draw();
             this.$emit('hover', feature);
         },
     },
