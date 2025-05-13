@@ -1,8 +1,12 @@
 <template>
-<div class="intensity-list">
-    <span v-show="hasHoveredFeature" class="hovered-feature" v-text="hoveredFeature"></span>
-    <canvas ref="canvas"></canvas>
-</div>
+    <div class="intensity-list">
+        <div v-show="hasHoveredFeature" class="hovered-feature" :style="{left: (mouseX + 10) + 'px',top: (mouseY + 10) + 'px',position: 'absolute'}">
+            <div>Feature: {{ hoveredFeature }}</div>
+            <div>m/z: {{ hoveredMZ }}</div>
+            <div>Intensity: {{ hoveredIntensity }}</div>
+        </div>
+        <canvas ref="canvas"></canvas>
+    </div>
 </template>
 
 <script>
@@ -23,10 +27,14 @@ export default {
             canvasSize: [0, 0],
             hasReference: false,
             hoveredFeature: null,
+            hoveredMZ: null,
+            hoveredIntensity: null,
             xAxisHeight : 20,
             yAxisHeight : 20,
             leftPadding : 30,
             rightPadding : 15,
+            mouseX: 0,
+            mouseY: 0,
         };
     },
     computed: {
@@ -87,7 +95,30 @@ export default {
         },
         updateHoveredFeature(event) {
             let rect = event.target.getBoundingClientRect();
-            this.hoveredFeature = Math.floor(this.dataset.depth * (event.clientX - rect.left) / event.target.width);
+            //this.hoveredFeature = Math.floor(this.dataset.depth * (event.clientX - rect.left) / event.target.width);
+
+            this.mouseX = event.clientX - rect.left;
+            this.mouseY = event.clientY - rect.top;
+
+            const relativeX = event.clientX - rect.left;
+            const contentWidth = event.target.width - this.leftPadding - this.rightPadding;
+            const xInContent = relativeX - this.leftPadding;
+
+            if (xInContent < 0 || xInContent > contentWidth) {
+                this.hoveredFeature = null;
+                this.hoveredMZ = null;
+                this.hoveredIntensity = null;
+                return;
+            }
+
+            const ratio = xInContent / contentWidth;
+            this.hoveredFeature = Math.floor(this.dataset.depth * ratio);
+            this.hoveredMZ = this.dataset.channels[this.hoveredFeature]
+            this.hoveredIntensity = this.pixelVector[this.hoveredFeature];
+
+            console.log("hoveredFeature: " + this.hoveredFeature);
+            console.log("hoveredMZ: " + this.hoveredMZ)
+            console.log("hoveredIntensity: " + this.hoveredIntensity)
         },
         resetHoveredFeature() {
             this.hoveredFeature = null;
@@ -124,7 +155,7 @@ export default {
                 if (i !== 0) {
                     label = Math.round(this.dataset.channels[index - 1]);
                 }
-                console.log(i + ". X - label: " + label)
+                //console.log(i + ". X - label: " + label)
                 ctx.fillText(label.toString(), x, y + tickHeight + 2);
             }
         },
@@ -155,7 +186,7 @@ export default {
                 ctx.lineTo(startX - tickWidth, y);
                 ctx.stroke();
 
-                console.log(i + ". Y - label: " + label)
+                //console.log(i + ". Y - label: " + label)
                 ctx.fillText(label.toString(), startX - tickWidth - 2, y);
             }
         }
