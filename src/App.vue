@@ -40,6 +40,7 @@
                 v-bind:dataset="dataset"
                 v-on:hover="updateHoverPixelVector"
                 v-on:select="updateSelectPixelVector"
+                @freeze="onFreeze"
             ></Visualization>
         </div>
         <div class="main-aside">
@@ -194,6 +195,15 @@ export default {
             }
 
             this.$refs.initModal.close();
+        },
+        onFreeze(freeze) {
+            if (freeze) {
+                this.$refs.visualization.freeze();
+                this.$refs.pixelVectorDisplay.freeze();
+            } else {
+                this.$refs.visualization.unfreeze();
+                this.$refs.pixelVectorDisplay.unfreeze();
+            }
         },
     },
     mounted() {

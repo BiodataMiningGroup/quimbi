@@ -53,6 +53,7 @@ export default {
             initialAlphaScaling: 0.1,
             error: null,
             overlayGrayscale: true,
+            frozen: false,
         };
     },
     computed: {
@@ -278,10 +279,16 @@ export default {
             }
         },
         updateMarkerPosition(event) {
+            if (this.frozen) {
+                this.unfreeze();
+                this.markerLayer.setVisible(false);
+                return;
+            }
             if (containsCoordinate(this.extent, event.coordinate)) {
                 if (this.map.hasFeatureAtPixel(event.pixel)) {
                     this.markerLayer.setVisible(false);
                     this.emitUnselect();
+                    this.$emit('freeze', false);
                 } else {
                     this.markerLayer.setVisible(true);
                     this.markerFeature.getGeometry().setCoordinates(event.coordinate);
@@ -289,7 +296,10 @@ export default {
                     let newPosition = event.coordinate.map(Math.floor);
                     this.pixelVectorProgram.setMousePosition(newPosition);
                     if (oldPosition[0] !== newPosition[0] || oldPosition[1] !== newPosition[1]) {
-                        this.renderPixelVector().then(this.emitSelect);
+                        this.renderPixelVector().then(() => {
+                            this.emitSelect();
+                            this.$emit('freeze', true);
+                        });
                     }
                 }
             }
@@ -337,6 +347,14 @@ export default {
             } catch (e) {
                 this.error = new Error(`The dataset could not be loaded. ${e.message}`);
             }
+        },
+        freeze() {
+            this.frozen = true;
+            this.map.un('pointermove', this.updateMousePosition);
+        },
+        unfreeze() {
+            this.frozen = false;
+            this.map.on('pointermove', this.updateMousePosition);
         },
     },
     watch: {
