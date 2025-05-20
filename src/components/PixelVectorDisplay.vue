@@ -78,12 +78,15 @@ export default {
             let drawWidth = this.canvas.width - this.leftPadding - this.rightPadding;
             let startX = this.leftPadding;
             let startY = this.yAxisHeight;
+            let viewEnd = this.viewEnd;
+            let viewStart = this.viewStart;
 
             const viewRange = this.viewEnd - this.viewStart;
             const visibleVector = this.pixelVector.slice(this.viewStart, this.viewEnd);
 
+
             this.fillPath(startX, startY, drawWidth, drawHeight, visibleVector);
-            this.drawXAxis(startX, startY, drawWidth, drawHeight, 10, this.viewStart, this.viewEnd);
+            this.drawXAxis(startX, startY, drawWidth, drawHeight, 10, viewStart, viewEnd);
             this.drawYAxis(startX, startY, drawWidth,drawHeight, 4)
         },
         fillPath(startX, startY, width, height, vector) {
@@ -92,7 +95,8 @@ export default {
             let ctx = this.ctx;
 
             for (var i = 0; i < vector.length; i++) {
-                let barHeight = height * vector[i];
+                let barHeight = height * vector[i] * this.yZoom;
+                barHeight = Math.min(barHeight, height);
                 let x = startX + i * barWidth;
                 let actualBarWidth = barWidth >= minBarWidth ? barWidth : minBarWidth;
 
@@ -181,8 +185,10 @@ export default {
             ctx.lineTo(startX, startY + height);
             ctx.stroke();
 
+            const maxYValue = 1 / this.yZoom;
+
             for (let i = 0; i <= ticks; i++) {
-                const label = Math.round(((ticks - i) / ticks) * 100) / 100;
+                const label = maxYValue * (ticks - i) / ticks;
                 const y = startY + i * height / ticks;
 
                 // Tick
@@ -192,7 +198,7 @@ export default {
                 ctx.stroke();
 
                 //console.log(i + ". Y - label: " + label)
-                ctx.fillText(label.toString(), startX - tickWidth - 2, y);
+                ctx.fillText(label.toFixed(2), startX - tickWidth - 2, y);
             }
         },
         handleWheelScroll(event) {
@@ -203,13 +209,25 @@ export default {
             const contentWidth = this.canvas.width - this.leftPadding - this.rightPadding;
 
             const ratio = relativeX / contentWidth;
-
             //console.log("ratio" + ratio)
 
-            if (event.deltaY < 0) {
-                this.zoomIn(ratio);
+            if (event.ctrlKey) {
+                console.log("event.ctrlKey" + event.ctrlKey)
+                // Y-Achse zoomen
+                if (event.deltaY < 0) {
+                    this.yZoom *= this.yZoomFactor;
+                } else {
+                    this.yZoom /= this.yZoomFactor;
+                }
+                this.yZoom = Math.max(0.1, Math.min(this.yZoom, 10));
+                this.draw();
             } else {
-                this.zoomOut(ratio);
+                // X-Achse zoomen
+                if (event.deltaY < 0) {
+                    this.zoomIn(ratio);
+                } else {
+                    this.zoomOut(ratio);
+                }
             }
         },
         zoomIn(ratio) {
