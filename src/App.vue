@@ -199,10 +199,8 @@ export default {
         onFreeze(freeze) {
             if (freeze) {
                 this.$refs.visualization.freeze();
-                this.$refs.pixelVectorDisplay.freeze();
             } else {
                 this.$refs.visualization.unfreeze();
-                this.$refs.pixelVectorDisplay.unfreeze();
             }
         },
     },

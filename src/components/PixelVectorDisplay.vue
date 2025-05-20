@@ -35,11 +35,16 @@ export default {
             rightPadding : 15,
             mouseX: 0,
             mouseY: 0,
+            viewStart: null,
+            viewEnd: null,
+            zoomFactor: 2,
+            yZoom: 1,
+            yZoomFactor: 1.1,
         };
     },
     computed: {
         barWidth() {
-            return this.canvasSize[0] / this.dataset.depth;
+            return this.canvasSize[0] / (this.viewEnd - this.viewStart);
         },
         hasHoveredFeature() {
             return this.hoveredFeature !== null;
@@ -73,8 +78,12 @@ export default {
             let drawWidth = this.canvas.width - this.leftPadding - this.rightPadding;
             let startX = this.leftPadding;
             let startY = this.yAxisHeight;
-            this.fillPath(startX, startY, drawWidth, drawHeight, this.pixelVector);
-            this.drawXAxis(startX, startY, drawWidth, drawHeight, 10, this.dataset.depth);
+
+            const viewRange = this.viewEnd - this.viewStart;
+            const visibleVector = this.pixelVector.slice(this.viewStart, this.viewEnd);
+
+            this.fillPath(startX, startY, drawWidth, drawHeight, visibleVector);
+            this.drawXAxis(startX, startY, drawWidth, drawHeight, 10, this.viewStart, this.viewEnd);
             this.drawYAxis(startX, startY, drawWidth,drawHeight, 4)
         },
         fillPath(startX, startY, width, height, vector) {
@@ -115,15 +124,11 @@ export default {
             this.hoveredFeature = Math.floor(this.dataset.depth * ratio);
             this.hoveredMZ = this.dataset.channels[this.hoveredFeature]
             this.hoveredIntensity = this.pixelVector[this.hoveredFeature];
-
-            console.log("hoveredFeature: " + this.hoveredFeature);
-            console.log("hoveredMZ: " + this.hoveredMZ)
-            console.log("hoveredIntensity: " + this.hoveredIntensity)
         },
         resetHoveredFeature() {
             this.hoveredFeature = null;
         },
-        drawXAxis(startX, startY, width, height, ticks, maxValue) {
+        drawXAxis(startX, startY, width, height, ticks, viewStart, viewEnd) {
             const ctx = this.ctx;
             const tickHeight = 4;
             const fontSize = 10;
@@ -141,7 +146,7 @@ export default {
             ctx.stroke();
 
             for (let i = 0; i <= ticks; i++) {
-                const index = Math.round(i * maxValue / ticks);
+                const index = Math.round(viewStart + (i * (viewEnd - viewStart) / ticks));
                 const x = startX + i * width / ticks;
 
                 // Tick
@@ -189,8 +194,81 @@ export default {
                 //console.log(i + ". Y - label: " + label)
                 ctx.fillText(label.toString(), startX - tickWidth - 2, y);
             }
-        }
+        },
+        handleWheelScroll(event) {
+            event.preventDefault();
 
+            const rect = this.canvas.getBoundingClientRect();
+            const relativeX = event.clientX - rect.left - this.leftPadding;
+            const contentWidth = this.canvas.width - this.leftPadding - this.rightPadding;
+
+            const ratio = relativeX / contentWidth;
+
+            //console.log("ratio" + ratio)
+
+            if (event.deltaY < 0) {
+                this.zoomIn(ratio);
+            } else {
+                this.zoomOut(ratio);
+            }
+        },
+        zoomIn(ratio) {
+            const range = this.viewEnd - this.viewStart;
+            const newRange = Math.max(10, Math.floor(range / this.zoomFactor));
+            let newStart;
+            let newEnd;
+
+            if (ratio < 0.05) {
+                // Maus befindet sich ganz links
+                newStart = this.viewStart;
+                newEnd = this.viewStart + newRange;
+            } else if (ratio > 0.95) {
+                // Maus befindet sich ganz rechts
+                newEnd = this.viewEnd;
+                newStart = this.viewEnd - newRange;
+            } else {
+                // normaler Zoom
+                const focus = this.viewStart + range * ratio;
+                newStart = Math.floor(focus - newRange * ratio);
+                newEnd = Math.floor(focus + newRange * (1 - ratio));
+            }
+
+            newStart = Math.max(0, newStart);
+            newEnd = Math.min(this.dataset.depth, newEnd);
+
+            if (newEnd - newStart < 10) return;
+            this.viewStart = newStart;
+            this.viewEnd = newEnd;
+            this.draw();
+        },
+        zoomOut(ratio) {
+            const range = this.viewEnd - this.viewStart;
+            const newRange = Math.min(this.dataset.depth, Math.ceil(range * this.zoomFactor));
+            let newStart;
+            let newEnd;
+
+            if (ratio < 0.05) {
+                // Maus befindet sich ganz links
+                newStart = this.viewStart;
+                newEnd = this.viewStart + newRange;
+            } else if (ratio > 0.95) {
+                // Maus befindet sich ganz rechts
+                newEnd = this.viewEnd;
+                newStart = this.viewEnd - newRange;
+            } else {
+                // normaler Zoom
+                const focus = this.viewStart + range * ratio;
+                newStart = Math.floor(focus - newRange * ratio);
+                newEnd = Math.floor(focus + newRange * (1 - ratio));
+            }
+
+            newStart = Math.max(0, newStart);
+            newEnd = Math.min(this.dataset.depth, newEnd);
+
+            this.viewStart = newStart;
+            this.viewEnd = newEnd;
+            this.draw();
+        }
     },
     watch: {
         canvasSize() {
@@ -200,6 +278,12 @@ export default {
             this.draw();
             this.$emit('hover', feature);
         },
+        dataset(data) {
+            if (data) {
+                this.viewStart = 0;
+                this.viewEnd = data.depth;
+            }
+        }
     },
     created() {
         this.pixelVector = new Uint8Array([]);
@@ -208,13 +292,16 @@ export default {
     mounted() {
         this.canvas = this.$refs.canvas;
         this.ctx = this.canvas.getContext('2d');
+
         window.addEventListener('resize', () => {
             this.$nextTick(this.updateCanvasSize)
         });
         this.$nextTick(this.updateCanvasSize);
         this.canvas.addEventListener('pointermove', this.updateHoveredFeature);
         this.canvas.addEventListener('pointerleave', this.resetHoveredFeature);
-        console.log('Channels:', this.dataset.channels);
+        this.canvas.addEventListener('wheel', this.handleWheelScroll);
+
+        //console.log('Channels:', this.dataset.channels);
     },
 };
 </script>
