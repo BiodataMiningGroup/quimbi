@@ -1,7 +1,6 @@
 <template>
     <div class="intensity-list">
         <div v-show="hasHoveredFeature" class="hovered-feature" :style="{left: (mouseX + 10) + 'px',top: (mouseY + 10) + 'px',position: 'absolute'}">
-            <div>Feature: {{ hoveredFeature }}</div>
             <div>m/z: {{ hoveredMZ }}</div>
             <div>Intensity: {{ hoveredIntensity }}</div>
         </div>
@@ -44,7 +43,8 @@ export default {
     },
     computed: {
         barWidth() {
-            return this.canvasSize[0] / (this.viewEnd - this.viewStart);
+            const drawWidth = this.canvasSize[0] - this.leftPadding - this.rightPadding;
+            return drawWidth / (this.viewEnd - this.viewStart);
         },
         hasHoveredFeature() {
             return this.hoveredFeature !== null;
@@ -67,7 +67,8 @@ export default {
             if (this.hoveredFeature !== null) {
                 // Bootstrap $gray-900.
                 this.ctx.fillStyle = '#212529';
-                this.ctx.fillRect(this.barWidth * this.hoveredFeature, 0, this.barWidth, this.canvas.height);
+                const x = this.leftPadding + this.barWidth * (this.hoveredFeature - this.viewStart);
+                this.ctx.fillRect(x, 0, this.barWidth, this.canvas.height);
             }
 
             this.drawWithoutReference();
@@ -98,7 +99,12 @@ export default {
                 let barHeight = height * vector[i] * this.yZoom;
                 barHeight = Math.min(barHeight, height);
                 let x = startX + i * barWidth;
-                let actualBarWidth = barWidth >= minBarWidth ? barWidth : minBarWidth;
+                let actualBarWidth;
+                if (barWidth >= minBarWidth) {
+                    actualBarWidth = barWidth;
+                } else {
+                    actualBarWidth = minBarWidth;
+                }
 
                 ctx.fillRect(x, startY + height - barHeight, actualBarWidth, barHeight);
             }
@@ -125,9 +131,10 @@ export default {
             }
 
             const ratio = xInContent / contentWidth;
-            this.hoveredFeature = Math.floor(this.dataset.depth * ratio);
-            this.hoveredMZ = this.dataset.channels[this.hoveredFeature]
-            this.hoveredIntensity = this.pixelVector[this.hoveredFeature];
+            const index = Math.floor(this.viewStart + ratio * (this.viewEnd - this.viewStart));
+            this.hoveredFeature = index;
+            this.hoveredMZ = this.dataset.channels[index];
+            this.hoveredIntensity = Number(this.pixelVector[index].toPrecision(2));
         },
         resetHoveredFeature() {
             this.hoveredFeature = null;
@@ -151,7 +158,7 @@ export default {
 
             for (let i = 0; i <= ticks; i++) {
                 const index = Math.round(viewStart + (i * (viewEnd - viewStart) / ticks));
-                const x = startX + i * width / ticks;
+                const x = startX + i * width / ticks + this.barWidth / 2;
 
                 // Tick
                 ctx.beginPath();
