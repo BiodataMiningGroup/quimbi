@@ -53,11 +53,13 @@ export default {
     methods: {
         updatePixelVector(pixelVector) {
             this.pixelVector = pixelVector;
+            this.updateYZoomToVisibleMax();
             this.draw();
         },
         updateReferencePixelVector(pixelVector) {
             this.referencePixelVector = pixelVector;
             this.hasReference = pixelVector.length > 0;
+            this.updateYZoomToVisibleMax();
             this.draw();
         },
         draw() {
@@ -226,7 +228,6 @@ export default {
                 } else {
                     this.yZoom /= this.yZoomFactor;
                 }
-                this.yZoom = Math.max(0.1, Math.min(this.yZoom, 10));
                 this.draw();
             } else {
                 // X-Achse zoomen
@@ -264,6 +265,7 @@ export default {
             if (newEnd - newStart < 10) return;
             this.viewStart = newStart;
             this.viewEnd = newEnd;
+            this.updateYZoomToVisibleMax();
             this.draw();
         },
         zoomOut(ratio) {
@@ -292,7 +294,18 @@ export default {
 
             this.viewStart = newStart;
             this.viewEnd = newEnd;
+            this.updateYZoomToVisibleMax();
             this.draw();
+        },
+        updateYZoomToVisibleMax() {
+            const visibleVector = this.pixelVector.slice(this.viewStart, this.viewEnd);
+            const maxValue = Math.max(...visibleVector);
+
+            if (maxValue > 0) {
+                this.yZoom = 1 / maxValue;
+            } else {
+                this.yZoom = 1;
+            }
         }
     },
     watch: {
@@ -317,6 +330,8 @@ export default {
     mounted() {
         this.canvas = this.$refs.canvas;
         this.ctx = this.canvas.getContext('2d');
+        this.viewStart = 0;
+        this.viewEnd = this.dataset.depth;
 
         window.addEventListener('resize', () => {
             this.$nextTick(this.updateCanvasSize)
