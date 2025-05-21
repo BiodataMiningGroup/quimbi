@@ -1,6 +1,6 @@
 <template>
     <div class="intensity-list">
-        <div v-show="hasHoveredFeature" class="hovered-feature" :style="{left: (mouseX + 10) + 'px',top: (mouseY + 10) + 'px',position: 'absolute'}">
+        <div v-show="hasHoveredFeature" class="hovered-feature" :style="{transform: `translate(${mouseX + 10}px, ${mouseY + 10}px)`, position: 'absolute'}">
             <div>m/z: {{ hoveredMZ }}</div>
             <div>Intensity: {{ hoveredIntensity }}</div>
         </div>
@@ -120,6 +120,14 @@ export default {
 
             this.mouseX = event.clientX - rect.left;
             this.mouseY = event.clientY - rect.top;
+
+            if (this.mouseX + 150 > this.canvasSize[0]) {
+                this.mouseX = this.mouseX - 230;
+            }
+
+            if (this.mouseY + 50 > this.canvasSize[1]) {
+                this.mouseY = this.mouseY - 50;
+            }
 
             const relativeX = event.clientX - rect.left;
             const contentWidth = event.target.width - this.leftPadding - this.rightPadding;
