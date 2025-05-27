@@ -1,6 +1,6 @@
 <template>
     <div class="intensity-list">
-        <div v-show="hasHoveredFeature" class="hovered-feature" :style="{transform: `translate(${mouseX + 10}px, ${mouseY + 10}px)`, position: 'absolute'}">
+        <div ref="tooltip" v-show="hasHoveredFeature" class="hovered-feature" :style="{transform: `translate(${mouseX}px, ${mouseY}px)`, position: 'absolute'}">
             <div>m/z: {{ hoveredMZ }}</div>
             <div>Intensity: {{ hoveredIntensity }}</div>
         </div>
@@ -53,24 +53,34 @@ export default {
     methods: {
         updatePixelVector(pixelVector) {
             this.pixelVector = pixelVector;
-            this.updateYZoomToVisibleMax();
+            //this.updateYZoomToVisibleMax();
+            this.resetZoom()
             this.draw();
         },
         updateReferencePixelVector(pixelVector) {
             this.referencePixelVector = pixelVector;
             this.hasReference = pixelVector.length > 0;
-            this.updateYZoomToVisibleMax();
+            //this.updateYZoomToVisibleMax();
+            this.resetZoom()
             this.draw();
         },
         draw() {
             this.canvas.height = this.canvasSize[1];
             this.canvas.width = this.canvasSize[0];
 
+            let minBarWidth = 1;
+            let actualBarWidth;
+            if (this.barWidth >= minBarWidth) {
+                actualBarWidth = this.barWidth;
+            } else {
+                actualBarWidth = minBarWidth;
+            }
+
             if (this.hoveredFeature !== null) {
                 // Bootstrap $gray-900.
                 this.ctx.fillStyle = '#212529';
                 const x = this.leftPadding + this.barWidth * (this.hoveredFeature - this.viewStart);
-                this.ctx.fillRect(x, 0, this.barWidth, this.canvas.height);
+                this.ctx.fillRect(x, 0, actualBarWidth, this.canvas.height);
             }
 
             this.drawWithoutReference();
@@ -99,8 +109,11 @@ export default {
 
             for (var i = 0; i < vector.length; i++) {
                 let barHeight = height * vector[i] * this.yZoom;
-                barHeight = Math.min(barHeight, height);
+                let actualHeight = Math.min(barHeight, height);
+
                 let x = startX + i * barWidth;
+                let y = startY + height - actualHeight;
+
                 let actualBarWidth;
                 if (barWidth >= minBarWidth) {
                     actualBarWidth = barWidth;
@@ -108,7 +121,15 @@ export default {
                     actualBarWidth = minBarWidth;
                 }
 
-                ctx.fillRect(x, startY + height - barHeight, actualBarWidth, barHeight);
+                ctx.fillRect(x, y, actualBarWidth, actualHeight);
+
+                // Kreis
+                if (barHeight > height) {
+                    ctx.beginPath();
+                    ctx.arc(x + actualBarWidth / 2, y - 10, 5, 0, 2 * Math.PI)
+                    ctx.fill();
+                    ctx.closePath();
+                }
             }
         },
         updateCanvasSize() {
@@ -118,15 +139,18 @@ export default {
             let rect = event.target.getBoundingClientRect();
             //this.hoveredFeature = Math.floor(this.dataset.depth * (event.clientX - rect.left) / event.target.width);
 
-            this.mouseX = event.clientX - rect.left;
-            this.mouseY = event.clientY - rect.top;
+            this.mouseX = event.clientX - rect.left + 10;
+            this.mouseY = event.clientY - rect.top + 10;
 
-            if (this.mouseX + 150 > this.canvasSize[0]) {
-                this.mouseX = this.mouseX - 230;
+            const tooltip = this.$refs.tooltip?.getBoundingClientRect();
+            const tooltipWidth = tooltip?.width;
+            const tooltipHeight = tooltip?.height;
+
+            if (this.mouseX + tooltipWidth > this.canvasSize[0]) {
+                this.mouseX = this.mouseX - tooltipWidth - 30;
             }
-
-            if (this.mouseY + 50 > this.canvasSize[1]) {
-                this.mouseY = this.mouseY - 50;
+            if (this.mouseY + tooltipHeight > this.canvasSize[1]) {
+                this.mouseY = this.mouseY - tooltipHeight - 20;
             }
 
             const relativeX = event.clientX - rect.left;
@@ -215,7 +239,8 @@ export default {
                 ctx.stroke();
 
                 //console.log(i + ". Y - label: " + label)
-                ctx.fillText(label.toFixed(2), startX - tickWidth - 2, y);
+                ctx.fillText(label.toPrecision(2), startX - tickWidth - 2, y);
+                //this.hoveredIntensity = Number(this.pixelVector[index].toPrecision(2));
             }
         },
         handleWheelScroll(event) {
@@ -235,6 +260,9 @@ export default {
                     this.yZoom *= this.yZoomFactor;
                 } else {
                     this.yZoom /= this.yZoomFactor;
+                }
+                if (this.yZoom < 1) {
+                    this.yZoom = 1;
                 }
                 this.draw();
             } else {
@@ -314,6 +342,12 @@ export default {
             } else {
                 this.yZoom = 1;
             }
+        },
+        resetZoom() {
+            this.yZoom = 1;
+            this.viewStart = 0;
+            this.viewEnd = this.dataset.depth;
+            this.draw()
         }
     },
     watch: {
