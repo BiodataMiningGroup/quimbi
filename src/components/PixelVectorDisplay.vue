@@ -39,6 +39,9 @@ export default {
             zoomFactor: 2,
             yZoom: 1,
             yZoomFactor: 1.1,
+            isDragging: false,
+            dragStartX: 0,
+            dragStartViewStart: 0,
         };
     },
     computed: {
@@ -348,6 +351,44 @@ export default {
             this.viewStart = 0;
             this.viewEnd = this.dataset.depth;
             this.draw()
+        },
+        handlePointerDown(event) {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left - this.leftPadding;
+            this.isDragging = true;
+            this.dragStartX = x;
+            this.dragStartViewStart = this.viewStart;
+        },
+        handlePointerUp() {
+            this.isDragging = false;
+        },
+        handlePointerDrag(event) {
+            if (!this.isDragging) return;
+
+            const rect = this.canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left - this.leftPadding;
+            const diffX = x - this.dragStartX;
+            const dataPerPixel = (this.viewEnd - this.viewStart) / (this.canvasSize[0] - this.leftPadding - this.rightPadding);
+            const moveData = Math.round(diffX * dataPerPixel);
+
+            console.log("moveData: ", moveData);
+
+            let newStart = this.dragStartViewStart - moveData;
+            let newEnd = newStart + (this.viewEnd - this.viewStart);
+
+            if (newStart < 0) {
+                newStart = 0;
+                newEnd = newStart + (this.viewEnd - this.viewStart);
+            }
+            if (newEnd > this.dataset.depth) {
+                newEnd = this.dataset.depth;
+                newStart = newEnd - (this.viewEnd - this.viewStart);
+                newStart = Math.max(0, newStart);
+            }
+
+            this.viewStart = newStart;
+            this.viewEnd = newEnd;
+            this.draw();
         }
     },
     watch: {
@@ -383,7 +424,10 @@ export default {
         this.canvas.addEventListener('pointerleave', this.resetHoveredFeature);
         this.canvas.addEventListener('wheel', this.handleWheelScroll);
 
-        //console.log('Channels:', this.dataset.channels);
+        this.canvas.addEventListener('pointerdown', this.handlePointerDown);
+        this.canvas.addEventListener('pointermove', this.handlePointerDrag);
+        this.canvas.addEventListener('pointerup', this.handlePointerUp);
+        this.canvas.addEventListener('pointerleave', this.handlePointerUp);
     },
 };
 </script>
