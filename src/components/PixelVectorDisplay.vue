@@ -30,8 +30,8 @@ export default {
             hoveredIntensity: null,
             xAxisHeight : 20,
             yAxisHeight : 20,
-            leftPadding : 30,
-            rightPadding : 15,
+            leftPadding : 55,
+            rightPadding : 25,
             mouseX: 0,
             mouseY: 0,
             viewStart: null,
@@ -56,14 +56,15 @@ export default {
     methods: {
         updatePixelVector(pixelVector) {
             this.pixelVector = pixelVector;
-            //this.updateYZoomToVisibleMax();
+            this.updateYZoomToMax();
+
             this.resetZoom()
             this.draw();
         },
         updateReferencePixelVector(pixelVector) {
             this.referencePixelVector = pixelVector;
             this.hasReference = pixelVector.length > 0;
-            //this.updateYZoomToVisibleMax();
+            this.updateYZoomToMax();
             this.resetZoom()
             this.draw();
         },
@@ -346,6 +347,15 @@ export default {
                 this.yZoom = 1;
             }
         },
+        updateYZoomToMax() {
+            const maxValue = Math.max(...this.pixelVector);
+
+            if (maxValue > 0) {
+                this.yZoom = 1 / maxValue;
+            } else {
+                this.yZoom = 1;
+            }
+        },
         resetZoom() {
             this.yZoom = 1;
             this.viewStart = 0;
@@ -388,6 +398,7 @@ export default {
 
             this.viewStart = newStart;
             this.viewEnd = newEnd;
+            //this.updateYZoomToVisibleMax()
             this.draw();
         }
     },
