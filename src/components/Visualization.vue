@@ -5,9 +5,27 @@
         <LoadingIndicator v-else :size="120" :progress="loaded"></LoadingIndicator>
     </div>
     <ColorScale v-show="ready" ref="colorScale"></ColorScale>
-    <button class="select-area-btn" @click="toggleAreaSelection">
-        {{ polygonMode ? 'Auswahl abbrechen' : 'Bereich auswählen' }}
-    </button>
+    <div class="area-actions">
+        <button class="area-action-btn" @click="toggleAreaSelection">
+            {{ polygonMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 2D' }}
+        </button>
+        <button class="area-action-btn" @click="toggleSpectrumAreaSelection">
+            {{ spectrumMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 1D' }}
+        </button>
+    </div>
+    <div class="area-list" v-if="areas.length">
+        <div
+            v-for="(area, index) in areas"
+            :key="index"
+            class="area-item"
+        >
+            <span>{{ area.name }}</span>
+            <button @click="toggleArea(index)">
+                {{ area.active ? 'Deaktivieren' : 'Aktivieren' }}
+            </button>
+            <button @click="deleteArea(index)">Löschen</button>
+        </div>
+    </div>
 </div>
 </template>
 
@@ -62,6 +80,13 @@ export default {
             polygonSource: null,
             polygonLayer: null,
             drawInteraction: null,
+            areas: [
+                { name: 'Bereich 1', active: true },
+                { name: 'Bereich 2', active: true },
+                { name: 'Bereich 3', active: true },
+                { name: 'Bereich 4', active: true },
+            ],
+            spectrumMode: false,
         };
     },
     computed: {
@@ -406,6 +431,15 @@ export default {
 
             console.log('Bereichsauswahl abgebrochen');
         },
+        toggleArea(index) {
+            this.areas[index].active = !this.areas[index].active;
+        },
+        deleteArea(index) {
+            this.areas.splice(index, 1);
+        },
+        toggleSpectrumAreaSelection() {
+            this.spectrumMode = !this.spectrumMode;
+        },
 
     },
     watch: {
@@ -449,11 +483,18 @@ export default {
         z-index: 1;
     }
 
-    .select-area-btn {
+    .area-actions {
         position: absolute;
         top: 5em;
         left: 1em;
         z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+
+    .area-action-btn {
+        width: 282px;
         padding: 0.5em 1em;
         font-weight: bold;
         background: #6a00ff;
@@ -462,7 +503,28 @@ export default {
         border-radius: 5px;
         cursor: pointer;
     }
-
+    .area-list {
+        position: absolute;
+        top: 12em;
+        left: 1em;
+        background: rgba(255, 255, 255, 1);
+        padding: 0.5em;
+        border-radius: 5px;
+        z-index: 2;
+        max-width: 300px;
+    }
+    .area-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1em;
+        gap: 0.5em;
+        font-size: 1em;
+    }
+    .area-item button {
+        font-size: 1em;
+        padding: 0.2em 0.5em;
+    }
 
 }
 </style>
