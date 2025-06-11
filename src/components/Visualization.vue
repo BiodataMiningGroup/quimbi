@@ -5,6 +5,9 @@
         <LoadingIndicator v-else :size="120" :progress="loaded"></LoadingIndicator>
     </div>
     <ColorScale v-show="ready" ref="colorScale"></ColorScale>
+    <button class="select-area-btn" @click="toggleAreaSelection">
+        {{ polygonMode ? 'Auswahl abbrechen' : 'Bereich auswählen' }}
+    </button>
 </div>
 </template>
 
@@ -34,6 +37,7 @@ import WebglHandler from '../webgl/Handler';
 import {BlobWriter} from "@zip.js/zip.js";
 import {containsCoordinate} from 'ol/extent';
 import {Map, View} from 'ol';
+import Draw from 'ol/interaction/Draw';
 
 export default {
     props: {
@@ -54,6 +58,10 @@ export default {
             error: null,
             overlayGrayscale: true,
             frozen: false,
+            polygonMode: false,
+            polygonSource: null,
+            polygonLayer: null,
+            drawInteraction: null,
         };
     },
     computed: {
@@ -162,7 +170,6 @@ export default {
                     projection: projection,
                 }),
             });
-
 
             if (this.hasOverlay) {
                 let slider = new OpacitySlider({
@@ -356,6 +363,50 @@ export default {
             this.frozen = false;
             this.map.on('pointermove', this.updateMousePosition);
         },
+        toggleAreaSelection() {
+            if (this.polygonMode) {
+                this.cancelAreaSelection();
+            } else {
+                this.startAreaSelection();
+            }
+        },
+        startAreaSelection() {
+            this.polygonMode = true;
+            this.map.un('click', this.updateMarkerPosition);
+
+            this.polygonSource = new VectorSource();
+
+            this.polygonLayer = new VectorLayer({
+                source: this.polygonSource,
+            });
+            this.map.addLayer(this.polygonLayer);
+
+            this.drawInteraction = new Draw({
+                source: this.polygonSource,
+                type: 'Polygon',
+            });
+            this.drawInteraction.setActive(true);
+            this.map.addInteraction(this.drawInteraction);
+
+
+
+            this.drawInteraction.on('drawstart', () => {
+                console.log('Polygon zeichnen gestartet');
+            });
+            this.drawInteraction.on('drawend', (event) => {
+                console.log('Polygon fertig:', event.feature);
+            });
+
+            console.log('Bereichsauswahl gestartet');
+            console.log('Layers: ', this.map.getLayers().getArray());
+        },
+        cancelAreaSelection() {
+            this.polygonMode = false;
+            this.map.on('click', this.updateMarkerPosition);
+
+            console.log('Bereichsauswahl abgebrochen');
+        },
+
     },
     watch: {
         overlayGrayscale() {
@@ -397,5 +448,21 @@ export default {
         right: 1em;
         z-index: 1;
     }
+
+    .select-area-btn {
+        position: absolute;
+        top: 5em;
+        left: 1em;
+        z-index: 2;
+        padding: 0.5em 1em;
+        font-weight: bold;
+        background: #6a00ff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+
 }
 </style>
