@@ -48,6 +48,7 @@
                 ref="pixelVectorDisplay"
                 v-bind:dataset="dataset"
                 v-on:hover="updateHoveredFeature"
+                @select-mz="handleSpectrumPointSelect"
             ></PixelVectorDisplay>
         </div>
     </div>
@@ -203,6 +204,9 @@ export default {
                 this.$refs.visualization.unfreeze();
             }
         },
+        handleSpectrumPointSelect(payload) {
+            this.$refs.visualization.handleSpectrumClick(payload);
+        }
     },
     mounted() {
         this.$refs.initModal.showModal();

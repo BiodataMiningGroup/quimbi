@@ -83,10 +83,10 @@ export default {
             areas: [
                 { name: 'Bereich 1', active: true },
                 { name: 'Bereich 2', active: true },
-                { name: 'Bereich 3', active: true },
-                { name: 'Bereich 4', active: true },
             ],
             spectrumMode: false,
+            spectrumStartPoint: null,
+            spectrumEndPoint: null,
         };
     },
     computed: {
@@ -439,6 +439,33 @@ export default {
         },
         toggleSpectrumAreaSelection() {
             this.spectrumMode = !this.spectrumMode;
+
+            if (!this.spectrumMode) {
+                this.spectrumStartPoint = null;
+                this.spectrumEndPoint = null;
+            }
+        },
+        handleSpectrumClick(feature) {
+            if (!this.spectrumMode) return;
+
+            if (this.spectrumStartPoint === null) {
+                this.spectrumStartPoint = feature.index;
+                console.log('Startpunkt gesetzt:', this.spectrumStartPoint);
+            } else {
+                this.spectrumEndPoint = feature.index;
+                console.log('Endpunkt gesetzt:', this.spectrumStartPoint);
+
+                const start = Math.min(this.spectrumStartPoint, this.spectrumEndPoint);
+                const end = Math.max(this.spectrumStartPoint, this.spectrumEndPoint);
+
+                this.areas.push({
+                    name: `1D Bereich ${start} - ${end}`,
+                    active: true,
+                });
+
+                this.spectrumStartPoint = null;
+                this.spectrumEndPoint = null;
+            }
         },
 
     },

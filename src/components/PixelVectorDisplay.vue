@@ -400,6 +400,15 @@ export default {
             this.viewEnd = newEnd;
             //this.updateYZoomToVisibleMax()
             this.draw();
+        },
+        handleClick(event) {
+            if (this.hoveredFeature !== null) {
+                this.$emit('select-mz', {
+                    index: this.hoveredFeature,
+                    mz: this.hoveredMZ,
+                    intensity: this.hoveredIntensity
+                });
+            }
         }
     },
     watch: {
@@ -439,6 +448,8 @@ export default {
         this.canvas.addEventListener('pointermove', this.handlePointerDrag);
         this.canvas.addEventListener('pointerup', this.handlePointerUp);
         this.canvas.addEventListener('pointerleave', this.handlePointerUp);
+
+        this.canvas.addEventListener('click', this.handleClick);
     },
 };
 </script>
