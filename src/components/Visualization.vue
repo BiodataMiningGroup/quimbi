@@ -458,10 +458,14 @@ export default {
                 const start = Math.min(this.spectrumStartPoint, this.spectrumEndPoint);
                 const end = Math.max(this.spectrumStartPoint, this.spectrumEndPoint);
 
-                this.areas.push({
+                const newArea = {
                     name: `1D Bereich ${start} - ${end}`,
                     active: true,
-                });
+                    start: this.spectrumStartPoint,
+                    end: this.spectrumEndPoint
+                };
+                this.areas.push(newArea);
+                this.$emit('area-added', newArea);
 
                 this.spectrumStartPoint = null;
                 this.spectrumEndPoint = null;

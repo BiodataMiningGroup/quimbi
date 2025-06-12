@@ -42,6 +42,7 @@ export default {
             isDragging: false,
             dragStartX: 0,
             dragStartViewStart: 0,
+            activeAreas: [],
         };
     },
     computed: {
@@ -88,6 +89,7 @@ export default {
             }
 
             this.drawWithoutReference();
+            this.drawActiveAreas();
         },
         drawWithoutReference() {
             this.ctx.fillStyle = 'white';
@@ -409,6 +411,33 @@ export default {
                     intensity: this.hoveredIntensity
                 });
             }
+        },
+        handleNewArea(newArea) {
+            console.log('Neue Area empfangen:', newArea);
+            this.activeAreas.push(newArea);
+            console.log('Alle Areas: ', this.activeAreas);
+            this.draw();
+        },
+        drawActiveAreas() {
+            if (!this.activeAreas || this.activeAreas.length === 0) return;
+
+            this.ctx.fillStyle = 'rgba(106, 0, 255, 0.2)';
+            const startX = this.leftPadding;
+            const totalWidth = this.canvas.width - this.leftPadding - this.rightPadding;
+
+            this.activeAreas.forEach(area => {
+                const clippedStart = Math.max(area.start, this.viewStart);
+                const clippedEnd = Math.min(area.end, this.viewEnd);
+
+                const startRatio = (clippedStart - this.viewStart) / (this.viewEnd - this.viewStart);
+                const endRatio = (clippedEnd - this.viewStart) / (this.viewEnd - this.viewStart);
+                const xStart = startX + startRatio * totalWidth;
+                const xEnd = startX + endRatio * totalWidth;
+                const width = xEnd - xStart;
+                const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
+
+                this.ctx.fillRect(xStart, this.yAxisHeight, width, height);
+            });
         }
     },
     watch: {
