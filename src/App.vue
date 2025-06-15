@@ -41,7 +41,7 @@
                 v-on:hover="updateHoverPixelVector"
                 v-on:select="updateSelectPixelVector"
                 @freeze="onFreeze"
-                @area-added="handleAreaAdded"
+                @areas-changed="handleAreasChanged"
             ></Visualization>
         </div>
         <div class="main-aside">
@@ -208,8 +208,8 @@ export default {
         handleSpectrumPointSelect(payload) {
             this.$refs.visualization.handleSpectrumClick(payload);
         },
-        handleAreaAdded(area) {
-            this.$refs.pixelVectorDisplay.handleNewArea(area);
+        handleAreasChanged(areas) {
+            this.$refs.pixelVectorDisplay.handleNewArea(areas);
         },
     },
     mounted() {

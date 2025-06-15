@@ -412,16 +412,20 @@ export default {
                 });
             }
         },
-        handleNewArea(newArea) {
-            console.log('Neue Area empfangen:', newArea);
-            this.activeAreas.push(newArea);
-            console.log('Alle Areas: ', this.activeAreas);
+        handleNewArea(newAreas) {
+            this.activeAreas = [];
+            newAreas.forEach(area => {
+                if (area.active) {
+                    this.activeAreas.push(area);
+                }
+            });
+            console.log('Aktive Areas:', this.activeAreas);
             this.draw();
         },
         drawActiveAreas() {
             if (!this.activeAreas || this.activeAreas.length === 0) return;
 
-            this.ctx.fillStyle = 'rgba(106, 0, 255, 0.2)';
+            this.ctx.fillStyle = 'rgba(106, 0, 255, 0.3)';
             const startX = this.leftPadding;
             const totalWidth = this.canvas.width - this.leftPadding - this.rightPadding;
 
@@ -429,14 +433,17 @@ export default {
                 const clippedStart = Math.max(area.start, this.viewStart);
                 const clippedEnd = Math.min(area.end, this.viewEnd);
 
-                const startRatio = (clippedStart - this.viewStart) / (this.viewEnd - this.viewStart);
-                const endRatio = (clippedEnd - this.viewStart) / (this.viewEnd - this.viewStart);
-                const xStart = startX + startRatio * totalWidth;
-                const xEnd = startX + endRatio * totalWidth;
-                const width = xEnd - xStart;
-                const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
 
-                this.ctx.fillRect(xStart, this.yAxisHeight, width, height);
+                if(clippedStart < clippedEnd) {
+                    const startRatio = (clippedStart - this.viewStart) / (this.viewEnd - this.viewStart);
+                    const endRatio = (clippedEnd - this.viewStart) / (this.viewEnd - this.viewStart);
+                    const xStart = startX + startRatio * totalWidth;
+                    const xEnd = startX + endRatio * totalWidth;
+                    const width = xEnd - xStart;
+                    const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
+
+                    this.ctx.fillRect(xStart, this.yAxisHeight, width, height);
+                }
             });
         }
     },

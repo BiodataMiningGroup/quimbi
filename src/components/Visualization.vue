@@ -80,13 +80,11 @@ export default {
             polygonSource: null,
             polygonLayer: null,
             drawInteraction: null,
-            areas: [
-                { name: 'Bereich 1', active: true },
-                { name: 'Bereich 2', active: true },
-            ],
+            areas: [],
             spectrumMode: false,
             spectrumStartPoint: null,
             spectrumEndPoint: null,
+            spectrumAreaCounter: 0,
         };
     },
     computed: {
@@ -433,9 +431,11 @@ export default {
         },
         toggleArea(index) {
             this.areas[index].active = !this.areas[index].active;
+            this.$emit('areas-changed', this.areas);
         },
         deleteArea(index) {
             this.areas.splice(index, 1);
+            this.$emit('areas-changed', this.areas);
         },
         toggleSpectrumAreaSelection() {
             this.spectrumMode = !this.spectrumMode;
@@ -457,15 +457,16 @@ export default {
 
                 const start = Math.min(this.spectrumStartPoint, this.spectrumEndPoint);
                 const end = Math.max(this.spectrumStartPoint, this.spectrumEndPoint);
+                this.spectrumAreaCounter = this.spectrumAreaCounter + 1;
 
                 const newArea = {
-                    name: `1D Bereich ${start} - ${end}`,
+                    name: `1D Bereich - ${this.spectrumAreaCounter}`,
                     active: true,
-                    start: this.spectrumStartPoint,
-                    end: this.spectrumEndPoint
+                    start: start,
+                    end: end
                 };
                 this.areas.push(newArea);
-                this.$emit('area-added', newArea);
+                this.$emit('areas-changed', this.areas);
 
                 this.spectrumStartPoint = null;
                 this.spectrumEndPoint = null;
@@ -525,7 +526,7 @@ export default {
     }
 
     .area-action-btn {
-        width: 282px;
+        width: 320px;
         padding: 0.5em 1em;
         font-weight: bold;
         background: #6a00ff;
@@ -542,7 +543,7 @@ export default {
         padding: 0.5em;
         border-radius: 5px;
         z-index: 2;
-        max-width: 300px;
+        max-width: 400px;
     }
     .area-item {
         display: flex;
