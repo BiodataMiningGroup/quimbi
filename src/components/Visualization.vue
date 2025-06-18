@@ -56,6 +56,8 @@ import {BlobWriter} from "@zip.js/zip.js";
 import {containsCoordinate} from 'ol/extent';
 import {Map, View} from 'ol';
 import Draw from 'ol/interaction/Draw';
+import {Stroke} from "ol/style.js";
+import {Polygon} from "ol/geom.js";
 
 export default {
     props: {
@@ -85,6 +87,8 @@ export default {
             spectrumStartPoint: null,
             spectrumEndPoint: null,
             spectrumAreaCounter: 0,
+            polygonCoords: [],
+            clickListener: null,
         };
     },
     computed: {
@@ -186,13 +190,29 @@ export default {
                 ],
             });
 
+            // POLYGON
+            this.polygonSource = new VectorSource();
+            this.polygonLayer = new VectorLayer({
+                visible: true,
+                source: this.polygonSource,
+                style: new Style({
+                    stroke: new Stroke({
+                        color: 'rgb(0,255,255)',
+                        width: 4,
+                    }),
+                    fill: null,
+                }),
+            });
+
+
             this.map = new Map({
                 target: this.$refs.map,
-                layers: [this.imageLayer, this.markerLayer],
+                layers: [this.imageLayer, this.markerLayer, this.polygonLayer],
                 view: new View({
                     projection: projection,
                 }),
             });
+
 
             if (this.hasOverlay) {
                 let slider = new OpacitySlider({
@@ -378,6 +398,7 @@ export default {
                 this.error = new Error(`The dataset could not be loaded. ${e.message}`);
             }
         },
+
         freeze() {
             this.frozen = true;
             this.map.un('pointermove', this.updateMousePosition);
@@ -386,6 +407,7 @@ export default {
             this.frozen = false;
             this.map.on('pointermove', this.updateMousePosition);
         },
+
         toggleAreaSelection() {
             if (this.polygonMode) {
                 this.cancelAreaSelection();
@@ -396,39 +418,52 @@ export default {
         startAreaSelection() {
             this.polygonMode = true;
             this.map.un('click', this.updateMarkerPosition);
+            this.polygonCoords = [];
 
-            this.polygonSource = new VectorSource();
-
-            this.polygonLayer = new VectorLayer({
-                source: this.polygonSource,
-            });
-            this.map.addLayer(this.polygonLayer);
-
-            this.drawInteraction = new Draw({
-                source: this.polygonSource,
-                type: 'Polygon',
-            });
-            this.drawInteraction.setActive(true);
-            this.map.addInteraction(this.drawInteraction);
-
-
-
-            this.drawInteraction.on('drawstart', () => {
-                console.log('Polygon zeichnen gestartet');
-            });
-            this.drawInteraction.on('drawend', (event) => {
-                console.log('Polygon fertig:', event.feature);
-            });
-
-            console.log('Bereichsauswahl gestartet');
-            console.log('Layers: ', this.map.getLayers().getArray());
+            this.clickListener = this.handlePolygonClick;
+            this.map.on('click', this.clickListener);
         },
         cancelAreaSelection() {
             this.polygonMode = false;
+            if (this.clickListener) {
+                this.map.un('click', this.clickListener);
+                this.clickListener = null;
+            }
+            this.polygonCoords = [];
             this.map.on('click', this.updateMarkerPosition);
 
+            // log
             console.log('Bereichsauswahl abgebrochen');
+            const features = this.polygonSource.getFeatures();
+            console.log('features: ', features);
+
+            features.forEach((feature, index) => {
+                const coords = feature.getGeometry().getCoordinates();
+                console.log(`Polygon ${index}:`, coords);
+            });
         },
+        handlePolygonClick(event) {
+            const coord = event.coordinate;
+
+            if (this.polygonCoords.length > 2) {
+                const first = this.polygonCoords[0];
+                const dx = first[0] - coord[0];
+                const dy = first[1] - coord[1];
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 5) {
+                    const polygon = new Polygon([[...this.polygonCoords, first]]);
+                    const feature = new Feature(polygon);
+                    this.polygonSource.addFeature(feature);
+
+                    this.cancelAreaSelection();
+                    return;
+                }
+            }
+
+            this.polygonCoords.push(coord);
+        },
+
         toggleArea(index) {
             this.areas[index].active = !this.areas[index].active;
             this.$emit('areas-changed', this.areas);
@@ -437,6 +472,7 @@ export default {
             this.areas.splice(index, 1);
             this.$emit('areas-changed', this.areas);
         },
+
         toggleSpectrumAreaSelection() {
             this.spectrumMode = !this.spectrumMode;
 
@@ -557,6 +593,5 @@ export default {
         font-size: 1em;
         padding: 0.2em 0.5em;
     }
-
 }
 </style>
