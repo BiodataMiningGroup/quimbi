@@ -41,7 +41,7 @@
                 v-on:hover="updateHoverPixelVector"
                 v-on:select="updateSelectPixelVector"
                 @freeze="onFreeze"
-                @areas-changed="handleAreasChanged"
+                @spectrum-areas-changed="handleAreasChanged"
             ></Visualization>
         </div>
         <div class="main-aside">

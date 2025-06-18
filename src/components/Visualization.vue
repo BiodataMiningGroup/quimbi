@@ -1,32 +1,42 @@
 <template>
-<div class="visualization" ref="map">
-    <div v-if="!ready" class="loading-overlay">
-        <div v-if="error" class="alert alert-danger" v-text="errorMessage"></div>
-        <LoadingIndicator v-else :size="120" :progress="loaded"></LoadingIndicator>
-    </div>
-    <ColorScale v-show="ready" ref="colorScale"></ColorScale>
-    <div class="area-actions">
-        <button class="area-action-btn" @click="toggleAreaSelection">
-            {{ polygonMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 2D' }}
-        </button>
-        <button class="area-action-btn" @click="toggleSpectrumAreaSelection">
-            {{ spectrumMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 1D' }}
-        </button>
-    </div>
-    <div class="area-list" v-if="areas.length">
-        <div
-            v-for="(area, index) in areas"
-            :key="index"
-            class="area-item"
-        >
-            <span>{{ area.name }}</span>
-            <button @click="toggleArea(index)">
-                {{ area.active ? 'Deaktivieren' : 'Aktivieren' }}
+    <div class="visualization" ref="map">
+        <div v-if="!ready" class="loading-overlay">
+            <div v-if="error" class="alert alert-danger" v-text="errorMessage"></div>
+            <LoadingIndicator v-else :size="120" :progress="loaded"></LoadingIndicator>
+        </div>
+        <ColorScale v-show="ready" ref="colorScale"></ColorScale>
+        <div class="area-actions">
+            <button class="area-action-btn" @click="toggleAreaSelection">
+                {{ polygonMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 2D' }}
             </button>
-            <button @click="deleteArea(index)">Löschen</button>
+            <button class="area-action-btn" @click="toggleSpectrumAreaSelection">
+                {{ spectrumMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 1D' }}
+            </button>
+        </div>
+        <div class="area-lists">
+            <div class="area-list" v-if="polygonAreas.length">
+                <h4>2D Bereiche</h4>
+                <div v-for="(area, index) in polygonAreas" :key="'poly-' + index" class="area-item">
+                    <span>{{ area.name }}</span>
+                    <button @click="togglePolygonArea(index)">
+                        {{ area.active ? 'Deaktivieren' : 'Aktivieren' }}
+                    </button>
+                    <button @click="deletePolygonArea(index)">Löschen</button>
+                </div>
+            </div>
+
+            <div class="area-list" v-if="spectrumAreas.length">
+                <h4>1D Bereiche</h4>
+                <div v-for="(area, index) in spectrumAreas" :key="'spec-' + index" class="area-item">
+                    <span>{{ area.name }}</span>
+                    <button @click="toggleSpectrumArea(index)">
+                        {{ area.active ? 'Deaktivieren' : 'Aktivieren' }}
+                    </button>
+                    <button @click="deleteSpectrumArea(index)">Löschen</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 </template>
 
 <script>
@@ -82,7 +92,8 @@ export default {
             polygonSource: null,
             polygonLayer: null,
             drawInteraction: null,
-            areas: [],
+            polygonAreas: [],
+            spectrumAreas: [],
             spectrumMode: false,
             spectrumStartPoint: null,
             spectrumEndPoint: null,
@@ -456,6 +467,12 @@ export default {
                     const feature = new Feature(polygon);
                     this.polygonSource.addFeature(feature);
 
+                    this.polygonAreas.push({
+                        name: `2D Bereich - ${this.polygonAreas.length + 1}`,
+                        active: true,
+                        feature: feature,
+                    });
+
                     this.cancelAreaSelection();
                     return;
                 }
@@ -463,16 +480,25 @@ export default {
 
             this.polygonCoords.push(coord);
         },
-
-        toggleArea(index) {
-            this.areas[index].active = !this.areas[index].active;
-            this.$emit('areas-changed', this.areas);
+        togglePolygonArea(index) {
+            this.polygonAreas[index].active = !this.polygonAreas[index].active;
+            //TODO
         },
-        deleteArea(index) {
-            this.areas.splice(index, 1);
-            this.$emit('areas-changed', this.areas);
+        deletePolygonArea(index) {
+            const feature = this.polygonAreas[index].feature;
+            if (feature) this.polygonSource.removeFeature(feature);
+            this.polygonAreas.splice(index, 1);
         },
 
+
+        toggleSpectrumArea(index) {
+            this.spectrumAreas[index].active = !this.spectrumAreas[index].active;
+            this.$emit('spectrum-areas-changed', this.spectrumAreas);
+        },
+        deleteSpectrumArea(index) {
+            this.spectrumAreas.splice(index, 1);
+            this.$emit('spectrum-areas-changed', this.spectrumAreas);
+        },
         toggleSpectrumAreaSelection() {
             this.spectrumMode = !this.spectrumMode;
 
@@ -501,11 +527,12 @@ export default {
                     start: start,
                     end: end
                 };
-                this.areas.push(newArea);
-                this.$emit('areas-changed', this.areas);
+                this.spectrumAreas.push(newArea);
+                this.$emit('spectrum-areas-changed', this.spectrumAreas);
 
                 this.spectrumStartPoint = null;
                 this.spectrumEndPoint = null;
+                this.spectrumMode = false;
             }
         },
 
@@ -571,15 +598,22 @@ export default {
         border-radius: 5px;
         cursor: pointer;
     }
-    .area-list {
+    .area-lists {
         position: absolute;
         top: 12em;
         left: 1em;
+        z-index: 2;
+        max-width: 400px;
         background: rgba(255, 255, 255, 1);
         padding: 0.5em;
         border-radius: 5px;
-        z-index: 2;
-        max-width: 400px;
+    }
+    .area-list {
+        margin-bottom: 1em;
+    }
+    .area-list h4 {
+        margin-bottom: 0.5em;
+        font-weight: bold;
     }
     .area-item {
         display: flex;
