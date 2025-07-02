@@ -65,7 +65,6 @@ import WebglHandler from '../webgl/Handler';
 import {BlobWriter} from "@zip.js/zip.js";
 import {containsCoordinate} from 'ol/extent';
 import {Map, View} from 'ol';
-import Draw from 'ol/interaction/Draw';
 import {Stroke} from "ol/style.js";
 import {Polygon} from "ol/geom.js";
 
@@ -331,11 +330,18 @@ export default {
             if (containsCoordinate(this.extent, event.coordinate)) {
                 let oldPosition = this.similarityProgram.getMousePosition();
                 let newPosition = event.coordinate.map(Math.floor);
-                this.similarityProgram.setMousePosition(newPosition);
-                this.pixelVectorProgram.setMousePosition(newPosition);
-                if (oldPosition[0] !== newPosition[0] || oldPosition[1] !== newPosition[1]) {
+                let inside = this.checkCoorInPolygons(newPosition);
+
+                if (!inside) {
+                    this.similarityProgram.setMousePosition([-1, -1]);
                     this.renderSimilarity();
-                    this.renderPixelVector().then(this.emitHover);
+                } else {
+                    this.similarityProgram.setMousePosition(newPosition);
+                    this.pixelVectorProgram.setMousePosition(newPosition);
+                    if (oldPosition[0] !== newPosition[0] || oldPosition[1] !== newPosition[1]) {
+                        this.renderSimilarity();
+                        this.renderPixelVector().then(this.emitHover);
+                    }
                 }
             }
         },
@@ -393,6 +399,7 @@ export default {
                 this.initializePrograms();
 
                 this.fetchImages()
+                    .then(() => this.updateMask())
                     .then(this.renderSimilarity)
                     .then(this.setReady)
                     .then(() => {
@@ -474,6 +481,7 @@ export default {
                     });
 
                     this.cancelAreaSelection();
+                    this.updateMask();
                     return;
                 }
             }
@@ -482,12 +490,13 @@ export default {
         },
         togglePolygonArea(index) {
             this.polygonAreas[index].active = !this.polygonAreas[index].active;
-            //TODO
+            this.updateMask()
         },
         deletePolygonArea(index) {
             const feature = this.polygonAreas[index].feature;
             if (feature) this.polygonSource.removeFeature(feature);
             this.polygonAreas.splice(index, 1);
+            this.updateMask()
         },
 
 
@@ -535,7 +544,68 @@ export default {
                 this.spectrumMode = false;
             }
         },
+        getActivePolygons() {
+            const polygons = [];
+            for (let i = 0; i < this.polygonAreas.length; i++) {
+                const area = this.polygonAreas[i];
+                if (area.active) {
+                    polygons.push(area.feature);
+                }
+            }
+            return polygons;
+        },
+        checkCoorInPolygons(point) {
+            const polygons = this.getActivePolygons();
 
+            if (!(polygons.length === 0)) {
+                for (const feature of polygons) {
+                    const geom = feature.getGeometry();
+                    if (geom.intersectsCoordinate(point)) {
+                        return true;
+                    }
+                }
+            } else {
+                return true;
+            }
+            return false;
+        },
+        async generateMaskTexture() {
+            const width = this.dataset.width;
+            const height = this.dataset.height;
+            const maskData = new Uint8Array(width * height * 4);
+            const polygons = this.getActivePolygons();
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    let inside = polygons.length === 0;
+                    const point = [x, y];
+                    inside = this.checkCoorInPolygons(point);
+
+                    if (inside) {
+                        maskData[idx] = 255;
+                        maskData[idx + 1] = 255;
+                        maskData[idx + 2] = 255;
+                        maskData[idx + 3] = 255;
+                    } else {
+                        maskData[idx] = 0;
+                        maskData[idx + 1] = 0;
+                        maskData[idx + 2] = 0;
+                        maskData[idx + 3] = 255;
+                    }
+                }
+            }
+            return maskData;
+        },
+        async updateMask() {
+            const maskData = await this.generateMaskTexture();
+            const gl = this.handler.getGl();
+            const maskTexture = this.handler.getTexture('mask');
+
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, maskTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.dataset.width, this.dataset.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, maskData);
+        },
     },
     watch: {
         overlayGrayscale() {

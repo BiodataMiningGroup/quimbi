@@ -18,11 +18,15 @@ export default class Similarity extends IntensityProgram {
         gl.uniform1f(normalization, 1 / MAX_DISTANCE);
 
         this.mousePositionPointer = gl.getUniformLocation(pointer, 'u_mouse_position');
+        this.maskPointer = gl.getUniformLocation(pointer, 'u_mask');
     }
 
     beforeRender(gl, handler) {
         super.beforeRender(gl, handler);
         gl.uniform2f(this.mousePositionPointer, this.mousePosition[0], this.mousePosition[1]);
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, handler.getTexture('mask'));
+        gl.uniform1i(this.maskPointer, 2);
     }
 
     afterRender(gl, handler) {

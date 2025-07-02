@@ -8,6 +8,7 @@ in vec2 v_texture_position;
 
 uniform vec2 u_mouse_position;
 uniform float u_normalization;
+uniform sampler2D u_mask;
 
 out vec4 outColor;
 
@@ -18,6 +19,13 @@ const vec4 ZEROS = vec4(0);
 <%=CONVERT_UVEC=%>
 
 void main() {
+    // skip masked-out pixels by setting outColor to -1.0.
+    vec4 maskPixel = texture(u_mask, v_texture_position);
+    if (maskPixel.r < 0.5) {
+        outColor = vec4(-1.0);
+        return;
+    }
+
     // angle between the two vectors
     // <A,B> = ||A|| * ||B|| * cos(angle)
     // => angle = acos(<A,B>/(||A||*||B||))
