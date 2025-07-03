@@ -44,8 +44,8 @@ export default class IntensityProgram extends Program {
         for (let i = 0; i < this.intensities.length; i += 4) {
             let value = this.intensities[i];
             if (value < 0) continue;
-            this.intensityStats.max = Math.max(val, this.intensityStats.max);
-            this.intensityStats.min = Math.min(val, this.intensityStats.min);
+            this.intensityStats.max = Math.max(value, this.intensityStats.max);
+            this.intensityStats.min = Math.min(value, this.intensityStats.min);
         }
     }
 
