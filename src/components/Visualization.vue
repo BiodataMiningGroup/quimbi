@@ -400,6 +400,7 @@ export default {
 
                 this.fetchImages()
                     .then(() => this.updateMask())
+                    .then(() => this.updateSpectrumMask())
                     .then(this.renderSimilarity)
                     .then(this.setReady)
                     .then(() => {
@@ -503,10 +504,12 @@ export default {
         toggleSpectrumArea(index) {
             this.spectrumAreas[index].active = !this.spectrumAreas[index].active;
             this.$emit('spectrum-areas-changed', this.spectrumAreas);
+            this.updateSpectrumMask();
         },
         deleteSpectrumArea(index) {
             this.spectrumAreas.splice(index, 1);
             this.$emit('spectrum-areas-changed', this.spectrumAreas);
+            this.updateSpectrumMask();
         },
         toggleSpectrumAreaSelection() {
             this.spectrumMode = !this.spectrumMode;
@@ -542,6 +545,8 @@ export default {
                 this.spectrumStartPoint = null;
                 this.spectrumEndPoint = null;
                 this.spectrumMode = false;
+
+                this.updateSpectrumMask();
             }
         },
         getActivePolygons() {
@@ -606,6 +611,53 @@ export default {
             gl.bindTexture(gl.TEXTURE_2D, maskTexture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.dataset.width, this.dataset.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, maskData);
         },
+        getActiveSpectra() {
+            const spectra = [];
+            for (let i = 0; i < this.spectrumAreas.length; i++) {
+                const area = this.spectrumAreas[i];
+                if (area.active) {
+                    spectra.push(area);
+                }
+            }
+            return spectra;
+        },
+        async updateSpectrumMask() {
+            const tiles = Math.ceil(this.dataset.depth / 4);
+
+            const width = Math.ceil(Math.sqrt(tiles));
+            const height = Math.ceil(tiles / width);
+
+            const pixels = width * height;
+            const maskData = new Uint8Array(pixels * 4);
+            const spectra = this.getActiveSpectra();
+            const hasActiveAreas = !(spectra.length === 0);
+
+            if (!hasActiveAreas) {
+                for (let i = 0; i < pixels * 4; i++) {
+                    maskData[i] = 255;
+                }
+            } else {
+                for (let i = 0; i < pixels * 4; i++) {
+                    maskData[i] = 0;
+                }
+
+                for (const area of spectra) {
+                    for (let i = area.start; i <= area.end; i++) {
+                        if (i >= this.dataset.depth) continue;
+
+                        const tileIndex = Math.floor(i / 4);
+                        const channel = i % 4;
+
+                        maskData[tileIndex * 4 + channel] = 255;
+                    }
+                }
+            }
+            const gl = this.handler.getGl();
+            const maskTexture = this.handler.getTexture('spectrumMask');
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, maskTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, maskData);
+        }
     },
     watch: {
         overlayGrayscale() {

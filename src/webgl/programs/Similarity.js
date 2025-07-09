@@ -9,6 +9,9 @@ export default class Similarity extends IntensityProgram {
         super(vertexShaderSource, fragmentShaderSource, options);
         this.mousePosition = [0.5, 0.5];
         this.mousePositionPointer = null;
+        const tiles = Math.ceil(options.depth / 4);
+        this.depthTextureWidth = Math.ceil(Math.sqrt(tiles));
+        this.depthTextureHeight = Math.ceil(tiles / this.depthTextureWidth);
     }
 
     initialize(gl, handler) {
@@ -19,6 +22,9 @@ export default class Similarity extends IntensityProgram {
 
         this.mousePositionPointer = gl.getUniformLocation(pointer, 'u_mouse_position');
         this.maskPointer = gl.getUniformLocation(pointer, 'u_mask');
+        this.spectrumMaskPointer = gl.getUniformLocation(pointer, 'u_spectrumMask');
+        this.spectrumMaskWidthPointer = gl.getUniformLocation(pointer, 'u_spectrumMaskWidth');
+        this.spectrumMaskHeightPointer = gl.getUniformLocation(pointer, 'u_spectrumMaskHeight');
     }
 
     beforeRender(gl, handler) {
@@ -27,6 +33,11 @@ export default class Similarity extends IntensityProgram {
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, handler.getTexture('mask'));
         gl.uniform1i(this.maskPointer, 2);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, handler.getTexture('spectrumMask'));
+        gl.uniform1i(this.spectrumMaskPointer, 3);
+        gl.uniform1f(this.spectrumMaskWidthPointer, this.depthTextureWidth);
+        gl.uniform1f(this.spectrumMaskHeightPointer, this.depthTextureHeight);
     }
 
     afterRender(gl, handler) {

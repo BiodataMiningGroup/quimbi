@@ -9,6 +9,9 @@ in vec2 v_texture_position;
 uniform vec2 u_mouse_position;
 uniform float u_normalization;
 uniform sampler2D u_mask;
+uniform sampler2D u_spectrumMask;
+uniform float u_spectrumMaskWidth;
+uniform float u_spectrumMaskHeight;
 
 out vec4 outColor;
 
@@ -85,6 +88,34 @@ void main() {
             reference = convertUvec(texture(<%=SAMPLER=%>, coords_2d_reference));
             current = convertUvec(texture(<%=SAMPLER=%>, coords_2d_current));
         =%>
+
+        // spectrum mask
+        float maskX = mod(tile, u_spectrumMaskWidth);
+        float maskY = floor(tile / u_spectrumMaskWidth);
+
+        vec2 spectrumMaskCoord = vec2(
+            (maskX + 0.5) / u_spectrumMaskWidth,
+            (maskY + 0.5) / u_spectrumMaskHeight
+        );
+
+        vec4 spectrumMaskPixel = texture(u_spectrumMask, spectrumMaskCoord);
+
+        if (spectrumMaskPixel.r < 0.5) {
+            reference.r = 0.0;
+            current.r = 0.0;
+        }
+        if (spectrumMaskPixel.g < 0.5) {
+            reference.g = 0.0;
+            current.g = 0.0;
+        }
+        if (spectrumMaskPixel.b < 0.5) {
+            reference.b = 0.0;
+            current.b = 0.0;
+        }
+        if (spectrumMaskPixel.a < 0.5) {
+            reference.a = 0.0;
+            current.a = 0.0;
+        }
 
         currentLength += dot(current, current);
         referenceLength += dot(reference, reference);
