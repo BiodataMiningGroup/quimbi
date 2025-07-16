@@ -42,6 +42,7 @@
                 v-on:select="updateSelectPixelVector"
                 @freeze="onFreeze"
                 @spectrum-areas-changed="handleAreasChanged"
+                @hovered-area-index="handleHoveredAreaIndex"
             ></Visualization>
         </div>
         <div class="main-aside">
@@ -211,6 +212,9 @@ export default {
         handleAreasChanged(areas) {
             this.$refs.pixelVectorDisplay.handleNewArea(areas);
         },
+        handleHoveredAreaIndex(index) {
+            this.$refs.pixelVectorDisplay.handleHoveredAreaIndex(index);
+        }
     },
     mounted() {
         this.$refs.initModal.showModal();

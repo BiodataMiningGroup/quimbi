@@ -16,7 +16,7 @@
         <div class="area-lists">
             <div class="area-list" v-if="polygonAreas.length">
                 <h4>2D Bereiche</h4>
-                <div v-for="(area, index) in polygonAreas" :key="'poly-' + index" class="area-item">
+                <div v-for="(area, index) in polygonAreas" :key="'poly-' + index" class="area-item" @mouseenter="highlightPolygon(area.feature)" @mouseleave="highlightPolygon(null)">
                     <span>{{ area.name }}</span>
                     <button @click="togglePolygonArea(index)">
                         {{ area.active ? 'Deaktivieren' : 'Aktivieren' }}
@@ -27,7 +27,7 @@
 
             <div class="area-list" v-if="spectrumAreas.length">
                 <h4>1D Bereiche</h4>
-                <div v-for="(area, index) in spectrumAreas" :key="'spec-' + index" class="area-item">
+                <div v-for="(area, index) in spectrumAreas" :key="'spec-' + index" class="area-item" @mouseenter="emitHovered(index)" @mouseleave="emitHovered(null)">
                     <span>{{ area.name }}</span>
                     <button @click="toggleSpectrumArea(index)">
                         {{ area.active ? 'Deaktivieren' : 'Aktivieren' }}
@@ -66,7 +66,7 @@ import {BlobWriter} from "@zip.js/zip.js";
 import {containsCoordinate} from 'ol/extent';
 import {Map, View} from 'ol';
 import {Stroke} from "ol/style.js";
-import {Polygon} from "ol/geom.js";
+import {LineString, Polygon} from "ol/geom.js";
 
 export default {
     props: {
@@ -99,6 +99,10 @@ export default {
             spectrumAreaCounter: 0,
             polygonCoords: [],
             clickListener: null,
+            tempLineFeature: null,
+            highlightFeature: null,
+            highlightStyle: null,
+            hoveredAreaIndex: null,
         };
     },
     computed: {
@@ -205,13 +209,7 @@ export default {
             this.polygonLayer = new VectorLayer({
                 visible: true,
                 source: this.polygonSource,
-                style: new Style({
-                    stroke: new Stroke({
-                        color: 'rgb(0,255,255)',
-                        width: 4,
-                    }),
-                    fill: null,
-                }),
+                style: this.getPolygonStyle,
             });
 
 
@@ -352,6 +350,8 @@ export default {
                 return;
             }
             if (containsCoordinate(this.extent, event.coordinate)) {
+                if (!this.checkCoorInPolygons(event.coordinate)) return;
+
                 if (this.map.hasFeatureAtPixel(event.pixel)) {
                     this.markerLayer.setVisible(false);
                     this.emitUnselect();
@@ -382,6 +382,7 @@ export default {
                 } else {
                     this.singleFeatureProgram.setFeatureIndex(index);
                     this.stretchIntensityProgram.link(this.singleFeatureProgram);
+                    this.updateMask();
                     this.renderSingleFeature();
                 }
             }
@@ -439,8 +440,14 @@ export default {
             this.map.un('click', this.updateMarkerPosition);
             this.polygonCoords = [];
 
+            this.tempLineFeature = new Feature(new LineString([]));
+            this.tempLineFeature.set('temp', true);
+            this.polygonSource.addFeature(this.tempLineFeature);
+
             this.clickListener = this.handlePolygonClick;
             this.map.on('click', this.clickListener);
+            this.map.on('pointermove', this.updateTempLineToMouse);
+            window.addEventListener('keydown', this.handlePolygonKeydown);
         },
         cancelAreaSelection() {
             this.polygonMode = false;
@@ -450,16 +457,23 @@ export default {
             }
             this.polygonCoords = [];
             this.map.on('click', this.updateMarkerPosition);
+            this.map.un('pointermove', this.updateTempLineToMouse);
+            window.removeEventListener('keydown', this.handlePolygonKeydown);
 
-            // log
-            console.log('Bereichsauswahl abgebrochen');
-            const features = this.polygonSource.getFeatures();
-            console.log('features: ', features);
+            this.clearTempPolygonVisuals();
+        },
+        handlePolygonKeydown(event) {
+            if (event.key === 'Escape' && this.polygonMode) {
+                this.cancelAreaSelection();
+            }
+        },
+        updateTempLineToMouse(event) {
+            if (!this.polygonCoords.length) return;
 
-            features.forEach((feature, index) => {
-                const coords = feature.getGeometry().getCoordinates();
-                console.log(`Polygon ${index}:`, coords);
-            });
+            const lastCoord = this.polygonCoords[this.polygonCoords.length - 1];
+            const pointerCoord = event.coordinate;
+
+            this.tempLineFeature.getGeometry().setCoordinates([lastCoord, pointerCoord]);
         },
         handlePolygonClick(event) {
             const coord = event.coordinate;
@@ -476,28 +490,85 @@ export default {
                     this.polygonSource.addFeature(feature);
 
                     this.polygonAreas.push({
-                        name: `2D Bereich - ${this.polygonAreas.length + 1}`,
+                        name: `Polygon: ${this.polygonAreas.length + 1}`,
                         active: true,
                         feature: feature,
                     });
 
+                    this.validateMarkerInArea();
+                    this.clearTempPolygonVisuals();
                     this.cancelAreaSelection();
                     this.updateMask();
+                    this.renderSimilarity();
                     return;
                 }
             }
 
             this.polygonCoords.push(coord);
+
+            if (this.polygonCoords.length > 1) {
+                const last = this.polygonCoords[this.polygonCoords.length - 2];
+                const lineFeature = new Feature(new LineString([last, coord]));
+                lineFeature.set('temp', true);
+                this.polygonSource.addFeature(lineFeature);
+            }
+        },
+        clearTempPolygonVisuals() {
+            const features = this.polygonSource.getFeatures();
+            for (let i = features.length - 1; i >= 0; i--) {
+                const f = features[i];
+                if (f.get('temp')) {
+                    this.polygonSource.removeFeature(f);
+                }
+            }
+            this.tempLineFeature = null;
+        },
+        validateMarkerInArea() {
+            const coord = this.markerFeature.getGeometry().getCoordinates();
+            const activePolygons = this.getActivePolygons();
+
+            if (activePolygons.length === 0) return;
+
+            const isInsideAny = this.checkCoorInPolygons(coord);
+
+            if (!isInsideAny) {
+                this.markerLayer.setVisible(false);
+                this.emitUnselect();
+                this.$emit('freeze', false);
+            }
         },
         togglePolygonArea(index) {
             this.polygonAreas[index].active = !this.polygonAreas[index].active;
-            this.updateMask()
+            this.validateMarkerInArea();
+            this.updateMask();
+            this.renderSimilarity();
         },
         deletePolygonArea(index) {
             const feature = this.polygonAreas[index].feature;
             if (feature) this.polygonSource.removeFeature(feature);
             this.polygonAreas.splice(index, 1);
+            this.validateMarkerInArea();
             this.updateMask()
+            this.renderSimilarity();
+
+            if (this.highlightFeature) {
+                this.polygonSource.removeFeature(this.highlightFeature);
+                this.highlightFeature = null;
+            }
+            this.polygonLayer.changed();
+        },
+        highlightPolygon(feature) {
+            if (this.highlightFeature) {
+                this.polygonSource.removeFeature(this.highlightFeature);
+                this.highlightFeature = null;
+            }
+
+            if (feature) {
+                this.highlightFeature = feature.clone();
+                this.highlightFeature.set('temp', true);
+                this.highlightFeature.setStyle(this.highlightStyle);
+                this.polygonSource.addFeature(this.highlightFeature);
+            }
         },
 
 
@@ -505,11 +576,13 @@ export default {
             this.spectrumAreas[index].active = !this.spectrumAreas[index].active;
             this.$emit('spectrum-areas-changed', this.spectrumAreas);
             this.updateSpectrumMask();
+            this.renderSimilarity();
         },
         deleteSpectrumArea(index) {
             this.spectrumAreas.splice(index, 1);
             this.$emit('spectrum-areas-changed', this.spectrumAreas);
             this.updateSpectrumMask();
+            this.renderSimilarity();
         },
         toggleSpectrumAreaSelection() {
             this.spectrumMode = !this.spectrumMode;
@@ -518,23 +591,22 @@ export default {
                 this.spectrumStartPoint = null;
                 this.spectrumEndPoint = null;
             }
+            this.renderSimilarity();
         },
         handleSpectrumClick(feature) {
             if (!this.spectrumMode) return;
 
             if (this.spectrumStartPoint === null) {
                 this.spectrumStartPoint = feature.index;
-                console.log('Startpunkt gesetzt:', this.spectrumStartPoint);
             } else {
                 this.spectrumEndPoint = feature.index;
-                console.log('Endpunkt gesetzt:', this.spectrumStartPoint);
 
                 const start = Math.min(this.spectrumStartPoint, this.spectrumEndPoint);
                 const end = Math.max(this.spectrumStartPoint, this.spectrumEndPoint);
                 this.spectrumAreaCounter = this.spectrumAreaCounter + 1;
 
                 const newArea = {
-                    name: `1D Bereich - ${this.spectrumAreaCounter}`,
+                    name: `Spektrum: ${start} – ${end}`,
                     active: true,
                     start: start,
                     end: end
@@ -657,7 +729,30 @@ export default {
             gl.activeTexture(gl.TEXTURE3);
             gl.bindTexture(gl.TEXTURE_2D, maskTexture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, maskData);
-        }
+        },
+        setHighlightStyle() {
+            this.highlightStyle = [
+                new Style({ stroke: new Stroke({ color: 'white', width: 16 })}),
+                new Style({ stroke: new Stroke({ color: 'rgba(106, 0, 255)', width: 6 })}),
+            ];
+        },
+        getPolygonStyle(feature) {
+            for (let i = 0; i < this.polygonAreas.length; i++) {
+                const area = this.polygonAreas[i];
+                if (area.feature === feature) {
+                    if (!area.active) return null;
+                    break;
+                }
+            }
+
+            return [
+                new Style({ stroke: new Stroke({ color: 'white', width: 8 }), fill: null }),
+                new Style({ stroke: new Stroke({ color: 'rgba(106, 0, 255)', width: 4 }), fill: null }),
+            ];
+        },
+        emitHovered(index) {
+            this.$emit('hovered-area-index', index);
+        },
     },
     watch: {
         overlayGrayscale() {
@@ -670,7 +765,7 @@ export default {
         },
     },
     mounted() {
-        //
+        this.setHighlightStyle();
     },
 };
 </script>
@@ -738,12 +833,11 @@ export default {
         font-weight: bold;
     }
     .area-item {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
         align-items: center;
-        margin-bottom: 1em;
         gap: 0.5em;
-        font-size: 1em;
+        margin-bottom: 1em;
     }
     .area-item button {
         font-size: 1em;

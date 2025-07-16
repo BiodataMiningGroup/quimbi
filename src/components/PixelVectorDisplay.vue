@@ -43,6 +43,7 @@ export default {
             dragStartX: 0,
             dragStartViewStart: 0,
             activeAreas: [],
+            hoveredAreaIndex: null,
         };
     },
     computed: {
@@ -211,7 +212,6 @@ export default {
                 if (i !== 0) {
                     label = Math.round(this.dataset.channels[index - 1]);
                 }
-                //console.log(i + ". X - label: " + label)
                 ctx.fillText(label.toString(), x, y + tickHeight + 2);
             }
         },
@@ -244,9 +244,7 @@ export default {
                 ctx.lineTo(startX - tickWidth, y);
                 ctx.stroke();
 
-                //console.log(i + ". Y - label: " + label)
                 ctx.fillText(label.toPrecision(2), startX - tickWidth - 2, y);
-                //this.hoveredIntensity = Number(this.pixelVector[index].toPrecision(2));
             }
         },
         handleWheelScroll(event) {
@@ -257,10 +255,8 @@ export default {
             const contentWidth = this.canvas.width - this.leftPadding - this.rightPadding;
 
             const ratio = relativeX / contentWidth;
-            //console.log("ratio" + ratio)
 
             if (event.ctrlKey) {
-                console.log("event.ctrlKey" + event.ctrlKey)
                 // Y-Achse zoomen
                 if (event.deltaY < 0) {
                     this.yZoom *= this.yZoomFactor;
@@ -383,7 +379,6 @@ export default {
             const dataPerPixel = (this.viewEnd - this.viewStart) / (this.canvasSize[0] - this.leftPadding - this.rightPadding);
             const moveData = Math.round(diffX * dataPerPixel);
 
-            console.log("moveData: ", moveData);
 
             let newStart = this.dragStartViewStart - moveData;
             let newEnd = newStart + (this.viewEnd - this.viewStart);
@@ -419,20 +414,17 @@ export default {
                     this.activeAreas.push(area);
                 }
             });
-            console.log('Aktive Areas:', this.activeAreas);
             this.draw();
         },
         drawActiveAreas() {
             if (!this.activeAreas || this.activeAreas.length === 0) return;
 
-            this.ctx.fillStyle = 'rgba(106, 0, 255, 0.3)';
             const startX = this.leftPadding;
             const totalWidth = this.canvas.width - this.leftPadding - this.rightPadding;
 
-            this.activeAreas.forEach(area => {
+            this.activeAreas.forEach((area, index) => {
                 const clippedStart = Math.max(area.start, this.viewStart);
                 const clippedEnd = Math.min(area.end, this.viewEnd);
-
 
                 if(clippedStart < clippedEnd) {
                     const startRatio = (clippedStart - this.viewStart) / (this.viewEnd - this.viewStart);
@@ -442,9 +434,19 @@ export default {
                     const width = xEnd - xStart;
                     const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
 
+                    if(index === this.hoveredAreaIndex) {
+                        this.ctx.fillStyle = 'rgba(150,21,21,0.5)';
+                    } else {
+                        this.ctx.fillStyle = 'rgba(106, 0, 255, 0.3)';
+                    }
+
                     this.ctx.fillRect(xStart, this.yAxisHeight, width, height);
                 }
             });
+        },
+        handleHoveredAreaIndex(index) {
+            this.hoveredAreaIndex = index;
+            this.draw();
         }
     },
     watch: {
