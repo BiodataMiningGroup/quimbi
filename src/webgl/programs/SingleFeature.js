@@ -9,6 +9,7 @@ export default class SingleFeature extends IntensityProgram {
         this.channelMaskPointer = null;
         this.featureTile = 0;
         this.channelMask = [0, 0, 0, 0];
+        this.maskPointer = null;
     }
 
     initialize(gl, handler) {
@@ -16,12 +17,14 @@ export default class SingleFeature extends IntensityProgram {
         let pointer = this.getPointer();
         this.tilePointer = gl.getUniformLocation(pointer, 'u_tile');
         this.channelMaskPointer = gl.getUniformLocation(pointer, 'u_channel_mask');
+        this.maskPointer = gl.getUniformLocation(pointer, 'u_mask');
     }
 
     beforeRender(gl, handler) {
         super.beforeRender(gl, handler);
         gl.uniform1f(this.tilePointer, this.featureTile);
         gl.uniform4f(this.channelMaskPointer, ...this.channelMask);
+        gl.uniform1i(this.maskPointer, 2);
     }
 
     afterRender(gl, handler) {
