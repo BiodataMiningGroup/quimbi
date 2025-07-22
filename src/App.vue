@@ -188,7 +188,6 @@ export default {
 
                 this.dataset = dataset;
                 this.initialized = true;
-                console.log('Geladener Datensatz:', dataset);
 
             } catch (e) {
                 this.error = e;

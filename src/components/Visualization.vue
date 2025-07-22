@@ -5,7 +5,7 @@
             <LoadingIndicator v-else :size="120" :progress="loaded"></LoadingIndicator>
         </div>
         <ColorScale v-show="ready" ref="colorScale"></ColorScale>
-        <div class="area-actions">
+        <div class="area-actions" v-if="ready">
             <button class="area-action-btn" @click="toggleAreaSelection">
                 {{ polygonMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 2D' }}
             </button>
@@ -13,7 +13,7 @@
                 {{ spectrumMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 1D' }}
             </button>
         </div>
-        <div class="area-lists">
+        <div class="area-lists" v-if="ready && (polygonAreas.length || spectrumAreas.length)">
             <div class="area-list" v-if="polygonAreas.length">
                 <h4>2D Bereiche</h4>
                 <div v-for="(area, index) in polygonAreas" :key="'poly-' + index" class="area-item" @mouseenter="highlightPolygon(area.feature)" @mouseleave="highlightPolygon(null)">
@@ -92,11 +92,11 @@ export default {
             polygonLayer: null,
             drawInteraction: null,
             polygonAreas: [],
+            polygonAreaCounter: 0,
             spectrumAreas: [],
             spectrumMode: false,
             spectrumStartPoint: null,
             spectrumEndPoint: null,
-            spectrumAreaCounter: 0,
             polygonCoords: [],
             clickListener: null,
             tempLineFeature: null,
@@ -488,9 +488,10 @@ export default {
                     const polygon = new Polygon([[...this.polygonCoords, first]]);
                     const feature = new Feature(polygon);
                     this.polygonSource.addFeature(feature);
+                    this.polygonAreaCounter = this.polygonAreaCounter + 1;
 
                     this.polygonAreas.push({
-                        name: `Polygon: ${this.polygonAreas.length + 1}`,
+                        name: `Polygon: ${this.polygonAreaCounter}`,
                         active: true,
                         feature: feature,
                     });
@@ -603,10 +604,12 @@ export default {
 
                 const start = Math.min(this.spectrumStartPoint, this.spectrumEndPoint);
                 const end = Math.max(this.spectrumStartPoint, this.spectrumEndPoint);
-                this.spectrumAreaCounter = this.spectrumAreaCounter + 1;
+
+                const mzStart = Math.round(Number(this.dataset.channels[start]));
+                const mzEnd = Math.round(Number(this.dataset.channels[end]));
 
                 const newArea = {
-                    name: `Spektrum: ${start} – ${end}`,
+                    name: `Spektrum: ${mzStart} – ${mzEnd}`,
                     active: true,
                     start: start,
                     end: end

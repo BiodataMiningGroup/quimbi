@@ -42,7 +42,7 @@ export default {
             isDragging: false,
             dragStartX: 0,
             dragStartViewStart: 0,
-            activeAreas: [],
+            allAreas: null,
             hoveredAreaIndex: null,
         };
     },
@@ -175,7 +175,11 @@ export default {
             const index = Math.floor(this.viewStart + ratio * (this.viewEnd - this.viewStart));
             this.hoveredFeature = index;
             this.hoveredMZ = this.dataset.channels[index];
-            this.hoveredIntensity = Number(this.pixelVector[index].toPrecision(2));
+            if (this.pixelVector[index] === undefined) {
+                this.hoveredIntensity = null;
+            } else {
+                this.hoveredIntensity = Number(this.pixelVector[index].toPrecision(2));
+            }
         },
         resetHoveredFeature() {
             this.hoveredFeature = null;
@@ -199,6 +203,7 @@ export default {
 
             for (let i = 0; i <= ticks; i++) {
                 const index = Math.round(viewStart + (i * (viewEnd - viewStart) / ticks));
+                if (isNaN(index)) continue;
                 const x = startX + i * width / ticks + this.barWidth / 2;
 
                 // Tick
@@ -408,25 +413,22 @@ export default {
             }
         },
         handleNewArea(newAreas) {
-            this.activeAreas = [];
-            newAreas.forEach(area => {
-                if (area.active) {
-                    this.activeAreas.push(area);
-                }
-            });
+            this.allAreas = newAreas;
             this.draw();
         },
         drawActiveAreas() {
-            if (!this.activeAreas || this.activeAreas.length === 0) return;
+            if (!this.allAreas || this.allAreas.length === 0) return;
 
             const startX = this.leftPadding;
             const totalWidth = this.canvas.width - this.leftPadding - this.rightPadding;
 
-            this.activeAreas.forEach((area, index) => {
+            this.allAreas.forEach((area, index) => {
+                if (!area.active && index !== this.hoveredAreaIndex) return;
+
                 const clippedStart = Math.max(area.start, this.viewStart);
                 const clippedEnd = Math.min(area.end, this.viewEnd);
 
-                if(clippedStart < clippedEnd) {
+                if (clippedStart < clippedEnd) {
                     const startRatio = (clippedStart - this.viewStart) / (this.viewEnd - this.viewStart);
                     const endRatio = (clippedEnd - this.viewStart) / (this.viewEnd - this.viewStart);
                     const xStart = startX + startRatio * totalWidth;
@@ -434,7 +436,7 @@ export default {
                     const width = xEnd - xStart;
                     const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
 
-                    if(index === this.hoveredAreaIndex) {
+                    if (index === this.hoveredAreaIndex) {
                         this.ctx.fillStyle = 'rgba(150,21,21,0.5)';
                     } else {
                         this.ctx.fillStyle = 'rgba(106, 0, 255, 0.3)';
