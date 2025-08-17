@@ -6,10 +6,10 @@
         </div>
         <ColorScale v-show="ready" ref="colorScale"></ColorScale>
         <div class="area-actions" v-if="ready">
-            <button class="area-action-btn" @click="toggleAreaSelection">
+            <button class="area-action-btn" v-if="!spectrumMode" @click="togglePolygonAreaSelection">
                 {{ polygonMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 2D' }}
             </button>
-            <button class="area-action-btn" @click="toggleSpectrumAreaSelection">
+            <button class="area-action-btn" v-if="!polygonMode" @click="toggleSpectrumAreaSelection">
                 {{ spectrumMode ? 'Auswahl abbrechen' : 'Bereich hinzufügen 1D' }}
             </button>
         </div>
@@ -95,8 +95,6 @@ export default {
             polygonAreaCounter: 0,
             spectrumAreas: [],
             spectrumMode: false,
-            spectrumStartPoint: null,
-            spectrumEndPoint: null,
             polygonCoords: [],
             clickListener: null,
             tempLineFeature: null,
@@ -418,7 +416,6 @@ export default {
                 this.error = new Error(`The dataset could not be loaded. ${e.message}`);
             }
         },
-
         freeze() {
             this.frozen = true;
             this.map.un('pointermove', this.updateMousePosition);
@@ -428,7 +425,8 @@ export default {
             this.map.on('pointermove', this.updateMousePosition);
         },
 
-        toggleAreaSelection() {
+        // POLYGON
+        togglePolygonAreaSelection() {
             if (this.polygonMode) {
                 this.cancelAreaSelection();
             } else {
@@ -572,7 +570,7 @@ export default {
             }
         },
 
-
+        // SPECTRUM
         toggleSpectrumArea(index) {
             this.spectrumAreas[index].active = !this.spectrumAreas[index].active;
             this.$emit('spectrum-areas-changed', this.spectrumAreas);
@@ -588,42 +586,43 @@ export default {
         toggleSpectrumAreaSelection() {
             this.spectrumMode = !this.spectrumMode;
 
-            if (!this.spectrumMode) {
-                this.spectrumStartPoint = null;
-                this.spectrumEndPoint = null;
+            if (this.spectrumMode) {
+                this.$emit('spectrum-areas-selection');
+                window.addEventListener('keydown', this.handleSpectrumKeydown);
+            } else {
+                this.$emit('spectrum-areas-abort');
+                window.removeEventListener('keydown', this.handleSpectrumKeydown);
             }
             this.renderSimilarity();
+        },
+        handleSpectrumKeydown(event) {
+            if (event.key === 'Escape' && this.spectrumMode) {
+                this.toggleSpectrumAreaSelection();
+            }
         },
         handleSpectrumClick(feature) {
             if (!this.spectrumMode) return;
 
-            if (this.spectrumStartPoint === null) {
-                this.spectrumStartPoint = feature.index;
-            } else {
-                this.spectrumEndPoint = feature.index;
+            const start = feature.start;
+            const end = feature.end;
 
-                const start = Math.min(this.spectrumStartPoint, this.spectrumEndPoint);
-                const end = Math.max(this.spectrumStartPoint, this.spectrumEndPoint);
+            const mzStart = Math.round(Number(this.dataset.channels[start]));
+            const mzEnd = Math.round(Number(this.dataset.channels[end]));
 
-                const mzStart = Math.round(Number(this.dataset.channels[start]));
-                const mzEnd = Math.round(Number(this.dataset.channels[end]));
+            const newArea = {
+                name: `Spektrum: ${mzStart} – ${mzEnd}`,
+                active: true,
+                start: start,
+                end: end
+            };
+            this.spectrumAreas.push(newArea);
+            this.$emit('spectrum-areas-changed', this.spectrumAreas);
+            this.spectrumMode = false;
 
-                const newArea = {
-                    name: `Spektrum: ${mzStart} – ${mzEnd}`,
-                    active: true,
-                    start: start,
-                    end: end
-                };
-                this.spectrumAreas.push(newArea);
-                this.$emit('spectrum-areas-changed', this.spectrumAreas);
-
-                this.spectrumStartPoint = null;
-                this.spectrumEndPoint = null;
-                this.spectrumMode = false;
-
-                this.updateSpectrumMask();
-            }
+            this.updateSpectrumMask();
         },
+
+        // MASKEN
         getActivePolygons() {
             const polygons = [];
             for (let i = 0; i < this.polygonAreas.length; i++) {
@@ -824,6 +823,8 @@ export default {
         left: 1em;
         z-index: 2;
         max-width: 400px;
+        max-height: calc(100% - 210px);
+        overflow-y: auto;
         background: rgba(255, 255, 255, 1);
         padding: 0.5em;
         border-radius: 5px;

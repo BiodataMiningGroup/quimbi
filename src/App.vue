@@ -43,6 +43,8 @@
                 @freeze="onFreeze"
                 @spectrum-areas-changed="handleAreasChanged"
                 @hovered-area-index="handleHoveredAreaIndex"
+                @spectrum-areas-selection="handleSpectrumAreaSelection"
+                @spectrum-areas-abort="handleSpectrumAreaAbort"
             ></Visualization>
         </div>
         <div class="main-aside">
@@ -50,7 +52,7 @@
                 ref="pixelVectorDisplay"
                 v-bind:dataset="dataset"
                 v-on:hover="updateHoveredFeature"
-                @select-mz="handleSpectrumPointSelect"
+                @new-spectrumarea="handleSpectrumPointSelect"
             ></PixelVectorDisplay>
         </div>
     </div>
@@ -111,7 +113,7 @@ export default {
         updateSelectPixelVector(vector) {
             // Use a method instead of prop because the pixel vector array stays the
             // same object.
-            this.$refs.pixelVectorDisplay.updateReferencePixelVector(vector);
+            this.$refs.pixelVectorDisplay.updatePixelVector(vector);
         },
         updateHoveredFeature(feature) {
             this.$refs.visualization.showFeature(feature);
@@ -213,7 +215,13 @@ export default {
         },
         handleHoveredAreaIndex(index) {
             this.$refs.pixelVectorDisplay.handleHoveredAreaIndex(index);
-        }
+        },
+        handleSpectrumAreaSelection() {
+            this.$refs.pixelVectorDisplay.handleSpectrumAreaSelection();
+        },
+        handleSpectrumAreaAbort() {
+            this.$refs.pixelVectorDisplay.handleSpectrumAreaAbort();
+        },
     },
     mounted() {
         this.$refs.initModal.showModal();

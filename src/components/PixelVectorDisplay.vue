@@ -2,7 +2,7 @@
     <div class="intensity-list">
         <div ref="tooltip" v-show="hasHoveredFeature" class="hovered-feature" :style="{transform: `translate(${mouseX}px, ${mouseY}px)`, position: 'absolute'}">
             <div>m/z: {{ hoveredMZ }}</div>
-            <div>Intensity: {{ hoveredIntensity }}</div>
+            <div>Intensität: {{ hoveredIntensity }}</div>
         </div>
         <canvas ref="canvas"></canvas>
     </div>
@@ -44,12 +44,18 @@ export default {
             dragStartViewStart: 0,
             allAreas: null,
             hoveredAreaIndex: null,
+            spectrumAreaStart: null,
+            spectrumSelectionMode: false,
         };
     },
     computed: {
         barWidth() {
             const drawWidth = this.canvasSize[0] - this.leftPadding - this.rightPadding;
             return drawWidth / (this.viewEnd - this.viewStart);
+        },
+        actualBarWidth() {
+            const minBarWidth = 1;
+            return this.barWidth >= minBarWidth ? this.barWidth : minBarWidth;
         },
         hasHoveredFeature() {
             return this.hoveredFeature !== null;
@@ -58,15 +64,6 @@ export default {
     methods: {
         updatePixelVector(pixelVector) {
             this.pixelVector = pixelVector;
-            this.updateYZoomToMax();
-
-            this.resetZoom()
-            this.draw();
-        },
-        updateReferencePixelVector(pixelVector) {
-            this.referencePixelVector = pixelVector;
-            this.hasReference = pixelVector.length > 0;
-            this.updateYZoomToMax();
             this.resetZoom()
             this.draw();
         },
@@ -74,21 +71,14 @@ export default {
             this.canvas.height = this.canvasSize[1];
             this.canvas.width = this.canvasSize[0];
 
-            let minBarWidth = 1;
-            let actualBarWidth;
-            if (this.barWidth >= minBarWidth) {
-                actualBarWidth = this.barWidth;
-            } else {
-                actualBarWidth = minBarWidth;
-            }
-
             if (this.hoveredFeature !== null) {
                 // Bootstrap $gray-900.
                 this.ctx.fillStyle = '#212529';
                 const x = this.leftPadding + this.barWidth * (this.hoveredFeature - this.viewStart);
-                this.ctx.fillRect(x, 0, actualBarWidth, this.canvas.height);
+                this.ctx.fillRect(x, 0, this.actualBarWidth, this.canvas.height);
             }
 
+            this.drawTempSpectrumSelection();
             this.drawWithoutReference();
             this.drawActiveAreas();
         },
@@ -100,19 +90,16 @@ export default {
             let startY = this.yAxisHeight;
             let viewEnd = this.viewEnd;
             let viewStart = this.viewStart;
-
-            const viewRange = this.viewEnd - this.viewStart;
             const visibleVector = this.pixelVector.slice(this.viewStart, this.viewEnd);
 
-
-            this.fillPath(startX, startY, drawWidth, drawHeight, visibleVector);
+            this.fillPath(startX, startY, drawHeight, visibleVector);
             this.drawXAxis(startX, startY, drawWidth, drawHeight, 10, viewStart, viewEnd);
-            this.drawYAxis(startX, startY, drawWidth,drawHeight, 4)
+            this.drawYAxis(startX, startY, drawHeight, 4)
         },
-        fillPath(startX, startY, width, height, vector) {
-            let minBarWidth = 1;
-            let barWidth = this.barWidth;
+        fillPath(startX, startY, height, vector) {
             let ctx = this.ctx;
+            let barWidth = this.barWidth;
+            let actualBarWidth = this.actualBarWidth;
 
             for (var i = 0; i < vector.length; i++) {
                 let barHeight = height * vector[i] * this.yZoom;
@@ -121,16 +108,9 @@ export default {
                 let x = startX + i * barWidth;
                 let y = startY + height - actualHeight;
 
-                let actualBarWidth;
-                if (barWidth >= minBarWidth) {
-                    actualBarWidth = barWidth;
-                } else {
-                    actualBarWidth = minBarWidth;
-                }
-
                 ctx.fillRect(x, y, actualBarWidth, actualHeight);
 
-                // Kreis
+                // Marker (Kreis)
                 if (barHeight > height) {
                     ctx.beginPath();
                     ctx.arc(x + actualBarWidth / 2, y - 10, 5, 0, 2 * Math.PI)
@@ -144,7 +124,6 @@ export default {
         },
         updateHoveredFeature(event) {
             let rect = event.target.getBoundingClientRect();
-            //this.hoveredFeature = Math.floor(this.dataset.depth * (event.clientX - rect.left) / event.target.width);
 
             this.mouseX = event.clientX - rect.left + 10;
             this.mouseY = event.clientY - rect.top + 10;
@@ -187,12 +166,9 @@ export default {
         drawXAxis(startX, startY, width, height, ticks, viewStart, viewEnd) {
             const ctx = this.ctx;
             const tickHeight = 4;
-            const fontSize = 10;
             const y = startY + height;
             ctx.strokeStyle = '#aaa';
             ctx.fillStyle = '#aaa';
-            ctx.lineWidth = 1;
-            ctx.font = `${fontSize}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
 
@@ -220,15 +196,11 @@ export default {
                 ctx.fillText(label.toString(), x, y + tickHeight + 2);
             }
         },
-        drawYAxis(startX, startY, width, height, ticks) {
+        drawYAxis(startX, startY, height, ticks) {
             const ctx = this.ctx;
             const tickWidth = 4;
-            const fontSize = 10;
-
             ctx.strokeStyle = '#aaa';
             ctx.fillStyle = '#aaa';
-            ctx.lineWidth = 1;
-            ctx.font = `${fontSize}px sans-serif`;
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
 
@@ -350,15 +322,6 @@ export default {
                 this.yZoom = 1;
             }
         },
-        updateYZoomToMax() {
-            const maxValue = Math.max(...this.pixelVector);
-
-            if (maxValue > 0) {
-                this.yZoom = 1 / maxValue;
-            } else {
-                this.yZoom = 1;
-            }
-        },
         resetZoom() {
             this.yZoom = 1;
             this.viewStart = 0;
@@ -366,6 +329,7 @@ export default {
             this.draw()
         },
         handlePointerDown(event) {
+            if (this.spectrumSelectionMode) return;
             const rect = this.canvas.getBoundingClientRect();
             const x = event.clientX - rect.left - this.leftPadding;
             this.isDragging = true;
@@ -400,17 +364,49 @@ export default {
 
             this.viewStart = newStart;
             this.viewEnd = newEnd;
-            //this.updateYZoomToVisibleMax()
+            this.draw();
+        },
+        handleSpectrumAreaSelection() {
+            this.spectrumSelectionMode = true;
+        },
+        handleSpectrumAreaAbort() {
+            this.spectrumAreaStart = null;
+            this.spectrumSelectionMode = false;
             this.draw();
         },
         handleClick(event) {
-            if (this.hoveredFeature !== null) {
-                this.$emit('select-mz', {
-                    index: this.hoveredFeature,
-                    mz: this.hoveredMZ,
-                    intensity: this.hoveredIntensity
-                });
+            if (this.hoveredFeature === null) return;
+
+            if (this.spectrumSelectionMode && this.spectrumAreaStart == null) {
+                this.spectrumAreaStart = this.hoveredFeature;
+            } else {
+                const start = Math.min(this.spectrumAreaStart, this.hoveredFeature);
+                const end   = Math.max(this.spectrumAreaStart, this.hoveredFeature);
+
+                this.$emit('new-spectrumarea', { start: start, end: end });
+                this.handleSpectrumAreaAbort();
             }
+        },
+        drawTempSpectrumSelection() {
+            if (!this.spectrumSelectionMode) return;
+            if (this.spectrumAreaStart == null || this.hoveredFeature == null) return;
+
+            const start = Math.max(Math.min(this.spectrumAreaStart, this.hoveredFeature), this.viewStart);
+            const end   = Math.min(Math.max(this.spectrumAreaStart, this.hoveredFeature), this.viewEnd);
+
+            const startX = this.leftPadding;
+            const totalWidth = this.canvas.width - this.leftPadding - this.rightPadding;
+
+            const startRatio = (start - this.viewStart) / (this.viewEnd - this.viewStart);
+            const endRatio   = (end   - this.viewStart) / (this.viewEnd - this.viewStart);
+
+            const xStart = startX + startRatio * totalWidth;
+            const xEnd   = startX + endRatio   * totalWidth;
+            const width  = xEnd - xStart;
+            const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
+
+            this.ctx.fillStyle = 'rgb(106,0,255)';
+            this.ctx.fillRect(xStart, this.yAxisHeight, width, height);
         },
         handleNewArea(newAreas) {
             this.allAreas = newAreas;
@@ -468,7 +464,6 @@ export default {
     },
     created() {
         this.pixelVector = new Uint8Array([]);
-        this.referencePixelVector = new Uint8Array([]);
     },
     mounted() {
         this.canvas = this.$refs.canvas;
