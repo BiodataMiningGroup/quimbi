@@ -63,7 +63,7 @@
 <script>
 import WebglHandler from './webgl/Handler';
 import Visualization from './components/Visualization.vue';
-import PixelVectorDisplay from './components/PixelVectorDisplay.vue';
+import PixelVectorDisplay from './components/SpectrumViewer.vue';
 import {ZipReader, BlobReader, TextWriter} from "@zip.js/zip.js";
 
 const DATASET_KEYS = [

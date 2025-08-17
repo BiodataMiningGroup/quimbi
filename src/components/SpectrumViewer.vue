@@ -9,7 +9,9 @@
 </template>
 
 <script>
-import {FIRE} from '../webgl/programs/colorMaps';
+import zoom from '../logic/zoom.js';
+import drag from '../logic/drag.js';
+import spectrumAreas from '../logic/spectrumAreas.js';
 
 export default {
     props: {
@@ -21,6 +23,7 @@ export default {
     components: {
         //
     },
+    mixins: [zoom, drag, spectrumAreas],
     data () {
         return {
             canvasSize: [0, 0],
@@ -36,16 +39,6 @@ export default {
             mouseY: 0,
             viewStart: null,
             viewEnd: null,
-            zoomFactor: 2,
-            yZoom: 1,
-            yZoomFactor: 1.1,
-            isDragging: false,
-            dragStartX: 0,
-            dragStartViewStart: 0,
-            allAreas: null,
-            hoveredAreaIndex: null,
-            spectrumAreaStart: null,
-            spectrumSelectionMode: false,
         };
     },
     computed: {
@@ -224,228 +217,6 @@ export default {
                 ctx.fillText(label.toPrecision(2), startX - tickWidth - 2, y);
             }
         },
-        handleWheelScroll(event) {
-            event.preventDefault();
-
-            const rect = this.canvas.getBoundingClientRect();
-            const relativeX = event.clientX - rect.left - this.leftPadding;
-            const contentWidth = this.canvas.width - this.leftPadding - this.rightPadding;
-
-            const ratio = relativeX / contentWidth;
-
-            if (event.ctrlKey) {
-                // Y-Achse zoomen
-                if (event.deltaY < 0) {
-                    this.yZoom *= this.yZoomFactor;
-                } else {
-                    this.yZoom /= this.yZoomFactor;
-                }
-                if (this.yZoom < 1) {
-                    this.yZoom = 1;
-                }
-                this.draw();
-            } else {
-                // X-Achse zoomen
-                if (event.deltaY < 0) {
-                    this.zoomIn(ratio);
-                } else {
-                    this.zoomOut(ratio);
-                }
-            }
-        },
-        zoomIn(ratio) {
-            const range = this.viewEnd - this.viewStart;
-            const newRange = Math.max(10, Math.floor(range / this.zoomFactor));
-            let newStart;
-            let newEnd;
-
-            if (ratio < 0.05) {
-                // Maus befindet sich ganz links
-                newStart = this.viewStart;
-                newEnd = this.viewStart + newRange;
-            } else if (ratio > 0.95) {
-                // Maus befindet sich ganz rechts
-                newEnd = this.viewEnd;
-                newStart = this.viewEnd - newRange;
-            } else {
-                // normaler Zoom
-                const focus = this.viewStart + range * ratio;
-                newStart = Math.floor(focus - newRange * ratio);
-                newEnd = Math.floor(focus + newRange * (1 - ratio));
-            }
-
-            newStart = Math.max(0, newStart);
-            newEnd = Math.min(this.dataset.depth, newEnd);
-
-            if (newEnd - newStart < 10) return;
-            this.viewStart = newStart;
-            this.viewEnd = newEnd;
-            this.updateYZoomToVisibleMax();
-            this.draw();
-        },
-        zoomOut(ratio) {
-            const range = this.viewEnd - this.viewStart;
-            const newRange = Math.min(this.dataset.depth, Math.ceil(range * this.zoomFactor));
-            let newStart;
-            let newEnd;
-
-            if (ratio < 0.05) {
-                // Maus befindet sich ganz links
-                newStart = this.viewStart;
-                newEnd = this.viewStart + newRange;
-            } else if (ratio > 0.95) {
-                // Maus befindet sich ganz rechts
-                newEnd = this.viewEnd;
-                newStart = this.viewEnd - newRange;
-            } else {
-                // normaler Zoom
-                const focus = this.viewStart + range * ratio;
-                newStart = Math.floor(focus - newRange * ratio);
-                newEnd = Math.floor(focus + newRange * (1 - ratio));
-            }
-
-            newStart = Math.max(0, newStart);
-            newEnd = Math.min(this.dataset.depth, newEnd);
-
-            this.viewStart = newStart;
-            this.viewEnd = newEnd;
-            this.updateYZoomToVisibleMax();
-            this.draw();
-        },
-        updateYZoomToVisibleMax() {
-            const visibleVector = this.pixelVector.slice(this.viewStart, this.viewEnd);
-            const maxValue = Math.max(...visibleVector);
-
-            if (maxValue > 0) {
-                this.yZoom = 1 / maxValue;
-            } else {
-                this.yZoom = 1;
-            }
-        },
-        resetZoom() {
-            this.yZoom = 1;
-            this.viewStart = 0;
-            this.viewEnd = this.dataset.depth;
-            this.draw()
-        },
-        handlePointerDown(event) {
-            if (this.spectrumSelectionMode) return;
-            const rect = this.canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left - this.leftPadding;
-            this.isDragging = true;
-            this.dragStartX = x;
-            this.dragStartViewStart = this.viewStart;
-        },
-        handlePointerUp() {
-            this.isDragging = false;
-        },
-        handlePointerDrag(event) {
-            if (!this.isDragging) return;
-
-            const rect = this.canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left - this.leftPadding;
-            const diffX = x - this.dragStartX;
-            const dataPerPixel = (this.viewEnd - this.viewStart) / (this.canvasSize[0] - this.leftPadding - this.rightPadding);
-            const moveData = Math.round(diffX * dataPerPixel);
-
-
-            let newStart = this.dragStartViewStart - moveData;
-            let newEnd = newStart + (this.viewEnd - this.viewStart);
-
-            if (newStart < 0) {
-                newStart = 0;
-                newEnd = newStart + (this.viewEnd - this.viewStart);
-            }
-            if (newEnd > this.dataset.depth) {
-                newEnd = this.dataset.depth;
-                newStart = newEnd - (this.viewEnd - this.viewStart);
-                newStart = Math.max(0, newStart);
-            }
-
-            this.viewStart = newStart;
-            this.viewEnd = newEnd;
-            this.draw();
-        },
-        handleSpectrumAreaSelection() {
-            this.spectrumSelectionMode = true;
-        },
-        handleSpectrumAreaAbort() {
-            this.spectrumAreaStart = null;
-            this.spectrumSelectionMode = false;
-            this.draw();
-        },
-        handleClick(event) {
-            if (this.hoveredFeature === null) return;
-
-            if (this.spectrumSelectionMode && this.spectrumAreaStart == null) {
-                this.spectrumAreaStart = this.hoveredFeature;
-            } else {
-                const start = Math.min(this.spectrumAreaStart, this.hoveredFeature);
-                const end   = Math.max(this.spectrumAreaStart, this.hoveredFeature);
-
-                this.$emit('new-spectrumarea', { start: start, end: end });
-                this.handleSpectrumAreaAbort();
-            }
-        },
-        drawTempSpectrumSelection() {
-            if (!this.spectrumSelectionMode) return;
-            if (this.spectrumAreaStart == null || this.hoveredFeature == null) return;
-
-            const start = Math.max(Math.min(this.spectrumAreaStart, this.hoveredFeature), this.viewStart);
-            const end   = Math.min(Math.max(this.spectrumAreaStart, this.hoveredFeature), this.viewEnd);
-
-            const startX = this.leftPadding;
-            const totalWidth = this.canvas.width - this.leftPadding - this.rightPadding;
-
-            const startRatio = (start - this.viewStart) / (this.viewEnd - this.viewStart);
-            const endRatio   = (end   - this.viewStart) / (this.viewEnd - this.viewStart);
-
-            const xStart = startX + startRatio * totalWidth;
-            const xEnd   = startX + endRatio   * totalWidth;
-            const width  = xEnd - xStart;
-            const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
-
-            this.ctx.fillStyle = 'rgb(106,0,255)';
-            this.ctx.fillRect(xStart, this.yAxisHeight, width, height);
-        },
-        handleNewArea(newAreas) {
-            this.allAreas = newAreas;
-            this.draw();
-        },
-        drawActiveAreas() {
-            if (!this.allAreas || this.allAreas.length === 0) return;
-
-            const startX = this.leftPadding;
-            const totalWidth = this.canvas.width - this.leftPadding - this.rightPadding;
-
-            this.allAreas.forEach((area, index) => {
-                if (!area.active && index !== this.hoveredAreaIndex) return;
-
-                const clippedStart = Math.max(area.start, this.viewStart);
-                const clippedEnd = Math.min(area.end, this.viewEnd);
-
-                if (clippedStart < clippedEnd) {
-                    const startRatio = (clippedStart - this.viewStart) / (this.viewEnd - this.viewStart);
-                    const endRatio = (clippedEnd - this.viewStart) / (this.viewEnd - this.viewStart);
-                    const xStart = startX + startRatio * totalWidth;
-                    const xEnd = startX + endRatio * totalWidth;
-                    const width = xEnd - xStart;
-                    const height = this.canvas.height - this.xAxisHeight - this.yAxisHeight;
-
-                    if (index === this.hoveredAreaIndex) {
-                        this.ctx.fillStyle = 'rgba(150,21,21,0.5)';
-                    } else {
-                        this.ctx.fillStyle = 'rgba(106, 0, 255, 0.3)';
-                    }
-
-                    this.ctx.fillRect(xStart, this.yAxisHeight, width, height);
-                }
-            });
-        },
-        handleHoveredAreaIndex(index) {
-            this.hoveredAreaIndex = index;
-            this.draw();
-        }
     },
     watch: {
         canvasSize() {

@@ -65,8 +65,9 @@ import WebglHandler from '../webgl/Handler';
 import {BlobWriter} from "@zip.js/zip.js";
 import {containsCoordinate} from 'ol/extent';
 import {Map, View} from 'ol';
-import {Stroke} from "ol/style.js";
-import {LineString, Polygon} from "ol/geom.js";
+import spectrumSelection from '../logic/spectrumSelection.js';
+import polygonSelection from "../logic/polygonSelection.js";
+import masks from '../logic/masks.js';
 
 export default {
     props: {
@@ -79,6 +80,7 @@ export default {
         LoadingIndicator,
         ColorScale,
     },
+    mixins: [spectrumSelection, polygonSelection, masks],
     data () {
         return {
             loaded: 0,
@@ -87,20 +89,6 @@ export default {
             error: null,
             overlayGrayscale: true,
             frozen: false,
-            polygonMode: false,
-            polygonSource: null,
-            polygonLayer: null,
-            drawInteraction: null,
-            polygonAreas: [],
-            polygonAreaCounter: 0,
-            spectrumAreas: [],
-            spectrumMode: false,
-            polygonCoords: [],
-            clickListener: null,
-            tempLineFeature: null,
-            highlightFeature: null,
-            highlightStyle: null,
-            hoveredAreaIndex: null,
         };
     },
     computed: {
@@ -202,14 +190,7 @@ export default {
                 ],
             });
 
-            // POLYGON
-            this.polygonSource = new VectorSource();
-            this.polygonLayer = new VectorLayer({
-                visible: true,
-                source: this.polygonSource,
-                style: this.getPolygonStyle,
-            });
-
+            this.polygonLayer = this.setupPolygonLayer();
 
             this.map = new Map({
                 target: this.$refs.map,
@@ -380,7 +361,7 @@ export default {
                 } else {
                     this.singleFeatureProgram.setFeatureIndex(index);
                     this.stretchIntensityProgram.link(this.singleFeatureProgram);
-                    this.updateMask();
+                    this.updatePolygonMask();
                     this.renderSingleFeature();
                 }
             }
@@ -398,7 +379,7 @@ export default {
                 this.initializePrograms();
 
                 this.fetchImages()
-                    .then(() => this.updateMask())
+                    .then(() => this.updatePolygonMask())
                     .then(() => this.updateSpectrumMask())
                     .then(this.renderSimilarity)
                     .then(this.setReady)
@@ -424,334 +405,6 @@ export default {
             this.frozen = false;
             this.map.on('pointermove', this.updateMousePosition);
         },
-
-        // POLYGON
-        togglePolygonAreaSelection() {
-            if (this.polygonMode) {
-                this.cancelAreaSelection();
-            } else {
-                this.startAreaSelection();
-            }
-        },
-        startAreaSelection() {
-            this.polygonMode = true;
-            this.map.un('click', this.updateMarkerPosition);
-            this.polygonCoords = [];
-
-            this.tempLineFeature = new Feature(new LineString([]));
-            this.tempLineFeature.set('temp', true);
-            this.polygonSource.addFeature(this.tempLineFeature);
-
-            this.clickListener = this.handlePolygonClick;
-            this.map.on('click', this.clickListener);
-            this.map.on('pointermove', this.updateTempLineToMouse);
-            window.addEventListener('keydown', this.handlePolygonKeydown);
-        },
-        cancelAreaSelection() {
-            this.polygonMode = false;
-            if (this.clickListener) {
-                this.map.un('click', this.clickListener);
-                this.clickListener = null;
-            }
-            this.polygonCoords = [];
-            this.map.on('click', this.updateMarkerPosition);
-            this.map.un('pointermove', this.updateTempLineToMouse);
-            window.removeEventListener('keydown', this.handlePolygonKeydown);
-
-            this.clearTempPolygonVisuals();
-        },
-        handlePolygonKeydown(event) {
-            if (event.key === 'Escape' && this.polygonMode) {
-                this.cancelAreaSelection();
-            }
-        },
-        updateTempLineToMouse(event) {
-            if (!this.polygonCoords.length) return;
-
-            const lastCoord = this.polygonCoords[this.polygonCoords.length - 1];
-            const pointerCoord = event.coordinate;
-
-            this.tempLineFeature.getGeometry().setCoordinates([lastCoord, pointerCoord]);
-        },
-        handlePolygonClick(event) {
-            const coord = event.coordinate;
-
-            if (this.polygonCoords.length > 2) {
-                const first = this.polygonCoords[0];
-                const dx = first[0] - coord[0];
-                const dy = first[1] - coord[1];
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < 5) {
-                    const polygon = new Polygon([[...this.polygonCoords, first]]);
-                    const feature = new Feature(polygon);
-                    this.polygonSource.addFeature(feature);
-                    this.polygonAreaCounter = this.polygonAreaCounter + 1;
-
-                    this.polygonAreas.push({
-                        name: `Polygon: ${this.polygonAreaCounter}`,
-                        active: true,
-                        feature: feature,
-                    });
-
-                    this.validateMarkerInArea();
-                    this.clearTempPolygonVisuals();
-                    this.cancelAreaSelection();
-                    this.updateMask();
-                    this.renderSimilarity();
-                    return;
-                }
-            }
-
-            this.polygonCoords.push(coord);
-
-            if (this.polygonCoords.length > 1) {
-                const last = this.polygonCoords[this.polygonCoords.length - 2];
-                const lineFeature = new Feature(new LineString([last, coord]));
-                lineFeature.set('temp', true);
-                this.polygonSource.addFeature(lineFeature);
-            }
-        },
-        clearTempPolygonVisuals() {
-            const features = this.polygonSource.getFeatures();
-            for (let i = features.length - 1; i >= 0; i--) {
-                const f = features[i];
-                if (f.get('temp')) {
-                    this.polygonSource.removeFeature(f);
-                }
-            }
-            this.tempLineFeature = null;
-        },
-        validateMarkerInArea() {
-            const coord = this.markerFeature.getGeometry().getCoordinates();
-            const activePolygons = this.getActivePolygons();
-
-            if (activePolygons.length === 0) return;
-
-            const isInsideAny = this.checkCoorInPolygons(coord);
-
-            if (!isInsideAny) {
-                this.markerLayer.setVisible(false);
-                this.emitUnselect();
-                this.$emit('freeze', false);
-            }
-        },
-        togglePolygonArea(index) {
-            this.polygonAreas[index].active = !this.polygonAreas[index].active;
-            this.validateMarkerInArea();
-            this.updateMask();
-            this.renderSimilarity();
-        },
-        deletePolygonArea(index) {
-            const feature = this.polygonAreas[index].feature;
-            if (feature) this.polygonSource.removeFeature(feature);
-            this.polygonAreas.splice(index, 1);
-            this.validateMarkerInArea();
-            this.updateMask()
-            this.renderSimilarity();
-
-            if (this.highlightFeature) {
-                this.polygonSource.removeFeature(this.highlightFeature);
-                this.highlightFeature = null;
-            }
-            this.polygonLayer.changed();
-        },
-        highlightPolygon(feature) {
-            if (this.highlightFeature) {
-                this.polygonSource.removeFeature(this.highlightFeature);
-                this.highlightFeature = null;
-            }
-
-            if (feature) {
-                this.highlightFeature = feature.clone();
-                this.highlightFeature.set('temp', true);
-                this.highlightFeature.setStyle(this.highlightStyle);
-                this.polygonSource.addFeature(this.highlightFeature);
-            }
-        },
-
-        // SPECTRUM
-        toggleSpectrumArea(index) {
-            this.spectrumAreas[index].active = !this.spectrumAreas[index].active;
-            this.$emit('spectrum-areas-changed', this.spectrumAreas);
-            this.updateSpectrumMask();
-            this.renderSimilarity();
-        },
-        deleteSpectrumArea(index) {
-            this.spectrumAreas.splice(index, 1);
-            this.$emit('spectrum-areas-changed', this.spectrumAreas);
-            this.updateSpectrumMask();
-            this.renderSimilarity();
-        },
-        toggleSpectrumAreaSelection() {
-            this.spectrumMode = !this.spectrumMode;
-
-            if (this.spectrumMode) {
-                this.$emit('spectrum-areas-selection');
-                window.addEventListener('keydown', this.handleSpectrumKeydown);
-            } else {
-                this.$emit('spectrum-areas-abort');
-                window.removeEventListener('keydown', this.handleSpectrumKeydown);
-            }
-            this.renderSimilarity();
-        },
-        handleSpectrumKeydown(event) {
-            if (event.key === 'Escape' && this.spectrumMode) {
-                this.toggleSpectrumAreaSelection();
-            }
-        },
-        handleSpectrumClick(feature) {
-            if (!this.spectrumMode) return;
-
-            const start = feature.start;
-            const end = feature.end;
-
-            const mzStart = Math.round(Number(this.dataset.channels[start]));
-            const mzEnd = Math.round(Number(this.dataset.channels[end]));
-
-            const newArea = {
-                name: `Spektrum: ${mzStart} – ${mzEnd}`,
-                active: true,
-                start: start,
-                end: end
-            };
-            this.spectrumAreas.push(newArea);
-            this.$emit('spectrum-areas-changed', this.spectrumAreas);
-            this.spectrumMode = false;
-
-            this.updateSpectrumMask();
-        },
-
-        // MASKEN
-        getActivePolygons() {
-            const polygons = [];
-            for (let i = 0; i < this.polygonAreas.length; i++) {
-                const area = this.polygonAreas[i];
-                if (area.active) {
-                    polygons.push(area.feature);
-                }
-            }
-            return polygons;
-        },
-        checkCoorInPolygons(point) {
-            const polygons = this.getActivePolygons();
-
-            if (!(polygons.length === 0)) {
-                for (const feature of polygons) {
-                    const geom = feature.getGeometry();
-                    if (geom.intersectsCoordinate(point)) {
-                        return true;
-                    }
-                }
-            } else {
-                return true;
-            }
-            return false;
-        },
-        async generateMaskTexture() {
-            const width = this.dataset.width;
-            const height = this.dataset.height;
-            const maskData = new Uint8Array(width * height * 4);
-            const polygons = this.getActivePolygons();
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const idx = (y * width + x) * 4;
-                    let inside = polygons.length === 0;
-                    const point = [x, y];
-                    inside = this.checkCoorInPolygons(point);
-
-                    if (inside) {
-                        maskData[idx] = 255;
-                        maskData[idx + 1] = 255;
-                        maskData[idx + 2] = 255;
-                        maskData[idx + 3] = 255;
-                    } else {
-                        maskData[idx] = 0;
-                        maskData[idx + 1] = 0;
-                        maskData[idx + 2] = 0;
-                        maskData[idx + 3] = 255;
-                    }
-                }
-            }
-            return maskData;
-        },
-        async updateMask() {
-            const maskData = await this.generateMaskTexture();
-            const gl = this.handler.getGl();
-            const maskTexture = this.handler.getTexture('mask');
-
-            gl.activeTexture(gl.TEXTURE2);
-            gl.bindTexture(gl.TEXTURE_2D, maskTexture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.dataset.width, this.dataset.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, maskData);
-        },
-        getActiveSpectra() {
-            const spectra = [];
-            for (let i = 0; i < this.spectrumAreas.length; i++) {
-                const area = this.spectrumAreas[i];
-                if (area.active) {
-                    spectra.push(area);
-                }
-            }
-            return spectra;
-        },
-        async updateSpectrumMask() {
-            const tiles = Math.ceil(this.dataset.depth / 4);
-
-            const width = Math.ceil(Math.sqrt(tiles));
-            const height = Math.ceil(tiles / width);
-
-            const pixels = width * height;
-            const maskData = new Uint8Array(pixels * 4);
-            const spectra = this.getActiveSpectra();
-            const hasActiveAreas = !(spectra.length === 0);
-
-            if (!hasActiveAreas) {
-                for (let i = 0; i < pixels * 4; i++) {
-                    maskData[i] = 255;
-                }
-            } else {
-                for (let i = 0; i < pixels * 4; i++) {
-                    maskData[i] = 0;
-                }
-
-                for (const area of spectra) {
-                    for (let i = area.start; i <= area.end; i++) {
-                        if (i >= this.dataset.depth) continue;
-
-                        const tileIndex = Math.floor(i / 4);
-                        const channel = i % 4;
-
-                        maskData[tileIndex * 4 + channel] = 255;
-                    }
-                }
-            }
-            const gl = this.handler.getGl();
-            const maskTexture = this.handler.getTexture('spectrumMask');
-            gl.activeTexture(gl.TEXTURE3);
-            gl.bindTexture(gl.TEXTURE_2D, maskTexture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, maskData);
-        },
-        setHighlightStyle() {
-            this.highlightStyle = [
-                new Style({ stroke: new Stroke({ color: 'white', width: 16 })}),
-                new Style({ stroke: new Stroke({ color: 'rgba(106, 0, 255)', width: 6 })}),
-            ];
-        },
-        getPolygonStyle(feature) {
-            for (let i = 0; i < this.polygonAreas.length; i++) {
-                const area = this.polygonAreas[i];
-                if (area.feature === feature) {
-                    if (!area.active) return null;
-                    break;
-                }
-            }
-
-            return [
-                new Style({ stroke: new Stroke({ color: 'white', width: 8 }), fill: null }),
-                new Style({ stroke: new Stroke({ color: 'rgba(106, 0, 255)', width: 4 }), fill: null }),
-            ];
-        },
         emitHovered(index) {
             this.$emit('hovered-area-index', index);
         },
@@ -767,7 +420,7 @@ export default {
         },
     },
     mounted() {
-        this.setHighlightStyle();
+        //
     },
 };
 </script>
