@@ -170,10 +170,11 @@ export default {
             ctx.lineTo(startX + width, y);
             ctx.stroke();
 
+            const range = Math.max(1, viewEnd - viewStart);
             for (let i = 0; i <= ticks; i++) {
-                const index = Math.round(viewStart + (i * (viewEnd - viewStart) / ticks));
-                if (isNaN(index)) continue;
-                const x = startX + i * width / ticks + this.barWidth / 2;
+                let index = Math.round(viewStart + (i * range / ticks));
+                index = Math.max(viewStart, Math.min(viewEnd - 1, index));
+                const x = Math.round(startX + (index - viewStart + 0.5) * this.barWidth);
 
                 // Tick
                 ctx.beginPath();
@@ -182,11 +183,10 @@ export default {
                 ctx.stroke();
 
                 // Label
-                let label = Math.round(this.dataset.channels[index]);
-                if (i !== 0) {
-                    label = Math.round(this.dataset.channels[index - 1]);
+                const label = this.dataset?.channels?.[index];
+                if (label !== undefined) {
+                    ctx.fillText(Math.round(label).toString(), x, y + tickHeight + 2);
                 }
-                ctx.fillText(label.toString(), x, y + tickHeight + 2);
             }
         },
         drawYAxis(startX, startY, height, ticks) {
