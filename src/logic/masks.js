@@ -71,7 +71,7 @@ export default {
                         maskData[idx] = 0;
                         maskData[idx + 1] = 0;
                         maskData[idx + 2] = 0;
-                        maskData[idx + 3] = 255;
+                        maskData[idx + 3] = 0;
                     }
                 }
             }
