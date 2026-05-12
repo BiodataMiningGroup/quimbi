@@ -48,7 +48,7 @@ export default class ImageHandler {
         let data = new Uint8Array(image.width * image.height * 4);
         gl.readPixels(0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
-        if (this.dataset.precision === 8) {
+        if (this.dataset.precision === 1 || this.dataset.precision === 8) {
             return data;
         } else if (this.dataset.precision === 16) {
             return new Uint16Array(data.buffer);
@@ -59,8 +59,7 @@ export default class ImageHandler {
 
     mergeImagesToTile_(images) {
         let merged;
-
-        if (images.length === 4) {
+        if (images.length === 4) { // With 32bit-precision, the last images argument has length = 2 which causes the error!
 
             merged = new Uint32Array(this.dataset.width * this.dataset.height * 4);
             for (let i = 0; i < images[0].length; i++) {
@@ -92,11 +91,20 @@ export default class ImageHandler {
         let imageCount = Math.ceil(this.dataset.depth / channelsPerImage);
         let imagesLoaded = 0;
 
-        let imagesPerTile = this.dataset.precision / 8;
-        let tileCount = Math.ceil(this.dataset.depth / 4);
+        let imagesPerTile;
+        let tileCount;
+        if (this.dataset.precision === 1) {
+            // 1 Tile contains 32 channels
+            imagesPerTile = 1;
+            tileCount = Math.ceil(this.dataset.depth / 32);
+        } else {
+            // 1 Tile contains 4 channels
+            imagesPerTile = this.dataset.precision / 8;
+            tileCount = Math.ceil(this.dataset.depth / 4);
+        }
         let lastTileIndex = tileCount - 1;
-        let latsTileImages = imageCount % imagesPerTile;
-        let tilesLoaded = 0;
+        let lastTileImages = imageCount % imagesPerTile;
+
         let tilesCache = {};
         let tilePromises = [];
         let tileRAR = [];
@@ -110,7 +118,7 @@ export default class ImageHandler {
         let gatherTile = (index, part, data) => {
             if (!tilesCache[index]) {
                 if (index === lastTileIndex) {
-                    tilesCache[index] = Array(latsTileImages).fill(undefined);
+                    tilesCache[index] = Array(lastTileImages).fill(undefined);
                 } else {
                     tilesCache[index] = Array(imagesPerTile).fill(undefined);
                 }
@@ -129,18 +137,16 @@ export default class ImageHandler {
         };
 
         let fetchNextImage = () => {
-            if (imagesLoaded < imageCount) {
-                let tileIndex = Math.floor(imagesLoaded / imagesPerTile);
-                let tilePartIndex = imagesLoaded % imagesPerTile;
+            if (imagesLoaded >= imageCount) return;
 
-                this.fetchImage_(imagesLoaded)
-                    .then(this.decodeImage_.bind(this))
-                    .then(gatherTile.bind(this, tileIndex, tilePartIndex))
-                    .then(fetchNextImage)
-                    .catch(tileRAR[tileIndex].reject);
-
-                imagesLoaded += 1;
-            }
+            let tileIndex = Math.floor(imagesLoaded / imagesPerTile);
+            let tilePartIndex = imagesLoaded % imagesPerTile;
+            this.fetchImage_(imagesLoaded)
+                .then(this.decodeImage_.bind(this))
+                .then(gatherTile.bind(this, tileIndex, tilePartIndex))
+                .then(fetchNextImage)
+                .catch(tileRAR[tileIndex].reject);
+            imagesLoaded += 1;
         };
 
         parallel = Math.min(parallel, imageCount);
