@@ -14,6 +14,25 @@ class ZipCreator(object):
         self.precision = precision
         self.overlay = overlay
 
+    def create1_(self, data, zip_file, metadata):
+        # Add missing feature channels to make shape[2] divisible by 32.
+        if data.shape[2] % 32 != 0:
+            zeros = np.zeros((data.shape[0], data.shape[1], 32 - (data.shape[2] % 32)))
+            data = np.concatenate((data, zeros), axis=2)
+
+        # Split data into chunks of 32 channels
+        splits = np.split(data, data.shape[2] // 32, axis=2)
+        for i, split in enumerate(splits):
+            binarized = (split > 0).astype(int)
+            # Split chunk of 32 channels into 4 smaller chunks of 8 channels
+            bytes_chunks = binarized.reshape(binarized.shape[0], binarized.shape[1], 4, 8)
+            # Pack chunks of 8 channels (binary) into bytes
+            bytes_packed = np.packbits(bytes_chunks, axis=-1).squeeze(-1)
+            filename = '{}.png'.format(i)
+            bytes_io = io.BytesIO()
+            Image.fromarray(bytes_packed).save(bytes_io, format='png')
+            zip_file.writestr(filename, bytes_io.getvalue())
+
     def create8_(self, data, zip_file, metadata):
         uint8_max = np.iinfo(np.uint8).max
         global_max = data.reshape(-1).max()
@@ -98,6 +117,8 @@ class ZipCreator(object):
             self.create32_(data, zip_file, metadata)
         elif self.precision == 16:
             self.create16_(data, zip_file, metadata)
+        elif self.precision == 1:
+            self.create1_(data, zip_file, metadata)
         else:
             self.create8_(data, zip_file, metadata)
 
@@ -108,7 +129,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create a QUIMBI ZIP from an NPZ or NPY file")
     parser.add_argument('file', type=str, help='path to the npz/npy file')
     parser.add_argument("-n", "--name", dest='name', type=str, default='', help="optional dataset name")
-    parser.add_argument('-p', '--precision', dest='precision', choices=[8, 16, 32], default=8, type=int, help='bit precision to store the dataset in (default: 8)')
+    parser.add_argument('-p', '--precision', dest='precision', choices=[1, 8, 16, 32], default=8, type=int, help='bit precision to store the dataset in (default: 8)')
     parser.add_argument('-o', '--overlay', type=str, help='optional path to the overlay image')
     args = vars(parser.parse_args())
 
