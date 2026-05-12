@@ -1,23 +1,28 @@
 import IntensityProgram from './IntensityProgram';
 import fragmentShaderSourceHamming from '../shaders/similarity1bitHamming.fs';
 import fragmentShaderSourceJaccard from '../shaders/similarity1bitJaccard.fs';
+import fragmentShaderSourceSMC from '../shaders/similarity1bitSMC.fs';
+import fragmentShaderSourceEuclidean from '../shaders/similarity1bitEuclidean.fs';
+import fragmentShaderSourceCosine from '../shaders/similarity1bitCosine.fs';
 import vertexShaderSource from '../shaders/rectangle.vs';
 
 export default class Similarity1Bit extends IntensityProgram {
     constructor(options, metric) {
-        let fragmentShaderSource;
-        if (metric === "hamming") {
-            fragmentShaderSource = fragmentShaderSourceHamming;
-        } else if (metric === "jaccard") {
-            // todo: implement
-        }
+        const shaders = {
+            hamming: {source: fragmentShaderSourceHamming, max_distance: options.depth},
+            jaccard: {source: fragmentShaderSourceJaccard, max_distance: 1},
+            SMC: {source: fragmentShaderSourceSMC, max_distance: 1},
+            euclidean: {source: fragmentShaderSourceEuclidean, max_distance: Math.sqrt(options.depth)},
+            cosine: {source: fragmentShaderSourceCosine, max_distance: Math.PI / 2}
+        };
+        let fragmentShaderSource = shaders[metric].source;
         super(vertexShaderSource, fragmentShaderSource, options);
         this.mousePosition = [0.5, 0.5];
         this.mousePositionPointer = null;
         const tiles = Math.ceil(options.depth / 32);
         this.depthTextureWidth = Math.ceil(Math.sqrt(tiles));
         this.depthTextureHeight = Math.ceil(tiles / this.depthTextureWidth);
-        this.MAX_DISTANCE = options.depth;
+        this.MAX_DISTANCE = shaders[metric].max_distance;
     }
 
     initialize(gl, handler) {
