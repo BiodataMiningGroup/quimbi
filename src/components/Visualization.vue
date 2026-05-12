@@ -56,6 +56,7 @@ import PixelVectorProgram from '../webgl/programs/PixelVector';
 import Point from 'ol/geom/Point';
 import Projection from 'ol/proj/Projection';
 import SimilarityProgram from '../webgl/programs/Similarity';
+import Similarity1BitProgram from '../webgl/programs/Similarity1Bit';
 import SingleFeatureProgram from '../webgl/programs/SingleFeature';
 import StretchIntensityProgram from '../webgl/programs/StretchIntensity';
 import Style from 'ol/style/Style';
@@ -107,6 +108,18 @@ export default {
         },
     },
     methods: {
+        // ------------------------------ ! todo: remove
+        async test(x,y) {
+            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            this.updateMousePosition({coordinate: [x, y]});
+            await sleep(1000);
+            const canvas = document.querySelector(".ol-layer canvas");
+            const link = document.createElement("a");
+            link.download = `[${x},${y}]-${this.dataset.precision}bit.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        },
+        // ------------------------------ !
         fetchImages() {
             let imageHandler = new ImageHandler(this.dataset);
             let parallel = 3;
@@ -249,7 +262,13 @@ export default {
             });
         },
         initializePrograms() {
-            this.similarityProgram = new SimilarityProgram(this.dataset);
+            const METRIC = "hamming";
+            if (this.dataset.precision === 1) {
+                this.similarityProgram = new Similarity1BitProgram(this.dataset, METRIC);
+            } else {
+                this.similarityProgram = new SimilarityProgram(this.dataset);
+            }
+
             this.stretchIntensityProgram = new StretchIntensityProgram(this.dataset);
             this.colorMapProgram = new ColorMapProgram();
             if (this.hasOverlay) {
