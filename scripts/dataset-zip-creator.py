@@ -7,12 +7,14 @@ from zipfile import ZipFile
 import io
 
 class ZipCreator(object):
-    def __init__(self, file, name='', precision=8, overlay=None):
+    def __init__(self, file, name='', precision=8, overlay=None, threshold=0):
         self.file = os.path.abspath(file)
-        self.out_file = '{}.{}.zip'.format(self.file, precision)
+        #self.out_file = '{}.{}.zip'.format(self.file, precision)
+        self.out_file = f"{self.file}.{precision}{'-TH'+str(threshold) if precision == 1 else ''}.zip"
         self.name = os.path.basename(file) if name == '' else name
         self.precision = precision
         self.overlay = overlay
+        self.threshold = threshold
 
     def create1_(self, data, zip_file, metadata):
         # Add missing feature channels to make shape[2] divisible by 32.
@@ -20,10 +22,13 @@ class ZipCreator(object):
             zeros = np.zeros((data.shape[0], data.shape[1], 32 - (data.shape[2] % 32)))
             data = np.concatenate((data, zeros), axis=2)
 
+        global_max = data.reshape(-1).max()
+        intensity_threshold = global_max * self.threshold * 0.01
+
         # Split data into chunks of 32 channels
         splits = np.split(data, data.shape[2] // 32, axis=2)
         for i, split in enumerate(splits):
-            binarized = (split > 0).astype(int)
+            binarized = (split > intensity_threshold).astype(int)
             # Split chunk of 32 channels into 4 smaller chunks of 8 channels
             bytes_chunks = binarized.reshape(binarized.shape[0], binarized.shape[1], 4, 8)
             # Pack chunks of 8 channels (binary) into bytes
@@ -131,6 +136,7 @@ if __name__ == '__main__':
     parser.add_argument("-n", "--name", dest='name', type=str, default='', help="optional dataset name")
     parser.add_argument('-p', '--precision', dest='precision', choices=[1, 8, 16, 32], default=8, type=int, help='bit precision to store the dataset in (default: 8)')
     parser.add_argument('-o', '--overlay', type=str, help='optional path to the overlay image')
+    parser.add_argument('-t', '--threshold', dest='threshold', type=float, default=0, help='% threshold (of max. intensity) for 1-bit quantization')
     args = vars(parser.parse_args())
 
     creator = ZipCreator(**args)
