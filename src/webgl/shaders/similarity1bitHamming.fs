@@ -43,15 +43,15 @@ uint BIT_COUNT[256] = uint[256](
 
 uint hammingDistance(vec4 current, vec4 reference) {
     // Scale RGBA values of current and reference pixel from [0,1] to [0,255].
-    uvec4 rgbaCurrent = uvec4(round(current * 255.0));
-    uvec4 rgbaReference = uvec4(round(reference * 255.0));
+    uvec4 C = uvec4(round(current * 255.0));
+    uvec4 R = uvec4(round(reference * 255.0));
 
     // XOR channels (R,G,B,A) from current pixel and reference pixel, and count number of set bits (= hamming distance).
     // Each color channel encodes 8 mass channels.
-    return BIT_COUNT[rgbaCurrent.r ^ rgbaReference.r] + // compare mass channels 1-8
-           BIT_COUNT[rgbaCurrent.g ^ rgbaReference.g] + // compare mass channels 9-16
-           BIT_COUNT[rgbaCurrent.b ^ rgbaReference.b] + // compare mass channels 17-24
-           BIT_COUNT[rgbaCurrent.a ^ rgbaReference.a];  // compare mass channels 25-32
+    return BIT_COUNT[C.r ^ R.r] + // compare mass channels 1-8
+           BIT_COUNT[C.g ^ R.g] + // compare mass channels 9-16
+           BIT_COUNT[C.b ^ R.b] + // compare mass channels 17-24
+           BIT_COUNT[C.a ^ R.a];  // compare mass channels 25-32
 }
 
 void main() {
@@ -128,8 +128,6 @@ void main() {
 
         vec4 spectrumMaskPixel = texture(u_spectrumMask, spectrumMaskCoord);
 
-        // This probably doesnt work for now?
-        /*
         if (spectrumMaskPixel.r < 0.5) {
             reference.r = 0.0;
             current.r = 0.0;
@@ -146,7 +144,6 @@ void main() {
             reference.a = 0.0;
             current.a = 0.0;
         }
-        */
 
         currentLength += dot(current, current);
         dist += float(hammingDistance(current, reference));
