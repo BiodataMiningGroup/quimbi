@@ -439,7 +439,9 @@ export default {
         },
     },
     mounted() {
-        //
+        // ------------------------------ ! todo: remove
+        window.test = this.test;
+        // ------------------------------ !
     },
 };
 </script>
