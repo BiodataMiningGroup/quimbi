@@ -43,8 +43,8 @@ uint BIT_COUNT[256] = uint[256](
 
 float dotBinary(vec4 x, vec4 y) {
     // Scale RGBA values of current and reference pixel from [0,1] to [0,255].
-    uvec4 X = uvec4(round(x * 255.0));
-    uvec4 Y = uvec4(round(y * 255.0));
+    uvec4 X = uvec4(x);
+    uvec4 Y = uvec4(y);
 
     // Dot product of x and y represented as binary vectors of 32 bits.
     // => Number of bits set to 1 in both representations.
