@@ -42,9 +42,8 @@ uint BIT_COUNT[256] = uint[256](
 );
 
 vec3 compare(vec4 current, vec4 reference) {
-    // Scale RGBA values of current and reference pixel from [0,1] to [0,255].
-    uvec4 C = uvec4(round(current * 255.0));
-    uvec4 R = uvec4(round(reference * 255.0));
+    uvec4 C = uvec4(current);
+    uvec4 R = uvec4(reference);
 
     // Number of bits where current = 1 and reference = 1.
     float M_11 = float(BIT_COUNT[C.r & R.r] + BIT_COUNT[C.g & R.g] + BIT_COUNT[C.b & R.b] + BIT_COUNT[C.a & R.a]);
