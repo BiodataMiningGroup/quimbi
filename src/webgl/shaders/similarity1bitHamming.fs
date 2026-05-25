@@ -116,9 +116,6 @@ void main() {
             current = convertUvec(texture(<%=SAMPLER=%>, coords_2d_current));
         =%>
 
-        //reference = reference * 100.0;
-        //current = current * 100.0;
-
         // spectrum mask
         float maskX = mod(tile, u_spectrumMaskWidth);
         float maskY = floor(tile / u_spectrumMaskWidth);
