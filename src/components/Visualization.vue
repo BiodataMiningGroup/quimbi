@@ -47,12 +47,12 @@ import ColorMapProgram from '../webgl/programs/ColorMap';
 import ColorScale from './ColorScale.vue';
 import Feature from 'ol/Feature';
 import FillStyle from 'ol/style/Fill';
+import PixelVectorHandler from "../PixelVectorHandler.js";
 import ImageHandler from '../ImageHandler';
 import ImageLayer from 'ol/layer/Image';
 import ImageSource from 'ol/source/ImageStatic';
 import LoadingIndicator from './LoadingIndicator.vue';
 import OpacitySlider from '../ol/control/OpacitySlider';
-import PixelVectorProgram from '../webgl/programs/PixelVector';
 import Point from 'ol/geom/Point';
 import Projection from 'ol/proj/Projection';
 import SimilarityProgram from '../webgl/programs/Similarity';
@@ -262,7 +262,7 @@ export default {
             });
         },
         initializePrograms() {
-            const METRIC = "hamming";
+            const METRIC = "jaccard";
             if (this.dataset.precision === 1) {
                 this.similarityProgram = new Similarity1BitProgram(this.dataset, METRIC);
             } else {
@@ -274,13 +274,11 @@ export default {
             if (this.hasOverlay) {
                 this.colorMapProgram.setAlphaScaling(this.initialAlphaScaling);
             }
-            this.pixelVectorProgram = new PixelVectorProgram(this.dataset);
             this.singleFeatureProgram = new SingleFeatureProgram(this.dataset);
 
             this.handler.addProgram(this.similarityProgram);
             this.handler.addProgram(this.stretchIntensityProgram);
             this.handler.addProgram(this.colorMapProgram);
-            this.handler.addProgram(this.pixelVectorProgram);
             this.handler.addProgram(this.singleFeatureProgram);
 
             this.stretchIntensityProgram.link(this.similarityProgram);
@@ -295,9 +293,6 @@ export default {
                 .then(this.map.render.bind(this.map))
                 .then(this.updateSimilarityColorScale);
         },
-        renderPixelVector() {
-            return this.handler.render([this.pixelVectorProgram]);
-        },
         renderSingleFeature() {
             this.handler.render([
                     this.singleFeatureProgram,
@@ -307,11 +302,11 @@ export default {
                 .then(this.map.render.bind(this.map))
                 .then(this.updateFeatureColorScale);
         },
-        emitHover() {
-            this.$emit('hover', this.pixelVectorProgram.getPixelVector());
+        async emitHover() {
+            this.$emit('hover', this.pixelVectorHandler.getPixelVector());
         },
         emitSelect() {
-            this.$emit('select', this.pixelVectorProgram.getPixelVector().slice());
+            this.$emit('select', this.pixelVectorHandler.getPixelVector().slice());
         },
         emitUnselect() {
             this.$emit('select', []);
@@ -333,10 +328,10 @@ export default {
                     this.renderSimilarity();
                 } else {
                     this.similarityProgram.setMousePosition(newPosition);
-                    this.pixelVectorProgram.setMousePosition(newPosition);
+                    this.pixelVectorHandler.setMousePosition(newPosition);
                     if (oldPosition[0] !== newPosition[0] || oldPosition[1] !== newPosition[1]) {
                         this.renderSimilarity();
-                        this.renderPixelVector().then(this.emitHover);
+                        this.emitHover();
                     }
                 }
             }
@@ -357,14 +352,12 @@ export default {
                 } else {
                     this.markerLayer.setVisible(true);
                     this.markerFeature.getGeometry().setCoordinates(event.coordinate);
-                    let oldPosition = this.pixelVectorProgram.getMousePosition();
+                    let oldPosition = this.pixelVectorHandler.getMousePosition();
                     let newPosition = event.coordinate.map(Math.floor);
-                    this.pixelVectorProgram.setMousePosition(newPosition);
+                    this.pixelVectorHandler.setMousePosition(newPosition);
                     if (oldPosition[0] !== newPosition[0] || oldPosition[1] !== newPosition[1]) {
-                        this.renderPixelVector().then(() => {
-                            this.emitSelect();
-                            this.$emit('freeze', true);
-                        });
+                        this.emitSelect();
+                        this.$emit('freeze', true);
                     }
                 }
             }
@@ -396,6 +389,7 @@ export default {
                 this.initializeOpenLayers(canvas);
                 this.initializeWebgl(canvas);
                 this.initializePrograms();
+                this.pixelVectorHandler = new PixelVectorHandler(this.dataset);
 
                 this.fetchImages()
                     .then(() => this.updatePolygonMask())
