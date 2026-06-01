@@ -4,6 +4,7 @@ anyio==4.13.0
 click==8.4.1
 fastapi==0.136.3
 h11==0.16.0
+h5py==3.16.0
 idna==3.16
 numpy==2.4.4
 packaging==26.2
