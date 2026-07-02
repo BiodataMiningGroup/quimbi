@@ -262,8 +262,8 @@ export default {
             });
         },
         initializePrograms() {
-            const METRIC = "jaccard";
             if (this.dataset.precision === 1) {
+                const METRIC = "jaccard";
                 this.similarityProgram = new Similarity1BitProgram(this.dataset, METRIC);
             } else {
                 this.similarityProgram = new SimilarityProgram(this.dataset);
@@ -371,7 +371,8 @@ export default {
                     this.stretchIntensityProgram.link(this.similarityProgram);
                     this.renderSimilarity();
                 } else {
-                    this.singleFeatureProgram.setFeatureIndex(index);
+                    //this.singleFeatureProgram.setFeatureIndex(index);
+                    this.singleFeatureProgram.setChannelImage(index);
                     this.stretchIntensityProgram.link(this.singleFeatureProgram);
                     this.updatePolygonMask();
                     this.renderSingleFeature();
