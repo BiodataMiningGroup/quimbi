@@ -6,14 +6,10 @@ precision mediump usampler2D;
 
 in vec2 v_texture_position;
 
-uniform vec4 u_channel_mask;
 uniform sampler2D u_mask;
+uniform sampler2D u_texture;
 
 out vec4 outColor;
-
-const vec4 ONES = vec4(1);
-
-uniform sampler2D u_texture;
 
 void main() {
 
@@ -22,8 +18,6 @@ void main() {
         discard;
     }
 
-    vec4 colors = texture(u_texture, vec2(v_texture_position.x, 1.0 - v_texture_position.y));
-    float channel_color = dot(colors * u_channel_mask, ONES);
-
-    outColor = vec4(channel_color);
+    float color = texture(u_texture, vec2(v_texture_position.x, 1.0 - v_texture_position.y)).r;
+    outColor = vec4(color);
 }

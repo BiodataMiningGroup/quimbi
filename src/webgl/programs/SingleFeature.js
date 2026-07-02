@@ -13,9 +13,7 @@ export default class SingleFeature extends IntensityProgram {
 
         let pointer = this.getPointer();
         this.texturePointer = gl.getUniformLocation(pointer, 'u_texture');
-        this.channelMaskPointer = gl.getUniformLocation(pointer, 'u_channel_mask');
         this.maskPointer = gl.getUniformLocation(pointer, 'u_mask');
-        this.channelMask = [1, 0, 0, 0];
 
         this.EMPTY_CHANNEL = this.create_empty_channel(handler.dataset_.width, handler.dataset_.height);
         this.currentChannelImage = this.EMPTY_CHANNEL;
@@ -50,7 +48,6 @@ export default class SingleFeature extends IntensityProgram {
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
 
         gl.uniform1i(this.texturePointer, 0);
-        gl.uniform4f(this.channelMaskPointer, ...this.channelMask);
         gl.uniform1i(this.maskPointer, 2);
 
         gl.texSubImage2D(
