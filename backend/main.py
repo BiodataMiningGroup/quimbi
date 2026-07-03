@@ -63,7 +63,7 @@ class ChannelImageHandler:
         if index < 0 or index >= self.data.shape[2]:
             return None
 
-        # Select m/z-channel
+        # Select mass channel
         data = self.data[:, :, index]
 
         # Normalize intensities to [0, 255]
@@ -71,10 +71,6 @@ class ChannelImageHandler:
         max_val = data.reshape(-1).max()
         min_val = data.reshape(-1).min()
         data = np.round((data - min_val) / (max_val - min_val) * uint8_max).astype(np.uint8)
-
-        # Fill all color channels (RGBA) with same image
-        data = data.ravel()
-        data = np.repeat(data, 4)
 
         return data
 

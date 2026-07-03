@@ -30,13 +30,15 @@ export default class SingleFeature extends IntensityProgram {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
         gl.texImage2D(gl.TEXTURE_2D,
             0,
-            gl.RGBA8,
+            gl.R8,
             this.imageWidth,
             this.imageHeight,
             0,
-            gl.RGBA,
+            gl.RED,
             gl.UNSIGNED_BYTE,
             this.EMPTY_CHANNEL
         );
@@ -50,6 +52,7 @@ export default class SingleFeature extends IntensityProgram {
         gl.uniform1i(this.texturePointer, 0);
         gl.uniform1i(this.maskPointer, 2);
 
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0,
@@ -57,7 +60,7 @@ export default class SingleFeature extends IntensityProgram {
             0,
             handler.dataset_.width,
             handler.dataset_.height,
-            gl.RGBA,
+            gl.RED,
             gl.UNSIGNED_BYTE,
             this.currentChannelImage
         );
@@ -68,15 +71,8 @@ export default class SingleFeature extends IntensityProgram {
     }
 
     create_empty_channel(width, height) {
-        const data = new Uint8Array(width * height * 4);
-
-        for (let i = 0; i < data.length; i += 4) {
-            data[i] = 200;     // R
-            data[i + 1] = 0;   // G
-            data[i + 2] = 0;   // B
-            data[i + 3] = 0;   // A
-        }
-
+        const data = new Uint8Array(width * height);
+        data.fill(0);
         return data;
     }
 
