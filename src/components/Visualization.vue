@@ -365,16 +365,18 @@ export default {
         setReady() {
             this.ready = true;
         },
-        showFeature(index) {
+        async showFeature(index) {
             if (this.ready) {
                 if (index === null) {
                     this.stretchIntensityProgram.link(this.similarityProgram);
                     this.renderSimilarity();
                 } else {
-                    //this.singleFeatureProgram.setFeatureIndex(index);
-                    this.singleFeatureProgram.setChannelImage(index);
                     this.stretchIntensityProgram.link(this.singleFeatureProgram);
-                    this.updatePolygonMask();
+                    this.singleFeatureProgram.setEmptyChannel();
+                    await this.updatePolygonMask();
+                    this.renderSingleFeature();
+                    await this.singleFeatureProgram.setChannel(index);
+                    await this.updatePolygonMask();
                     this.renderSingleFeature();
                 }
             }

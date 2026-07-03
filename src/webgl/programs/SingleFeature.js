@@ -6,6 +6,7 @@ export default class SingleFeature extends IntensityProgram {
     constructor(options) {
         super(vertexShaderSource, fragmentShaderSource, options);
         this.maskPointer = null;
+        this.currentChannelIndex = undefined;
     }
 
     initialize(gl, handler) {
@@ -76,7 +77,7 @@ export default class SingleFeature extends IntensityProgram {
         return data;
     }
 
-    async fetchChannelImage(index) {
+    async fetchChannel(index) {
         const res = await fetch(`/api/channel?index=${index}`);
 
         if (!res.ok) {
@@ -86,7 +87,16 @@ export default class SingleFeature extends IntensityProgram {
         return new Uint8Array(await res.arrayBuffer());
     }
 
-    async setChannelImage(index) {
-        this.currentChannelImage = await this.fetchChannelImage(index);
+    async setChannel(index) {
+        this.currentChannelIndex = index;
+        const channelImage = await this.fetchChannel(index);
+        if (this.currentChannelIndex !== index) {
+            return;
+        }
+        this.currentChannelImage = channelImage;
+    }
+
+    setEmptyChannel() {
+        this.currentChannelImage = this.EMPTY_CHANNEL;
     }
 }
