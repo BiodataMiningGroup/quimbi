@@ -303,10 +303,11 @@ export default {
                 .then(this.updateFeatureColorScale);
         },
         async emitHover() {
-            this.$emit('hover', this.pixelVectorHandler.getPixelVector());
+            this.$emit('hover', await this.pixelVectorHandler.getPixelVector());
         },
-        emitSelect() {
-            this.$emit('select', this.pixelVectorHandler.getPixelVector().slice());
+        async emitSelect() {
+            const pixelVector = await this.pixelVectorHandler.getPixelVector();
+            this.$emit('select', pixelVector.slice());
         },
         emitUnselect() {
             this.$emit('select', []);
