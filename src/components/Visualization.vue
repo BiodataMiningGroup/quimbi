@@ -90,6 +90,7 @@ export default {
             error: null,
             overlayGrayscale: true,
             frozen: false,
+            currentlyShownFeature: undefined
         };
     },
     computed: {
@@ -369,15 +370,19 @@ export default {
         async showFeature(index) {
             if (this.ready) {
                 if (index === null) {
+                    this.currentlyShownFeature = undefined;
                     this.stretchIntensityProgram.link(this.similarityProgram);
                     this.renderSimilarity();
                 } else {
+                    this.currentlyShownFeature = index;
                     this.stretchIntensityProgram.link(this.singleFeatureProgram);
                     this.singleFeatureProgram.setEmptyChannel();
                     await this.updatePolygonMask();
+                    if (this.currentlyShownFeature !== index) return;
                     this.renderSingleFeature();
                     await this.singleFeatureProgram.setChannel(index);
                     await this.updatePolygonMask();
+                    if (this.currentlyShownFeature !== index) return;
                     this.renderSingleFeature();
                 }
             }
