@@ -80,14 +80,38 @@ export default class Handler {
     }
 
     getProps_(gl, dataset, options) {
+        let tiles_;
+        switch (dataset.precision) {
+            case 1:
+                tiles_ = Math.ceil(dataset.depth / 32);
+                break;
+            case 2:
+                tiles_ = Math.ceil(dataset.depth / 16)
+                break;
+            default:
+                tiles_ = Math.ceil(dataset.depth / 4);
+        }
+
+        let depthLastTile_;
+        switch (dataset.precision) {
+            case 1:
+                depthLastTile_ = dataset.depth % 32;
+                break;
+            case 2:
+                depthLastTile_ = dataset.depth % 16;
+                break;
+            default:
+                depthLastTile_ = dataset.depth % 4;
+        }
+
         let props = {
             // Units that are reserved for use outside of this instance.
             reservedUnits: options.reservedUnits === undefined ? 0 : options.reservedUnits,
             // Total number of tiles.
-            tiles: dataset.precision === 1 ? Math.ceil(dataset.depth / 32) : Math.ceil(dataset.depth / 4),
+            tiles: tiles_,
             // Number of valid channels of the last tile as the dataset depth may not be
             // divisible by 4 (or 32).
-            depthLastTile: dataset.precision === 1 ? dataset.depth % 32 : dataset.depth % 4,
+            depthLastTile: depthLastTile_,
         };
 
         let maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
@@ -347,7 +371,6 @@ export default class Handler {
             program.beforeRender(gl, this);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             program.afterRender(gl, this);
-            // console.log(program.constructor.name, Date.now() - date);
         });
     }
 
@@ -360,7 +383,7 @@ export default class Handler {
         let type;
         let emptyArray;
 
-        if (dataset.precision === 1 || dataset.precision === 8) {
+        if (dataset.precision === 1 || dataset.precision === 2 || dataset.precision === 8) {
             format = gl.RGBA8UI;
             type = gl.UNSIGNED_BYTE;
             emptyArray = new Uint8Array(width * height * 4);
@@ -380,7 +403,7 @@ export default class Handler {
     storeTileSubImage_(gl, dataset, x, y, width, height, tile) {
         let type;
 
-        if (dataset.precision === 1 || dataset.precision === 8) {
+        if (dataset.precision === 1 || dataset.precision === 2 || dataset.precision === 8) {
             type = gl.UNSIGNED_BYTE;
         } else if (dataset.precision === 16) {
             type = gl.UNSIGNED_SHORT;
@@ -391,7 +414,7 @@ export default class Handler {
     }
 
     storeTile_(gl, tile, index, dataset, props) {
-        if ((dataset.precision === 1 || dataset.precision === 8) && !(tile instanceof Uint8Array)) {
+        if ((dataset.precision === 1 || dataset.precision === 2 || dataset.precision === 8) && !(tile instanceof Uint8Array)) {
             throw new WebglError('Each tile image must be a Uint8Array.');
         } else if (dataset.precision === 16 && !(tile instanceof Uint16Array)) {
             throw new WebglError('Each tile image must be a Uint16Array.');

@@ -48,7 +48,7 @@ export default class ImageHandler {
         let data = new Uint8Array(image.width * image.height * 4);
         gl.readPixels(0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
-        if (this.dataset.precision === 1 || this.dataset.precision === 8) {
+        if (this.dataset.precision === 1 || this.dataset.precision === 2 || this.dataset.precision === 8) {
             return data;
         } else if (this.dataset.precision === 16) {
             return new Uint16Array(data.buffer);
@@ -97,7 +97,13 @@ export default class ImageHandler {
             // 1 Tile contains 32 channels
             imagesPerTile = 1;
             tileCount = Math.ceil(this.dataset.depth / 32);
-        } else {
+        }
+        else if (this.dataset.precision === 2) {
+            // 1 Tile contains 16 channels
+            imagesPerTile = 1;
+            tileCount = Math.ceil(this.dataset.depth / 16);
+        }
+        else {
             // 1 Tile contains 4 channels
             imagesPerTile = this.dataset.precision / 8;
             tileCount = Math.ceil(this.dataset.depth / 4);

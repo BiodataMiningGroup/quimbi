@@ -79,7 +79,7 @@ const NUMERIC_FIELDS = [
     'width',
 ];
 
-const PRECISION_STEPS = [32, 16, 8, 1];
+const PRECISION_STEPS = [32, 16, 8, 2, 1];
 
 export default {
     components: {
