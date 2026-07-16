@@ -23,11 +23,6 @@ const vec4 ZEROS = vec4(0);
 
 uint compare4Channels(uint c, uint r) {
     // Calculate manhattan distance for 4 2bit-mass-channels.
-    // 2-bit values:
-    // 00 = 0
-    // 01 = 1
-    // 10 = 2
-    // 11 = 3
 
     // Shift bits in steps of 2 and apply mask 0x3u = 00000011 to extract lowest two bits.
     uint cBits_1_0 = c & 0x3u;          // Ch. 1, current pixel

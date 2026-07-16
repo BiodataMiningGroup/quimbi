@@ -62,7 +62,8 @@ void main() {
         outColor = vec4(-1.0);
         return;
     }
-    //
+
+    // M stores the results of the vector comparisons
     vec3 M = vec3(0); // (M_11, M_01, M_10)
 
     // Jaccard-Index
