@@ -41,19 +41,27 @@ uint BIT_COUNT[256] = uint[256](
     4u, 5u, 5u, 6u, 5u, 6u, 6u, 7u, 5u, 6u, 6u, 7u, 6u, 7u, 7u, 8u
 );
 
-uint popcount(uint x)
-{
-    x = x - ((x >> 1) & 0x55555555u);
-    x = (x & 0x33333333u) + ((x >> 2) & 0x33333333u);
-    x = (x + (x >> 4)) & 0x0F0F0F0Fu;
-    x = x * 0x01010101u;
-    return x >> 24;
-}
-
 uint xor2bit(uint a, uint b) {
+    // Apply XOR to groups of 2 bits. A 2bit-group encodes one mass channel.
+
+    // 1. Apply XOR to both values.
+    // A 2bit-group that differs will result in a 2bit-group of either 01,10,11 after the XOR.
     uint x = a ^ b;
+    // 2. Shift the resulting bit-pattern one position to the right, then OR the bit-pattern with its shifted version.
+    // The bit-shift to the right produces a bit-pattern where the higher bit in a group is now at the position of
+    // the lower bit. The resulting bit-pattern now looks like this (after the OR):
+    // (x7|0) (x6|x7) (x5|x6) (x4|x5) (x3|x4) (x2|x3) (x1|x2) (x0|x1)
     x |= x >> 1;
+    // 3. Apply the mask 0x55555555 = ...01010101. The resulting bit-pattern now looks like this:
+    // 0 (x6|x7) 0 (x4|x5) 0 (x2|x3) 0 (x0|x1)
     x &= 0x55555555u;
+    // In the final bit-pattern, in every group of 2 bits, the lower bit is now either 0 or 1.
+    // It is 1 if and only if the original 2bit-groups where different, because in this case either the lower or the
+    // higher bit in the group where different (=> higher bit = 1 or lower bit = 1 after the XOR).
+
+    // => Each differing 2bit-group results in a (01)-group, each identical group in a (00)-group.
+    // The number of 1's in the final bit-pattern can be counted, which equals the number of differing 2bit-groups.
+
     return x;
 }
 
@@ -61,35 +69,10 @@ uint hammingDistance(vec4 current, vec4 reference) {
     uvec4 C = uvec4(current);
     uvec4 R = uvec4(reference);
 
-    // XOR channels (R,G,B,A) from current pixel and reference pixel,
-    // and count number of set bits (= hamming distance).
-    // Each color channel encodes 4 mass channels.
-
-    /*
-    return BIT_COUNT[C.r ^ R.r] +
-           BIT_COUNT[C.g ^ R.g] +
-           BIT_COUNT[C.b ^ R.b] +
-           BIT_COUNT[C.a ^ R.a];
-    */
-
     return BIT_COUNT[xor2bit(C.r, R.r)] +
            BIT_COUNT[xor2bit(C.g, R.g)] +
            BIT_COUNT[xor2bit(C.b, R.b)] +
            BIT_COUNT[xor2bit(C.a, R.a)];
-
-    /*
-    return popcount(xor2bit(C.r, R.r)) +
-           popcount(xor2bit(C.g, R.g)) +
-           popcount(xor2bit(C.b, R.b)) +
-           popcount(xor2bit(C.a, R.a));
-    */
-
-    /*
-    return popcount(C.r ^ R.r) +
-           popcount(C.g ^ R.g) +
-           popcount(C.b ^ R.b) +
-           popcount(C.a ^ R.a);
-   */
 }
 
 void main() {
