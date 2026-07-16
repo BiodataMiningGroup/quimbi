@@ -57,6 +57,7 @@ import Point from 'ol/geom/Point';
 import Projection from 'ol/proj/Projection';
 import SimilarityProgram from '../webgl/programs/Similarity';
 import Similarity1BitProgram from '../webgl/programs/Similarity1Bit';
+import Similarity2BitProgram from '../webgl/programs/Similarity2Bit';
 import SingleFeatureProgram from '../webgl/programs/SingleFeature';
 import StretchIntensityProgram from '../webgl/programs/StretchIntensity';
 import Style from 'ol/style/Style';
@@ -266,7 +267,11 @@ export default {
             if (this.dataset.precision === 1) {
                 const METRIC = "jaccard";
                 this.similarityProgram = new Similarity1BitProgram(this.dataset, METRIC);
-            } else {
+            } else if (this.dataset.precision === 2) {
+                const METRIC = "weightedJaccard";
+                this.similarityProgram = new Similarity2BitProgram(this.dataset, METRIC);
+            }
+            else {
                 this.similarityProgram = new SimilarityProgram(this.dataset);
             }
 
