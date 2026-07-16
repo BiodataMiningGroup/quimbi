@@ -45,14 +45,14 @@ vec4 compare(vec4 current, vec4 reference) {
     uvec4 C = uvec4(current);
     uvec4 R = uvec4(reference);
 
-    // Number of bits where current = 0 and reference = 0.
-    float M_00 = float(BIT_COUNT[~C.r & ~R.r] + BIT_COUNT[~C.g & ~R.g] + BIT_COUNT[~C.b & ~R.b] + BIT_COUNT[~C.a & ~R.a]);
     // Number of bits where current = 1 and reference = 1.
     float M_11 = float(BIT_COUNT[C.r & R.r] + BIT_COUNT[C.g & R.g] + BIT_COUNT[C.b & R.b] + BIT_COUNT[C.a & R.a]);
     // Number of bits where current = 0 and reference = 1.
     float M_01 = float(BIT_COUNT[~C.r & R.r] + BIT_COUNT[~C.g & R.g] + BIT_COUNT[~C.b & R.b] + BIT_COUNT[~C.a & R.a]);
     // Number of bits where current = 1 and reference = 0.
     float M_10 = float(BIT_COUNT[C.r & ~R.r] + BIT_COUNT[C.g & ~R.g] + BIT_COUNT[C.b & ~R.b] + BIT_COUNT[C.a & ~R.a]);
+    // Number of bits where current = 0 and reference = 0.
+    float M_00 = 32.0 - M_11 - M_01 - M_10;
 
     return vec4(M_00, M_11, M_01, M_10);
 }
