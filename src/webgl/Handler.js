@@ -110,7 +110,7 @@ export default class Handler {
             // Total number of tiles.
             tiles: tiles_,
             // Number of valid channels of the last tile as the dataset depth may not be
-            // divisible by 4 (or 32).
+            // divisible by 4 or 16 or 32.
             depthLastTile: depthLastTile_,
         };
 

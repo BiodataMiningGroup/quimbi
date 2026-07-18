@@ -142,7 +142,7 @@ export default {
             });
 
             if (!PRECISION_STEPS.includes(dataset.precision)) {
-                throw Error(`The the precision must be 32, 16, 8 or 1.`);
+                throw Error(`The the precision must be 32, 16, 8, 2 or 1.`);
             }
             let fileMultiplier = dataset.precision / 32;
             let expectedFiles = Math.ceil(dataset.depth * fileMultiplier);
