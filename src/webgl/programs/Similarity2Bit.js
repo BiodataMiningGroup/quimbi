@@ -1,6 +1,5 @@
 import IntensityProgram from './IntensityProgram';
 import fragmentShaderSourceHamming from '../shaders/similarity2bitHamming.fs';
-import fragmentShaderSourceManhattan from '../shaders/similarity2bitManhattan.fs';
 import fragmentShaderSourceJaccard from "../shaders/similarity2bitJaccard.fs";
 import fragmentShaderSourceWeightedJaccard from "../shaders/similarity2bitWeightedJaccard.fs";
 import vertexShaderSource from '../shaders/rectangle.vs';
@@ -10,7 +9,6 @@ export default class Similarity2Bit extends IntensityProgram {
     constructor(options, metric) {
         const shaders = {
             hamming: {source: fragmentShaderSourceHamming, max_distance: options.depth},
-            manhattan: {source: fragmentShaderSourceManhattan, max_distance: options.depth * 3},
             jaccard: {source: fragmentShaderSourceJaccard, max_distance: 1},
             weightedJaccard: {source: fragmentShaderSourceWeightedJaccard, max_distance: 1},
         };
