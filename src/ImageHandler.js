@@ -59,24 +59,23 @@ export default class ImageHandler {
 
     mergeImagesToTile_(images) {
         let merged;
-        if (images.length === 4) { // With 32bit-precision, the last images argument has length = 2 which causes the error!
+        if (this.dataset.precision === 32) {
 
             merged = new Uint32Array(this.dataset.width * this.dataset.height * 4);
             for (let i = 0; i < images[0].length; i++) {
-                merged[i * 4] = images[0][i];
-                merged[i * 4 + 1] = images[1][i];
-                merged[i * 4 + 2] = images[2][i];
-                merged[i * 4 + 3] = images[3][i];
+                for (let j = 0; j < images.length; j++) {
+                    merged[i * 4 + j] = images[j][i];
+                }
             }
 
-        } else if (images.length === 2) {
+        } else if (this.dataset.precision === 16) {
 
             merged = new Uint16Array(this.dataset.width * this.dataset.height * 4);
             for (let i = 0; i < images[0].length; i += 2) {
-                merged[i * 2] = images[0][i];
-                merged[i * 2 + 1] = images[0][i + 1];
-                merged[i * 2 + 2] = images[1][i];
-                merged[i * 2 + 3] = images[1][i + 1];
+                for (let j = 0; j < images.length; j++) {
+                    merged[i * 2 + j * 2] = images[j][i];
+                    merged[i * 2 + j * 2 + 1] = images[j][i + 1];
+                }
             }
 
         } else {
@@ -109,7 +108,9 @@ export default class ImageHandler {
             tileCount = Math.ceil(this.dataset.depth / 4);
         }
         let lastTileIndex = tileCount - 1;
-        let lastTileImages = imageCount % imagesPerTile;
+        // The modulo is 0 if the last tile is full (or if precision is 8, where
+        // every tile is a single image), so fall back to imagesPerTile.
+        let lastTileImages = imageCount % imagesPerTile || imagesPerTile;
 
         let tilesCache = {};
         let tilePromises = [];
