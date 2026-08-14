@@ -110,18 +110,6 @@ export default {
         },
     },
     methods: {
-        // ------------------------------ ! todo: remove
-        async test(x,y) {
-            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-            this.updateMousePosition({coordinate: [x, y]});
-            await sleep(1000);
-            const canvas = document.querySelector(".ol-layer canvas");
-            const link = document.createElement("a");
-            link.download = `[${x},${y}]-${this.dataset.precision}bit.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        },
-        // ------------------------------ !
         fetchImages() {
             let imageHandler = new ImageHandler(this.dataset);
             let parallel = 3;
@@ -265,10 +253,10 @@ export default {
         },
         initializePrograms() {
             if (this.dataset.precision === 1) {
-                const METRIC = "jaccard";
+                const METRIC = "jaccard"; // Options: jaccard, hamming
                 this.similarityProgram = new Similarity1BitProgram(this.dataset, METRIC);
             } else if (this.dataset.precision === 2) {
-                const METRIC = "weightedJaccard";
+                const METRIC = "weightedJaccard"; // Options: jaccard, hamming, weightedJaccard
                 this.similarityProgram = new Similarity2BitProgram(this.dataset, METRIC);
             }
             else {
@@ -445,12 +433,7 @@ export default {
                 this.initDataset();
             }
         },
-    },
-    mounted() {
-        // ------------------------------ ! todo: remove
-        window.test = this.test;
-        // ------------------------------ !
-    },
+    }
 };
 </script>
 
