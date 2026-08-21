@@ -111,7 +111,7 @@ export default class ImageHandler {
         // The modulo is 0 if the last tile is full (or if precision is 8, where
         // every tile is a single image), so fall back to imagesPerTile.
         let lastTileImages = imageCount % imagesPerTile || imagesPerTile;
-
+        let tilesLoaded = 0;
         let tilesCache = {};
         let tilePromises = [];
         let tileRAR = [];
