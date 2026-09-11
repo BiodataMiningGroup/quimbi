@@ -55,9 +55,11 @@ export default {
         },
     },
     methods: {
-        updatePixelVector(pixelVector) {
-            this.pixelVector = pixelVector;
+        async updatePixelVector(pixelVector) {
             this.resetZoom()
+            this.pixelVector = this.EMPTY_SPECTRUM;
+            this.draw();
+            this.pixelVector = await pixelVector;
             this.draw();
         },
         draw() {
@@ -235,6 +237,7 @@ export default {
     },
     created() {
         this.pixelVector = new Uint8Array([]);
+        this.EMPTY_SPECTRUM = new Float32Array(this.regionWidth * this.regionHeight * this.depth);
     },
     mounted() {
         this.canvas = this.$refs.canvas;

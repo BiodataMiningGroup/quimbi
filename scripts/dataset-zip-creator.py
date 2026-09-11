@@ -7,17 +7,67 @@ from zipfile import ZipFile
 import io
 
 class ZipCreator(object):
-    def __init__(self, file, name='', precision=8, overlay=None):
+    def __init__(self, file, name='', precision=8, overlay=None, threshold=0):
         self.file = os.path.abspath(file)
-        self.out_file = '{}.{}.zip'.format(self.file, precision)
+        self.out_file = f"{self.file}.{precision}{'-TH'+str(threshold) if precision in (1,2) else ''}.zip"
         self.name = os.path.basename(file) if name == '' else name
         self.precision = precision
         self.overlay = overlay
+        self.threshold = threshold
+
+    def create1_(self, data, zip_file, metadata):
+        # Add missing feature channels to make shape[2] divisible by 32.
+        if data.shape[2] % 32 != 0:
+            zeros = np.zeros((data.shape[0], data.shape[1], 32 - (data.shape[2] % 32)))
+            data = np.concatenate((data, zeros), axis=2)
+
+        global_max = data.max()
+        intensity_threshold = global_max * self.threshold * 0.01
+
+        # Split data into chunks of 32 channels
+        splits = np.split(data, data.shape[2] // 32, axis=2)
+        for i, split in enumerate(splits):
+            binarized = (split > intensity_threshold).astype(int)
+            # Split chunk of 32 channels into 4 smaller chunks of 8 channels
+            bytes_chunks = binarized.reshape(binarized.shape[0], binarized.shape[1], 4, 8)
+            # Pack chunks of 8 channels (binary) into bytes
+            bytes_packed = np.packbits(bytes_chunks, axis=-1).squeeze(-1)
+            filename = '{}.png'.format(i)
+            bytes_io = io.BytesIO()
+            Image.fromarray(bytes_packed).save(bytes_io, format='png')
+            zip_file.writestr(filename, bytes_io.getvalue())
+
+    def create2_(self, data, zip_file, metadata):
+        uint8_max = np.iinfo(np.uint8).max
+        global_max = data.max()
+        intensity_threshold = global_max * self.threshold * 0.01
+        q0, q1, q2, q3 = np.quantile(data[data > intensity_threshold], [0, 1/3, 2/3, 1])
+
+        # Add missing feature channels to make shape[2] divisible by 16.
+        if data.shape[2] % 16 != 0:
+            zeros = np.zeros((data.shape[0], data.shape[1], 16 - (data.shape[2] % 16)))
+            data = np.concatenate((data, zeros), axis=2)
+
+        # Split data into chunks of 16 channels
+        splits = np.split(data, data.shape[2] // 16, axis=2)
+        for i, split in enumerate(splits):
+            # Encode intensity values as 2-bit values
+
+            bin_id = np.digitize(split, np.array([q0, q1, q2, q3]), right=False)
+            bits = np.array([[0,0],[0,1],[1,0],[1,1],[1,1]])[bin_id]
+            bits = bits.reshape(*bits.shape[:2], -1)
+
+            bytes_chunks = bits.reshape(bits.shape[0], bits.shape[1], 4, 8)
+            bytes_packed = np.packbits(bytes_chunks, axis=-1).squeeze(-1)
+            filename = '{}.png'.format(i)
+            bytes_io = io.BytesIO()
+            Image.fromarray(bytes_packed).save(bytes_io, format='png')
+            zip_file.writestr(filename, bytes_io.getvalue())
 
     def create8_(self, data, zip_file, metadata):
         uint8_max = np.iinfo(np.uint8).max
-        global_max = data.reshape(-1).max()
-        global_min = data.reshape(-1).min()
+        global_max = data.max()
+        global_min = data.min()
 
         # Add missing feature channels to make shape[2] divisible by 4.
         if data.shape[2] % 4 != 0:
@@ -34,8 +84,8 @@ class ZipCreator(object):
 
     def create16_(self, data, zip_file, metadata):
         uint16_max = np.iinfo(np.uint16).max
-        global_max = data.reshape(-1).max()
-        global_min = data.reshape(-1).min()
+        global_max = data.max()
+        global_min = data.min()
 
         # Add missing feature channels to make shape[2] divisible by 2.
         if data.shape[2] % 2 != 0:
@@ -54,8 +104,8 @@ class ZipCreator(object):
 
     def create32_(self, data, zip_file, metadata):
         uint32_max = np.iinfo(np.uint32).max
-        global_max = data.reshape(-1).max()
-        global_min = data.reshape(-1).min()
+        global_max = data.max()
+        global_min = data.min()
 
         for i in range(data.shape[2]):
             split = np.round((data[:, :, i] - global_min) / (global_max - global_min) * uint32_max).astype(np.uint32)
@@ -98,6 +148,10 @@ class ZipCreator(object):
             self.create32_(data, zip_file, metadata)
         elif self.precision == 16:
             self.create16_(data, zip_file, metadata)
+        elif self.precision == 2:
+            self.create2_(data, zip_file, metadata)
+        elif self.precision == 1:
+            self.create1_(data, zip_file, metadata)
         else:
             self.create8_(data, zip_file, metadata)
 
@@ -108,8 +162,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create a QUIMBI ZIP from an NPZ or NPY file")
     parser.add_argument('file', type=str, help='path to the npz/npy file')
     parser.add_argument("-n", "--name", dest='name', type=str, default='', help="optional dataset name")
-    parser.add_argument('-p', '--precision', dest='precision', choices=[8, 16, 32], default=8, type=int, help='bit precision to store the dataset in (default: 8)')
+    parser.add_argument('-p', '--precision', dest='precision', choices=[1, 2, 8, 16, 32], default=8, type=int, help='bit precision to store the dataset in (default: 8)')
     parser.add_argument('-o', '--overlay', type=str, help='optional path to the overlay image')
+    parser.add_argument('-t', '--threshold', dest='threshold', type=float, default=0, help='% threshold (of max. intensity) for 1-bit and 2-bit quantization')
     args = vars(parser.parse_args())
 
     creator = ZipCreator(**args)

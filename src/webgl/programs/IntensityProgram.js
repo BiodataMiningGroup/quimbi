@@ -16,7 +16,6 @@ export default class IntensityProgram extends Program {
     }
 
     initialize(gl, handler) {
-        let pointer = this.getPointer();
         handler.useVertexPositions(this);
         handler.useTexturePositions(this);
         handler.useTextures(this);

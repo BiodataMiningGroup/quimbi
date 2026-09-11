@@ -47,15 +47,17 @@ import ColorMapProgram from '../webgl/programs/ColorMap';
 import ColorScale from './ColorScale.vue';
 import Feature from 'ol/Feature';
 import FillStyle from 'ol/style/Fill';
+import PixelVectorHandler from "../PixelVectorHandler.js";
 import ImageHandler from '../ImageHandler';
 import ImageLayer from 'ol/layer/Image';
 import ImageSource from 'ol/source/ImageStatic';
 import LoadingIndicator from './LoadingIndicator.vue';
 import OpacitySlider from '../ol/control/OpacitySlider';
-import PixelVectorProgram from '../webgl/programs/PixelVector';
 import Point from 'ol/geom/Point';
 import Projection from 'ol/proj/Projection';
 import SimilarityProgram from '../webgl/programs/Similarity';
+import Similarity1BitProgram from '../webgl/programs/Similarity1Bit';
+import Similarity2BitProgram from '../webgl/programs/Similarity2Bit';
 import SingleFeatureProgram from '../webgl/programs/SingleFeature';
 import StretchIntensityProgram from '../webgl/programs/StretchIntensity';
 import Style from 'ol/style/Style';
@@ -89,6 +91,7 @@ export default {
             error: null,
             overlayGrayscale: true,
             frozen: false,
+            currentlyShownFeature: undefined
         };
     },
     computed: {
@@ -249,19 +252,27 @@ export default {
             });
         },
         initializePrograms() {
-            this.similarityProgram = new SimilarityProgram(this.dataset);
+            if (this.dataset.precision === 1) {
+                const METRIC = "jaccard"; // Options: jaccard, hamming
+                this.similarityProgram = new Similarity1BitProgram(this.dataset, METRIC);
+            } else if (this.dataset.precision === 2) {
+                const METRIC = "weightedJaccard"; // Options: jaccard, hamming, weightedJaccard
+                this.similarityProgram = new Similarity2BitProgram(this.dataset, METRIC);
+            }
+            else {
+                this.similarityProgram = new SimilarityProgram(this.dataset);
+            }
+
             this.stretchIntensityProgram = new StretchIntensityProgram(this.dataset);
             this.colorMapProgram = new ColorMapProgram();
             if (this.hasOverlay) {
                 this.colorMapProgram.setAlphaScaling(this.initialAlphaScaling);
             }
-            this.pixelVectorProgram = new PixelVectorProgram(this.dataset);
             this.singleFeatureProgram = new SingleFeatureProgram(this.dataset);
 
             this.handler.addProgram(this.similarityProgram);
             this.handler.addProgram(this.stretchIntensityProgram);
             this.handler.addProgram(this.colorMapProgram);
-            this.handler.addProgram(this.pixelVectorProgram);
             this.handler.addProgram(this.singleFeatureProgram);
 
             this.stretchIntensityProgram.link(this.similarityProgram);
@@ -276,9 +287,6 @@ export default {
                 .then(this.map.render.bind(this.map))
                 .then(this.updateSimilarityColorScale);
         },
-        renderPixelVector() {
-            return this.handler.render([this.pixelVectorProgram]);
-        },
         renderSingleFeature() {
             this.handler.render([
                     this.singleFeatureProgram,
@@ -288,11 +296,12 @@ export default {
                 .then(this.map.render.bind(this.map))
                 .then(this.updateFeatureColorScale);
         },
-        emitHover() {
-            this.$emit('hover', this.pixelVectorProgram.getPixelVector());
+        async emitHover() {
+            this.$emit('hover', await this.pixelVectorHandler.getPixelVector());
         },
-        emitSelect() {
-            this.$emit('select', this.pixelVectorProgram.getPixelVector().slice());
+        async emitSelect() {
+            const pixelVector = await this.pixelVectorHandler.getPixelVector();
+            this.$emit('select', pixelVector.slice());
         },
         emitUnselect() {
             this.$emit('select', []);
@@ -314,10 +323,10 @@ export default {
                     this.renderSimilarity();
                 } else {
                     this.similarityProgram.setMousePosition(newPosition);
-                    this.pixelVectorProgram.setMousePosition(newPosition);
+                    this.pixelVectorHandler.setMousePosition(newPosition);
                     if (oldPosition[0] !== newPosition[0] || oldPosition[1] !== newPosition[1]) {
                         this.renderSimilarity();
-                        this.renderPixelVector().then(this.emitHover);
+                        this.emitHover();
                     }
                 }
             }
@@ -338,14 +347,12 @@ export default {
                 } else {
                     this.markerLayer.setVisible(true);
                     this.markerFeature.getGeometry().setCoordinates(event.coordinate);
-                    let oldPosition = this.pixelVectorProgram.getMousePosition();
+                    let oldPosition = this.pixelVectorHandler.getMousePosition();
                     let newPosition = event.coordinate.map(Math.floor);
-                    this.pixelVectorProgram.setMousePosition(newPosition);
+                    this.pixelVectorHandler.setMousePosition(newPosition);
                     if (oldPosition[0] !== newPosition[0] || oldPosition[1] !== newPosition[1]) {
-                        this.renderPixelVector().then(() => {
-                            this.emitSelect();
-                            this.$emit('freeze', true);
-                        });
+                        this.emitSelect();
+                        this.$emit('freeze', true);
                     }
                 }
             }
@@ -353,15 +360,22 @@ export default {
         setReady() {
             this.ready = true;
         },
-        showFeature(index) {
+        async showFeature(index) {
             if (this.ready) {
                 if (index === null) {
+                    this.currentlyShownFeature = undefined;
                     this.stretchIntensityProgram.link(this.similarityProgram);
                     this.renderSimilarity();
                 } else {
-                    this.singleFeatureProgram.setFeatureIndex(index);
+                    this.currentlyShownFeature = index;
                     this.stretchIntensityProgram.link(this.singleFeatureProgram);
-                    this.updatePolygonMask();
+                    this.singleFeatureProgram.setEmptyChannel();
+                    await this.updatePolygonMask();
+                    if (this.currentlyShownFeature !== index) return;
+                    this.renderSingleFeature();
+                    await this.singleFeatureProgram.setChannel(index);
+                    await this.updatePolygonMask();
+                    if (this.currentlyShownFeature !== index) return;
                     this.renderSingleFeature();
                 }
             }
@@ -377,6 +391,7 @@ export default {
                 this.initializeOpenLayers(canvas);
                 this.initializeWebgl(canvas);
                 this.initializePrograms();
+                this.pixelVectorHandler = new PixelVectorHandler(this.dataset);
 
                 this.fetchImages()
                     .then(() => this.updatePolygonMask())
@@ -418,10 +433,7 @@ export default {
                 this.initDataset();
             }
         },
-    },
-    mounted() {
-        //
-    },
+    }
 };
 </script>
 

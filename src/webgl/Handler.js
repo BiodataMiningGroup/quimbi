@@ -80,14 +80,38 @@ export default class Handler {
     }
 
     getProps_(gl, dataset, options) {
+        let tiles_;
+        switch (dataset.precision) {
+            case 1:
+                tiles_ = Math.ceil(dataset.depth / 32);
+                break;
+            case 2:
+                tiles_ = Math.ceil(dataset.depth / 16)
+                break;
+            default:
+                tiles_ = Math.ceil(dataset.depth / 4);
+        }
+
+        let depthLastTile_;
+        switch (dataset.precision) {
+            case 1:
+                depthLastTile_ = dataset.depth % 32;
+                break;
+            case 2:
+                depthLastTile_ = dataset.depth % 16;
+                break;
+            default:
+                depthLastTile_ = dataset.depth % 4;
+        }
+
         let props = {
             // Units that are reserved for use outside of this instance.
             reservedUnits: options.reservedUnits === undefined ? 0 : options.reservedUnits,
             // Total number of tiles.
-            tiles: Math.ceil(dataset.depth / 4),
+            tiles: tiles_,
             // Number of valid channels of the last tile as the dataset depth may not be
-            // divisible by 4.
-            depthLastTile: dataset.depth % 4,
+            // divisible by 4 or 16 or 32.
+            depthLastTile: depthLastTile_,
         };
 
         let maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
@@ -149,8 +173,10 @@ export default class Handler {
     }
 
     compileConvertUvecFunction_() {
-        let divisor = 255;
-        if (this.dataset_.precision === 16) {
+        let divisor = 1;
+        if (this.dataset_.precision === 8) {
+            divisor = 255
+        } else if (this.dataset_.precision === 16) {
             divisor = 65535;
         } else if (this.dataset_.precision === 32) {
             divisor = 4294967295;
@@ -345,7 +371,6 @@ export default class Handler {
             program.beforeRender(gl, this);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             program.afterRender(gl, this);
-            // console.log(program.constructor.name, Date.now() - date);
         });
     }
 
@@ -358,7 +383,7 @@ export default class Handler {
         let type;
         let emptyArray;
 
-        if (dataset.precision === 8) {
+        if (dataset.precision === 1 || dataset.precision === 2 || dataset.precision === 8) {
             format = gl.RGBA8UI;
             type = gl.UNSIGNED_BYTE;
             emptyArray = new Uint8Array(width * height * 4);
@@ -378,26 +403,24 @@ export default class Handler {
     storeTileSubImage_(gl, dataset, x, y, width, height, tile) {
         let type;
 
-        if (dataset.precision === 8) {
+        if (dataset.precision === 1 || dataset.precision === 2 || dataset.precision === 8) {
             type = gl.UNSIGNED_BYTE;
         } else if (dataset.precision === 16) {
             type = gl.UNSIGNED_SHORT;
         } else {
             type = gl.UNSIGNED_INT;
         }
-
         gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, width, height, gl.RGBA_INTEGER, type, tile);
     }
 
     storeTile_(gl, tile, index, dataset, props) {
-        if (dataset.precision === 8 && !(tile instanceof Uint8Array)) {
+        if ((dataset.precision === 1 || dataset.precision === 2 || dataset.precision === 8) && !(tile instanceof Uint8Array)) {
             throw new WebglError('Each tile image must be a Uint8Array.');
         } else if (dataset.precision === 16 && !(tile instanceof Uint16Array)) {
             throw new WebglError('Each tile image must be a Uint16Array.');
         } else if (dataset.precision === 32 && !(tile instanceof Uint32Array)) {
             throw new WebglError('Each tile image must be a Uint32Array.');
         }
-
         let textureNumber = Math.floor(index / props.tilesPerTexture);
         if (textureNumber > props.requiredUnits) {
             throw new WebglError('Invalid tile index.');
@@ -414,7 +437,6 @@ export default class Handler {
                 this.initializeTexture_(gl, texture, dataset, props);
                 this.initializedTextures_[textureNumber] = true;
             }
-
             this.storeTileSubImage_(
                 gl,
                 dataset,
@@ -529,7 +551,6 @@ export default class Handler {
         if (this.tilesToStore_[index] === undefined) {
             throw new WebglError(`Unexpected tile index ${index}.`);
         }
-
         this.storeTile_(this.gl_, tile, index, this.dataset_, this.props_);
         delete this.tilesToStore_[index];
     }

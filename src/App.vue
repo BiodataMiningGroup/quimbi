@@ -61,7 +61,6 @@
 </template>
 
 <script>
-import WebglHandler from './webgl/Handler';
 import Visualization from './components/Visualization.vue';
 import PixelVectorDisplay from './components/SpectrumViewer.vue';
 import {ZipReader, BlobReader, TextWriter} from "@zip.js/zip.js";
@@ -80,7 +79,7 @@ const NUMERIC_FIELDS = [
     'width',
 ];
 
-const PRECISION_STEPS = [32, 16, 8];
+const PRECISION_STEPS = [32, 16, 8, 2, 1];
 
 export default {
     components: {
@@ -143,9 +142,8 @@ export default {
             });
 
             if (!PRECISION_STEPS.includes(dataset.precision)) {
-                throw Error(`The the precision must be 32, 16 or 8.`);
+                throw Error(`The the precision must be 32, 16, 8, 2 or 1.`);
             }
-
             let fileMultiplier = dataset.precision / 32;
             let expectedFiles = Math.ceil(dataset.depth * fileMultiplier);
             let foundFiles = Object.keys(dataset.entries).length;

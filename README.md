@@ -34,3 +34,9 @@ Clone this repository.
 2. Update `base` in `vite.config.js`. If you are deploying to `https://example.com/<DIR>/`, then set base to `'/<DIR>/'`. If you are not deploying to a subdirectory, then set base to `'/'`.
 3. Run `npm run build`
 4. Expose the contents of the `dist` directory to a web server.
+
+### Running the backend-server
+
+1. Install the requirements: `pip3 install -r scripts/zip-creator/requirements.txt`
+2. Navigate into the backend directory: `cd backend`
+3. Start the server: `uvicorn main:app --reload`
